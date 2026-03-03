@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 브랜드 진단</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --brand:  #0891b2;
+    --accent: #E8734A;
+    --dark:   #0B0F12;
+    --bg:     #f7f1e9;
+    --text-d: #F0EDE6;
+    --error:  #E05353;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: 'DM Mono', monospace; background: var(--bg); overflow-x: hidden; }
+
+  /* ── 이전 섹션 (쇼케이스 더미) ── */
+  #before {
+    height: 100vh;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .before-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(10,10,10,0.2);
+    text-transform: uppercase;
+  }
+
+  /* ── 스크롤 래퍼 ── */
+  #diag-wrap {
+    position: relative;
+    height: 300vh;
+  }
+
+  #diag-pin {
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── 다크 오버레이 (아래서 위로) ── */
+  #dark-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--dark);
+    z-index: 10;
+    transform: translateY(100%);
+  }
+
+  /* ── 터미널 콘텐츠 ── */
+  #terminal {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    opacity: 0;
+  }
+
+  #terminal.visible { opacity: 1; }
+
+  /* 터미널 헤더 */
+  .term-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 48px;
+    opacity: 0;
+  }
+
+  .term-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+    animation: tdot 1.5s ease-in-out infinite;
+  }
+
+  @keyframes tdot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .term-title {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(240,237,230,0.3);
+    text-transform: uppercase;
+  }
+
+  /* 질문 */
+  #question-area {
+    text-align: center;
+    opacity: 0;
+  }
+
+  .question-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(24px, 3.5vw, 44px);
+    color: var(--text-d);
+    letter-spacing: -0.02em;
+    margin-bottom: 48px;
+    line-height: 1.4;
+  }
+
+  /* 버튼 */
+  .btn-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .diag-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 14px 40px;
+    border: 1px solid rgba(240,237,230,0.15);
+    background: transparent;
+    color: rgba(240,237,230,0.5);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diag-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+    z-index: -1;
+  }
+
+  .diag-btn:hover {
+    color: #fff;
+    border-color: var(--brand);
+  }
+
+  .diag-btn:hover::before { transform: scaleX(1); }
+
+  .diag-btn.no-btn::before { background: var(--error); }
+  .diag-btn.no-btn:hover { border-color: var(--error); }
+
+  /* ── 터미널 출력 ── */
+  #output-area {
+    width: min(560px, 90vw);
+    margin-top: 0;
+    opacity: 0;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .term-line {
+    font-size: clamp(12px, 1.4vw, 15px);
+    letter-spacing: 1px;
+    color: rgba(240,237,230,0.6);
+    padding: 4px 0;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .term-line .prompt { color: var(--brand); }
+  .term-line.error-line { color: var(--error); }
+  .term-line.success-line { color: #2FBF8F; }
+
+  /* 진행 바 */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    padding: 4px 0;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 2px;
+    background: rgba(240,237,230,0.1);
+    position: relative;
+  }
+
+  .progress-bar-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: var(--brand);
+    width: 0%;
+    transition: width 1.2s ease;
+  }
+
+  .progress-pct {
+    font-size: 11px;
+    color: rgba(240,237,230,0.4);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* COMPLETE */
+  .complete-line {
+    font-size: clamp(14px, 1.8vw, 18px);
+    letter-spacing: 4px;
+    color: var(--brand);
+    padding: 8px 0;
+    opacity: 0;
+  }
+
+  /* 노이즈 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<!-- 이전 섹션 더미 -->
+<div id="before">
+  <span class="before-label">↑ Showcase Section</span>
+</div>
+
+<!-- 브랜드 진단 -->
+<div id="diag-wrap">
+  <div id="diag-pin">
+
+    <!-- 다크 오버레이 -->
+    <div id="dark-overlay"></div>
+
+    <!-- 터미널 -->
+    <div id="terminal">
+
+      <div class="term-header" id="term-header">
+        <div class="term-dot"></div>
+        <span class="term-title">NEMO:ON — Brand Diagnosis</span>
+      </div>
+
+      <!-- 질문 -->
+      <div id="question-area">
+        <div class="question-text">브랜드 진단을<br>시작하시겠습니까?</div>
+        <div class="btn-row">
+          <button class="diag-btn" onclick="choose('yes')">YES</button>
+          <button class="diag-btn no-btn" onclick="choose('no')">NO</button>
+        </div>
+      </div>
+
+      <!-- 출력 영역 -->
+      <div id="output-area">
+        <!-- YES 라인들 -->
+        <div class="term-line" id="y1"><span class="prompt">›</span> initializing brand_diagnosis...</div>
+        <div class="term-line" id="y2"><span class="prompt">›</span> loading user_profile...</div>
+        <div class="term-line" id="y3"><span class="prompt">›</span> connecting to NEMO:ON...</div>
+        <div class="progress-wrap" id="y-progress">
+          <span style="font-size:11px;color:rgba(240,237,230,0.3);">›</span>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="prog-fill"></div>
+          </div>
+          <span class="progress-pct" id="prog-pct">0%</span>
+        </div>
+        <div class="term-line complete-line" id="y-complete">› COMPLETE ✓</div>
+
+        <!-- NO 라인들 -->
+        <div class="term-line error-line" id="n1"><span class="prompt" style="color:var(--error);">›</span> ERROR 404: brand_clarity not found</div>
+        <div class="term-line error-line" id="n2"><span class="prompt" style="color:var(--error);">›</span> 브랜드 진단이 필요합니다.</div>
+        <div class="term-line" id="n3"><span class="prompt">›</span> redirecting...</div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const overlay = document.getElementById('dark-overlay');
+const terminal = document.getElementById('terminal');
+const termHeader = document.getElementById('term-header');
+const questionArea = document.getElementById('question-area');
+let activated = false;
+
+// 스크롤 — 다크 오버레이 아래서 위로
+ScrollTrigger.create({
+  trigger: '#diag-wrap',
+  start: 'top bottom',
+  end: 'top top',
+  scrub: 1,
+  onUpdate: (self) => {
+    const p = self.progress;
+    gsap.set(overlay, { y: `${(1 - p) * 100}%` });
+
+    if (p > 0.85 && !activated) {
+      activated = true;
+      showTerminal();
+    }
+  }
+});
+
+function showTerminal() {
+  terminal.classList.add('visible');
+  gsap.to(termHeader, { opacity: 1, duration: 0.5 });
+  gsap.to(questionArea, { opacity: 1, duration: 0.6, delay: 0.3 });
+}
+
+let chosen = false;
+
+function choose(type) {
+  if (chosen) return;
+  chosen = true;
+
+  // 질문 숨기기
+  gsap.to(questionArea, { opacity: 0, y: -20, duration: 0.4 });
+
+  const output = document.getElementById('output-area');
+  output.style.display = 'flex';
+  gsap.to(output, { opacity: 1, duration: 0.3, delay: 0.4 });
+
+  if (type === 'yes') {
+    runYes();
+  } else {
+    runNo();
+  }
+}
+
+function runYes() {
+  const lines = ['y1', 'y2', 'y3'];
+  const delays = [0.5, 1.1, 1.7];
+
+  lines.forEach((id, i) => {
+    gsap.to(`#${id}`, { opacity: 1, duration: 0.4, delay: delays[i] });
+  });
+
+  // 진행 바
+  gsap.to('#y-progress', { opacity: 1, duration: 0.3, delay: 2.3, onComplete: () => {
+    const fill = document.getElementById('prog-fill');
+    const pct = document.getElementById('prog-pct');
+    fill.style.width = '100%';
+
+    let n = 0;
+    const iv = setInterval(() => {
+      n += 2;
+      pct.textContent = n + '%';
+      if (n >= 100) {
+        clearInterval(iv);
+        // COMPLETE
+        gsap.to('#y-complete', { opacity: 1, duration: 0.4, delay: 0.2 });
+
+        // 이동
+        setTimeout(() => {
+          gsap.to(terminal, { opacity: 0, duration: 0.6, onComplete: () => {
+            alert('→ 브랜드 진단 페이지로 이동합니다.');
+          }});
+        }, 1400);
+      }
+    }, 18);
+  }});
+}
+
+function runNo() {
+  gsap.to('#n1', { opacity: 1, duration: 0.4, delay: 0.5 });
+  gsap.to('#n2', { opacity: 1, duration: 0.4, delay: 1.1 });
+  gsap.to('#n3', { opacity: 1, duration: 0.4, delay: 1.7 });
+
+  setTimeout(() => {
+    gsap.to(terminal, { opacity: 0, duration: 0.6, onComplete: () => {
+      alert('→ 브랜드 진단 페이지로 이동합니다.');
+    }});
+  }, 3000);
+}
+</script>
+</body>
+</html>

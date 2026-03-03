@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 단어 우수수</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --brand:  #0891b2;
+    --bg:     #f7f1e9;
+    --text:   #0A0A0A;
+    --muted:  rgba(10,10,10,0.15);
+    --sub:    rgba(10,10,10,0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); }
+
+  /* ── 래퍼 ── */
+  #wrap {
+    position: relative;
+    height: 600vh;
+  }
+
+  #pin {
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* ── 단어 비 ── */
+  #rain-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── 문장 영역 ── */
+  #sentences {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 10;
+    padding: 0 40px;
+  }
+
+  .sentence {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 200;
+    font-size: clamp(18px, 2.5vw, 30px);
+    color: var(--sub);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .sentence.visible { opacity: 1; }
+
+  /* 빈칸 */
+  .blank {
+    display: inline-block;
+    min-width: 3em;
+    border-bottom: 1.5px solid var(--muted);
+    margin: 0 4px;
+    vertical-align: middle;
+    position: relative;
+    height: 1.1em;
+    transition: border-color 0.4s ease;
+  }
+
+  /* 빈칸 채워진 단어 */
+  .blank-word {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--brand);
+    font-weight: 300;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .blank.filled {
+    border-color: transparent;
+  }
+
+  .blank.filled .blank-word {
+    opacity: 1;
+  }
+
+  /* ── 섹션 레이블 ── */
+  #section-label {
+    position: absolute;
+    top: 40px;
+    left: 60px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    z-index: 20;
+  }
+
+  /* 노이즈 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="pin">
+
+    <span id="section-label">NEMO:ON — Core Values</span>
+
+    <!-- 단어 비 캔버스 -->
+    <canvas id="rain-canvas"></canvas>
+
+    <!-- 문장들 -->
+    <div id="sentences">
+
+      <div class="sentence" id="s1">
+        <span class="blank" id="b1"><span class="blank-word" id="bw1">의미</span></span>를
+        부여하면
+        <span class="blank" id="b2"><span class="blank-word" id="bw2">의미</span></span>가
+        됩니다.
+      </div>
+
+      <div class="sentence" id="s2">
+        <span class="blank" id="b3"><span class="blank-word" id="bw3">의미</span></span>가
+        있으면
+        <span class="blank" id="b4"><span class="blank-word" id="bw4">선명</span></span>해집니다.
+      </div>
+
+      <div class="sentence" id="s3">
+        <span class="blank" id="b5"><span class="blank-word" id="bw5">선명</span></span>해지면
+        <span class="blank" id="b6"><span class="blank-word" id="bw6">설명</span></span>이
+        가능해지고,
+      </div>
+
+      <div class="sentence" id="s4">
+        <span class="blank" id="b7"><span class="blank-word" id="bw7">설명</span></span>이
+        가능해지면
+        <span class="blank" id="b8"><span class="blank-word" id="bw8">연결</span></span>됩니다.
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── 캔버스 단어 비 ──
+const canvas = document.getElementById('rain-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// 단어 풀 — 부정적/막연한 단어들
+const wordPool = [
+  '불안','막막함','혼란','모르겠다','왜안되지','뭘해야하지','방향없음',
+  '두려움','비교','포기','망설임','어색함','복잡함','왜나만','언제쯤',
+  '될까','틀렸나','다시?','너무많다','안보여','뭐가문제야','어디서부터',
+  '모르겠어','막혀','지친다','너무어렵다','언제되지','왜이럴까','헷갈려',
+  '자신없어','실패할것같아','이게맞나','그냥할까','포기할까','늦었나',
+  '비싸다','어렵다','복잡해','모르겠는데','뭐부터','아무도몰라','혼자다',
+  '안되면','시간없어','돈없어','왜나는','남들은','그게되나','의미없나',
+];
+
+// 핵심 단어
+const keyWords = ['의미', '선명', '설명', '연결'];
+
+class Word {
+  constructor() { this.reset(true); }
+
+  reset(initial = false) {
+    this.x = Math.random() * canvas.width;
+    this.y = initial ? Math.random() * -canvas.height : -40;
+    this.speed = 0.4 + Math.random() * 1.2;
+    this.opacity = 0.08 + Math.random() * 0.12;
+    this.size = 11 + Math.floor(Math.random() * 10);
+
+    const roll = Math.random();
+    if (roll < 0.15) {
+      this.text = keyWords[Math.floor(Math.random() * keyWords.length)];
+      this.isKey = true;
+    } else {
+      this.text = wordPool[Math.floor(Math.random() * wordPool.length)];
+      this.isKey = false;
+    }
+
+    this.highlighted = false;
+  }
+
+  update(highlightKeys) {
+    this.y += this.speed;
+    if (this.y > canvas.height + 40) this.reset();
+    this.highlighted = highlightKeys && this.isKey;
+  }
+
+  draw() {
+    ctx.save();
+    if (this.highlighted) {
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = '#0891b2';
+      ctx.font = `300 ${this.size + 2}px 'Noto Sans KR', sans-serif`;
+    } else {
+      ctx.globalAlpha = this.opacity;
+      ctx.fillStyle = '#0A0A0A';
+      ctx.font = `200 ${this.size}px 'Noto Sans KR', sans-serif`;
+    }
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.restore();
+  }
+}
+
+// 단어 250개 생성
+const words = Array.from({ length: 250 }, () => new Word());
+
+let highlightKeys = false;
+let animFrame;
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  words.forEach(w => {
+    w.update(highlightKeys);
+    w.draw();
+  });
+  animFrame = requestAnimationFrame(animate);
+}
+
+animate();
+
+// ── 문장 / 빈칸 상태 ──
+const sentences = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+const blanks = ['b1','b2','b3','b4','b5','b6','b7','b8'].map(id => document.getElementById(id));
+
+let lastPhase = -1;
+
+ScrollTrigger.create({
+  trigger: '#wrap',
+  start: 'top top',
+  end: 'bottom bottom',
+  onUpdate: (self) => {
+    const p = self.progress;
+
+    // 구간
+    // 0~0.15: 비만 내림
+    // 0.15~0.25: 핵심 단어 선명해짐
+    // 0.25~1.0: 문장 등장 + 빈칸 채워짐 (4단계)
+
+    if (p > 0.15) {
+      highlightKeys = true;
+    } else {
+      highlightKeys = false;
+    }
+
+    // 문장 등장 구간
+    const thresholds = [0.28, 0.44, 0.60, 0.76];
+
+    thresholds.forEach((t, i) => {
+      if (p >= t) {
+        sentences[i].classList.add('visible');
+      } else {
+        sentences[i].classList.remove('visible');
+      }
+    });
+
+    // 빈칸 채워짐 구간 (문장 등장보다 살짝 뒤)
+    const fillThresholds = [0.32, 0.36, 0.48, 0.52, 0.64, 0.68, 0.80, 0.84];
+
+    fillThresholds.forEach((t, i) => {
+      const blank = blanks[i];
+      if (p >= t) {
+        blank.classList.add('filled');
+      } else {
+        blank.classList.remove('filled');
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

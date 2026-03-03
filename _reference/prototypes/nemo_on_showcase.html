@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 쇼케이스</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --brand:   #0891b2;
+    --accent:  #E8734A;
+    --bg:      #f7f1e9;
+    --surface: #f5f2ee;
+    --text:    #0A0A0A;
+    --sub:     rgba(10,10,10,0.45);
+    --muted:   rgba(10,10,10,0.2);
+    --border:  rgba(10,10,10,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* ── 섹션 ── */
+  #showcase {
+    min-height: 100vh;
+    padding: 80px 60px;
+    position: relative;
+  }
+
+  /* ── 헤더 ── */
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(32px, 4vw, 52px);
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-top: 12px;
+  }
+
+  .section-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  /* ── 폴더 영역 ── */
+  #folder-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* ── 폴더 행 ── */
+  .folder-row {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background: var(--surface);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .folder-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 2px; height: 100%;
+    background: var(--brand);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.3s ease;
+  }
+
+  .folder-row:hover { background: #f0ece4; }
+  .folder-row:hover::before { transform: scaleY(1); }
+  .folder-row.open { background: #fff; }
+  .folder-row.open::before { transform: scaleY(1); }
+
+  /* 폴더 아이콘 */
+  .folder-icon {
+    width: 40px; height: 32px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .folder-icon svg { width: 100%; height: 100%; }
+
+  /* 폴더 정보 */
+  .folder-info { display: flex; flex-direction: column; gap: 4px; }
+
+  .folder-name {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 200;
+    font-size: clamp(15px, 1.8vw, 20px);
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .folder-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: flex;
+    gap: 16px;
+  }
+
+  .folder-tag {
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--sub);
+  }
+
+  .folder-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    transition: transform 0.3s ease, color 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .folder-row.open .folder-arrow {
+    transform: rotate(90deg);
+    color: var(--brand);
+  }
+
+  /* ── 파일 패널 ── */
+  .file-panel {
+    height: 0;
+    overflow: hidden;
+    background: #fff;
+    transition: height 0.5s cubic-bezier(0.76,0,0.24,1);
+  }
+
+  .file-panel-inner {
+    padding: 32px 40px 32px 88px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+  }
+
+  .file-panel.open .file-panel-inner {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 파일 카드 */
+  .file-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    group: true;
+  }
+
+  .file-thumb {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .file-thumb-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.4s ease;
+  }
+
+  .file-card:hover .file-thumb-inner { transform: scale(1.03); }
+
+  .file-thumb-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* 썸네일 디자인 — 프로젝트별 */
+  .thumb-1 { background: linear-gradient(135deg, #0B0F12 0%, #1A3040 100%); }
+  .thumb-1 .file-thumb-label { color: rgba(240,237,230,0.3); }
+  .thumb-1-logo {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: 28px;
+    color: #F0EDE6;
+    letter-spacing: -0.02em;
+  }
+  .thumb-1-logo span { color: #0891b2; }
+
+  .thumb-2 { background: #f5f2ee; }
+  .thumb-2-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .thumb-2-bar {
+    width: 120px; height: 3px;
+    background: #E8734A;
+    border-radius: 2px;
+  }
+  .thumb-2-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(10,10,10,0.2);
+  }
+
+  .thumb-3 { background: #0891b2; }
+  .thumb-3-content {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 200;
+    font-size: 36px;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: -0.03em;
+  }
+
+  .thumb-4 { background: #1a1a1a; }
+  .thumb-4-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    width: 80px;
+  }
+  .thumb-4-dot {
+    width: 100%; aspect-ratio: 1;
+    background: rgba(240,237,230,0.15);
+    border-radius: 50%;
+  }
+  .thumb-4-dot:nth-child(2) { background: #0891b2; }
+
+  .file-name {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 200;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .file-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── 하단 CTA ── */
+  #showcase-footer {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    opacity: 0;
+  }
+
+  .footer-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 200;
+    font-size: 14px;
+    color: var(--sub);
+  }
+
+  .footer-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--brand);
+    text-transform: uppercase;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: gap 0.2s ease;
+  }
+
+  .footer-link:hover { gap: 14px; }
+
+  /* 노이즈 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<section id="showcase">
+
+  <div class="section-header">
+    <div>
+      <div class="section-label">Showcase</div>
+      <div class="section-title">결을 담은 작업들</div>
+    </div>
+    <div class="section-count">04 Cases</div>
+  </div>
+
+  <div id="folder-area">
+
+    <!-- 폴더 1 -->
+    <div class="folder-row" id="f1" onclick="toggleFolder(1)">
+      <div class="folder-icon">
+        <svg viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8C2 6.9 2.9 6 4 6H16L19 10H36C37.1 10 38 10.9 38 12V28C38 29.1 37.1 30 36 30H4C2.9 30 2 29.1 2 28V8Z" fill="#0891b2" fill-opacity="0.12" stroke="#0891b2" stroke-opacity="0.4" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="folder-info">
+        <div class="folder-name">레스토랑 브랜딩 — 오마카세 M</div>
+        <div class="folder-meta">
+          <span>2024</span>
+          <span class="folder-tag">브랜딩</span>
+          <span class="folder-tag">웹</span>
+        </div>
+      </div>
+      <div class="folder-arrow">▶</div>
+    </div>
+    <div class="file-panel" id="fp1">
+      <div class="file-panel-inner">
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-1">
+              <div class="thumb-1-logo">오마<span>△○</span>카세 M</div>
+            </div>
+          </div>
+          <div class="file-name">브랜드 아이덴티티</div>
+          <div class="file-desc">Logo · Color · Typography</div>
+        </div>
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-2">
+              <div class="thumb-2-content">
+                <div class="thumb-2-bar"></div>
+                <div class="thumb-2-text">Website</div>
+              </div>
+            </div>
+          </div>
+          <div class="file-name">웹사이트 디자인 · 개발</div>
+          <div class="file-desc">Next.js · React</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 폴더 2 -->
+    <div class="folder-row" id="f2" onclick="toggleFolder(2)">
+      <div class="folder-icon">
+        <svg viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8C2 6.9 2.9 6 4 6H16L19 10H36C37.1 10 38 10.9 38 12V28C38 29.1 37.1 30 36 30H4C2.9 30 2 29.1 2 28V8Z" fill="#E8734A" fill-opacity="0.12" stroke="#E8734A" stroke-opacity="0.4" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="folder-info">
+        <div class="folder-name">1인 코치 퍼스널 브랜딩</div>
+        <div class="folder-meta">
+          <span>2024</span>
+          <span class="folder-tag">브랜딩</span>
+          <span class="folder-tag">랜딩페이지</span>
+        </div>
+      </div>
+      <div class="folder-arrow">▶</div>
+    </div>
+    <div class="file-panel" id="fp2">
+      <div class="file-panel-inner">
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-3">
+              <div class="thumb-3-content">결.</div>
+            </div>
+          </div>
+          <div class="file-name">퍼스널 브랜딩 시스템</div>
+          <div class="file-desc">Brand Strategy · Identity</div>
+        </div>
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-4">
+              <div class="thumb-4-grid">
+                <div class="thumb-4-dot"></div>
+                <div class="thumb-4-dot"></div>
+                <div class="thumb-4-dot"></div>
+                <div class="thumb-4-dot"></div>
+                <div class="thumb-4-dot"></div>
+                <div class="thumb-4-dot"></div>
+              </div>
+            </div>
+          </div>
+          <div class="file-name">랜딩페이지</div>
+          <div class="file-desc">Next.js · Conversion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 폴더 3 -->
+    <div class="folder-row" id="f3" onclick="toggleFolder(3)">
+      <div class="folder-icon">
+        <svg viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8C2 6.9 2.9 6 4 6H16L19 10H36C37.1 10 38 10.9 38 12V28C38 29.1 37.1 30 36 30H4C2.9 30 2 29.1 2 28V8Z" fill="#0891b2" fill-opacity="0.12" stroke="#0891b2" stroke-opacity="0.4" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="folder-info">
+        <div class="folder-name">스타트업 디자인 시스템</div>
+        <div class="folder-meta">
+          <span>2025</span>
+          <span class="folder-tag">디자인시스템</span>
+          <span class="folder-tag">웹앱</span>
+        </div>
+      </div>
+      <div class="folder-arrow">▶</div>
+    </div>
+    <div class="file-panel" id="fp3">
+      <div class="file-panel-inner">
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-2" style="background:#f7f1e9;">
+              <div class="thumb-2-content">
+                <div style="display:flex;gap:6px;">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#0891b2;opacity:0.8;"></div>
+                  <div style="width:20px;height:20px;border-radius:50%;background:#E8734A;opacity:0.8;"></div>
+                  <div style="width:20px;height:20px;border-radius:50%;background:#0A0A0A;opacity:0.3;"></div>
+                </div>
+                <div class="thumb-2-text">Design System</div>
+              </div>
+            </div>
+          </div>
+          <div class="file-name">컬러 · 컴포넌트 시스템</div>
+          <div class="file-desc">Figma · Tokens</div>
+        </div>
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner thumb-1">
+              <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(240,237,230,0.4);">APP / 0.1.0</div>
+            </div>
+          </div>
+          <div class="file-name">웹앱 개발</div>
+          <div class="file-desc">React · Next.js</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 폴더 4 -->
+    <div class="folder-row" id="f4" onclick="toggleFolder(4)">
+      <div class="folder-icon">
+        <svg viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8C2 6.9 2.9 6 4 6H16L19 10H36C37.1 10 38 10.9 38 12V28C38 29.1 37.1 30 36 30H4C2.9 30 2 29.1 2 28V8Z" fill="#E8734A" fill-opacity="0.12" stroke="#E8734A" stroke-opacity="0.4" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="folder-info">
+        <div class="folder-name">소상공인 브랜드 재정비</div>
+        <div class="folder-meta">
+          <span>2025</span>
+          <span class="folder-tag">리브랜딩</span>
+          <span class="folder-tag">웹</span>
+        </div>
+      </div>
+      <div class="folder-arrow">▶</div>
+    </div>
+    <div class="file-panel" id="fp4">
+      <div class="file-panel-inner">
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner" style="background:#f5f2ee;">
+              <div style="font-family:'Noto Sans KR',sans-serif;font-weight:100;font-size:24px;color:#0A0A0A;letter-spacing:-0.02em;">다시,<br>시작.</div>
+            </div>
+          </div>
+          <div class="file-name">리브랜딩 아이덴티티</div>
+          <div class="file-desc">Brand Refresh · Logo</div>
+        </div>
+        <div class="file-card">
+          <div class="file-thumb">
+            <div class="file-thumb-inner" style="background:#0B0F12;">
+              <div style="width:60%;height:2px;background:#0891b2;border-radius:1px;"></div>
+            </div>
+          </div>
+          <div class="file-name">웹사이트 리뉴얼</div>
+          <div class="file-desc">Next.js · CMS</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /folder-area -->
+
+  <div id="showcase-footer">
+    <span class="footer-text">더 많은 작업이 준비 중입니다.</span>
+    <span class="footer-link">모든 케이스 보기 →</span>
+  </div>
+
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// 폴더 행 등장
+gsap.utils.toArray('.folder-row').forEach((row, i) => {
+  gsap.to(row, {
+    opacity: 1,
+    y: 0,
+    duration: 0.6,
+    delay: i * 0.1,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '#showcase',
+      start: 'top 70%',
+    }
+  });
+});
+
+// 푸터 등장
+gsap.to('#showcase-footer', {
+  opacity: 1,
+  duration: 0.6,
+  scrollTrigger: {
+    trigger: '#showcase-footer',
+    start: 'top 90%',
+  }
+});
+
+// 폴더 토글
+const openFolders = new Set();
+
+function toggleFolder(n) {
+  const row = document.getElementById(`f${n}`);
+  const panel = document.getElementById(`fp${n}`);
+  const isOpen = openFolders.has(n);
+
+  if (isOpen) {
+    // 닫기
+    panel.style.height = panel.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      panel.style.height = '0';
+      panel.classList.remove('open');
+    });
+    row.classList.remove('open');
+    openFolders.delete(n);
+  } else {
+    // 열기
+    panel.style.height = '0';
+    panel.classList.add('open');
+    row.classList.add('open');
+    const targetHeight = panel.scrollHeight;
+    panel.style.height = targetHeight + 'px';
+    openFolders.add(n);
+
+    // 다른 폴더 닫기
+    [1,2,3,4].forEach(m => {
+      if (m !== n && openFolders.has(m)) {
+        const otherPanel = document.getElementById(`fp${m}`);
+        const otherRow = document.getElementById(`f${m}`);
+        otherPanel.style.height = '0';
+        otherPanel.classList.remove('open');
+        otherRow.classList.remove('open');
+        openFolders.delete(m);
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>

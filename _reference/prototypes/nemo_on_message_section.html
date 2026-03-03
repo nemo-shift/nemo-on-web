@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 메시지 섹션</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --brand:   #0891b2;
+    --accent:  #E8734A;
+    --bg:      #f7f1e9;
+    --surface: #f5f2ee;
+    --text:    #0A0A0A;
+    --sub:     rgba(10,10,10,0.45);
+    --muted:   rgba(10,10,10,0.25);
+    --border:  rgba(10,10,10,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: 'DM Sans', sans-serif; background: var(--bg); }
+
+  /* ── 섹션 래퍼 ── */
+  #msg-wrap {
+    position: relative;
+    height: 500vh;
+  }
+
+  #msg-pin {
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── 배경 레이블 ── */
+  #section-label {
+    position: absolute;
+    top: 40px;
+    left: 60px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── 말풍선 컨테이너 ── */
+  #bubbles {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: min(640px, 90vw);
+    position: relative;
+  }
+
+  /* ── 말풍선 ── */
+  .bubble {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px 20px 20px 20px;
+    padding: 20px 24px;
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+    transform-origin: bottom left;
+    box-shadow: 0 4px 24px rgba(10,10,10,0.06);
+    overflow: hidden;
+  }
+
+  /* 말풍선 꼬리 */
+  .bubble::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -8px;
+    width: 0; height: 0;
+    border-top: 8px solid var(--border);
+    border-left: 8px solid transparent;
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: -6px;
+    width: 0; height: 0;
+    border-top: 7px solid #fff;
+    border-left: 7px solid transparent;
+  }
+
+  /* 말풍선 1 — 강조 */
+  .bubble-1 {
+    background: var(--brand);
+    border-color: var(--brand);
+    border-radius: 4px 20px 20px 20px;
+  }
+
+  .bubble-1::after { border-top-color: var(--brand); }
+  .bubble-1::before { border-top-color: var(--brand); }
+
+  /* 말풍선 4 — #0891b2 */
+  .bubble-4 {
+    background: #0891b2;
+    border-color: #0891b2;
+  }
+  .bubble-4::after { border-top-color: #0891b2; }
+  .bubble-4::before { border-top-color: #0891b2; }
+  .bubble-4 .sender-dot { background: rgba(255,255,255,0.5); }
+  .bubble-4 .sender-name { color: rgba(255,255,255,0.5); }
+  .bubble-4 .flow-item { color: rgba(255,255,255,0.85); }
+  .bubble-4 .flow-arrow { color: #FFFFFF; }
+  .bubble-4 .timestamp { color: rgba(255,255,255,0.35); }
+
+  /* ── 텍스트 ── */
+  .bubble-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(14px, 1.8vw, 18px);
+    line-height: 1.7;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .bubble-1 .bubble-text { color: #FFFFFF; }
+
+  /* 타이핑 커서 */
+  .cursor { display: none; }
+
+  /* ── 서비스 흐름 (말풍선 4) ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .flow-item {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(10px, 1.2vw, 13px);
+    letter-spacing: 2px;
+    color: var(--sub);
+    opacity: 0;
+    transform: translateX(-8px);
+    text-transform: uppercase;
+  }
+
+  .flow-arrow {
+    font-size: 12px;
+    color: var(--brand);
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .flow-item.active { opacity: 1; transform: translateX(0); }
+  .flow-arrow.active { opacity: 1; transform: scale(1); }
+
+  /* ── 발신자 태그 ── */
+  .sender {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .sender-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+
+  .sender-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .bubble-1 .sender-dot { background: rgba(255,255,255,0.5); }
+  .bubble-1 .sender-name { color: rgba(255,255,255,0.5); }
+
+  /* ── 타임스탬프 ── */
+  .timestamp {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .bubble-1 .timestamp { color: rgba(240,237,230,0.35); }
+  .timestamp.show { opacity: 1; }
+
+  /* 노이즈 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<div id="msg-wrap">
+  <div id="msg-pin">
+
+    <span id="section-label">NEMO:ON — Message</span>
+
+    <div id="bubbles">
+
+      <!-- 말풍선 1 -->
+      <div class="bubble bubble-1" id="b1">
+        <div class="sender">
+          <div class="sender-dot"></div>
+          <span class="sender-name">NEMO:ON</span>
+        </div>
+        <div class="bubble-text">
+          <span id="b1-text"></span><span class="cursor" id="b1-cursor"></span>
+        </div>
+        <div class="timestamp" id="b1-time">just now</div>
+      </div>
+
+      <!-- 말풍선 2 -->
+      <div class="bubble bubble-2" id="b2">
+        <div class="sender">
+          <div class="sender-dot"></div>
+          <span class="sender-name">NEMO:ON</span>
+        </div>
+        <div class="bubble-text">
+          <span id="b2-text"></span><span class="cursor" id="b2-cursor"></span>
+        </div>
+        <div class="timestamp" id="b2-time">just now</div>
+      </div>
+
+      <!-- 말풍선 3 -->
+      <div class="bubble bubble-3" id="b3">
+        <div class="sender">
+          <div class="sender-dot"></div>
+          <span class="sender-name">NEMO:ON</span>
+        </div>
+        <div class="bubble-text">
+          <span id="b3-text"></span><span class="cursor" id="b3-cursor"></span>
+        </div>
+        <div class="timestamp" id="b3-time">just now</div>
+      </div>
+
+      <!-- 말풍선 4 — 서비스 흐름 -->
+      <div class="bubble bubble-4" id="b4">
+        <div class="sender">
+          <div class="sender-dot"></div>
+          <span class="sender-name">NEMO:ON</span>
+        </div>
+        <div class="flow" id="flow">
+          <span class="flow-item" id="f1">브랜딩</span>
+          <span class="flow-arrow" id="fa1">→</span>
+          <span class="flow-item" id="f2">디자인시스템</span>
+          <span class="flow-arrow" id="fa2">→</span>
+          <span class="flow-item" id="f3">로고·웹/앱</span>
+          <span class="flow-arrow" id="fa3">→</span>
+          <span class="flow-item" id="f4">자동화</span>
+        </div>
+        <div class="timestamp" id="b4-time">just now</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const messages = [
+  {
+    id: 'b1',
+    text: '우리는 단순히 예쁜 웹사이트를\n만들지 않습니다.',
+    speed: 38,
+  },
+  {
+    id: 'b2',
+    text: '당신의 언어를 고객의 언어로,\n당신의 생각을 고객의 공감으로,\n당신의 가치를 고객의 선택 이유로\n번역합니다.',
+    speed: 28,
+  },
+  {
+    id: 'b3',
+    text: '로고·브랜딩·웹으로\n당신의 결을 시각화합니다.',
+    speed: 36,
+  }
+];
+
+// 타입라이터
+function typeText(el, text, speed, onDone) {
+  el.innerHTML = '';
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i >= text.length) {
+      clearInterval(iv);
+      if (onDone) onDone();
+      return;
+    }
+    const ch = text[i];
+    if (ch === '\n') {
+      el.innerHTML += '<br>';
+    } else {
+      el.innerHTML += ch;
+    }
+    i++;
+  }, speed);
+  return iv;
+}
+
+// 타입 지우기
+function eraseText(el, speed, onDone) {
+  const getTextLength = () => {
+    return el.textContent.length;
+  };
+  const iv = setInterval(() => {
+    const html = el.innerHTML;
+    if (!html || html.length === 0) {
+      clearInterval(iv);
+      if (onDone) onDone();
+      return;
+    }
+    // <br> 처리
+    if (html.endsWith('<br>')) {
+      el.innerHTML = html.slice(0, -4);
+    } else {
+      el.innerHTML = html.slice(0, -1);
+    }
+  }, speed * 0.4);
+  return iv;
+}
+
+// 말풍선 팝인
+function popIn(el) {
+  gsap.to(el, {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    duration: 0.45,
+    ease: 'back.out(2.2)',
+  });
+}
+
+// 말풍선 팝아웃
+function popOut(el) {
+  gsap.to(el, {
+    opacity: 0,
+    scale: 0.85,
+    y: 20,
+    duration: 0.3,
+    ease: 'back.in(1.5)',
+  });
+}
+
+// 상태 관리
+let bubblesState = [false, false, false, false]; // 각 말풍선 표시 여부
+let typeIntervals = [null, null, null, null];
+let currentProgress = 0;
+
+function showBubble(index) {
+  if (bubblesState[index]) return;
+  bubblesState[index] = true;
+
+  const bubbleEl = document.getElementById(`b${index + 1}`);
+
+  // 이전 말풍선들 타임스탬프 업데이트
+  for (let i = 0; i < index; i++) {
+    const t = document.getElementById(`b${i + 1}-time`);
+    if (t) t.textContent = `${(index - i) * 2}s ago`;
+  }
+
+  popIn(bubbleEl);
+
+  if (index < 3) {
+    const m = messages[index];
+    const textEl = document.getElementById(`b${index + 1}-text`);
+    const cursorEl = document.getElementById(`b${index + 1}-cursor`);
+    const timeEl = document.getElementById(`b${index + 1}-time`);
+
+    cursorEl.classList.add('active');
+
+    typeIntervals[index] = typeText(textEl, m.text, m.speed, () => {
+      cursorEl.classList.remove('active');
+      timeEl.classList.add('show');
+    });
+
+  } else {
+    // 말풍선 4 — 흐름 아이템 순서대로
+    const items = ['f1','fa1','f2','fa2','f3','fa3','f4'];
+    const timeEl = document.getElementById('b4-time');
+    items.forEach((id, i) => {
+      gsap.to(`#${id}`, {
+        opacity: 1,
+        x: 0,
+        scale: 1,
+        duration: 0.3,
+        delay: i * 0.12,
+        ease: 'power2.out',
+        onComplete: () => {
+          document.getElementById(id).classList.add('active');
+          if (i === items.length - 1) timeEl.classList.add('show');
+        }
+      });
+    });
+  }
+}
+
+function hideBubble(index) {
+  if (!bubblesState[index]) return;
+  bubblesState[index] = false;
+
+  const bubbleEl = document.getElementById(`b${index + 1}`);
+
+  if (index < 3) {
+    const textEl = document.getElementById(`b${index + 1}-text`);
+    const cursorEl = document.getElementById(`b${index + 1}-cursor`);
+    const timeEl = document.getElementById(`b${index + 1}-time`);
+
+    // 타이핑 중단
+    if (typeIntervals[index]) clearInterval(typeIntervals[index]);
+
+    cursorEl.classList.add('active');
+    timeEl.classList.remove('show');
+
+    eraseText(textEl, messages[index].speed, () => {
+      cursorEl.classList.remove('active');
+      popOut(bubbleEl);
+    });
+
+  } else {
+    const items = ['f4','fa3','f3','fa2','f2','fa1','f1'];
+    const timeEl = document.getElementById('b4-time');
+    timeEl.classList.remove('show');
+
+    items.forEach((id, i) => {
+      gsap.to(`#${id}`, {
+        opacity: 0,
+        x: -8,
+        scale: id.startsWith('fa') ? 0 : 1,
+        duration: 0.2,
+        delay: i * 0.06,
+        onComplete: () => {
+          if (i === items.length - 1) popOut(bubbleEl);
+        }
+      });
+    });
+  }
+}
+
+// ScrollTrigger
+ScrollTrigger.create({
+  trigger: '#msg-wrap',
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: false,
+  onUpdate: (self) => {
+    const p = self.progress;
+    // 4구간: 0~0.22, 0.22~0.44, 0.44~0.66, 0.66~1
+    const thresholds = [0.08, 0.30, 0.52, 0.72];
+
+    thresholds.forEach((threshold, i) => {
+      if (p >= threshold && !bubblesState[i]) {
+        showBubble(i);
+      } else if (p < threshold && bubblesState[i]) {
+        hideBubble(i);
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

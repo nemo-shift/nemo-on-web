@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 장면 프리뷰</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  :root {
+    --brand:  #0891b2;
+    --accent: #E8734A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; }
+
+  #stage {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: #0B0F12;
+    transition: background 0.9s ease;
+  }
+
+  /* 장면 */
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  /* 타이포 */
+  .giant {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(72px, 13vw, 160px);
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: #F0EDE6;
+    position: absolute;
+  }
+
+  .giant-en {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 200;
+    font-size: clamp(64px, 11vw, 140px);
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: #F0EDE6;
+    position: absolute;
+  }
+
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(9px, 1vw, 11px);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    position: absolute;
+  }
+
+  /* ── S1 ── */
+  #s1-nemo  { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  #s1-label { bottom: 48px; left: 50%; transform: translateX(-50%); }
+
+  /* ── S2 ── */
+  #s2-rect  { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-size: clamp(48px, 8vw, 96px); }
+  #s2-label { top: 48px; left: 50%; transform: translateX(-50%); }
+  #s2-ko    { bottom: 52px; left: 50%; transform: translateX(-50%); letter-spacing: 3px; color: rgba(240,237,230,0.25); font-size: clamp(10px, 1vw, 12px); }
+
+  /* ── S3 ── */
+  #s3-rec   { top: 50%; left: 10%; transform: translateY(-50%); color: var(--brand); }
+  #s3-plus  { top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--accent); }
+  #s3-angle { top: 50%; right: 10%; transform: translateY(-50%); text-align: right; }
+  #s3-label { bottom: 48px; left: 50%; transform: translateX(-50%); text-align: center; line-height: 1.8; }
+
+  /* ── S4 ── */
+  #s4-top  { top: 22%; left: 50%; transform: translateX(-50%); letter-spacing: 6px; color: rgba(240,237,230,0.2); }
+  #s4-main { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  #s4-sub  { bottom: 22%; left: 50%; transform: translateX(-50%); white-space: nowrap; color: rgba(240,237,230,0.35); letter-spacing: 3px; font-size: clamp(10px, 1.2vw, 13px); }
+
+  /* ── S5 ── */
+  #s5-label { top: 48px; left: 60px; color: rgba(10,10,10,0.3); }
+  #s5-left  { top: 50%; left: 8%; transform: translateY(-50%); color: #0A0A0A; font-size: clamp(48px, 7vw, 88px); }
+  #s5-right { top: 50%; right: 8%; transform: translateY(-50%); color: var(--brand); text-align: right; font-size: clamp(48px, 7vw, 88px); }
+  #s5-arrow { top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'DM Mono', monospace; font-size: clamp(11px, 1.2vw, 14px); letter-spacing: 3px; color: rgba(10,10,10,0.25); white-space: nowrap; text-transform: uppercase; }
+
+  /* ── S6 ── */
+  #s6-wordmark {
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 0.02em;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(64px, 11vw, 140px);
+    letter-spacing: -0.02em;
+    color: #0A0A0A;
+  }
+
+  .s6-colon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.08em;
+    margin: 0 0.04em;
+    top: 0.02em;
+    position: relative;
+  }
+
+  .s6-tri {
+    width: 0; height: 0;
+    border-left: 0.085em solid transparent;
+    border-right: 0.085em solid transparent;
+    border-bottom: 0.14em solid var(--brand);
+    filter: drop-shadow(0 0 8px rgba(8,145,178,0.5));
+  }
+
+  .s6-circ {
+    width: 0.12em; height: 0.12em;
+    border-radius: 50%;
+    border: 0.016em solid var(--brand);
+    filter: drop-shadow(0 0 8px rgba(8,145,178,0.5));
+  }
+
+  .s6-on { font-family: 'DM Sans', sans-serif; font-weight: 200; }
+
+  #s6-slogan {
+    bottom: 22%; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    color: rgba(10,10,10,0.35);
+    font-size: clamp(10px, 1.1vw, 12px);
+    letter-spacing: 4px;
+  }
+
+  /* ── 컨트롤 ── */
+  #controls {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    z-index: 100;
+  }
+
+  .ctrl-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.4);
+    background: transparent;
+    border: 1px solid rgba(240,237,230,0.12);
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ctrl-btn:hover {
+    color: #F0EDE6;
+    border-color: rgba(240,237,230,0.3);
+  }
+
+  .ctrl-btn.light-btn {
+    color: rgba(10,10,10,0.4);
+    border-color: rgba(10,10,10,0.12);
+  }
+
+  .ctrl-btn.light-btn:hover {
+    color: #0A0A0A;
+    border-color: rgba(10,10,10,0.3);
+  }
+
+  #scene-info {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(240,237,230,0.3);
+    min-width: 60px;
+    text-align: center;
+    transition: color 0.6s ease;
+  }
+
+  #scene-info.light { color: rgba(10,10,10,0.3); }
+
+  /* ── 씬 제목 ── */
+  #scene-title {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.2);
+    z-index: 100;
+    transition: color 0.6s ease;
+  }
+
+  #scene-title.light { color: rgba(10,10,10,0.2); }
+
+  /* 노이즈 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- S1: 네모 -->
+  <div class="scene" id="scene-1">
+    <span class="giant" id="s1-nemo">네모</span>
+    <span class="label" id="s1-label">사각형 / 질서 / 구조</span>
+  </div>
+
+  <!-- S2: RECTANGLE -->
+  <div class="scene" id="scene-2">
+    <span class="giant-en" id="s2-rect">RECT<br>ANGLE</span>
+    <span class="label" id="s2-label">네모의 영문</span>
+    <span class="label" id="s2-ko">직각 · 올바른 각도</span>
+  </div>
+
+  <!-- S3: REC + ANGLE -->
+  <div class="scene" id="scene-3">
+    <span class="giant-en" id="s3-rec">REC</span>
+    <span class="giant-en" id="s3-plus">+</span>
+    <span class="giant-en" id="s3-angle">ANGLE</span>
+    <span class="label" id="s3-label">기록하다 + 각도<br>— 결을 기록하다</span>
+  </div>
+
+  <!-- S4: 결을 담다 -->
+  <div class="scene" id="scene-4">
+    <span class="label" id="s4-top">브랜드의 본질</span>
+    <span class="giant" id="s4-main">결을<br>담다</span>
+    <span class="label" id="s4-sub">감성의 결 · 구조의 결 · 당신의 결</span>
+  </div>
+
+  <!-- S5: 결을 닮다 -->
+  <div class="scene" id="scene-5">
+    <span class="label" id="s5-label">당신과 함께</span>
+    <span class="giant" id="s5-left">결을<br>닮다</span>
+    <span class="label" id="s5-arrow">→</span>
+    <span class="giant" id="s5-right">함께<br>켜다</span>
+  </div>
+
+  <!-- S6: 네모:ON -->
+  <div class="scene" id="scene-6">
+    <div id="s6-wordmark">
+      <span id="s6-nemo-text">네모</span>
+      <span class="s6-colon">
+        <span class="s6-tri"></span>
+        <span class="s6-circ"></span>
+      </span>
+      <span class="s6-on" id="s6-on-txt">ON</span>
+    </div>
+    <span class="label" id="s6-slogan">불안을 끄고, 기준을 켭니다</span>
+  </div>
+
+</div>
+
+<!-- 씬 제목 -->
+<div id="scene-title">Scene 01 — 네모</div>
+
+<!-- 컨트롤 -->
+<div id="controls">
+  <button class="ctrl-btn" id="btn-prev" onclick="prevScene()">← prev</button>
+  <span id="scene-info">01 / 06</span>
+  <button class="ctrl-btn" id="btn-next" onclick="nextScene()">next →</button>
+</div>
+
+<script>
+const scenes = [
+  {
+    id: 1,
+    bg: '#0B0F12',
+    light: false,
+    title: 'Scene 01 — 네모',
+    enter: () => {
+      gsap.set('#scene-1', { display: 'flex' });
+      gsap.fromTo('#s1-nemo',
+        { y: -100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s1-label',
+        { y: 16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, delay: 0.3, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s1-nemo',  { x: dir * -80, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s1-label', { opacity: 0, duration: 0.3 });
+    }
+  },
+  {
+    id: 2,
+    bg: '#0B0F12',
+    light: false,
+    title: 'Scene 02 — RECTANGLE',
+    enter: () => {
+      gsap.set('#scene-2', { display: 'flex' });
+      gsap.fromTo('#s2-rect',
+        { x: 160, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s2-label',
+        { y: -16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, delay: 0.25, ease: 'power2.out' }
+      );
+      gsap.fromTo('#s2-ko',
+        { y: 16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, delay: 0.35, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s2-rect',  { y: dir * 60, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s2-label', { opacity: 0, duration: 0.3 });
+      gsap.to('#s2-ko',    { opacity: 0, duration: 0.3 });
+    }
+  },
+  {
+    id: 3,
+    bg: '#0E1820',
+    light: false,
+    title: 'Scene 03 — REC + ANGLE',
+    enter: () => {
+      gsap.set('#scene-3', { display: 'flex' });
+      gsap.fromTo('#s3-rec',
+        { x: -280, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s3-angle',
+        { x: 280, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s3-plus',
+        { scale: 0, opacity: 0, rotation: -45 },
+        { scale: 1, opacity: 1, rotation: 0, duration: 0.5, delay: 0.45, ease: 'back.out(2)' }
+      );
+      gsap.fromTo('#s3-label',
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, delay: 0.55, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s3-rec',   { x: -200, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s3-angle', { x: 200, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s3-plus',  { scale: 1.8, opacity: 0, duration: 0.35 });
+      gsap.to('#s3-label', { opacity: 0, duration: 0.3 });
+    }
+  },
+  {
+    id: 4,
+    bg: '#1A3040',
+    light: false,
+    title: 'Scene 04 — 결을 담다',
+    enter: () => {
+      gsap.set('#scene-4', { display: 'flex' });
+      gsap.fromTo('#s4-top',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      );
+      gsap.fromTo('#s4-main',
+        { y: 70, opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' },
+        { y: 0, opacity: 1, clipPath: 'inset(0% 0% 0% 0%)', duration: 0.8, delay: 0.15, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s4-sub',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, delay: 0.5, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s4-main', { y: dir * -50, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s4-top',  { opacity: 0, duration: 0.3 });
+      gsap.to('#s4-sub',  { opacity: 0, duration: 0.3 });
+    }
+  },
+  {
+    id: 5,
+    bg: '#f7f1e9',
+    light: true,
+    title: 'Scene 05 — 결을 닮다',
+    enter: () => {
+      gsap.set('#scene-5', { display: 'flex' });
+      gsap.fromTo('#s5-left',
+        { x: -100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s5-right',
+        { x: 100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s5-arrow',
+        { scale: 0.5, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.4, delay: 0.4, ease: 'back.out(2)' }
+      );
+      gsap.fromTo('#s5-label',
+        { y: -16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, delay: 0.2, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s5-left',  { x: -60, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s5-right', { x: 60, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s5-arrow', { opacity: 0, duration: 0.3 });
+      gsap.to('#s5-label', { opacity: 0, duration: 0.3 });
+    }
+  },
+  {
+    id: 6,
+    bg: '#f7f1e9',
+    light: true,
+    title: 'Scene 06 — 네모:ON',
+    enter: () => {
+      gsap.set('#scene-6', { display: 'flex' });
+      // 스크램블
+      scramble(document.getElementById('s6-nemo-text'), '네모');
+      scramble(document.getElementById('s6-on-txt'), 'ON');
+      gsap.fromTo('#s6-wordmark',
+        { scale: 1.12, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.9, ease: 'power3.out' }
+      );
+      gsap.fromTo('#s6-slogan',
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, delay: 0.6, ease: 'power2.out' }
+      );
+    },
+    exit: (dir) => {
+      gsap.to('#s6-wordmark', { scale: 0.92, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to('#s6-slogan',   { opacity: 0, duration: 0.3 });
+    }
+  }
+];
+
+let current = 0;
+let isAnimating = false;
+
+function scramble(el, target) {
+  el._s = true;
+  const chars = '가나다라마바사아자차ABCDEFGHIJKLMNabcdefghijklmn0123456789';
+  let frame = 0;
+  const total = 16;
+  const iv = setInterval(() => {
+    if (frame >= total) {
+      el.textContent = target;
+      clearInterval(iv);
+      return;
+    }
+    const p = frame / total;
+    let r = '';
+    for (let i = 0; i < target.length; i++) {
+      r += i < Math.floor(p * target.length + 0.5)
+        ? target[i]
+        : chars[Math.floor(Math.random() * chars.length)];
+    }
+    el.textContent = r;
+    frame++;
+  }, 55);
+}
+
+function showScene(index, dir = 1) {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const prev = scenes[current];
+  const next = scenes[index];
+
+  // 이전 씬 종료
+  prev.exit(dir);
+
+  // 배경 전환
+  document.getElementById('stage').style.background = next.bg;
+
+  // 씬 제목
+  document.getElementById('scene-title').textContent = next.title;
+  document.getElementById('scene-title').classList.toggle('light', next.light);
+  document.getElementById('scene-info').textContent = `0${index + 1} / 06`;
+  document.getElementById('scene-info').classList.toggle('light', next.light);
+
+  // 버튼 색상
+  const btns = document.querySelectorAll('.ctrl-btn');
+  btns.forEach(b => b.classList.toggle('light-btn', next.light));
+
+  // 이전 씬 숨기기
+  setTimeout(() => {
+    document.getElementById(`scene-${prev.id}`).style.display = 'none';
+    current = index;
+    next.enter();
+    setTimeout(() => { isAnimating = false; }, 900);
+  }, 400);
+}
+
+function nextScene() {
+  if (current < scenes.length - 1) showScene(current + 1, 1);
+}
+
+function prevScene() {
+  if (current > 0) showScene(current - 1, -1);
+}
+
+// 키보드
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextScene();
+  if (e.key === 'ArrowLeft') prevScene();
+});
+
+// 초기화
+document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+scenes[0].enter();
+</script>
+</body>
+</html>

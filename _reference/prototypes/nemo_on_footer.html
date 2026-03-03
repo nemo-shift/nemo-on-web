@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네모:ON — 푸터</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400&family=DM+Mono:wght@300;400&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --brand:  #0891b2;
+    --accent: #E8734A;
+    --dark:   #0B0F12;
+    --sf:     #10171C;
+    --text-d: #F0EDE6;
+    --muted:  rgba(240,237,230,0.2);
+    --border: rgba(240,237,230,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #f7f1e9; font-family: 'DM Sans', sans-serif; }
+
+  /* 이전 섹션 더미 */
+  #before {
+    height: 60vh;
+    background: #f7f1e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(10,10,10,0.2);
+    text-transform: uppercase;
+  }
+
+  /* ── 푸터 ── */
+  #footer {
+    background: var(--dark);
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 노이즈 */
+  #footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── 빅 타이포 영역 ── */
+  #footer-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 60px 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0;
+  }
+
+  /* 빅 워드마크 */
+  .footer-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.02em;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(72px, 14vw, 180px);
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: var(--text-d);
+    opacity: 0;
+    transform: translateY(40px);
+    position: relative;
+  }
+
+  .footer-colon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.08em;
+    margin: 0 0.03em;
+    position: relative;
+    top: 0.02em;
+  }
+
+  .footer-tri {
+    width: 0; height: 0;
+    border-left: 0.075em solid transparent;
+    border-right: 0.075em solid transparent;
+    border-bottom: 0.13em solid var(--brand);
+    filter: drop-shadow(0 0 12px rgba(8,145,178,0.4));
+  }
+
+  .footer-circ {
+    width: 0.11em; height: 0.11em;
+    border-radius: 50%;
+    border: 0.013em solid var(--brand);
+    filter: drop-shadow(0 0 12px rgba(8,145,178,0.4));
+  }
+
+  .footer-on {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 200;
+  }
+
+  /* 슬로건 */
+  .footer-slogan {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 200;
+    font-size: clamp(14px, 1.8vw, 20px);
+    color: rgba(240,237,230,0.35);
+    letter-spacing: 0.04em;
+    margin-top: 32px;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  /* ── 링크 영역 ── */
+  #footer-links {
+    padding: 40px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+  }
+
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .link-group-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .footer-link {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: rgba(240,237,230,0.4);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .footer-link:hover { color: var(--text-d); }
+
+  /* ── 하단 카피 ── */
+  #footer-bottom {
+    padding: 20px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+  }
+
+  .copy-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(240,237,230,0.15);
+    text-transform: uppercase;
+  }
+
+  /* REC 점 */
+  .rec-dot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rec-dot-circle {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+    animation: rec 2s ease-in-out infinite;
+  }
+
+  @keyframes rec {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .rec-dot-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(8,145,178,0.5);
+    text-transform: uppercase;
+  }
+
+  /* ── 배경 글로우 ── */
+  .bg-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(8,145,178,0.04) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="before">↑ Contact Section</div>
+
+<footer id="footer">
+
+  <div class="bg-glow"></div>
+
+  <!-- 빅 타이포 -->
+  <div id="footer-main">
+    <div class="footer-eyebrow" id="f-eyebrow">NEMO:ON Studio — Seoul</div>
+
+    <div class="footer-wordmark" id="f-wordmark">
+      <span>네모</span>
+      <span class="footer-colon">
+        <span class="footer-tri"></span>
+        <span class="footer-circ"></span>
+      </span>
+      <span class="footer-on">ON</span>
+    </div>
+
+    <div class="footer-slogan" id="f-slogan">불안을 끄고, 기준을 켭니다</div>
+  </div>
+
+  <!-- 링크 -->
+  <div id="footer-links">
+    <div class="link-group">
+      <div class="link-group-label">Services</div>
+      <span class="footer-link">브랜딩</span>
+      <span class="footer-link">로고 · 아이덴티티</span>
+      <span class="footer-link">웹사이트</span>
+      <span class="footer-link">디자인 시스템</span>
+      <span class="footer-link">자동화</span>
+    </div>
+    <div class="link-group">
+      <div class="link-group-label">Studio</div>
+      <span class="footer-link">About</span>
+      <span class="footer-link">Showcase</span>
+      <span class="footer-link">브랜드 진단</span>
+      <span class="footer-link">웨비나</span>
+    </div>
+    <div class="link-group">
+      <div class="link-group-label">Channel</div>
+      <span class="footer-link">Instagram</span>
+      <span class="footer-link">Threads</span>
+      <span class="footer-link">YouTube</span>
+      <span class="footer-link">hello@nemo-on.kr</span>
+    </div>
+  </div>
+
+  <!-- 하단 카피 -->
+  <div id="footer-bottom">
+    <span class="copy-text">ⓒ 2025 NEMO:ON. All rights reserved.</span>
+    <div class="rec-dot">
+      <div class="rec-dot-circle"></div>
+      <span class="rec-dot-text">ON</span>
+    </div>
+  </div>
+
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#footer',
+    start: 'top 80%',
+  }
+});
+
+tl.to('#f-eyebrow',   { opacity: 1, duration: 0.5, ease: 'power2.out' })
+  .to('#f-wordmark',  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.2')
+  .to('#f-slogan',    { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.5')
+  .to('#footer-links',  { opacity: 1, duration: 0.6 }, '-=0.2')
+  .to('#footer-bottom', { opacity: 1, duration: 0.4 }, '-=0.2');
+</script>
+</body>
+</html>
