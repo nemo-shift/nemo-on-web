@@ -13,7 +13,7 @@ import {
   GlobalScrollTriggerCleanup,
   SmoothScroll,
 } from '@/components/layout';
-import { HeroProvider } from '@/context/HeroContext';
+import { HeroProvider } from '@/context';
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],

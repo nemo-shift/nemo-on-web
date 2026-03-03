@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { homeContent } from '@/data/homeContent';
 
 type HeroSloganProps = {
-  isOn: boolean; // ON/OFF 상태 — 텍스트 활성/비활성 [Required]
+  isOn: boolean;
+  isMobile?: boolean;
 };
 
 /**
@@ -14,23 +15,16 @@ type HeroSloganProps = {
  * - isOn=false: "불안을 끄고" 활성, "기준을 켭니다" 비활성
  * - isOn=true: "기준을 켭니다" 활성, "불안을 끄고" 비활성
  * OFF 상태에서는 전체 visibility:hidden 처리.
- * 모바일(768px 미만): flex-direction column, 작은 폰트
+ * 모바일(768px 미만): 작은 폰트
  *
  * @param {boolean} isOn - ON/OFF 상태 [Required]
+ * @param {boolean} isMobile - 모바일 뷰포트 여부 [Optional, HeroSection에서 주입]
  *
  * Example usage:
- * <HeroSlogan isOn={isOn} />
+ * <HeroSlogan isOn={isOn} isMobile={isMobile} />
  */
-export default function HeroSlogan({ isOn }: HeroSloganProps): React.ReactElement {
+export default function HeroSlogan({ isOn, isMobile = false }: HeroSloganProps): React.ReactElement {
   const [offText, onText] = homeContent.hero.slogan;
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   return (
     <div

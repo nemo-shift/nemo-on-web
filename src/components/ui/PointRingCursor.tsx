@@ -2,8 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useMousePosition } from '@/hooks/useMousePosition';
-import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useMousePosition, useDeviceDetection } from '@/hooks';
 
 type PointRingCursorProps = {
   isOn: boolean; // ON 상태 여부 — 색상 전환에 사용 [Required]

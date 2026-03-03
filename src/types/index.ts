@@ -7,3 +7,14 @@ export type ButtonProps = {
   isActive?: boolean;
   className?: string;
 };
+
+export type { HeroSectionProps, HeroBigTypoOffShapes, HeroBigTypoProps } from './hero';
+
+export type {
+  BrandStoryScene,
+  MessageBubble,
+  AboutContent,
+  FooterColumn,
+  NavLink,
+  HomeContent,
+} from './home';

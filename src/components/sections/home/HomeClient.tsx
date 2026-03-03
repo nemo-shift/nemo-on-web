@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useHeroContext } from "@/context/HeroContext";
+import React from 'react';
+import { useHeroContext } from '@/context';
 import {
   FreeHorizontalScrollSection,
   FullPageSection,
   Footer,
-} from "@/components/layout";
-import HeroSection from "./HeroSection";
+} from '@/components/layout';
+import HeroSection from './HeroSection';
 
 /**
  * HomeClient 컴포넌트

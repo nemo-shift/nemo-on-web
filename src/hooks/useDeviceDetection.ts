@@ -18,19 +18,14 @@ export function useDeviceDetection(): {
     const checkTouchDevice = (): boolean =>
       'ontouchstart' in window ||
       navigator.maxTouchPoints > 0 ||
-      (navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints > 0;
-
-    const checkMobileDevice = (): boolean =>
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
+      ((navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0;
 
     setIsTouchDevice(checkTouchDevice());
-    setIsMobile(checkMobileDevice());
+    // isMobile: 768px 미만 = 모바일 (Tailwind md 기준, HeroSection 등과 동일)
+    const updateMobile = (): void => setIsMobile(window.innerWidth < 768);
+    updateMobile();
 
-    const handleResize = (): void => {
-      setIsMobile(window.innerWidth <= 768 || checkMobileDevice());
-    };
+    const handleResize = (): void => updateMobile();
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useHeroContext } from '@/context/HeroContext';
+import { useHeroContext } from '@/context';
 import { homeContent } from '@/data/homeContent';
 
 /**

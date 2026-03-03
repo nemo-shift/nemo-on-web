@@ -3,53 +3,7 @@
  * 섹션별 텍스트 및 구조화된 콘텐츠 중앙 관리
  */
 
-// --- 타입 정의 ---
-
-export type BrandStoryScene = {
-  id: number;
-  title: string;
-  ko: string;
-  en: string;
-  bg: string;
-};
-
-export type MessageBubble = {
-  id: number;
-  text: string;
-};
-
-export type AboutContent = {
-  wordPool: string[];
-  coreWords: string[];
-  sentences: string[];
-};
-
-export type FooterColumn = {
-  title: string;
-  links: { label: string; href: string }[];
-};
-
-export type NavLink = {
-  label: string;
-  href: string;
-};
-
-export type HomeContent = {
-  hero: {
-    slogan: [string, string];
-    brandName: string;
-    navLinks: NavLink[];
-    phrases: [string, string, string];
-    bigTypo: { nemo: string; off: string; on: string };
-  };
-  brandStory: BrandStoryScene[];
-  message: {
-    bubbles: MessageBubble[];
-    serviceFlow: string[];
-  };
-  about: AboutContent;
-  footer: FooterColumn[];
-};
+import type { HomeContent } from '@/types';
 
 // --- 단어비 풀 (250개 랜덤 - 불안/막막함/혼란 등) ---
 const WORD_POOL = [

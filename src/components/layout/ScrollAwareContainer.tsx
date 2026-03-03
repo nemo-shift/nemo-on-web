@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import useScrollDirection from '@/hooks/useScrollDirection';
+import { useScrollDirection } from '@/hooks';
 import { cn } from '@/lib';
 
 type ScrollAwareContainerProps = {

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useHeroContext } from '@/context/HeroContext';
+import { useHeroContext } from '@/context';
 
 type HeroBottomBarProps = {
   isOn: boolean;

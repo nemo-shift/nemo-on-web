@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import useLenisScroll from '@/hooks/useLenisScroll';
+import { useLenisScroll } from '@/hooks';
 import { cn } from '@/lib';
 
 type SmoothScrollProps = {
