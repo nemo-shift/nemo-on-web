@@ -1,17 +1,23 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useDeviceDetection, useParticles } from '@/hooks';
-import { PointRingCursor } from '@/components/ui';
-import { runWipeTransition } from '@/lib';
-import type { HeroSectionProps } from '@/types';
-import HeroSlogan from './hero/HeroSlogan';
-import HeroToggle from './hero/HeroToggle';
-import ShapesStage from './hero/ShapesStage';
-import HeroPhraseLayer from './hero/HeroPhraseLayer';
-import HeroBigTypo from './hero/HeroBigTypo';
-import HeroBottomBar from './hero/HeroBottomBar';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+import { useDeviceDetection, useParticles } from "@/hooks";
+import { PointRingCursor } from "@/components/ui";
+import { runWipeTransition } from "@/lib";
+import type { HeroSectionProps } from "@/types";
+import HeroSlogan from "./hero/HeroSlogan";
+import HeroToggle from "./hero/HeroToggle";
+import ShapesStage from "./hero/ShapesStage";
+import HeroPhraseLayer from "./hero/HeroPhraseLayer";
+import HeroBigTypo from "./hero/HeroBigTypo";
+import HeroBottomBar from "./hero/HeroBottomBar";
 
 /**
  * HeroSection 컴포넌트
@@ -29,7 +35,10 @@ import HeroBottomBar from './hero/HeroBottomBar';
  * Example usage:
  * <HeroSection isOn={isOn} onToggle={handleToggle} />
  */
-export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React.ReactElement {
+export default function HeroSection({
+  isOn,
+  onToggle,
+}: HeroSectionProps): React.ReactElement {
   const { isMobile } = useDeviceDetection();
   const [mounted, setMounted] = useState(false);
 
@@ -47,11 +56,13 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
   const shapesStageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isOn) setShapesOnRevealed(false);
+    setShapesOnRevealed(false);
   }, [isOn]);
 
   // 모바일 OFF 모드: 도형모음 터치 후 2초 뒤 자동 숨김
-  const mobileOffTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const mobileOffTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   useEffect(() => {
     if (!isMobile || isOn || !shapesOffHovered) return;
     clearTimeout(mobileOffTimerRef.current);
@@ -63,7 +74,9 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
   }, [isMobile, isOn, shapesOffHovered]);
 
   const flashTextRef = useRef<HTMLDivElement>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const flashMessage = useCallback(
     (text: string) => {
@@ -76,19 +89,19 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
 
       let displayText = text;
       if (isMobile && text.length >= 5) {
-        displayText = text.slice(0, 3) + '\n' + text.slice(3);
+        displayText = text.slice(0, 3) + "\n" + text.slice(3);
       }
       el.textContent = displayText;
-      el.style.whiteSpace = 'pre-line';
-      el.style.animation = 'none';
+      el.style.whiteSpace = "pre-line";
+      el.style.animation = "none";
       void (el as HTMLDivElement).offsetWidth;
-      el.style.animation = 'flashIn 1.2s ease-out forwards';
+      el.style.animation = "flashIn 1.2s ease-out forwards";
 
       flashTimerRef.current = setTimeout(() => {
         setPhraseVisible(true);
       }, 1200);
     },
-    [isOn, isMobile]
+    [isOn, isMobile],
   );
 
   const wipeRef = useRef<HTMLDivElement>(null);
@@ -101,41 +114,41 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
     }
   }, [isOn, onToggle]);
 
-  const handleExplodeComplete = useCallback(() => setShapesOnRevealed(true), []);
+  const handleCopyVisible = useCallback(() => setShapesOnRevealed(true), []);
 
   // CSS 변수 주입 (ON/OFF에 따른 색상 토큰)
   const cssVars = useMemo(
     () =>
       ({
-        '--bg': isOn ? '#faf7f2' : '#0a0a0a',
-        '--fg': isOn ? '#0d1a1f' : '#f0ebe3',
-        '--accent': isOn ? '#0891b2' : '#e8d5b0',
-        '--sub': isOn ? '#0e7490' : '#c4a882',
+        "--bg": isOn ? "#faf7f2" : "#0a0a0a",
+        "--fg": isOn ? "#0d1a1f" : "#f0ebe3",
+        "--accent": isOn ? "#0891b2" : "#e8d5b0",
+        "--sub": isOn ? "#0e7490" : "#c4a882",
       }) as React.CSSProperties,
-    [isOn]
+    [isOn],
   );
 
   const wipeOverlay =
-    mounted && typeof document !== 'undefined' ? (
+    mounted && typeof document !== "undefined" ? (
       <div
         ref={wipeRef}
         style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
           width: 0,
           height: 0,
           opacity: 0,
-          background: '#0891b2',
+          background: "#0891b2",
           zIndex: 500,
-          pointerEvents: 'none',
+          pointerEvents: "none",
           borderRadius: 0,
         }}
       />
     ) : null;
 
-  const portalContent = mounted && typeof document !== 'undefined';
+  const portalContent = mounted && typeof document !== "undefined";
 
   return (
     <div style={cssVars}>
@@ -148,7 +161,7 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
           <div style={cssVars}>
             <HeroBottomBar isOn={isOn} />
           </div>,
-          document.body
+          document.body,
         )}
 
       {portalContent &&
@@ -156,88 +169,102 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
           <div
             style={{
               ...cssVars,
-              position: 'fixed',
+              position: "fixed",
               inset: 0,
               zIndex: 300,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              pointerEvents: 'none',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              pointerEvents: "none",
             }}
           >
             <div
               ref={flashTextRef}
               style={{
-                fontFamily: 'var(--font-bebas)',
-                fontSize: 'clamp(90px, 14vw, 200px)',
-                color: 'var(--accent)',
+                fontFamily: "var(--font-bebas)",
+                fontSize: "clamp(90px, 14vw, 200px)",
+                color: "var(--accent)",
                 opacity: 0,
-                transform: 'scale(0.7)',
-                transition: 'none',
-                textAlign: 'center',
+                transform: "scale(0.7)",
+                transition: "none",
+                textAlign: "center",
               }}
             />
           </div>,
-          document.body
+          document.body,
         )}
 
       <section
         style={{
           ...cssVars,
-          position: 'relative',
+          position: "relative",
           zIndex: 10,
-          width: '100vw',
-          height: '100dvh',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: isMobile ? '24px 20px' : '36px 48px',
-          background: 'var(--bg)',
-          color: 'var(--fg)',
-          transition: 'background 0.7s ease, color 0.7s ease',
-          overflow: 'hidden',
+          width: "100vw",
+          height: "100svh",
+          display: "flex",
+          flexDirection: "column",
+          padding: isMobile ? "24px 20px" : "36px 48px",
+          background: "var(--bg)",
+          color: "var(--fg)",
+          transition: "background 0.7s ease, color 0.7s ease",
+          overflow: "hidden",
         }}
       >
         <canvas
           ref={canvasRef}
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
             zIndex: 0,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }}
         />
 
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
             zIndex: 5,
-            pointerEvents: 'none',
+            pointerEvents: "none",
             opacity: 0.025,
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundSize: '200px',
+            backgroundSize: "200px",
           }}
         />
 
-        <div style={{ minHeight: '64px', flexShrink: 0 }} />
+        <div style={{ minHeight: "64px", flexShrink: 0 }} />
 
-        <div ref={tcRef} style={{ position: 'relative', zIndex: 20, maxWidth: '54%', flexShrink: 0 }}>
+        <div
+          ref={tcRef}
+          style={{
+            position: "relative",
+            zIndex: 20,
+            maxWidth: "54%",
+            flexShrink: 0,
+            ...(isMobile ? { marginTop: "24px" } : {}),
+          }}
+        >
           <HeroSlogan isOn={isOn} isMobile={isMobile} />
           <HeroToggle isOn={isOn} onToggle={handleToggle} />
         </div>
 
         <div
           style={{
-            position: 'relative',
+            position: "relative",
             zIndex: 20,
             flexShrink: 0,
-            minHeight: 'clamp(200px, 32vh, 380px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            minHeight: "clamp(200px, 32vh, 380px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          <HeroPhraseLayer isOn={isOn} visible={phraseVisible} />
+          <HeroPhraseLayer
+            isOn={isOn}
+            visible={phraseVisible}
+            isMobile={isMobile}
+            onCopyVisible={handleCopyVisible}
+          />
           <ShapesStage
             ref={shapesStageRef}
             isOn={isOn}
@@ -247,9 +274,22 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
           />
         </div>
 
-        <div style={{ flex: 1, minHeight: 0 }} />
+        <div
+          style={
+            isMobile
+              ? { flexShrink: 0, minHeight: "24px", height: "24px" }
+              : { flex: 1, minHeight: 0 }
+          }
+        />
 
-        <div style={{ display: 'flex', flexDirection: 'column', zIndex: 20, flexShrink: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 20,
+            flexShrink: 0,
+          }}
+        >
           <HeroBigTypo
             isOn={isOn}
             isMobile={isMobile}
@@ -262,7 +302,6 @@ export default function HeroSection({ isOn, onToggle }: HeroSectionProps): React
               onTriCirHover: setShapesOffHovered,
             }}
             onFlash={flashMessage}
-            onExplodeComplete={handleExplodeComplete}
           />
         </div>
       </section>

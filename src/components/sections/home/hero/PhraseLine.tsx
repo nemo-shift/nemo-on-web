@@ -6,24 +6,35 @@ type PhraseLineProps = {
   visible: boolean;
   baseColor: string;
   children: React.ReactNode;
+  /** false면 아래에서 올라오는 애니 없이 그 자리에서 opacity만 적용 */
+  animateFromBottom?: boolean;
+  /** true면 모바일용 폰트 크기 */
+  isMobile?: boolean;
 };
 
 /**
  * HeroPhraseLayer 내 프레이즈 한 줄 래퍼
  * 공통 스타일 및 등장 애니메이션 적용
  */
-export default function PhraseLine({ visible, baseColor, children }: PhraseLineProps): React.ReactElement {
+export default function PhraseLine({ visible, baseColor, children, animateFromBottom = true, isMobile = false }: PhraseLineProps): React.ReactElement {
+  const transform = animateFromBottom
+    ? (visible ? 'translateY(0)' : 'translateY(28px)')
+    : 'none';
+  const transition = animateFromBottom
+    ? 'opacity 1.2s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1)'
+    : 'opacity 0.5s ease';
+
   return (
     <div
       style={{
         fontFamily: 'var(--font-bebas)',
-        fontSize: 'clamp(32px, 6.5vw, 96px)',
+        fontSize: isMobile ? 'clamp(48px, 10vw, 150px)' : 'clamp(40px, 7.5vw, 115px)',
         lineHeight: 1,
         letterSpacing: '-.01em',
         color: baseColor,
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1)',
+        transform,
+        transition,
         whiteSpace: 'nowrap',
         display: 'flex',
         alignItems: 'center',

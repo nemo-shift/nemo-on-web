@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { homeContent } from '@/data/homeContent';
-import { useBigTypoSizing } from '@/hooks';
-import { runExplodeFromColon, runFlyToShapes, runImplodeToColon } from '@/lib';
-import type { HeroBigTypoProps } from '@/types';
+import React, { useEffect, useRef, useState } from "react";
+import { homeContent } from "@/data/homeContent";
+import { useBigTypoSizing } from "@/hooks";
+import { runExplodeFromColon, runFlyToShapes, runImplodeToColon } from "@/lib";
+import type { HeroBigTypoProps } from "@/types";
 
 /**
  * HeroBigTypo — 빅 타이포 + 플래시 마우스오버 + flyParticle
@@ -19,7 +19,10 @@ export default function HeroBigTypo({
   onExplodeComplete,
 }: HeroBigTypoProps): React.ReactElement {
   const { bigTypo } = homeContent.hero;
-  const { btRef, nemoRef, onRef, triRef, cirRef, colonRef } = useBigTypoSizing(tcRef);
+  const { btRef, nemoRef, onRef, triRef, cirRef, colonRef } = useBigTypoSizing(
+    tcRef,
+    isMobile,
+  );
   const [coverRevealed, setCoverRevealed] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -37,7 +40,7 @@ export default function HeroBigTypo({
       cir,
       shapesStageRef?.current ?? null,
       offShapes.onColonHide,
-      offShapes.onTriCirHover
+      offShapes.onTriCirHover,
     );
   };
 
@@ -82,32 +85,36 @@ export default function HeroBigTypo({
       `}</style>
       <div
         ref={btRef}
-        className={isOn ? 'bt-on-mode' : undefined}
+        className={isOn ? "bt-on-mode" : undefined}
         style={{
-          position: 'relative',
+          position: "relative",
           zIndex: 20,
-          marginTop: 'auto',
-          paddingTop: 'clamp(16px, 2.5vh, 36px)',
-          display: 'flex',
-          alignItems: 'center',
-          overflow: 'visible',
+          marginTop: "auto",
+          paddingTop: "clamp(16px, 2.5vh, 36px)",
+          display: "flex",
+          alignItems: "center",
+          overflow: "visible",
           opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(50px)',
-          transition: 'opacity 1s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1)',
+          // 컨테이너는 동일하게 두고, 네모/ON만 개별적으로 내려서 도형 위치는 유지
+          transform: visible ? "translateY(0)" : "translateY(50px)",
+          transition:
+            "opacity 1s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         <span
           ref={nemoRef}
           className="bt-hover-nemo"
           data-bt="nemo"
-          onMouseEnter={() => flashMessage('당신의 결로')}
+          onMouseEnter={() => flashMessage("당신의 결로")}
           style={{
-            fontFamily: 'var(--font-bebas)',
-            color: isOn ? 'var(--fg)' : 'rgba(240,235,227,.18)',
+            fontFamily: "var(--font-esamanru)",
+            color: isOn ? "var(--fg)" : "rgba(240,235,227,.18)",
             lineHeight: 0.88,
-            whiteSpace: 'nowrap',
-            transition: 'color .7s ease',
-            cursor: isOn ? 'pointer' : 'default',
+            whiteSpace: "nowrap",
+            // PC에서는 네모 텍스트만 약간 더 아래로 내려, 도형과의 간격을 맞춤
+            transform: isMobile ? "none" : "translateY(0.18em)",
+            transition: "color .7s ease, transform .7s ease",
+            cursor: isOn ? "pointer" : "default",
           }}
         >
           {bigTypo.nemo}
@@ -117,47 +124,58 @@ export default function HeroBigTypo({
           ref={colonRef}
           onMouseEnter={() => !isOn && !isMobile && flyToShapes()}
           onClick={() => !isOn && isMobile && flyToShapes()}
-          onMouseLeave={() => !isOn && (offShapes.onColonHide(false), offShapes.onTriCirHover(false))}
+          onMouseLeave={() =>
+            !isOn &&
+            (offShapes.onColonHide(false), offShapes.onTriCirHover(false))
+          }
           style={{
-            display: 'inline-flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "inline-flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            // 세미콜론 전체를 네모/ON 사이로 강하게 끌어올림
+            transform: "translateY(-0.8em)",
             opacity: !isOn && offShapes.colonHidden ? 0 : 1,
-            transition: 'opacity 0.2s ease',
+            transition: "opacity 0.2s ease, transform 0.2s ease",
           }}
         >
           <span
             ref={triRef}
             className="bt-hover-tri"
             data-bt="tri"
-            onMouseEnter={() => flashMessage('구조를 더해')}
+            onMouseEnter={() => flashMessage("구조를 더해")}
             onClick={() => !isOn && isMobile && flyToShapes()}
             style={{
-              display: 'block',
+              display: "block",
               width: 0,
               height: 0,
-              borderLeft: '8px solid transparent',
-              borderRight: '8px solid transparent',
-              borderBottom: '14px solid var(--accent)',
-              transition: 'border-bottom-color .7s',
-              cursor: isOn ? 'pointer' : 'default',
+              // 한 단계 더 크게 키워도 네모/ON 대비 과하지 않은 최대 크기
+              borderLeft: "13px solid transparent",
+              borderRight: "13px solid transparent",
+              borderBottom: "24px solid var(--accent)",
+              // 그룹 전체를 위로 올렸으므로 개별 삼각형은 중심 정렬
+              transition: "border-bottom-color .7s ease",
+              cursor: isOn ? "pointer" : "default",
             }}
           />
           <span
             ref={cirRef}
             className="bt-hover-cir"
             data-bt="cir"
-            onMouseEnter={() => flashMessage('감성위에')}
+            onMouseEnter={() => flashMessage("감성위에")}
             onClick={() => !isOn && isMobile && flyToShapes()}
             style={{
-              display: 'block',
-              borderRadius: '50%',
-              background: 'var(--sub)',
-              width: '12px',
-              height: '12px',
-              transition: 'background .7s',
-              cursor: isOn ? 'pointer' : 'default',
+              display: "block",
+              borderRadius: "50%",
+              background: "var(--sub)",
+              // 동그라미도 삼각형과 비율 맞게 더 키움
+              width: "18px",
+              height: "18px",
+              // 세모와 동그라미 사이 간격을 더 벌려 시각적 여유 확보
+              marginTop: "6px",
+              // 동그라미도 그룹 기준으로 중앙 정렬
+              transition: "background .7s ease",
+              cursor: isOn ? "pointer" : "default",
             }}
           />
         </span>
@@ -166,32 +184,34 @@ export default function HeroBigTypo({
           ref={onRef}
           className="bt-hover-on"
           data-bt="on-on"
-          onMouseEnter={() => flashMessage('함께')}
+          onMouseEnter={() => flashMessage("함께")}
           style={{
-            fontFamily: 'var(--font-bebas)',
+            fontFamily: "var(--font-gmarket)",
             lineHeight: 0.88,
-            whiteSpace: 'nowrap',
-            position: 'relative',
-            cursor: isOn ? 'pointer' : 'default',
+            whiteSpace: "nowrap",
+            // PC에서는 ON 텍스트도 네모와 동일하게 살짝 내려 배치
+            transform: isMobile ? "none" : "translateY(0.18em)",
+            position: "relative",
+            cursor: isOn ? "pointer" : "default",
           }}
         >
           <span
             style={{
-              color: 'rgba(240,235,227,.45)',
+              color: "rgba(240,235,227,.45)",
               opacity: isOn ? 0 : 1,
-              transition: 'opacity .8s ease',
+              transition: "opacity .8s ease",
             }}
           >
             {bigTypo.off}
           </span>
           <span
             style={{
-              color: 'var(--accent)',
-              position: 'absolute',
+              color: "var(--accent)",
+              position: "absolute",
               left: 0,
               top: 0,
               opacity: isOn ? 1 : 0,
-              transition: 'opacity .8s ease',
+              transition: "opacity .8s ease",
             }}
           >
             {bigTypo.on}
@@ -200,15 +220,16 @@ export default function HeroBigTypo({
 
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            background: 'var(--bg)',
-            transformOrigin: 'left',
-            transform: coverRevealed ? 'scaleX(0)' : 'scaleX(1)',
+            background: "var(--bg)",
+            transformOrigin: "left",
+            transform: coverRevealed ? "scaleX(0)" : "scaleX(1)",
             opacity: coverRevealed ? 0 : 1,
-            transition: 'transform 1s cubic-bezier(0.77,0,.18,1), opacity 0.5s ease, background .7s',
+            transition:
+              "transform 1s cubic-bezier(0.77,0,.18,1), opacity 0.5s ease, background .7s",
             zIndex: 2,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }}
         />
       </div>

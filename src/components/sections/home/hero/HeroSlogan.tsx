@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { homeContent } from '@/data/homeContent';
+import React from "react";
+import { homeContent } from "@/data/homeContent";
 
 type HeroSloganProps = {
   isOn: boolean;
@@ -23,16 +23,19 @@ type HeroSloganProps = {
  * Example usage:
  * <HeroSlogan isOn={isOn} isMobile={isMobile} />
  */
-export default function HeroSlogan({ isOn, isMobile = false }: HeroSloganProps): React.ReactElement {
+export default function HeroSlogan({
+  isOn,
+  isMobile = false,
+}: HeroSloganProps): React.ReactElement {
   const [offText, onText] = homeContent.hero.slogan;
 
   return (
     <div
       style={{
-        visibility: isOn ? 'visible' : 'hidden',
+        visibility: isOn ? "visible" : "hidden",
         opacity: isOn ? 1 : 0,
-        transition: 'opacity 1s ease',
-        marginBottom: '16px',
+        transition: "opacity 1s ease",
+        marginBottom: "16px",
       }}
     >
       <style>{`
@@ -51,30 +54,30 @@ export default function HeroSlogan({ isOn, isMobile = false }: HeroSloganProps):
       <div
         className="hero-slogan-line"
         style={{
-          fontFamily: 'Noto Serif KR, serif',
-          fontSize: isMobile ? 'clamp(22px, 7vw, 36px)' : 'clamp(28px, 4.2vw, 62px)',
+          fontFamily: "Noto Serif KR, serif",
+          fontSize: isMobile
+            ? "clamp(22px, 7vw, 36px)"
+            : "clamp(28px, 4.2vw, 62px)",
           fontWeight: 700,
           lineHeight: 1.1,
-          letterSpacing: '-.02em',
-          display: 'flex',
-          flexDirection: 'row',
-          gap: isMobile ? 'clamp(8px, 2vw, 16px)' : 'clamp(8px, 1.2vw, 20px)',
-          alignItems: 'flex-end',
-          position: 'relative',
+          letterSpacing: "-.02em",
+          display: "flex",
+          flexDirection: "row",
+          gap: isMobile ? "clamp(8px, 2vw, 16px)" : "clamp(8px, 1.2vw, 20px)",
+          alignItems: "flex-end",
+          position: "relative",
         }}
       >
         {/* "불안을 끄고" — isOn 시 흐려짐 */}
         <span
           style={{
-            color: isOn
-              ? 'rgba(13,26,31,.15)'
-              : 'var(--fg)',
-            transition: 'color .9s ease',
-            display: 'block',
-            textAlign: 'left',
+            color: isOn ? "rgba(13,26,31,.15)" : "var(--fg)",
+            transition: "color .9s ease",
+            display: "block",
+            textAlign: "left",
           }}
         >
-          {offText.split(' ').map((w, i) => (
+          {offText.split(" ").map((w, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
               {w}
@@ -84,15 +87,13 @@ export default function HeroSlogan({ isOn, isMobile = false }: HeroSloganProps):
         {/* "기준을 켭니다" — isOn 시 활성화 */}
         <span
           style={{
-            color: isOn
-              ? 'var(--fg)'
-              : 'rgba(240,235,227,.12)',
-            transition: 'color .9s ease',
-            display: 'block',
-            textAlign: 'left',
+            color: isOn ? "var(--fg)" : "rgba(240,235,227,.12)",
+            transition: "color .9s ease",
+            display: "block",
+            textAlign: "left",
           }}
         >
-          {onText.split(' ').map((w, i) => (
+          {onText.split(" ").map((w, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
               {w}
