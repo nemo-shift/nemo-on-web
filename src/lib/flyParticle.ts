@@ -1,11 +1,8 @@
+import { COLORS } from '@/constants/colors';
+
 /**
  * 히어로 빅 타이포 파티클 애니메이션 (△○ 날아가는 효과)
  */
-
-const TRI_COLOR_LIGHT = '#0891b2';
-const CIR_COLOR_LIGHT = '#0e7490';
-const TRI_COLOR_DARK = '#e8d5b0';
-const CIR_COLOR_DARK = '#c4a882';
 
 export function easeOutBack(t: number): number {
   const c1 = 1.70158;
@@ -32,10 +29,10 @@ function flyParticle(
 ): void {
   const isPc = typeof window !== 'undefined' && window.innerWidth >= 768;
   const triSize = isPc ? 26 : 16;
-  const triH = isPc ? 42 : 26;
+  const triH = isPc ? triSize * 1.732 : triSize * 1.732;
   const cirSize = isPc ? 32 : 22;
-  const triColor = useDarkColors ? TRI_COLOR_DARK : TRI_COLOR_LIGHT;
-  const cirColor = useDarkColors ? CIR_COLOR_DARK : CIR_COLOR_LIGHT;
+  const triColor = useDarkColors ? COLORS.BRAND.GOLD : COLORS.BRAND.TEAL;
+  const cirColor = useDarkColors ? COLORS.BRAND.BROWN : COLORS.BRAND.DEEP_TEAL;
   const div = document.createElement('div');
   div.style.cssText = `position:fixed;top:0;left:0;z-index:400;transform:translate(${fx}px,${fy}px);pointer-events:none;`;
   if (isTri) {

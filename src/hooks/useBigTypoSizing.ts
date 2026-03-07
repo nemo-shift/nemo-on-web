@@ -30,8 +30,8 @@ function runSizeBigTypo(tc: HTMLDivElement, refs: BigTypoRefs, isMobile: boolean
   const parentWidth =
     bt.parentElement?.getBoundingClientRect().width ?? window.innerWidth;
   const availW = parentWidth - 16;
-  let fs = Math.min(availH * 1.2, 500);
-  const scale = isMobile ? 1 : 0.88;
+  let fs = Math.min(availH * 1.4, 600); // 가용한 높이 활용도 확대
+  const scale = isMobile ? 1 : 1.05; // PC에서 더욱 압도적으로 (기존 0.88에서 상향)
 
   const applySize = (size: number): void => {
     // 네모와 ON 모두 전체 비례에 맞게 살짝 축소
@@ -41,7 +41,7 @@ function runSizeBigTypo(tc: HTMLDivElement, refs: BigTypoRefs, isMobile: boolean
     const cirSz = size * 0.12;
     tri.style.borderLeftWidth = `${triSz}px`;
     tri.style.borderRightWidth = `${triSz}px`;
-    tri.style.borderBottomWidth = `${triSz * 1.7}px`;
+    tri.style.borderBottomWidth = `${triSz * 1.732}px`;
     cir.style.width = `${cirSz}px`;
     cir.style.height = `${cirSz}px`;
     // 도형(△, ●) 간격과 네모·ON 사이 여백을 살짝 줄여 균형감 조정
@@ -66,7 +66,7 @@ function runSizeBigTypo(tc: HTMLDivElement, refs: BigTypoRefs, isMobile: boolean
   fs = Math.floor(lo * scale);
   applySize(fs);
   bt.style.overflow = 'visible';
-  bt.style.minHeight = `${Math.min(availH, fs * 2)}px`;
+  bt.style.height = 'auto'; // 높이를 자동(컨텐츠 기반)으로 설정
   bt.style.alignItems = 'center';
 }
 

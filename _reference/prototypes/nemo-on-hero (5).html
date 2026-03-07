@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEMO:ON</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a0a;--on:#f0ebe3;--accent:#e8d5b0;--warm:#c4a882;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--on);overflow:hidden;cursor:none;font-family:'Space Mono',monospace;}
+
+/* CURSOR */
+#cur{position:fixed;z-index:9999;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);}
+#cur-t{position:fixed;z-index:9998;width:32px;height:32px;border:1px solid rgba(196,168,130,.35);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:left .35s ease,top .35s ease,width .25s,height .25s,border-radius .25s;}
+
+/* BG */
+#bgc{position:fixed;inset:0;z-index:0;}
+.noise{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;}
+.grid{position:fixed;inset:0;z-index:2;pointer-events:none;background-image:linear-gradient(rgba(240,235,227,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(240,235,227,.018) 1px,transparent 1px);background-size:80px 80px;opacity:0;transition:opacity 1s ease;}
+body.state-on .grid{opacity:1;}
+body.state-off .grid{opacity:0;}
+
+/* CONNECTION LINE SVG */
+#conn{position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;opacity:0;transition:opacity .5s;}
+
+/* LAYOUT */
+#hero{position:relative;z-index:10;width:100vw;height:100vh;display:grid;grid-template-rows:auto 1fr auto;padding:36px 48px;}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;}
+.logo{display:flex;align-items:center;gap:0;opacity:0;animation:fU .8s ease .1s forwards;}
+.bp{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,2.2vw,30px);letter-spacing:.14em;color:var(--on);}
+#on-p{color:rgba(240,235,227,.15);transition:color .8s,text-shadow .8s;}
+
+/* COLON */
+.colon{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px;margin:0 5px;cursor:pointer;}
+#ct{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid var(--accent);transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .4s;}
+#cb{width:8px;height:8px;border-radius:50%;background:var(--warm);transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .4s;}
+.colon:hover #ct{transform:scale(1.8);filter:drop-shadow(0 0 5px #e8d5b0);}
+.colon:hover #cb{transform:scale(1.8);filter:drop-shadow(0 0 5px #c4a882);}
+
+/* tooltip */
+.colon::after{content:'△ 구조  ○ 감성의 근원';position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.18em;color:rgba(196,168,130,.6);white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;}
+.colon:hover::after{opacity:1;}
+
+nav{display:flex;gap:28px;opacity:0;animation:fU .8s ease .3s forwards;}
+nav a{font-size:10px;letter-spacing:.22em;color:rgba(240,235,227,.3);text-decoration:none;text-transform:uppercase;transition:color .3s;}
+nav a:hover{color:var(--accent);}
+
+/* CENTER */
+.center{display:flex;flex-direction:column;justify-content:center;position:relative;}
+
+/* TEXT */
+.tc{position:relative;z-index:20;max-width:54%;}
+
+/* BIG TYPO */
+#big-typo{position:relative;z-index:20;margin-top:auto;padding-top:clamp(16px,2.5vh,36px);display:flex;align-items:center;overflow:hidden;opacity:0;transform:translateY(50px);transition:opacity 1s ease,transform 1.2s cubic-bezier(0.16,1,0.3,1);}
+#big-typo.show{opacity:1;transform:translateY(0);}
+#bt-on-off{color:rgba(240,235,227,.55);transition:opacity 0.8s ease,color 0.8s ease;}
+#bt-on-on{color:var(--accent);text-shadow:0 0 40px rgba(232,213,176,.2);}
+#bt-nemo,#bt-on{font-family:"Bebas Neue",sans-serif;color:var(--on);line-height:0.88;white-space:nowrap;}
+#bt-on{position:relative;}
+#bt-colon{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(3px,.5vw,8px);margin:0 clamp(4px,.8vw,14px);flex-shrink:0;}
+#bt-tri{display:block;width:0;height:0;border-bottom-color:var(--accent);border-left-color:transparent;border-right-color:transparent;border-style:solid;animation:pulseAbt 2.5s ease infinite;}
+#bt-cir{display:block;border-radius:50%;background:var(--warm);animation:pulseAbt 2.5s ease .5s infinite;}
+#bt-mask{position:absolute;inset:0;background:var(--bg);transform-origin:left;transform:scaleX(1);transition:transform 1s cubic-bezier(0.77,0,.18,1);z-index:2;}
+#bt-mask.wiped{transform:scaleX(0);}
+@keyframes pulseAbt{0%,100%{opacity:1}50%{opacity:.35}}
+.ey{font-size:9px;letter-spacing:.4em;color:rgba(240,235,227,.22);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:fU .8s ease .5s forwards;}
+.sw{opacity:0;animation:fU .8s ease .6s forwards;margin-bottom:16px;}
+.sl{font-family:'Noto Serif KR',serif;font-size:clamp(32px,4.8vw,70px);font-weight:700;line-height:1.1;letter-spacing:-.02em;display:flex;flex-direction:row;gap:clamp(8px,1.2vw,20px);align-items:flex-end;}
+.so{color:var(--on);transition:color .9s ease,transform .9s ease;display:block;text-align:left;}
+.sn{color:rgba(240,235,227,.15);transition:color .9s ease,transform .9s cubic-bezier(0.16,1,0.3,1);position:relative;display:block;text-align:left;}
+.sn::after,.so::after{content:none;}
+.sl::after{content:'';position:absolute;bottom:-6px;left:0;right:0;height:1.5px;background:linear-gradient(to right,rgba(196,168,130,0.5),rgba(196,168,130,0.15));}
+.sl{position:relative;}
+.sn.lit{color:var(--on);transform:translateY(0);}
+.so.lit{color:rgba(240,235,227,.15);transform:translateY(-4px);}
+
+.div{width:0;height:1px;background:linear-gradient(to right,var(--accent),transparent);margin:20px 0;transition:width 1.4s ease;}
+.div.open{width:250px;}
+
+.sbw{opacity:0;animation:fU .8s ease .8s forwards;}
+.sub{font-family:'Noto Serif KR',serif;font-size:clamp(13px,1.4vw,18px);font-weight:300;color:rgba(240,235,227,.48);line-height:1.9;letter-spacing:.05em;}
+.shi{display:inline-flex;align-items:center;gap:5px;color:var(--on);font-weight:400;}
+.shi svg{flex-shrink:0;}
+.gy{display:inline-block;border:1px solid var(--accent);padding:0 8px;color:var(--accent);font-weight:700;position:relative;overflow:hidden;transition:color .4s;cursor:default;}
+.gy::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-101%);transition:transform .5s cubic-bezier(.77,0,.18,1);}
+.gy:hover::before{transform:translateX(0);}
+.gy:hover{color:var(--bg);}
+.gy span{position:relative;z-index:1;}
+
+/* TOGGLE */
+.tr{display:flex;align-items:center;gap:12px;margin-top:20px;opacity:0;animation:fU .8s ease 1s forwards;cursor:pointer;width:fit-content;}
+.lb{font-size:9px;letter-spacing:.3em;color:rgba(240,235,227,.22);text-transform:uppercase;transition:color .5s;}
+.lb.active{color:var(--accent);}
+.pill{width:50px;height:26px;border-radius:13px;border:1.5px solid rgba(196,168,130,.35);position:relative;transition:border-color .5s,background .5s;}
+.pill.on{border-color:var(--accent);background:rgba(196,168,130,.1);}
+.knob{position:absolute;left:4px;top:4px;width:16px;height:16px;border-radius:50%;background:rgba(240,235,227,.2);transition:transform .5s cubic-bezier(.34,1.56,.64,1),background .5s,box-shadow .5s;}
+.pill.on .knob{transform:translateX(24px);background:var(--accent);box-shadow:0 0 10px rgba(196,168,130,.7);}
+
+/* SHAPES STAGE */
+.ss{position:absolute;right:-60px;top:40%;transform:translateY(-50%);width:clamp(260px,34vw,500px);height:clamp(260px,34vw,500px);opacity:0;}
+
+/* BOTTOM */
+.bot{display:flex;justify-content:space-between;align-items:flex-end;opacity:0;animation:fU .8s ease 1.1s forwards;}
+.sc{display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:.3em;color:rgba(240,235,227,.2);text-transform:uppercase;}
+.sb{width:1px;height:36px;background:linear-gradient(to bottom,rgba(196,168,130,.5),transparent);animation:sp 2s ease infinite;}
+.nb{font-family:'Bebas Neue',sans-serif;font-size:48px;color:rgba(240,235,227,.05);line-height:1;text-align:right;}
+.nl{font-size:8px;letter-spacing:.3em;color:rgba(240,235,227,.15);text-transform:uppercase;text-align:right;}
+
+/* FLY SHAPES */
+.fly{position:fixed;pointer-events:none;z-index:100;opacity:0;transform:translate(-50%,-50%);}
+
+@keyframes fU{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fI{from{opacity:0}to{opacity:1}}
+@keyframes fA{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-15px) rotate(6deg)}}
+@keyframes fB{0%,100%{transform:translateY(0) rotate(0deg) scale(1)}50%{transform:translateY(12px) rotate(-5deg) scale(.97)}}
+@keyframes fC{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-8px) rotate(2.5deg)}66%{transform:translateY(7px) rotate(-2.5deg)}}
+@keyframes sp{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1}100%{opacity:0;transform:scaleY(1);transform-origin:top}}
+.shC{animation:fA 7s ease-in-out infinite;transform-origin:50% 50%;}
+.shT{animation:fB 6s ease-in-out 1s infinite;transform-origin:50% 50%;}
+.shS{animation:fC 8.5s ease-in-out .5s infinite;transform-origin:50% 50%;}
+.dl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.18em;fill:rgba(240,235,227,.32);}
+
+
+/* PHRASE LAYER */
+#phrase-layer {
+  position: fixed;
+  z-index: 20;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.08em;
+}
+.pl {
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: rgba(240,235,227,0.28);
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.pl.visible { opacity: 1; transform: translateY(0); }
+.kw { font-family: inherit; font-size: inherit; line-height: inherit; }
+.kw1 { color: #c4a882; }
+.kw2 { color: #e8d5b0; }
+.kw-rest { color: rgba(240,235,227,0.28); }
+
+/* shape-word: the keyword inside a shape */
+.sw-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  pointer-events: all;
+  flex-shrink: 0;
+  transition: color 0.45s ease;
+}
+/* fill slides left→right */
+.sw-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-101%);
+  transition: transform 0.5s cubic-bezier(0.77,0,0.18,1);
+  z-index: 0;
+  background: currentColor;
+}
+.sw-box:hover::before { transform: translateX(0); }
+.sw-box .sw-word {
+  position: relative;
+  z-index: 1;
+  transition: color 0.45s ease;
+  font-size: 0.55em;
+  line-height: 1;
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.sw-box:hover .sw-word { color: var(--bg); }
+
+/* ○ circle */
+.sw-circle {
+  color: rgba(196,168,130,0.95);
+  width: 0.58em;
+  height: 0.58em;
+  border-radius: 50%;
+  border: 0.035em solid currentColor;
+  flex-shrink: 0;
+}
+/* △ triangle — border trick */
+.sw-tri-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 0.62em;
+  height: 0.58em;
+  flex-shrink: 0;
+  cursor: pointer;
+  pointer-events: all;
+  color: rgba(232,213,176,0.95);
+}
+.sw-tri-wrap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.sw-tri-wrap .sw-tri-fill {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.5s cubic-bezier(0.77,0,0.18,1);
+  fill: currentColor;
+}
+.sw-tri-wrap:hover .sw-tri-fill { clip-path: inset(0% 0 0 0); }
+.sw-tri-wrap .sw-tri-stroke { fill: none; stroke: currentColor; stroke-width: 0.04; }
+
+
+/* □ square */
+.sw-square {
+  color: rgba(240,235,227,0.8);
+  width: 1.0em;
+  height: 1.0em;
+  border: 0.04em solid currentColor;
+}
+
+/* WIPE OVERLAY */
+#wipe-box {
+  position: fixed;
+  z-index: 500;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* FLASH TEXT OVERLAY */
+#flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+#flash-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(100px, 16vw, 220px);
+  color: var(--on);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.7);
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+@keyframes flashIn {
+  0%   { opacity: 0;    transform: scale(0.4); }
+  20%  { opacity: 1;    transform: scale(0.95); }
+  50%  { opacity: 0.85; transform: scale(1.8); }
+  100% { opacity: 0;    transform: scale(5); }
+}
+.flash-animate {
+  animation: flashIn 1.2s ease-out forwards !important;
+  will-change: transform, opacity;
+}
+
+/* OFF STATE */
+ — hide everything except big typo and toggle */
+body.state-off .hdr,
+body.state-off .sw,
+body.state-off .bot,
+body.state-off .ss,
+body.state-off #conn {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+body.state-on .hdr,
+body.state-on .sw,
+body.state-on .bot,
+body.state-on .ss {
+  visibility: visible !important;
+}
+body.state-on .hdr,
+body.state-on .sw,
+body.state-on .bot,
+body.state-on .ss {
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+/* TOGGLE PULSE in OFF state */
+@keyframes togglePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(196,168,130,0); border-color: rgba(196,168,130,.35); }
+  50%      { box-shadow: 0 0 0 6px rgba(196,168,130,0.12); border-color: rgba(196,168,130,.75); }
+}
+body.state-off .pill {
+  animation: togglePulse 2.2s ease infinite;
+}
+body.state-on .pill {
+  animation: none;
+}
+</style>
+</head>
+<body class="state-off">
+<div id="cur"></div>
+<div id="cur-t"></div>
+<canvas id="bgc"></canvas>
+<div class="noise"></div>
+<div class="grid"></div>
+
+<!-- Connection SVG -->
+<svg id="conn">
+  <defs>
+    <linearGradient id="lg1" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#e8d5b0" stop-opacity=".5"/><stop offset="100%" stop-color="#e8d5b0" stop-opacity="0"/></linearGradient>
+    <linearGradient id="lg2" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#c4a882" stop-opacity=".45"/><stop offset="100%" stop-color="#c4a882" stop-opacity="0"/></linearGradient>
+  </defs>
+  <path id="lnT" d="" stroke="url(#lg1)" stroke-width=".8" fill="none" stroke-dasharray="3 7" opacity=".7"/>
+  <path id="lnC" d="" stroke="url(#lg2)" stroke-width=".8" fill="none" stroke-dasharray="3 7" opacity=".6"/>
+</svg>
+
+<section id="hero">
+  <header class="hdr">
+    <div class="logo" id="logo">
+      <span class="bp">NEMO</span>
+      <span class="colon" id="colon">
+        <span id="ct"></span>
+        <span id="cb"></span>
+      </span>
+      <span class="bp" id="on-p">ON</span>
+    </div>
+    <nav><a href="#">브랜딩</a><a href="#">아이덴티티</a><a href="#">웹 개발</a><a href="#">스튜디오</a></nav>
+  </header>
+
+  <div class="center">
+    <div class="tc">
+      <div class="sw">
+        <div class="sl">
+          <span class="so" id="so">불안을<br>끄고</span>
+          <span class="sn" id="sn">기준을<br>켭니다</span>
+        </div>
+      </div>
+
+      <div class="tr" id="trow">
+        <span class="lb" id="lo">OFF</span>
+        <div class="pill" id="pill"><div class="knob"></div></div>
+        <span class="lb active" id="ln">ON</span>
+      </div>
+    </div>
+
+    <!-- SHAPES STAGE -->
+    <div class="ss" id="ss">
+      <svg width="100%" height="100%" viewBox="0 0 500 500" fill="none" overflow="visible">
+        <defs>
+          <filter id="g1"><feGaussianBlur stdDeviation="5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+          <filter id="g2"><feGaussianBlur stdDeviation="12" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+          <radialGradient id="r1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c4a882" stop-opacity=".13"/><stop offset="100%" stop-color="#c4a882" stop-opacity="0"/></radialGradient>
+          <radialGradient id="r2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#e8d5b0" stop-opacity=".16"/><stop offset="100%" stop-color="#e8d5b0" stop-opacity="0"/></radialGradient>
+          <radialGradient id="r3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f0ebe3" stop-opacity=".09"/><stop offset="100%" stop-color="#f0ebe3" stop-opacity="0"/></radialGradient>
+        </defs>
+        <!-- Circle 감성 -->
+        <g class="shC" filter="url(#g1)">
+          <circle cx="250" cy="235" r="168" fill="url(#r1)" stroke="#c4a882" stroke-width="1" stroke-dasharray="4 9" stroke-opacity=".42"/>
+          <circle cx="250" cy="235" r="122" fill="none" stroke="#c4a882" stroke-width=".4" stroke-dasharray="2 14" stroke-opacity=".18"/>
+          <text x="250" y="55" text-anchor="middle" class="dl">○ 감성</text>
+        </g>
+        <!-- Triangle 구조 -->
+        <g class="shT" filter="url(#g1)">
+          <polygon points="250,72 422,334 78,334" fill="url(#r2)" stroke="#e8d5b0" stroke-width="1" stroke-opacity=".48"/>
+          <polygon points="250,72 422,334 78,334" fill="none" stroke="#e8d5b0" stroke-width=".4" stroke-dasharray="3 12" stroke-opacity=".18" transform="scale(.83) translate(43,39)"/>
+          <text x="395" y="362" class="dl">△ 구조</text>
+        </g>
+        <!-- Square 결 -->
+        <g class="shS" filter="url(#g2)">
+          <rect x="138" y="132" width="224" height="224" fill="url(#r3)" stroke="#f0ebe3" stroke-width="1.5" stroke-opacity=".52"/>
+          <rect x="153" y="147" width="194" height="194" fill="none" stroke="#f0ebe3" stroke-width=".4" stroke-dasharray="4 10" stroke-opacity=".18"/>
+          <line x1="138" y1="138" x2="164" y2="138" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="138" y1="138" x2="138" y2="164" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="362" y1="138" x2="336" y2="138" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="362" y1="138" x2="362" y2="164" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="138" y1="356" x2="164" y2="356" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="138" y1="356" x2="138" y2="330" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="362" y1="356" x2="336" y2="356" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <line x1="362" y1="356" x2="362" y2="330" stroke="#e8d5b0" stroke-width="2" stroke-opacity=".85"/>
+          <text x="116" y="248" text-anchor="end" class="dl">□ 결</text>
+        </g>
+        <!-- Center pulse -->
+        <circle cx="250" cy="244" r="3" fill="#e8d5b0" opacity=".65">
+          <animate attributeName="r" values="3;8;3" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".65;.15;.65" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Orbit dot -->
+        <circle r="2.5" fill="#c4a882" opacity=".45">
+          <animateMotion dur="12s" repeatCount="indefinite">
+            <mpath href="#op"/>
+          </animateMotion>
+        </circle>
+        <path id="op" d="M250,235 m-168,0 a168,168 0 1,1 336,0 a168,168 0 1,1 -336,0" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- BIG TYPO -->
+  <div id="big-typo">
+    <span id="bt-nemo">네모</span><span id="bt-colon"><span id="bt-tri"></span><span id="bt-cir"></span></span><span id="bt-on"><span id="bt-on-off">OFF</span><span id="bt-on-on" style="position:absolute;left:0;top:0;opacity:0;transition:opacity 0.8s ease;">ON</span></span>
+    <div id="bt-mask"></div>
+  </div>
+
+  <div class="bot">
+    <div class="sc"><div class="sb"></div>Scroll</div>
+    <div>
+      <div class="nl">Brand Cases</div>
+      <div class="nb" id="cnt">000</div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+// CURSOR
+const cur=document.getElementById('cur'),curT=document.getElementById('cur-t');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function l(){tx+=(mx-tx)*.1;ty+=(my-ty)*.1;curT.style.left=tx+'px';curT.style.top=ty+'px';requestAnimationFrame(l);})();
+document.querySelectorAll('a,.pill,.tr,.gy,.colon,#bt-cir,#bt-tri,#bt-nemo,#bt-on-on').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{curT.style.width='52px';curT.style.height='52px';curT.style.borderRadius='4px';});
+  el.addEventListener('mouseleave',()=>{curT.style.width='32px';curT.style.height='32px';curT.style.borderRadius='50%';});
+});
+
+// BG PARTICLES
+const cv=document.getElementById('bgc'),c=cv.getContext('2d');
+cv.width=innerWidth;cv.height=innerHeight;
+const pts=[];for(let i=0;i<65;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.1+.3,a:Math.random()*.28+.04,s:['c','t','s'][i%3]});
+let pmx=cv.width/2,pmy=cv.height/2,isOn=false,particleAlpha=1;
+document.addEventListener('mousemove',e=>{pmx=e.clientX;pmy=e.clientY;});
+function dp(p){
+  c.save();c.globalAlpha=p.a*particleAlpha;
+  const col=isOn?'#c4a882':'#f0ebe3';
+  c.strokeStyle=col;c.lineWidth=.4;c.translate(p.x,p.y);
+  if(p.s==='c'){c.beginPath();c.arc(0,0,p.r*4,0,Math.PI*2);c.stroke();}
+  else if(p.s==='t'){const s=p.r*4.5;c.beginPath();c.moveTo(0,-s);c.lineTo(s,s);c.lineTo(-s,s);c.closePath();c.stroke();}
+  else{const s=p.r*4;c.strokeRect(-s,-s,s*2,s*2);}
+  c.restore();
+}
+(function anim(){
+  c.clearRect(0,0,cv.width,cv.height);
+  if(particleAlpha <= 0.005) { requestAnimationFrame(anim); return; }
+  const g=c.createRadialGradient(pmx,pmy,0,pmx,pmy,260);
+  g.addColorStop(0,`rgba(240,235,227,${0.03*particleAlpha})`);
+  g.addColorStop(1,'transparent');
+  c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<105){c.save();c.globalAlpha=(1-d/105)*.05*particleAlpha;c.strokeStyle=isOn?'#c4a882':'#f0ebe3';c.lineWidth=.3;c.beginPath();c.moveTo(pts[i].x,pts[i].y);c.lineTo(pts[j].x,pts[j].y);c.stroke();c.restore();}
+  }
+  pts.forEach(p=>{
+    const dx=p.x-pmx,dy=p.y-pmy,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<85){p.vx+=dx/d*.065;p.vy+=dy/d*.065;}
+    p.vx*=.98;p.vy*=.98;p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+    if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+    dp(p);
+  });
+  requestAnimationFrame(anim);
+})();
+window.addEventListener('resize',()=>{cv.width=innerWidth;cv.height=innerHeight;});
+
+// EASE
+function easeInOut(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+function easeOutBack(t){const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);}
+function easeInBack(t){const c1=1.70158,c3=c1+1;return c3*t*t*t-c1*t*t;}
+
+// Get main title colon position
+function getTitleColonPos(){
+  const btColon = document.getElementById('bt-colon');
+  if(!btColon) return null;
+  const r = btColon.getBoundingClientRect();
+  const triEl = document.getElementById('bt-tri');
+  const cirEl = document.getElementById('bt-cir');
+  const rT = triEl ? triEl.getBoundingClientRect() : r;
+  const rC = cirEl ? cirEl.getBoundingClientRect() : r;
+  return {
+    triX: rT.left+rT.width/2, triY: rT.top+rT.height/2,
+    cirX: rC.left+rC.width/2, cirY: rC.top+rC.height/2
+  };
+}
+
+// Animate a flying shape from (fx,fy) to (tx,ty)
+function flyParticle(isTri, fx, fy, tx, ty, delay, dur, easeFn, onDone){
+  const el=document.createElement('div');
+  const sz = isTri ? 28 : 24;
+  if(isTri){
+    el.style.cssText=`position:fixed;pointer-events:none;z-index:200;opacity:0;transform:translate(-50%,-50%);width:0;height:0;border-left:${sz/2}px solid transparent;border-right:${sz/2}px solid transparent;border-bottom:${sz*0.87}px solid #e8d5b0;filter:drop-shadow(0 0 6px #e8d5b0);`;
+  } else {
+    el.style.cssText=`position:fixed;pointer-events:none;z-index:200;opacity:0;transform:translate(-50%,-50%);width:${sz}px;height:${sz}px;border-radius:50%;background:#c4a882;box-shadow:0 0 14px #c4a882;`;
+  }
+  el.style.left=fx+'px'; el.style.top=fy+'px';
+  document.body.appendChild(el);
+  const start=performance.now()+delay;
+  requestAnimationFrame(function s(){
+    const now=performance.now();
+    if(now<start){requestAnimationFrame(s);return;}
+    const t=Math.min((now-start)/dur,1);
+    const e=easeFn(t);
+    const x=fx+(tx-fx)*e, y=fy+(ty-fy)*e;
+    const boom=1+Math.sin(t*Math.PI)*1.8;
+    const a=t<0.15?(t/0.15):t>0.8?1-(t-0.8)/0.2:1;
+    el.style.left=x+'px'; el.style.top=y+'px';
+    el.style.opacity=a;
+    el.style.transform=`translate(-50%,-50%) scale(${boom})`;
+    if(t<1){requestAnimationFrame(s);}else{el.remove();if(onDone)onDone();}
+  });
+}
+
+// Implode: △ and ○ from stage center → collapse back into colon
+function implodeToColon(onDone){
+  const ss=document.getElementById('ss');
+  const pos=getTitleColonPos();
+  if(!ss||!pos){if(onDone)onDone();return;}
+  const ssR=ss.getBoundingClientRect();
+  // △ from triangle position in stage, ○ from circle position
+  const targets=[
+    {isTri:true,  fx:ssR.left+ssR.width*.45, fy:ssR.top+ssR.height*.35},
+    {isTri:false, fx:ssR.left+ssR.width*.52, fy:ssR.top+ssR.height*.55},
+  ];
+  let done=0;
+  targets.forEach((t,i)=>{
+    flyParticle(t.isTri, t.fx, t.fy, i===0?pos.triX:pos.cirX, i===0?pos.triY:pos.cirY, i*80, 750, easeInBack, ()=>{
+      done++;
+      if(done===targets.length && onDone) onDone();
+    });
+  });
+}
+
+// Explode: △ from tri-colon, ○ from cir-colon → fly to stage center
+function explodeFromColon(onDone){
+  const ss=document.getElementById('ss');
+  const pos=getTitleColonPos();
+  if(!ss||!pos){if(onDone)onDone();return;}
+  const ssR=ss.getBoundingClientRect();
+  const targets=[
+    {isTri:true,  fx:pos.triX, fy:pos.triY, tx:ssR.left+ssR.width*.45, ty:ssR.top+ssR.height*.35},
+    {isTri:false, fx:pos.cirX, fy:pos.cirY, tx:ssR.left+ssR.width*.52, ty:ssR.top+ssR.height*.55},
+  ];
+  let done=0;
+  targets.forEach((t,i)=>{
+    flyParticle(t.isTri, t.fx, t.fy, t.tx, t.ty, i*100, 850, easeOutBack, ()=>{
+      done++;
+      if(done===targets.length && onDone) onDone();
+    });
+  });
+}
+
+// Colon pulse animation (OFF idle state)
+let colonPulseInterval=null;
+function startColonPulse(){
+  stopColonPulse();
+  const btTri=document.getElementById('bt-tri');
+  const btCir=document.getElementById('bt-cir');
+  if(!btTri||!btCir) return;
+  let phase=0;
+  colonPulseInterval=setInterval(()=>{
+    phase+=0.08;
+    const s=1+Math.sin(phase)*0.35;
+    const glow=Math.abs(Math.sin(phase))*0.7;
+    btTri.style.transform=`scale(${s})`;
+    btTri.style.filter=`drop-shadow(0 0 ${glow*8}px #e8d5b0)`;
+    btCir.style.transform=`scale(${s*0.9})`;
+    btCir.style.filter=`drop-shadow(0 0 ${glow*6}px #c4a882)`;
+  },16);
+}
+function stopColonPulse(){
+  if(colonPulseInterval){clearInterval(colonPulseInterval);colonPulseInterval=null;}
+  const btTri=document.getElementById('bt-tri');
+  const btCir=document.getElementById('bt-cir');
+  if(btTri){btTri.style.transform='';btTri.style.filter='';}
+  if(btCir){btCir.style.transform='';btCir.style.filter='';}
+}
+
+// Draw connection lines from TITLE colon to stage
+function drawLines(){
+  const pos=getTitleColonPos();
+  const sR=document.getElementById('ss').getBoundingClientRect();
+  if(!pos) return;
+  const x1=pos.triX+10, y1t=pos.triY, y1c=pos.cirY;
+  const x2=sR.left+sR.width*.48, y2t=sR.top+sR.height*.28, y2c=sR.top+sR.height*.58;
+  const mx=(x1+x2)/2;
+  const lg1=document.getElementById('lg1');
+  lg1.setAttribute('x1',x1);lg1.setAttribute('y1',y1t);lg1.setAttribute('x2',x2);lg1.setAttribute('y2',y2t);
+  const lg2=document.getElementById('lg2');
+  lg2.setAttribute('x1',x1);lg2.setAttribute('y1',y1c);lg2.setAttribute('x2',x2);lg2.setAttribute('y2',y2c);
+  document.getElementById('lnT').setAttribute('d',`M ${x1} ${y1t} C ${mx} ${y1t}, ${mx} ${y2t}, ${x2} ${y2t}`);
+  document.getElementById('lnC').setAttribute('d',`M ${x1} ${y1c} C ${mx} ${y1c}, ${mx} ${y2c}, ${x2} ${y2c}`);
+}
+
+// TURN ON SEQUENCE: colon explodes → stage appears → phrases fade in
+function runTurnOn(){
+  const ss=document.getElementById('ss'), conn=document.getElementById('conn');
+  stopColonPulse();
+  ss.style.opacity='0'; ss.style.transition='none';
+  explodeFromColon(()=>{
+    ss.style.transition='opacity .7s ease';
+    ss.style.opacity='1';
+    drawLines();
+    conn.style.opacity='1';
+    setTimeout(()=>{conn.style.transition='opacity 2s ease';conn.style.opacity='0';},2000);
+    // phrases appear after shapes land
+    showPhrases();
+  });
+}
+
+function showPhrases(){
+  const layer = document.getElementById('phrase-layer');
+  const trow = document.getElementById('trow');
+  const bt = document.getElementById('big-typo');
+  if(trow && bt){
+    const tRect = trow.getBoundingClientRect();
+    const bRect = bt.getBoundingClientRect();
+    const top = tRect.bottom + 10;
+    const height = bRect.top - tRect.bottom - 20;
+    layer.style.top = top + 'px';
+    layer.style.left = '0';
+    layer.style.right = '0';
+    layer.style.height = height + 'px';
+    layer.style.alignItems = 'center';
+    layer.style.textAlign = 'center';
+    // font size fills available height across 3 lines
+    const fs = Math.min(height / 3.4, window.innerWidth * 0.10);
+    document.querySelectorAll('.pl').forEach(el => {
+      el.style.fontSize = fs + 'px';
+    });
+  }
+  layer.style.visibility = 'visible';
+  ['pl1','pl2','pl3'].forEach((id,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(id);
+      if(el) el.classList.add('visible');
+    }, i*700);
+  });
+}
+function hidePhrases(){
+  ['pl1','pl2','pl3'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('visible');
+  });
+  setTimeout(()=>{
+    document.getElementById('phrase-layer').style.visibility='hidden';
+  }, 800);
+}
+
+// TURN OFF SEQUENCE: stage implodes → colon gets energy → pulse
+function runTurnOff(){
+  const ss=document.getElementById('ss'), conn=document.getElementById('conn');
+  conn.style.opacity='0';
+  implodeToColon(()=>{
+    ss.style.transition='opacity .4s ease';
+    ss.style.opacity='0';
+    // colon receives energy burst then settles into pulse
+    const btTri=document.getElementById('bt-tri');
+    const btCir=document.getElementById('bt-cir');
+    if(btTri){btTri.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1),filter .2s';btTri.style.transform='scale(2.5)';btTri.style.filter='drop-shadow(0 0 12px #e8d5b0)';}
+    if(btCir){btCir.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1),filter .2s';btCir.style.transform='scale(2.5)';btCir.style.filter='drop-shadow(0 0 10px #c4a882)';}
+    setTimeout(()=>{startColonPulse();},300);
+  });
+}
+
+// Initial load sequence (page first load — begin OFF, stage hidden)
+function runOrigin(){
+  const ss=document.getElementById('ss');
+  ss.style.opacity='0';
+  // colon stays still in OFF state — no pulse
+}
+
+// STATE
+// FLASH TEXT
+let flashTimer = null;
+function flashMessage(text){
+  // hide phrase layer temporarily
+  const layer = document.getElementById('phrase-layer');
+  const ft = document.getElementById('flash-text');
+  if(!ft) return;
+  if(flashTimer) clearTimeout(flashTimer);
+
+  if(layer) layer.style.opacity = '0';
+  ft.textContent = text;
+  ft.classList.remove('flash-animate');
+  // force reflow
+  void ft.offsetWidth;
+  ft.classList.add('flash-animate');
+
+  flashTimer = setTimeout(()=>{
+    if(layer) layer.style.opacity = '1';
+  }, 1200);
+}
+
+let autoTimer=null;
+function fadeParticles(targetAlpha, duration){
+  const start = performance.now();
+  const startAlpha = particleAlpha;
+  requestAnimationFrame(function f(){
+    const t = Math.min((performance.now()-start)/duration, 1);
+    particleAlpha = startAlpha + (targetAlpha - startAlpha) * t;
+    if(t < 1) requestAnimationFrame(f);
+    else particleAlpha = targetAlpha;
+  });
+}
+function runWipeTransition(onDone){
+  const box = document.getElementById('wipe-box');
+  const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.6;
+  box.style.transition = 'none';
+  box.style.width = '0px';
+  box.style.height = '0px';
+  box.style.opacity = '1';
+  box.style.borderRadius = '0';
+
+  // Phase 1: expand (500ms)
+  const dur1 = 500;
+  const start = performance.now();
+  requestAnimationFrame(function expand(){
+    const t = Math.min((performance.now()-start)/dur1, 1);
+    const e = t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+    const s = e * maxSize;
+    box.style.width = s+'px';
+    box.style.height = s+'px';
+    if(t<1){ requestAnimationFrame(expand); }
+    else {
+      // fully covered — trigger content change
+      if(onDone) onDone();
+      // hold 150ms then fade out (400ms)
+      setTimeout(()=>{
+        box.style.transition = 'opacity 0.4s ease';
+        box.style.opacity = '0';
+        setTimeout(()=>{
+          box.style.transition = 'none';
+          box.style.width = '0'; box.style.height = '0';
+          box.style.opacity = '0';
+        }, 420);
+      }, 150);
+    }
+  });
+}
+
+function setState(on){
+  isOn=on;
+  if(on && autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+
+  if(on){
+    // Wipe first, then reveal everything
+    runWipeTransition(()=>{
+      document.body.classList.add('state-on');
+      document.body.classList.remove('state-off');
+      document.getElementById('pill').classList.add('on');
+      document.getElementById('so').classList.add('lit');
+      document.getElementById('sn').classList.add('lit');
+      fadeParticles(0, 1000);
+      // 요소들 다시 보이게
+      ['.hdr','.sw','.bot'].forEach(sel=>{
+        const el=document.querySelector(sel);
+        if(el){ el.style.visibility='visible'; el.style.opacity='1'; el.style.animation=''; }
+      });
+      // ss visibility 해제 (opacity는 runTurnOn에서 제어)
+      const ssEl=document.getElementById('ss');
+      if(ssEl){ ssEl.style.visibility='visible'; }
+      // small delay then play animations
+      setTimeout(()=>{
+        // big typo ON
+        const offSpan=document.getElementById('bt-on-off');
+        const onSpan=document.getElementById('bt-on-on');
+        const btNemo=document.getElementById('bt-nemo');
+        if(offSpan){offSpan.style.opacity='0';}
+        if(onSpan){onSpan.style.opacity='1';}
+        if(btNemo){btNemo.style.color='var(--on)';}
+        document.getElementById('on-p').style.color='var(--accent)';
+        document.getElementById('on-p').style.textShadow='0 0 16px rgba(196,168,130,.7)';
+        document.getElementById('lo').classList.remove('active');
+        document.getElementById('ln').classList.add('active');
+      }, 650);
+      setTimeout(()=>{ runTurnOn(); }, 700);
+    });
+    return;
+  } else {
+    document.body.classList.remove('state-on');
+    document.body.classList.add('state-off');
+    document.getElementById('pill').classList.remove('on');
+    document.getElementById('so').classList.remove('lit');
+    document.getElementById('sn').classList.remove('lit');
+    fadeParticles(1, 800);
+    hidePhrases();
+    runTurnOff();
+    // 요소들 다시 숨기기
+    ['.hdr','.sw','.bot'].forEach(sel=>{
+      const el=document.querySelector(sel);
+      if(el){ el.style.visibility='hidden'; el.style.opacity='0'; }
+    });
+    const ssOff=document.getElementById('ss');
+    if(ssOff){ ssOff.style.visibility='hidden'; }
+    // big typo OFF
+    const offSpan=document.getElementById('bt-on-off');
+    const onSpan=document.getElementById('bt-on-on');
+    const btNemo=document.getElementById('bt-nemo');
+    if(offSpan){offSpan.style.opacity='1';}
+    if(onSpan){onSpan.style.opacity='0';}
+    if(btNemo){btNemo.style.color='rgba(240,235,227,.2)';}
+    document.getElementById('on-p').style.color='rgba(240,235,227,.15)';
+    document.getElementById('on-p').style.textShadow='none';
+    document.getElementById('lo').classList.add('active');
+    document.getElementById('ln').classList.remove('active');
+  }
+  // big typo text swap
+  const btNemo=document.getElementById('bt-nemo');
+  const btOn=document.getElementById('bt-on');
+}
+document.getElementById('trow').addEventListener('click',()=>{
+  setState(!isOn);
+});
+
+// DIVIDER
+
+
+// COUNTER
+let n=0; setTimeout(()=>{const iv=setInterval(()=>{n+=3;if(n>=87){n=87;clearInterval(iv);}document.getElementById('cnt').textContent=String(n).padStart(3,'0');},28);},1900);
+
+// COLON re-trigger on click
+document.getElementById('colon').addEventListener('click',e=>{e.stopPropagation();runOrigin();});
+
+// BIG TYPO SIZING
+function sizeBigTypo(){
+  const bt = document.getElementById('big-typo');
+  const tc = document.querySelector('.tc');
+  const bot = document.querySelector('.bot');
+  const center = document.querySelector('.center');
+  if(!bt||!tc||!bot||!center) return;
+
+  const centerRect = center.getBoundingClientRect();
+  const tcRect = tc.getBoundingClientRect();
+  const botRect = bot.getBoundingClientRect();
+
+  // Available height between bottom of tc and top of bottom bar
+  const availH = botRect.top - tcRect.bottom - 20;
+  if(availH < 50) return;
+
+  // Available width = full hero width (with padding)
+  const availW = centerRect.width;
+
+  // Set font size to fill width
+  // "NEMON:ON" full string — Bebas Neue is roughly 0.6 width/height ratio per char
+  // We have 6 chars + colon gap — iterate to find fit
+  let fs = Math.min(availH * 0.85, 300);
+  const btNemo = document.getElementById('bt-nemo');
+  const btOn = document.getElementById('bt-on');
+  const btColon = document.getElementById('bt-colon');
+
+  // Set initial and measure
+  btNemo.style.fontSize = (fs * 0.82) + 'px';
+  btOn.style.fontSize = fs + 'px';
+  const triSize = fs * 0.08;
+  const cirSize = fs * 0.12;
+  document.getElementById('bt-tri').style.borderLeftWidth = triSize + 'px';
+  document.getElementById('bt-tri').style.borderRightWidth = triSize + 'px';
+  document.getElementById('bt-tri').style.borderBottomWidth = (triSize * 1.7) + 'px';
+  document.getElementById('bt-cir').style.width = cirSize + 'px';
+  document.getElementById('bt-cir').style.height = cirSize + 'px';
+  btColon.style.gap = (triSize * 0.5) + 'px';
+  btColon.style.margin = '0 ' + (fs * 0.04) + 'px';
+
+  // Measure and shrink until fits
+  for(let i=0;i<30;i++){
+    if(bt.scrollWidth <= availW + 4) break;
+    fs -= 4;
+    btNemo.style.fontSize = (fs * 0.82) + 'px';
+    btOn.style.fontSize = fs + 'px';
+    const t2 = fs * 0.08;
+    const c2 = fs * 0.12;
+    document.getElementById('bt-tri').style.borderLeftWidth = t2 + 'px';
+    document.getElementById('bt-tri').style.borderRightWidth = t2 + 'px';
+    document.getElementById('bt-tri').style.borderBottomWidth = (t2 * 1.7) + 'px';
+    document.getElementById('bt-cir').style.width = c2 + 'px';
+    document.getElementById('bt-cir').style.height = c2 + 'px';
+  }
+
+  bt.style.height = availH + 'px';
+  bt.style.alignItems = 'center';
+}
+
+// SHOW BIG TYPO
+function showBigTypo(){
+  sizeBigTypo();
+  // set OFF colors before reveal
+  document.getElementById('bt-nemo').style.color='rgba(240,235,227,.2)';
+  // OFF state: show OFF text, hide ON text
+  const offS = document.getElementById('bt-on-off');
+  const onS  = document.getElementById('bt-on-on');
+  if(offS){ offS.style.opacity='1'; offS.style.color='rgba(240,235,227,.55)'; }
+  if(onS){  onS.style.opacity='0'; }
+  const bt = document.getElementById('big-typo');
+  const mask = document.getElementById('bt-mask');
+  setTimeout(()=>{ bt.classList.add('show'); }, 50);
+  setTimeout(()=>{ mask.classList.add('wiped'); }, 200);
+}
+
+// START — OFF state, user must click to turn on
+window.addEventListener('load',()=>{
+  isOn=false;
+  document.body.classList.add('state-off');
+  document.getElementById('pill').classList.remove('on');
+
+  // 직접 숨김 — CSS 클래스보다 확실함
+  const hideEls = [
+    document.querySelector('.hdr'),
+    document.querySelector('.sw'),
+    document.querySelector('.bot'),
+  ];
+  hideEls.forEach(el=>{
+    if(el){
+      el.style.visibility='hidden';
+      el.style.opacity='0';
+      el.style.animation='none';
+    }
+  });
+  // ss는 opacity:0으로만 (visibility는 runTurnOn이 제어)
+  const ssInit=document.getElementById('ss');
+  if(ssInit){ ssInit.style.opacity='0'; ssInit.style.transition='none'; }
+
+  particleAlpha=1;
+  setTimeout(showBigTypo, 800);
+  setTimeout(runOrigin, 600);
+
+  // Hover flash on main title shapes/text
+  function addFlashHover(id, message){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.cursor = 'pointer';
+    el.addEventListener('mouseenter', ()=>{
+      if(document.body.classList.contains('state-on')){
+        flashMessage(message);
+      }
+    });
+  }
+  // Wait for big typo to render
+  setTimeout(()=>{
+    addFlashHover('bt-cir',  '감성위에');
+    addFlashHover('bt-tri',  '구조를 더해');
+    addFlashHover('bt-nemo', '당신의 결로');
+    addFlashHover('bt-on-on', '함께');
+  }, 1200);
+});
+
+window.addEventListener('resize', ()=>{ sizeBigTypo(); });
+</script>
+<div id="phrase-layer">
+  <div class="pl" id="pl1">
+    <span class="sw-box sw-circle"></span><span class="kw kw1">감성</span><span class="kw-rest">위에</span>
+  </div>
+  <div class="pl" id="pl2">
+    <span class="kw kw2">구조</span><span class="sw-tri-wrap">
+      <svg viewBox="0 0 1 1" preserveAspectRatio="none"><polygon class="sw-tri-fill" points=".5,.04 .97,.96 .03,.96"/><polygon class="sw-tri-stroke" points=".5,.04 .97,.96 .03,.96"/></svg>
+    </span><span class="kw-rest">를 더해</span>
+  </div>
+  <div class="pl" id="pl3">
+    <span class="kw-rest">당신의 </span><span class="sw-box sw-square"><span class="sw-word">결</span></span><span class="kw-rest">로</span>
+  </div>
+</div>
+<div id="wipe-box"></div>
+<div id="flash-overlay">
+  <div id="flash-text"></div>
+</div>
+</body>
+</html>

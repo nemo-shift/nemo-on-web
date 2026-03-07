@@ -5,7 +5,9 @@ import {
   DM_Sans,
   DM_Mono,
   Bebas_Neue,
+  IBM_Plex_Sans_KR,
 } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import {
   Header,
@@ -21,6 +23,12 @@ const notoSansKR = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
 });
 
+const ibmPlex = IBM_Plex_Sans_KR({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-ibm-plex',
+});
+
 const dmSans = DM_Sans({
   subsets: ['latin'],
   weight: ['200', '300', '400'],
@@ -31,6 +39,11 @@ const dmMono = DM_Mono({
   subsets: ['latin'],
   weight: ['300', '400'],
   variable: '--font-dm-mono',
+});
+
+const suit = localFont({
+  src: '../../public/fonts/SUIT-Variable.woff2',
+  variable: '--font-suit',
 });
 
 const bebasNeue = Bebas_Neue({
@@ -52,7 +65,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${notoSansKR.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable}`}
+      className={`${notoSansKR.variable} ${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col font-sans">
         <LenisScrollRestoration />

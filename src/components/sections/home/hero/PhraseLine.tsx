@@ -27,8 +27,8 @@ export default function PhraseLine({ visible, baseColor, children, animateFromBo
   return (
     <div
       style={{
-        fontFamily: 'var(--font-bebas)',
-        fontSize: isMobile ? 'clamp(48px, 10vw, 150px)' : 'clamp(40px, 7.5vw, 115px)',
+        fontFamily: 'var(--font-suit), sans-serif',
+        fontSize: isMobile ? 'clamp(44px, 9vw, 130px)' : 'clamp(32px, 6.5vw, 100px)',
         lineHeight: 1,
         letterSpacing: '-.01em',
         color: baseColor,
