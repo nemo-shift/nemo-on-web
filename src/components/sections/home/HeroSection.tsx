@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, {
   useCallback,
@@ -6,21 +6,22 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { createPortal } from "react-dom";
-import { useDeviceDetection, useParticles } from "@/hooks";
-import { PointRingCursor } from "@/components/ui";
-import { runWipeTransition } from "@/lib";
-import type { HeroSectionProps } from "@/types";
-import HeroTrueFocusSlogan from "./hero/HeroTrueFocusSlogan";
-import HeroOffSlogan from "./hero/HeroOffSlogan";
-import HeroToggle from "./hero/HeroToggle";
-import ShapesStage from "./hero/ShapesStage";
-import HeroPhraseLayer from "./hero/HeroPhraseLayer";
-import HeroOffCta from "./hero/HeroOffCta";
-import HeroBigTypo from "./hero/HeroBigTypo";
-import HeroBottomBar from "./hero/HeroBottomBar";
-import { COLORS } from "@/constants/colors";
+} from 'react';
+import { createPortal } from 'react-dom';
+import { useHeroState, useParticles } from '@/hooks';
+import { PointRingCursor } from '@/components/ui';
+import { runWipeTransition } from '@/lib';
+import type { HeroSectionProps } from '@/types';
+import Header from '@/components/layout/Header';
+import HeroTrueFocusSlogan from './hero/HeroTrueFocusSlogan';
+import HeroOffSlogan from './hero/HeroOffSlogan';
+import HeroToggle from './hero/HeroToggle';
+import ShapesStage from './hero/ShapesStage';
+import HeroPhraseLayer from './hero/HeroPhraseLayer';
+import HeroOffCta from './hero/HeroOffCta';
+import HeroBigTypo from './hero/HeroBigTypo';
+import HeroBottomBar from './hero/HeroBottomBar';
+import { COLORS } from '@/constants/colors';
 
 /**
  * HeroSection 컴포넌트
@@ -42,319 +43,243 @@ export default function HeroSection({
   isOn,
   onToggle,
 }: HeroSectionProps): React.ReactElement {
-  const { isMobile } = useDeviceDetection();
   const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
 
-  useEffect(() => setMounted(true), []);
+  const {
+    isMobile,
+    sequenceStep,
+    isGathering,
+    isTransitioning,
+    isTitleDown,
+    shapesOnRevealed,
+    setShapesOnRevealed,
+    showCenteredShapes,
+    isToggleHovered,
+    setIsToggleHovered,
+    activeShape,
+    isInteractionActive,
+    handleToggle,
+    finalizeTransition,
+    handleTitleInteraction,
+    handleActiveShapeChange,
+    resetHeroState
+  } = useHeroState(isOn, onToggle);
 
-  // 캔버스 ref
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isGathering, setIsGathering] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isTitleDown, setIsTitleDown] = useState(false);
-  useParticles(canvasRef, isOn, isGathering);
-
   const tcRef = useRef<HTMLDivElement>(null);
-  const [phraseVisible, setPhraseVisible] = useState(true);
-  const [shapesOnRevealed, setShapesOnRevealed] = useState(false);
-  const [showCenteredShapes, setShowCenteredShapes] = useState(false);
-  const [sequenceStep, setSequenceStep] = useState(0); // 0: OFF, 1: 원, 2: 세모, 3: 네모, 4: 전체합체, 5: 슬로건
   const shapesStageRef = useRef<HTMLDivElement>(null);
-  const [isToggleHovered, setIsToggleHovered] = useState(false);
-  // [v25.21] 특정 단어 터치 시 강조할 도형 상태 ('all', 'circle', 'triangle', 'square')
-  const [activeShape, setActiveShape] = useState<'all' | 'circle' | 'triangle' | 'square'>('all');
-
-  useEffect(() => {
-    setShapesOnRevealed(false);
-    // ON 모드 진입 시 시퀀스 초기화 및 시작
-    if (isOn) {
-      setIsGathering(false);
-      setShowCenteredShapes(false);
-      setIsTransitioning(false);
-      setIsTitleDown(false);
-      // 감성적 딜레이: 0.8초 후 첫 번째 문구 등장
-      const timer = setTimeout(() => {
-        setSequenceStep(1);
-      }, 800);
-      return () => clearTimeout(timer);
-    } else {
-      setSequenceStep(0);
-      setActiveShape('all'); // 오프 모드 시 상태 초기화
-    }
-  }, [isOn]);
-
-  // 온모드 시퀀스 타이밍 제어
-  useEffect(() => {
-    if (!isOn || sequenceStep === 0 || sequenceStep >= 5) return;
-
-    // 초기 단계(1단계: 원)는 인지도를 위해 충분히(1.8초), 나머지는 경쾌하게(1.1초)
-    const interval = sequenceStep === 1 ? 1800 : 1100; 
-
-    const timer = setTimeout(() => {
-      setSequenceStep((prev) => prev + 1);
-    }, interval);
-
-    return () => clearTimeout(timer);
-  }, [isOn, sequenceStep]);
-
-
-  // [v25.23] 하단 타이틀 인터랙션 시 프레이즈 영역에 표시될 문구 상태
-  const [isInteractionActive, setIsInteractionActive] = useState(false);
-  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const handleTitleInteraction = useCallback((active: boolean) => {
-    // 온모드 시퀀스가 모두 완료된 후(Step 4)부터 상호작용 가능
-    if (!isOn || sequenceStep < 4) return;
-    
-    if (isMobile) {
-      if (active) {
-        setIsInteractionActive(true);
-        if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
-        // [v25.26] 모바일은 적절한 시간(1.5초) 후 자동 복구
-        interactionTimerRef.current = setTimeout(() => {
-          setIsInteractionActive(false);
-        }, 1500);
-      }
-    } else {
-      // [v25.26] PC는 마우스 호버 여부에 따라 상태 결정
-      setIsInteractionActive(active);
-    }
-  }, [isOn, sequenceStep, isMobile]);
-
   const wipeRef = useRef<HTMLDivElement>(null);
 
-  const handleToggle = useCallback(() => {
-    if (!isOn) {
-      // 1. 스위치 즉시 반응 시작
-      setIsTransitioning(true);
-      setIsTitleDown(true);
-      // 이후 HeroBigTypo에서 스크램블이 시작되고, 완료 시 handleScrambleComplete 호출
-    } else {
-      onToggle();
-    }
-  }, [isOn, onToggle]);
+  useParticles(canvasRef, isOn, isGathering);
 
+  // 초기화 및 리셋 (isOn 변경 시)
+  useEffect(() => {
+    requestAnimationFrame(resetHeroState);
+  }, [isOn, resetHeroState]);
+
+  // 스크램블 완료 핸들러
   const handleScrambleComplete = useCallback(() => {
-    // 1. 스크램블 완료 후 파티클 수렴 시작
-    setIsGathering(true);
-    // 중앙 도형 등장은 제거함 (사용자 요청)
-
-    // 2. 수렴 효과 감상 후 즉시 와이프 실행
-    setTimeout(() => {
-      setIsTitleDown(false); // 와이프 시작과 동시에 타이틀 상승 시작
-      runWipeTransition(wipeRef.current, onToggle);
-    }, 1200);
-  }, [onToggle]);
-
-  // [v25.22] 모바일 원터치 지속(Timed) 인터랙션 제어
-  const activeShapeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleActiveShapeChange = useCallback((shape: 'all' | 'circle' | 'triangle' | 'square') => {
-    setActiveShape(shape);
-
-    if (isMobile) {
-      if (activeShapeTimerRef.current) clearTimeout(activeShapeTimerRef.current);
-      
-      // 터치 시 1.5초 후 자동으로 'all'로 복구
-      if (shape !== 'all') {
-        activeShapeTimerRef.current = setTimeout(() => {
-          setActiveShape('all');
-        }, 1500);
-      }
-    }
-  }, [isMobile]);
-
+    finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback));
+  }, [finalizeTransition]);
 
   // CSS 변수 주입 (ON/OFF에 따른 색상 토큰)
-  const cssVars = useMemo(() => {
-    return {
-      "--bg": isOn ? COLORS.BG.CREAM : COLORS.BG.DARK,
-      "--fg": isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
-      "--accent": isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD,
-      "--sub": isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.BROWN,
-    } as React.CSSProperties;
-  }, [isOn]);
+  const cssVars = useMemo(() => ({
+    '--bg': isOn ? COLORS.BG.CREAM : COLORS.BG.DARK,
+    '--fg': isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
+    '--accent': isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD,
+    '--sub': isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.BROWN,
+  } as React.CSSProperties), [isOn]);
 
-  const wipeOverlay =
-    mounted && typeof document !== "undefined" ? (
+  const wipeOverlay = useMemo(() => 
+    mounted && typeof document !== 'undefined' ? (
       <div
         ref={wipeRef}
         style={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           width: 0,
           height: 0,
           opacity: 0,
-          background: "#0891b2",
+          background: '#0891b2',
           zIndex: 500,
-          pointerEvents: "none",
+          pointerEvents: 'none',
           borderRadius: 0,
         }}
       />
-    ) : null;
+    ) : null, [mounted]);
 
-  const portalContent = mounted && typeof document !== "undefined";
+  const pointCursor = useMemo(() =>
+    mounted && typeof document !== 'undefined' ? (
+      <PointRingCursor isOn={isOn} />
+    ) : null, [mounted, isOn]);
 
   return (
-    <div style={cssVars}>
-      <PointRingCursor isOn={isOn} />
-
-      {mounted && wipeOverlay && createPortal(wipeOverlay, document.body)}
-
-      {portalContent &&
-        createPortal(
+    <div 
+      className="relative flex flex-col w-full min-h-screen overflow-hidden transition-colors duration-1000"
+      style={cssVars}
+    >
+      {pointCursor}
+      
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <>
+          {wipeOverlay}
+          <Header />
           <div style={cssVars}>
             <HeroBottomBar isOn={isOn} />
-          </div>,
-          document.body,
-          "hero-bottom-bar",
-        )}
-
+          </div>
+        </>,
+        document.body
+      )}
 
       <section
         style={{
           ...cssVars,
-          position: "relative",
+          position: 'relative',
           zIndex: 10,
-          width: "100vw",
-          height: "100svh",
-          display: "flex",
-          flexDirection: "column",
-          padding: isMobile ? "24px 20px" : "36px 48px",
-          background: "var(--bg)",
-          color: "var(--fg)",
-          transition: "background 0.7s ease, color 0.7s ease",
-          overflow: "hidden",
+          width: '100vw',
+          height: '100svh',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: isMobile ? '24px 20px' : '36px 48px',
+          background: 'var(--bg)',
+          color: 'var(--fg)',
+          transition: 'background 0.7s ease, color 0.7s ease',
+          overflow: 'hidden',
         }}
       >
         <canvas
           ref={canvasRef}
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
             zIndex: 0,
-            pointerEvents: "none",
+            pointerEvents: 'none',
           }}
         />
 
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
             zIndex: 5,
-            pointerEvents: "none",
+            pointerEvents: 'none',
             opacity: isOn ? 0.02 : 0.06, // OFF 모드에서 노이즈 질감 강화
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundSize: "200px",
-            transition: "opacity 1s ease",
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
+            backgroundSize: '200px',
+            transition: 'opacity 1s ease',
           }}
         />
 
-        <div style={{ minHeight: "64px", flexShrink: 0 }} />
+        <div style={{ minHeight: '64px', flexShrink: 0 }} />
 
         <div
           ref={tcRef}
           className="relative z-30 w-full flex-shrink-0"
           style={{
-            marginTop: isMobile ? "0px" : "0", // 상단 더 밀착
+            marginTop: isMobile ? '0px' : '0', 
             opacity: showCenteredShapes ? 0 : 1, 
-            transition: "opacity 0.5s ease",
-            minHeight: isMobile ? "280px" : "180px", // 모바일 높이 상향 (스위치 자리 미리 확보)
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            gap: "24px"
+            transition: 'opacity 0.5s ease',
+            minHeight: isMobile ? '220px' : '10vh', // [v25.61] 최소 높이 더 하향
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            gap: isMobile ? '24px' : '1.5vh' // [v25.61] 간격 축소
           }}
         >
           {/* Header Area (Slogan & Toggle) - 절대 흔들리지 않는 프레임 */}
           <div 
-            className={isMobile ? "px-5" : "px-[48px]"} 
+            className={isMobile ? 'px-5' : 'px-[48px]'} 
             style={{ 
-              position: "relative",
-              width: "100%",
-              marginTop: isMobile ? "5px" : "6vh", 
-              display: "flex",
-              flexDirection: isMobile ? "column" : "row",
-              justifyContent: isMobile ? "flex-start" : "space-between",
-              alignItems: isMobile ? "flex-start" : "flex-end",
-              pointerEvents: "none",
+              position: 'relative',
+              width: '100%',
+              marginTop: isMobile ? '5px' : '6vh', 
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'column', // [v25.43] PC/모바일 모두 세로 배치이나 분리 유지
+              justifyContent: isMobile ? 'flex-start' : 'flex-start',
+              alignItems: isMobile ? 'flex-start' : 'flex-start',
+              pointerEvents: 'none',
               zIndex: 100,
               flexShrink: 0 // 상단 영역 크기 고수
             }}
           >
-              {/* 슬로건 영역 (Editorial Grid) */}
-              <div 
-                className="relative flex-shrink-0" 
-                style={{ 
-                  width: isMobile ? "100%" : "auto",
-                  height: isMobile ? "120px" : "fit-content", // 2줄 높이로 상시 박제 (ON/OFF 동일)
-                  pointerEvents: "auto",
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  transform: isMobile ? "translateY(55px)" : "none" 
-                }}
-              >
-                <div style={{ position: "relative", width: isMobile ? "100%" : "600px", height: "100%" }}>
-                  <div className="absolute top-0 left-0 w-full flex justify-start">
-                    <HeroTrueFocusSlogan 
-                      isOn={isOn && (isMobile ? sequenceStep >= 4 : sequenceStep >= 1)} 
-                      sentence="불안을 끄고, 기준을 켭니다" 
-                    />
-                  </div>
-                  <div className="absolute top-0 left-0 w-full flex justify-start">
-                    <HeroOffSlogan 
-                      isVisible={!isOn} 
-                      isToggleHovered={isToggleHovered}
-                      isMobile={isMobile}
-                      isTransitioning={isTransitioning} // prop 전달
-                      onToggle={handleToggle}
-                    />
-                  </div>
+            {/* 슬로건 영역 (Editorial Grid) - 고정 높이로 스위치 위치 박제 */}
+            <div 
+              className="relative flex-shrink-0" 
+              style={{ 
+                width: isMobile ? '100%' : 'auto',
+                height: '120px', // [v25.32] PC도 고정 높이 적용하여 ON/OFF 시 Toggle 상하 움직임 방지
+                pointerEvents: 'auto',
+                display: 'flex',
+                justifyContent: 'flex-start',
+                transform: isMobile ? 'translateY(55px)' : 'none' 
+              }}
+            >
+              <div style={{ position: 'relative', width: isMobile ? '100%' : '600px', height: '100%' }}>
+                <div className="absolute top-0 left-0 w-full flex justify-start">
+                  <HeroTrueFocusSlogan 
+                    isOn={isOn && (isMobile ? sequenceStep >= 4 : sequenceStep >= 1)} 
+                    sentence="불안을 끄고, 기준을 켭니다" 
+                  />
+                </div>
+                <div className="absolute top-0 left-0 w-full flex justify-start">
+                  <HeroOffSlogan 
+                    isVisible={!isOn} 
+                    isToggleHovered={isToggleHovered}
+                    isMobile={isMobile}
+                    isTransitioning={isTransitioning}
+                    onToggle={handleToggle}
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* 스위치 영역 (헤더 내 위치 박제) */}
-              <div 
-                className="flex-shrink-0" 
-                style={{ 
-                  top: isMobile ? "115px" : "0px", // 125px에서 115px로 미세 상향 조정
-                  left: isMobile ? "20px" : "auto",
-                  zIndex: 50,
-                  pointerEvents: "auto",
-                  transform: isMobile ? "none" : "none" 
-                }}
-                onMouseEnter={() => setIsToggleHovered(true)}
-                onMouseLeave={() => setIsToggleHovered(false)}
-              >
-               <HeroToggle
-                 isOn={isOn}
-                 onToggle={handleToggle}
-                 isTransitioning={isTransitioning}
-               />
-             </div>
+            <div 
+              className="flex-shrink-0" 
+              style={{ 
+                position: isMobile ? 'absolute' : 'relative', // [v25.43] 모바일 절대 좌표 복구
+                top: isMobile ? '115px' : 'auto',
+                left: isMobile ? '20px' : 'auto',
+                marginTop: isMobile ? '0px' : '-15px', // [v25.34] PC만 상향 밀착
+                zIndex: 50,
+                pointerEvents: 'auto',
+                transform: isMobile ? 'none' : 'none' 
+              }}
+              onMouseEnter={() => setIsToggleHovered(true)}
+              onMouseLeave={() => setIsToggleHovered(false)}
+            >
+              <HeroToggle
+                isOn={isOn}
+                onToggle={handleToggle}
+                isTransitioning={isTransitioning}
+              />
+            </div>
           </div>
         </div>
 
         <div
           style={{
-            position: "relative",
+            position: 'relative',
             zIndex: showCenteredShapes ? 600 : 20,
-            width: "100%", 
-            flexShrink: 0,
-            marginTop: "0px", // 레이아웃 밀림 방지를 위해 마진 제거
-            minHeight: isMobile ? "220px" : "320px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            pointerEvents: "none",
-            transform: (isMobile && isOn) ? "translateY(-35px)" : "none" // -5px -> -35px로 추가 상향
+            width: '100%', 
+            flexShrink: 1, // [v25.51] 창이 줄어들 때 함께 축소되도록 허용
+            marginTop: '0px', 
+            flexGrow: 1,   // [v25.51] 가용 공간 최대한 점유
+            minHeight: isMobile ? '220px' : '25vh', // [v25.51] 고정 픽셀 대신 뷰포트 비례로 변경
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            pointerEvents: 'none',
+            transform: (isMobile && isOn) ? 'translateY(-35px)' : 'none'
           }}
         >
           <HeroPhraseLayer
             isOn={isOn}
-            visible={phraseVisible && !showCenteredShapes}
+            visible={!showCenteredShapes}
             isMobile={isMobile}
             sequenceStep={sequenceStep}
             onActiveShapeChange={handleActiveShapeChange}
@@ -366,7 +291,7 @@ export default function HeroSection({
             <div 
               className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
               style={{
-                transform: isMobile ? "translateY(-55px)" : "none" 
+                transform: isMobile ? 'translateY(-55px)' : 'none' 
               }}
             >
               <div className="pointer-events-auto">
@@ -397,20 +322,20 @@ export default function HeroSection({
         <div
           style={
             isMobile
-              ? { flexShrink: 0, minHeight: "40px", height: "40px" } // 하단 여백 추가하여 옹기종기 해결
+              ? { flexShrink: 0, minHeight: '40px', height: '40px' } // 하단 여백 추가하여 옹기종기 해결
               : { flex: 1, minHeight: 0 }
           }
         />
 
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
+            display: 'flex',
+            flexDirection: 'column',
             zIndex: 20,
             flexShrink: 0,
-            gap: isMobile ? "40px" : "20px", 
-            marginBottom: isMobile ? "145px" : "60px", // 100px -> 145px로 추가 상향 (하단 여백을 늘려 위로 밀어올림)
-            transition: "none"
+            gap: isMobile ? '40px' : '2vh', // [v25.51] 가변 간격
+            marginBottom: isMobile ? '145px' : '4vh', // [v25.51] 고정 60px에서 가변 4vh로 변경
+            transition: 'none'
           }}
         >
           <HeroBigTypo
@@ -418,13 +343,48 @@ export default function HeroSection({
             isMobile={isMobile}
             tcRef={tcRef}
             shapesStageRef={shapesStageRef}
-            sequenceStep={sequenceStep} // [v25.25] 활성화 제어용
+            sequenceStep={sequenceStep}
             onInteraction={handleTitleInteraction}
             isTransitioning={isTransitioning}
             isTitleDown={isTitleDown}
             onScrambleComplete={handleScrambleComplete}
           />
+
+          {/* [v25.32] PC 오프 모드용 정밀 스크롤 힌트 (전문가 제안) */}
+          {!isMobile && !isOn && (
+            <div 
+              style={{
+                position: 'absolute',
+                left: '50%',
+                bottom: '-35px',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: 0.3,
+              }}
+            >
+              <div 
+                style={{
+                  width: '1px',
+                  height: '20px',
+                  background: 'var(--fg)',
+                  animation: 'scrollLine 2s ease-in-out infinite',
+                }}
+              />
+            </div>
+          )}
         </div>
+        
+        <style>{`
+          @keyframes scrollLine {
+            0% { transform: scaleY(0); transform-origin: top; }
+            50% { transform: scaleY(1); transform-origin: top; }
+            50.1% { transform: scaleY(1); transform-origin: bottom; }
+            100% { transform: scaleY(0); transform-origin: bottom; }
+          }
+        `}</style>
       </section>
     </div>
   );

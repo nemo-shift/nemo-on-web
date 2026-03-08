@@ -33,14 +33,19 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
   const animRef = useRef<number>(0);
   const isHoverRef = useRef(false);
 
-  positionRef.current = position;
-  isHoverRef.current = isHover;
+  useEffect(() => {
+    positionRef.current = position;
+  }, [position]);
+
+  useEffect(() => {
+    isHoverRef.current = isHover;
+  }, [isHover]);
 
   const showCursor = !isMobile;
 
   // 클라이언트 마운트 후에만 커서 렌더 (하이드레이션 불일치 방지)
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   // 기본 커서 숨기기 — html에 클래스 부여 (인라인 cursor:pointer 등 덮어쓰기)
@@ -60,10 +65,24 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
     const onEnter = () => setIsHover(true);
     const onLeave = () => setIsHover(false);
 
+    // 현재 리스너가 등록된 요소 목록 추적 (중복 등록 방지)
+    const trackedElements = new Set<Element>();
+
+    const detachAll = () => {
+      trackedElements.forEach((el) => {
+        el.removeEventListener('mouseenter', onEnter);
+        el.removeEventListener('mouseleave', onLeave);
+      });
+      trackedElements.clear();
+    };
+
     const attach = () => {
+      // 기존 리스너를 모두 제거한 뒤 다시 등록 (누적 방지)
+      detachAll();
       document.querySelectorAll(selectors).forEach((el) => {
         el.addEventListener('mouseenter', onEnter);
         el.addEventListener('mouseleave', onLeave);
+        trackedElements.add(el);
       });
     };
 
@@ -73,10 +92,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
 
     return () => {
       observer.disconnect();
-      document.querySelectorAll(selectors).forEach((el) => {
-        el.removeEventListener('mouseenter', onEnter);
-        el.removeEventListener('mouseleave', onLeave);
-      });
+      detachAll();
     };
   }, [mounted]);
 

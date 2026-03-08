@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -39,7 +39,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
     <div 
       className="relative pointer-events-auto"
       onClick={handleMobileClick}
-      style={{ cursor: isMobile ? "pointer" : "default" }}
+      style={{ cursor: isMobile ? 'pointer' : 'default' }}
     >
       {/* [v25] 모바일 전용 Luminous Pulse Glow */}
       {isMobile && !isClearing && (
@@ -52,7 +52,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: 'easeInOut'
           }}
           style={{
             background: COLORS.BRAND.GOLD,
@@ -69,23 +69,23 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
       <motion.div 
         initial={{ opacity: 0 }}
         animate={(isMobile && !isTransitioning && !isClearing) ? {
-          filter: "blur(0px)",
+          filter: 'blur(0px)',
           opacity: 1,
         } : {
-          filter: (isToggleHovered || isClearing) ? "blur(0px)" : "blur(15px)",
+          filter: (isToggleHovered || isClearing) ? 'blur(0px)' : 'blur(15px)',
           opacity: (isToggleHovered || isClearing) ? 1 : 0.1,
         }}
         transition={{
           duration: 0.6,
-          ease: "easeOut",
-          delay: 0.8 // 전체 레이아웃 로드 후 나타나도록 지연 추가
+          ease: 'easeOut',
+          delay: isMobile ? 0.8 : 0 // [v25.33] PC에서는 호버 시 즉각 반응하도록 딜레이 제거
         }}
         className="flex flex-col items-center"
       >
         <span 
           className="font-medium tracking-[0.3em] md:tracking-[0.5em] uppercase whitespace-nowrap text-center"
           style={{ 
-            fontSize: isMobile ? "0.95rem" : "1.2rem",
+            fontSize: isMobile ? '0.95rem' : '1.2rem',
             color: COLORS.BRAND.GOLD,
             textShadow: isMobile ? `0 0 30px ${COLORS.BRAND.GOLD}66` : 'none',
             display: 'block'

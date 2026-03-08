@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import Lenis from "lenis";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from 'react';
+import Lenis from 'lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,9 +21,9 @@ type UseLenisScrollOptions = {
   /** 휠 스크롤 배수 */
   wheelMultiplier?: number;
   /** 스크롤 방향 */
-  orientation?: "vertical" | "horizontal";
+  orientation?: 'vertical' | 'horizontal';
   /** 제스처 방향 */
-  gestureOrientation?: "vertical" | "horizontal" | "both";
+  gestureOrientation?: 'vertical' | 'horizontal' | 'both';
   [key: string]: unknown;
 };
 
@@ -51,19 +51,19 @@ export default function useLenisScroll(
     smoothWheel = true,
     syncTouch = true,
     wheelMultiplier = 1,
-    orientation = "vertical",
+    orientation = 'vertical',
     gestureOrientation,
     ...lenisOptions
   } = options;
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") {
+    if (!enabled || typeof window === 'undefined') {
       if (lenisRef.current) {
         if (rafRef.current) {
           cancelAnimationFrame(rafRef.current);
           rafRef.current = null;
         }
-        if (typeof lenisRef.current.destroy === "function") {
+        if (typeof lenisRef.current.destroy === 'function') {
           lenisRef.current.destroy();
         }
         if (window.lenis === lenisRef.current) {
@@ -74,7 +74,7 @@ export default function useLenisScroll(
       return;
     }
 
-    const lenis = new Lenis({
+    const config = {
       duration,
       smoothWheel,
       syncTouch,
@@ -83,13 +83,14 @@ export default function useLenisScroll(
       orientation,
       gestureOrientation: gestureOrientation ?? orientation,
       ...lenisOptions,
-    });
+    };
+    const lenis = new Lenis(config);
 
     lenisRef.current = lenis;
     window.lenis = lenis;
 
     const raf = (time: number) => {
-      if (lenisRef.current && typeof lenisRef.current.raf === "function") {
+      if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
         lenisRef.current.raf(time);
         rafRef.current = requestAnimationFrame(raf);
       } else {
@@ -108,9 +109,9 @@ export default function useLenisScroll(
     let gsapScrollUnsubscribe: (() => void) | null = null;
     let gsapTickerHandler: ((time: number) => void) | null = null;
     if (integrateGSAP) {
-      gsapScrollUnsubscribe = lenis.on("scroll", ScrollTrigger.update);
+      gsapScrollUnsubscribe = lenis.on('scroll', ScrollTrigger.update);
       gsapTickerHandler = (time: number) => {
-        if (lenisRef.current && typeof lenisRef.current.raf === "function") {
+        if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
           lenisRef.current.raf(time * 1000);
         }
       };
@@ -127,11 +128,11 @@ export default function useLenisScroll(
       if (integrateGSAP) {
         if (
           gsapScrollUnsubscribe &&
-          typeof gsapScrollUnsubscribe === "function"
+          typeof gsapScrollUnsubscribe === 'function'
         ) {
           gsapScrollUnsubscribe();
         }
-        if (gsapTickerHandler && typeof gsap.ticker.remove === "function") {
+        if (gsapTickerHandler && typeof gsap.ticker.remove === 'function') {
           gsap.ticker.remove(gsapTickerHandler);
         }
       }
@@ -139,8 +140,7 @@ export default function useLenisScroll(
       if (window.lenis === lenisRef.current) {
         window.lenis = null;
       }
-
-      if (lenisRef.current && typeof lenisRef.current.destroy === "function") {
+      if (lenisRef.current && typeof lenisRef.current.destroy === 'function') {
         lenisRef.current.destroy();
         lenisRef.current = null;
       }
@@ -155,6 +155,7 @@ export default function useLenisScroll(
     wheelMultiplier,
     orientation,
     gestureOrientation,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(lenisOptions),
   ]);
 

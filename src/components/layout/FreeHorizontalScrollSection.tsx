@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useRef, useEffect, useCallback } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { cn } from "@/lib";
+import React, { useRef, useEffect, useCallback } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { cn } from '@/lib';
 
 // GSAP ScrollTrigger 플러그인 등록
 gsap.registerPlugin(ScrollTrigger);
@@ -48,10 +48,10 @@ export default function FreeHorizontalScrollSection({
       while (current && current !== document.body) {
         const style = window.getComputedStyle(current);
         const hasScroll =
-          style.overflow === "auto" ||
-          style.overflow === "scroll" ||
-          style.overflowY === "auto" ||
-          style.overflowY === "scroll";
+          style.overflow === 'auto' ||
+          style.overflow === 'scroll' ||
+          style.overflowY === 'auto' ||
+          style.overflowY === 'scroll';
         if (hasScroll) return current;
         current = current.parentElement;
       }
@@ -74,17 +74,17 @@ export default function FreeHorizontalScrollSection({
     contextRef.current = gsap.context(() => {
       const scrollContainer = findNearestScrollContainer(section);
 
-      gsap.set(container, { display: "flex", alignItems: "center" });
+      gsap.set(container, { display: 'flex', alignItems: 'center' });
 
       container
-        .querySelectorAll<HTMLElement>(".free-horizontal-section-item")
+        .querySelectorAll<HTMLElement>('.free-horizontal-section-item')
         .forEach((item) => {
           gsap.set(item, {
             flexShrink: 0,
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           });
         });
 
@@ -100,7 +100,7 @@ export default function FreeHorizontalScrollSection({
         triggerRef.current = ScrollTrigger.create({
           trigger: section,
           scroller: scrollContainer ?? undefined,
-          start: "top top",
+          start: 'top top',
           end: () => `+=${calculateMaxScroll()}`,
           pin: true,
           anticipatePin: 1,
@@ -110,8 +110,8 @@ export default function FreeHorizontalScrollSection({
             const currentMaxScroll = calculateMaxScroll();
             gsap.to(container, {
               x: -currentMaxScroll * self.progress,
-              ease: "none",
-              overwrite: "auto",
+              ease: 'none',
+              overwrite: 'auto',
               duration: 0,
             });
           },
@@ -146,9 +146,9 @@ export default function FreeHorizontalScrollSection({
     <div
       ref={sectionRef}
       className={cn(
-        "relative",
-        "h-screen w-full",
-        "overflow-hidden",
+        'relative',
+        'h-screen w-full',
+        'overflow-hidden',
         className,
       )}
     >

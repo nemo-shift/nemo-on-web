@@ -1,5 +1,5 @@
-import React from "react";
-import HomeClient from "@/components/sections/home/HomeClient";
+import React from 'react';
+import HomeClient from '@/components/sections/home/HomeClient';
 
 /**
  * 홈페이지 (Server Component)

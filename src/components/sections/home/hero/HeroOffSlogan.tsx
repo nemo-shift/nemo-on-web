@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,10 +7,10 @@ import { COLORS } from '@/constants/colors';
 
 interface HeroOffSloganProps {
   isVisible: boolean;
-  isToggleHovered: boolean;
-  isMobile?: boolean; // 모바일 대응용
-  isTransitioning?: boolean; // 추가됨
-  onToggle?: () => void; // 모바일 클릭 연동용
+  isToggleHovered?: boolean;
+  isMobile?: boolean; 
+  isTransitioning?: boolean;
+  onToggle?: () => void; 
 }
 
 /**
@@ -22,23 +22,18 @@ interface HeroOffSloganProps {
  * - 모바일 전용: 힌트 애니메이션 및 클릭 시 ON 모드 전환 기능.
  */
 const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({ 
-  isVisible, 
-  isToggleHovered,
+  isVisible,
+  onToggle,
   isMobile = false,
-  isTransitioning = false,
-  onToggle
 }) => {
-  const [isClearing, setIsClearing] = React.useState(false);
-
   // 모드 전환 시 상태 초기화
   React.useEffect(() => {
-    if (!isVisible) setIsClearing(false);
+    // 상태 초기화 로직이 필요 없다면 제거 가능하나 일단 구조 유지
   }, [isVisible]);
 
   const handleMobileClick = () => {
     if (!isMobile || !isVisible) return;
-    setIsClearing(true);
-    // 즉각적인 시각적 피드백(블러 해제) 후 토글 실행
+    // 즉각적인 시각적 피드백 후 토글 실행
     setTimeout(() => {
       onToggle?.();
     }, 150);
@@ -54,17 +49,17 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
           exit={{ opacity: 0 }}
           className="flex flex-col items-start justify-center text-left gap-1 md:gap-2 pointer-events-auto"
           style={{
-            fontFamily: "var(--font-suit), sans-serif",
+            fontFamily: 'var(--font-suit), sans-serif',
             color: COLORS.TEXT.LIGHT,
-            maxWidth: isMobile ? "100%" : "600px",
-            cursor: isMobile ? "pointer" : "default"
+            maxWidth: isMobile ? '100%' : '600px',
+            cursor: isMobile ? 'pointer' : 'default'
           }}
           onClick={handleMobileClick}
         >
           {/* 첫 번째 줄: 흐릿한 [Rotating Text] (항상 선명) */}
           <div 
             className="flex flex-wrap items-center justify-start gap-x-2 font-light tracking-tight"
-            style={{ fontSize: isMobile ? "1.1rem" : "1.6rem" }}
+            style={{ fontSize: isMobile ? '1.1rem' : '1.6rem' }}
           >
             <span className="opacity-50">흐릿한</span>
             <div 
@@ -85,7 +80,7 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
           {/* 두 번째 줄: 작동하는 브랜드로. (항상 선명) */}
           <motion.div
             className="font-semibold tracking-tighter"
-            style={{ fontSize: isMobile ? "1.6rem" : "2.4rem" }}
+            style={{ fontSize: isMobile ? '1.6rem' : '2.4rem' }}
           >
             작동하는 브랜드로.
           </motion.div>

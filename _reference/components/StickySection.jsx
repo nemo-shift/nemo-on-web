@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Typography, Box } from "@mui/material";
-import PropTypes from "prop-types";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Typography, Box } from '@mui/material';
+import PropTypes from 'prop-types';
 
 /**
  * 스크롤에 따라 축소되는 스티키 섹션 컴포넌트
@@ -41,7 +41,7 @@ import PropTypes from "prop-types";
  */
 function StickySection({
   targetScale = 0.8,
-  backgroundColor = "#0000ff",
+  backgroundColor = '#0000ff',
   image,
   backgroundComponent,
   children,
@@ -62,10 +62,10 @@ function StickySection({
     while (element && element !== document.body) {
       const style = window.getComputedStyle(element);
       if (
-        style.overflow === "auto" ||
-        style.overflow === "scroll" ||
-        style.overflowY === "auto" ||
-        style.overflowY === "scroll"
+        style.overflow === 'auto' ||
+        style.overflow === 'scroll' ||
+        style.overflowY === 'auto' ||
+        style.overflowY === 'scroll'
       ) {
         return element;
       }
@@ -186,14 +186,14 @@ function StickySection({
     // 이벤트 리스너 등록
     if (scrollContainer === null) {
       // viewport 스크롤 감지
-      window.addEventListener("scroll", scrollHandler, { passive: true });
-      return () => window.removeEventListener("scroll", scrollHandler);
+      window.addEventListener('scroll', scrollHandler, { passive: true });
+      return () => window.removeEventListener('scroll', scrollHandler);
     } else {
       // 특정 컨테이너 스크롤 감지
-      scrollContainer.addEventListener("scroll", scrollHandler, {
+      scrollContainer.addEventListener('scroll', scrollHandler, {
         passive: true,
       });
-      return () => scrollContainer.removeEventListener("scroll", scrollHandler);
+      return () => scrollContainer.removeEventListener('scroll', scrollHandler);
     }
   }, [handleScroll, findScrollContainer]);
 
@@ -218,56 +218,56 @@ function StickySection({
     <Box
       ref={containerRef}
       sx={{
-        position: "relative",
-        width: "100%",
-        boxSizing: "border-box",
+        position: 'relative',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* 스티키 영역만을 위한 컨테이너 */}
       <Box
         sx={{
-          position: "relative",
-          width: "100%",
-          minHeight: "210vh", // 고정 높이
-          boxSizing: "border-box",
+          position: 'relative',
+          width: '100%',
+          minHeight: '210vh', // 고정 높이
+          boxSizing: 'border-box',
         }}
       >
         {/* 스티키 영역 (배경) */}
         <Box
           ref={sectionRef}
           sx={{
-            position: "sticky",
+            position: 'sticky',
             top: 0,
-            height: "100vh",
-            width: "100%",
+            height: '100vh',
+            width: '100%',
             zIndex: 0,
           }}
         >
           {/* 스케일링되는 배경 컨텐츠 박스 */}
           <Box
             sx={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
               ...(backgroundComponent
                 ? {} // backgroundComponent가 제공되면 이 Box는 컨테이너 역할
                 : image
-                ? {
+                  ? {
                     backgroundImage: `url(${image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                   }
-                : { backgroundColor: backgroundColor }),
-              transformOrigin: "center center",
+                  : { backgroundColor: backgroundColor }),
+              transformOrigin: 'center center',
               transform: `scale(${scaleValue})`,
-              overflow: "hidden",
-              position: "relative",
+              overflow: 'hidden',
+              position: 'relative',
               opacity: finalOpacity,
-              transition: "transform 0.3s ease-out, opacity 0.3s ease-out",
-              willChange: "transform, opacity",
+              transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+              willChange: 'transform, opacity',
             }}
           >
             {backgroundComponent && renderBackground()}
@@ -277,14 +277,14 @@ function StickySection({
         {/* 메인 메시지/컨텐츠 영역 (스티키 배경 위에 오버레이) */}
         <Box
           sx={{
-            position: "relative",
-            width: "100%",
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: "-100vh",
+            position: 'relative',
+            width: '100%',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: '-100vh',
             zIndex: 9,
           }}
         >
@@ -294,11 +294,11 @@ function StickySection({
         {/* 추가 스크롤 공간 - 축소 완료 후 여백 */}
         <Box
           sx={{
-            height: "100vh", // 고정 여백
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
+            height: '100vh', // 고정 여백
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           {/* 축소 완료 후 스티키 해제를 위한 여백 공간 */}
@@ -310,9 +310,9 @@ function StickySection({
         <Box
           sx={{
             marginTop: `${contentMarginTop}vh`,
-            position: "relative",
+            position: 'relative',
             zIndex: 10, // 스티키보다 위에
-            width: "100%",
+            width: '100%',
           }}
         >
           {content}

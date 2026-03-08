@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 /**
  * GSAP ScrollTrigger 전역 정리 컴포넌트
@@ -15,12 +15,12 @@ export default function GlobalScrollTriggerCleanup(): null {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     ScrollTrigger.killAll(true);
 
     const pinSpacers = document.querySelectorAll(
-      ".pin-spacer, .gsap-pin-spacer",
+      '.pin-spacer, .gsap-pin-spacer',
     );
     pinSpacers.forEach((spacer) => spacer.remove());
 
@@ -29,14 +29,14 @@ export default function GlobalScrollTriggerCleanup(): null {
     );
     elementsWithGSAPStyles.forEach((element) => {
       const el = element as HTMLElement;
-      if (el.style.transform?.includes("matrix")) {
-        el.style.transform = "";
+      if (el.style.transform?.includes('matrix')) {
+        el.style.transform = '';
       }
       if (
-        el.style.position === "fixed" &&
-        element.classList.contains("pin-spacer")
+        el.style.position === 'fixed' &&
+        element.classList.contains('pin-spacer')
       ) {
-        el.style.position = "";
+        el.style.position = '';
       }
     });
 

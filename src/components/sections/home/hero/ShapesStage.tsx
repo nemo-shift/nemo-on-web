@@ -1,5 +1,5 @@
-import React, { forwardRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { forwardRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type ShapesStageProps = {
   isOn: boolean;
@@ -44,26 +44,26 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
           ref={ref}
           className="shapes-stage-container"
           style={{
-            position: "absolute",
+            position: 'absolute',
             // PC: 우측 영역 확보 (텍스트와 거리 두기)
             // Mobile: 우측 상단 여백 (텍스트 위쪽)
-            left: isCentered ? "50%" : "auto",
-            right: isCentered ? "auto" : (isMobile ? "4%" : "10%"), // 8% -> 4% (우측 이동)
-            top: isCentered ? "50%" : (isMobile ? "25%" : "40%"), // 더 아래로
+            left: isCentered ? '50%' : 'auto',
+            right: isCentered ? 'auto' : (isMobile ? '4%' : '10%'), // 8% -> 4% (우측 이동)
+            top: isCentered ? '50%' : (isMobile ? '25%' : '40%'), // 더 아래로
             transform: isCentered 
-              ? "translate(-50%, -50%) scale(1.1)" 
-              : "translateY(-50%)",
+              ? 'translate(-50%, -50%) scale(1.1)' 
+              : 'translateY(-50%)',
             width: isMobile
-              ? "clamp(120px, 35vw, 180px)"
-              : "clamp(260px, 32vw, 500px)",
+              ? 'clamp(120px, 35vw, 180px)'
+              : 'clamp(260px, 32vw, 500px)',
             height: isMobile
-              ? "clamp(120px, 35vw, 180px)"
-              : "clamp(260px, 32vw, 500px)",
-            visibility: isOn ? "visible" : "hidden",
+              ? 'clamp(120px, 35vw, 180px)'
+              : 'clamp(260px, 32vw, 500px)',
+            visibility: isOn ? 'visible' : 'hidden',
             opacity: isOn ? (isStepAll ? (onModeRevealed || isCentered ? 0.75 : 1) : 0.95) : 0,
-            pointerEvents: isOn && (onModeRevealed || isCentered || sequenceStep > 0) ? "auto" : "none",
-            filter: isCentered ? "drop-shadow(0 0 20px rgba(8,145,178,0.2))" : "none", // 블러 제거
-            transition: "all 1.2s cubic-bezier(0.16,1,0.3,1)",
+            pointerEvents: isOn && (onModeRevealed || isCentered || sequenceStep > 0) ? 'auto' : 'none',
+            filter: isCentered ? 'drop-shadow(0 0 20px rgba(8,145,178,0.2))' : 'none', // 블러 제거
+            transition: 'all 1.2s cubic-bezier(0.16,1,0.3,1)',
             zIndex: isCentered ? 600 : 10,
           }}
         >
@@ -72,11 +72,11 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             fill="none"
             overflow="visible"
             style={{
-              position: "absolute",
+              position: 'absolute',
               inset: 0,
-              width: "100%",
-              height: "100%",
-              display: isOn ? "block" : "none",
+              width: '100%',
+              height: '100%',
+              display: isOn ? 'block' : 'none',
             }}
           >
             <defs>
@@ -93,24 +93,24 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
                 <motion.g 
                   key="circle-group"
                   className="shC"
-                  initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 1.1, filter: "blur(5px)" }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  style={{ "--glow-color": "rgba(8,145,178,0.25)" } as any}
+                  initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(5px)' }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  style={{ '--glow-color': 'rgba(8,145,178,0.25)' } as React.CSSProperties}
                 >
                   <circle
                     cx="250"
                     cy="235"
                     r="168"
                     className="glow-filter"
-                    fill={activeShape === 'circle' ? "#0891b2" : "none"} // 강조 시 색상 채움
+                    fill={activeShape === 'circle' ? '#0891b2' : 'none'} // 강조 시 색상 채움
                     fillOpacity={activeShape === 'circle' ? 0.08 : 0} // 은은한 필링
                     stroke="#0891b2"
                     strokeWidth="1.2"
                     strokeDasharray="5 8"
                     strokeOpacity=".45"
-                    style={{ transition: "fill 0.4s ease, fill-opacity 0.4s ease" }}
+                    style={{ transition: 'fill 0.4s ease, fill-opacity 0.4s ease' }}
                   />
                   <circle
                     cx="250"
@@ -145,18 +145,18 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
                   initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  style={{ "--glow-color": "rgba(8,145,178,0.2)" } as any}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  style={{ '--glow-color': 'rgba(8,145,178,0.2)' } as React.CSSProperties}
                 >
                   <polygon
                     points="250,72 422,334 78,334"
                     className="glow-filter"
-                    fill={activeShape === 'triangle' ? "#0891b2" : "none"}
+                    fill={activeShape === 'triangle' ? '#0891b2' : 'none'}
                     fillOpacity={activeShape === 'triangle' ? 0.08 : 0}
                     stroke="#0891b2"
                     strokeWidth="1.2"
                     strokeOpacity=".45"
-                    style={{ transition: "fill 0.4s ease, fill-opacity 0.4s ease" }}
+                    style={{ transition: 'fill 0.4s ease, fill-opacity 0.4s ease' }}
                   />
                   <polygon
                     points="250,112 396,334 104,334"
@@ -188,8 +188,8 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  style={{ "--glow-color": "rgba(8,145,178,0.15)" } as any}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  style={{ '--glow-color': 'rgba(8,145,178,0.15)' } as React.CSSProperties}
                 >
                   <rect
                     x="138"
@@ -197,12 +197,12 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
                     width="224"
                     height="224"
                     className="glow-filter"
-                    fill={activeShape === 'square' ? "#0891b2" : "none"}
+                    fill={activeShape === 'square' ? '#0891b2' : 'none'}
                     fillOpacity={activeShape === 'square' ? 0.08 : 0}
                     stroke="#0891b2"
                     strokeWidth="1.2"
                     strokeOpacity=".35"
-                    style={{ transition: "fill 0.4s ease, fill-opacity 0.4s ease" }}
+                    style={{ transition: 'fill 0.4s ease, fill-opacity 0.4s ease' }}
                   />
                   {/* 모서리 강조 라인들 */}
                   {[
@@ -274,5 +274,5 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
   },
 );
 
-ShapesStage.displayName = "ShapesStage";
+ShapesStage.displayName = 'ShapesStage';
 export default ShapesStage;

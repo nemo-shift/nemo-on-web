@@ -62,7 +62,7 @@ function FreeHorizontalScrollSection({
   transitionDuration = 0.5,
   enableMotionBlur = true,
   motionBlurIntensity = 1.0,
-  scroller = "auto",
+  scroller = 'auto',
 }) {
   const sectionRef = useRef(null);
   const containerRef = useRef(null);
@@ -79,7 +79,7 @@ function FreeHorizontalScrollSection({
 
   // 가장 가까운 스크롤 컨테이너 자동 감지 함수
   const findNearestScrollContainer = useCallback((element) => {
-    if (scroller === "auto") {
+    if (scroller === 'auto') {
       let current = element?.parentElement;
       while (current && current !== document.body) {
         const style = window.getComputedStyle(current);

@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import Lenis from "@studio-freight/lenis";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from 'react';
+import Lenis from '@studio-freight/lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 /**
  * Lenis 부드러운 스크롤 및 선택적 GSAP 통합을 제공하는 React 훅
@@ -20,13 +20,13 @@ function useLenisScroll(enabled = true, options = {}) {
   const { integrateGSAP = false, ...lenisOptions } = options;
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") {
+    if (!enabled || typeof window === 'undefined') {
       if (lenisRef.current) {
         if (rafRef.current) {
           cancelAnimationFrame(rafRef.current);
           rafRef.current = null;
         }
-        if (typeof lenisRef.current.destroy === "function") {
+        if (typeof lenisRef.current.destroy === 'function') {
           lenisRef.current.destroy();
         }
         if (window.lenis === lenisRef.current) {
@@ -43,7 +43,7 @@ function useLenisScroll(enabled = true, options = {}) {
     window.lenis = lenis;
 
     const raf = (time) => {
-      if (lenisRef.current && typeof lenisRef.current.raf === "function") {
+      if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
         lenisRef.current.raf(time);
         rafRef.current = requestAnimationFrame(raf);
       } else {
@@ -61,9 +61,9 @@ function useLenisScroll(enabled = true, options = {}) {
 
     let gsapTickerHandler = null;
     if (integrateGSAP) {
-      lenis.on("scroll", ScrollTrigger.update);
+      lenis.on('scroll', ScrollTrigger.update);
       gsapTickerHandler = (time) => {
-        if (lenisRef.current && typeof lenisRef.current.raf === "function") {
+        if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
           lenisRef.current.raf(time * 1000);
         }
       };
@@ -78,10 +78,10 @@ function useLenisScroll(enabled = true, options = {}) {
       }
 
       if (integrateGSAP) {
-        if (lenisRef.current && typeof lenisRef.current.off === "function") {
-          lenisRef.current.off("scroll", ScrollTrigger.update);
+        if (lenisRef.current && typeof lenisRef.current.off === 'function') {
+          lenisRef.current.off('scroll', ScrollTrigger.update);
         }
-        if (gsapTickerHandler && typeof gsap.ticker.remove === "function") {
+        if (gsapTickerHandler && typeof gsap.ticker.remove === 'function') {
           gsap.ticker.remove(gsapTickerHandler);
         }
       }
@@ -90,7 +90,7 @@ function useLenisScroll(enabled = true, options = {}) {
         window.lenis = null;
       }
 
-      if (lenisRef.current && typeof lenisRef.current.destroy === "function") {
+      if (lenisRef.current && typeof lenisRef.current.destroy === 'function') {
         lenisRef.current.destroy();
         lenisRef.current = null;
       }

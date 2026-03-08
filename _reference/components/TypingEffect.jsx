@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import useIsInView from "../../../hooks/useIsInView";
+import React, { useRef, useState, useEffect } from 'react';
+import { Box, Typography, useTheme } from '@mui/material';
+import useIsInView from '../../../hooks/useIsInView';
 
 /**
  * 타이핑 효과 컴포넌트
@@ -24,26 +24,26 @@ import useIsInView from "../../../hooks/useIsInView";
  * <TypingEffectDemo texts={['Hello', 'World', 'Typing Effect']} typingSpeed={80} variant="h3" cursorType="circle" />
  */
 function TypingEffect({
-  texts = ["Hello Designers", "You can make it", "With Cursor AI."],
+  texts = ['Hello Designers', 'You can make it', 'With Cursor AI.'],
   typingSpeed = 100,
   deleteSpeed = 50,
-  cursorColor = "#fff",
-  textColor = "inherit",
+  cursorColor = '#fff',
+  textColor = 'inherit',
   fontSize,
-  variant = { xs: "h3", sm: "h3", md: "h2", lg: "h1" },
-  textAlign = "left",
+  variant = { xs: 'h3', sm: 'h3', md: 'h2', lg: 'h1' },
+  textAlign = 'left',
   fontFamily,
-  fontWeight = "bold",
+  fontWeight = 'bold',
   sx = {},
   startDelay = 0,
-  cursorType = "line",
+  cursorType = 'line',
   cursorBlinkDuration = 1,
   autoStart = false,
   dataSection = null,
 }) {
   const textRef = useRef(null);
   const [containerRef, isInView] = useIsInView();
-  const [currentText, setCurrentText] = useState("");
+  const [currentText, setCurrentText] = useState('');
   const [textIndex, setTextIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
@@ -52,7 +52,7 @@ function TypingEffect({
 
   // texts 배열의 유효성을 확인하고 필요하면 기본값으로 설정
   const safeTexts =
-    Array.isArray(texts) && texts.length > 0 ? texts : ["Hello Designer"];
+    Array.isArray(texts) && texts.length > 0 ? texts : ['Hello Designer'];
 
   // 애니메이션 단계 전환 딜레이 값
   const delayAfterTyping = 1000; // 타이핑 완료 후 삭제 시작 전까지 대기 시간
@@ -83,7 +83,7 @@ function TypingEffect({
     if ((!autoStart && !isInView) || !hasStarted) return;
 
     // 현재 출력할 전체 텍스트
-    const currentFullText = safeTexts[textIndex] || "";
+    const currentFullText = safeTexts[textIndex] || '';
 
     // 현재 텍스트가 마지막 텍스트인지 확인
     const isLastText = textIndex === safeTexts.length - 1;
@@ -151,35 +151,35 @@ function TypingEffect({
     };
 
     switch (cursorType) {
-      case "circle":
-        return {
-          ...baseStyle,
-          width: fontSize ? `${fontSize * 0.2}px` : "0.2em",
-          height: fontSize ? `${fontSize * 0.2}px` : "0.2em",
-          borderRadius: "50%",
-          display: "inline-block",
-          position: "relative",
-          verticalAlign: "text-bottom",
-        };
-      case "square":
-        return {
-          ...baseStyle,
-          width: fontSize ? `${fontSize * 0.25}px` : "0.25em",
-          height: fontSize ? `${fontSize * 0.25}px` : "0.25em",
-          display: "inline-block",
-          position: "relative",
-          verticalAlign: "text-bottom",
-        };
-      case "line":
-      default:
-        return {
-          ...baseStyle,
-          width: fontSize ? `${fontSize * 0.08}px` : "0.08em",
-          height: "1em", // 폰트 사이즈와 동일한 높이
-          display: "inline-block",
-          verticalAlign: "middle",
-          marginBottom: "0.1em", // 약간의 위치 조정으로 중앙에 더 가깝게 정렬
-        };
+    case 'circle':
+      return {
+        ...baseStyle,
+        width: fontSize ? `${fontSize * 0.2}px` : '0.2em',
+        height: fontSize ? `${fontSize * 0.2}px` : '0.2em',
+        borderRadius: '50%',
+        display: 'inline-block',
+        position: 'relative',
+        verticalAlign: 'text-bottom',
+      };
+    case 'square':
+      return {
+        ...baseStyle,
+        width: fontSize ? `${fontSize * 0.25}px` : '0.25em',
+        height: fontSize ? `${fontSize * 0.25}px` : '0.25em',
+        display: 'inline-block',
+        position: 'relative',
+        verticalAlign: 'text-bottom',
+      };
+    case 'line':
+    default:
+      return {
+        ...baseStyle,
+        width: fontSize ? `${fontSize * 0.08}px` : '0.08em',
+        height: '1em', // 폰트 사이즈와 동일한 높이
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        marginBottom: '0.1em', // 약간의 위치 조정으로 중앙에 더 가깝게 정렬
+      };
     }
   };
 
@@ -192,31 +192,31 @@ function TypingEffect({
           component="span"
           sx={{
             ...getCursorStyle(),
-            display: "inline-block",
-            position: "relative",
-            verticalAlign: cursorType === "line" ? "middle" : "text-bottom",
-            marginLeft: "0.1em",
-            ...(cursorType === "line"
+            display: 'inline-block',
+            position: 'relative',
+            verticalAlign: cursorType === 'line' ? 'middle' : 'text-bottom',
+            marginLeft: '0.1em',
+            ...(cursorType === 'line'
               ? {
-                  marginBottom: "0.1em",
+                marginBottom: '0.1em',
+              }
+              : cursorType === 'circle' || cursorType === 'square'
+                ? {
+                  bottom: fontSize ? `${fontSize * 0.2}px` : '0.2em',
                 }
-              : cursorType === "circle" || cursorType === "square"
-              ? {
-                  bottom: fontSize ? `${fontSize * 0.2}px` : "0.2em",
-                }
-              : {}),
+                : {}),
             // 깜빡임 애니메이션 적용
-            "@keyframes blink": {
-              "0%": { opacity: 1 },
-              "50%": { opacity: 0 },
-              "100%": { opacity: 1 },
+            '@keyframes blink': {
+              '0%': { opacity: 1 },
+              '50%': { opacity: 0 },
+              '100%': { opacity: 1 },
             },
           }}
         />
       );
     }
 
-    const lines = currentText.split("\n");
+    const lines = currentText.split('\n');
 
     return (
       <>
@@ -228,25 +228,25 @@ function TypingEffect({
                 component="span"
                 sx={{
                   ...getCursorStyle(),
-                  display: "inline-block",
-                  position: "relative",
+                  display: 'inline-block',
+                  position: 'relative',
                   verticalAlign:
-                    cursorType === "line" ? "middle" : "text-bottom",
-                  marginLeft: "0.1em",
-                  ...(cursorType === "line"
+                    cursorType === 'line' ? 'middle' : 'text-bottom',
+                  marginLeft: '0.1em',
+                  ...(cursorType === 'line'
                     ? {
-                        marginBottom: "0.1em",
+                      marginBottom: '0.1em',
+                    }
+                    : cursorType === 'circle' || cursorType === 'square'
+                      ? {
+                        bottom: fontSize ? `${fontSize * 0.2}px` : '0.2em',
                       }
-                    : cursorType === "circle" || cursorType === "square"
-                    ? {
-                        bottom: fontSize ? `${fontSize * 0.2}px` : "0.2em",
-                      }
-                    : {}),
+                      : {}),
                   // 깜빡임 애니메이션 적용
-                  "@keyframes blink": {
-                    "0%": { opacity: 1 },
-                    "50%": { opacity: 0 },
-                    "100%": { opacity: 1 },
+                  '@keyframes blink': {
+                    '0%': { opacity: 1 },
+                    '50%': { opacity: 0 },
+                    '100%': { opacity: 1 },
                   },
                 }}
               />
@@ -267,27 +267,27 @@ function TypingEffect({
         py: 4,
         ...sx,
         // 전역 애니메이션 키프레임 정의
-        "@keyframes blink": {
-          "0%": { opacity: 1 },
-          "50%": { opacity: 0 },
-          "100%": { opacity: 1 },
+        '@keyframes blink': {
+          '0%': { opacity: 1 },
+          '50%': { opacity: 0 },
+          '100%': { opacity: 1 },
         },
       }}
     >
       <Typography
         ref={textRef}
-        variant={typeof variant === "string" ? variant : undefined}
+        variant={typeof variant === 'string' ? variant : undefined}
         color={textColor}
         sx={{
           fontWeight: fontWeight,
           fontFamily: fontFamily,
-          letterSpacing: "0rem",
-          minHeight: "1.2em",
+          letterSpacing: '0rem',
+          minHeight: '1.2em',
           textAlign: textAlign,
-          whiteSpace: "pre-wrap",
-          display: "block",
-          width: "100%",
-          ...(typeof variant === "object" &&
+          whiteSpace: 'pre-wrap',
+          display: 'block',
+          width: '100%',
+          ...(typeof variant === 'object' &&
             Object.keys(variant).reduce((acc, breakpoint) => {
               acc[theme.breakpoints.up(breakpoint)] = {
                 ...theme.typography[variant[breakpoint]],

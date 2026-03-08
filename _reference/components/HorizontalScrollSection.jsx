@@ -47,7 +47,7 @@ function HorizontalScrollSection({
   transitionDuration = 0.5, // 배경 투명도 트랜지션 시간 (초)
   enableMotionBlur = true, // 모션 블러 활성화 여부
   motionBlurIntensity = 1.0, // 모션 블러 강도 배율
-  scroller = "auto", // 스크롤 컨테이너 ("auto": 자동감지, Element: 지정요소, null: window)
+  scroller = 'auto', // 스크롤 컨테이너 ("auto": 자동감지, Element: 지정요소, null: window)
 }) {
   const sectionRef = useRef(null);
   const containerRef = useRef(null);
@@ -63,7 +63,7 @@ function HorizontalScrollSection({
 
   // 가장 가까운 스크롤 컨테이너 자동 감지 함수
   const findNearestScrollContainer = useCallback((element) => {
-    if (scroller === "auto") {
+    if (scroller === 'auto') {
       // 자동 감지: 가장 가까운 스크롤 가능한 부모 요소 찾기
       let current = element?.parentElement;
       while (current && current !== document.body) {

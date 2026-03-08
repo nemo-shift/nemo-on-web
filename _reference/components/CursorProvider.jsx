@@ -51,12 +51,12 @@ function CursorProvider({ children }) {
 
   const renderCursor = () => {
     switch (cursorState.variant) {
-      case 'point-ring':
-        return <PointRing state={cursorState} />;
-      case 'spotlight':
-        return <Spotlight state={cursorState} />;
-      default:
-        return null;
+    case 'point-ring':
+      return <PointRing state={cursorState} />;
+    case 'spotlight':
+      return <Spotlight state={cursorState} />;
+    default:
+      return null;
     }
   };
 

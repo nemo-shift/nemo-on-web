@@ -12,7 +12,7 @@ interface HeroTrueFocusSloganProps {
 
 const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
   isOn,
-  sentence = "불안을 끄고, 기준을 켭니다",
+  sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
   animationDuration = 0.6,
   pauseBetweenAnimations = 2,
@@ -21,8 +21,6 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
   const segments = sentence.split(',').map(s => s.trim());
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const segmentRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const [focusRect, setFocusRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   // currentIndex 자동 전환 타이머
   useEffect(() => {
@@ -55,10 +53,10 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
                         opacity: isActive ? 1 : 0.2,
                         scale: isActive ? 1 : 0.98,
                       }}
-                      transition={{ duration: animationDuration, ease: "easeInOut" }}
+                      transition={{ duration: animationDuration, ease: 'easeInOut' }}
                       className="text-[1.3rem] md:text-[1.85rem] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
                       style={{
-                        fontFamily: "var(--font-suit), sans-serif",
+                        fontFamily: 'var(--font-suit), sans-serif',
                         color: isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
                       }}
                     >
@@ -71,7 +69,7 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
                         layoutId="true-focus-box"
                         className="absolute inset-0 pointer-events-none z-10"
                         transition={{
-                          type: "spring",
+                          type: 'spring',
                           stiffness: 300,
                           damping: 30,
                         }}
@@ -114,11 +112,11 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
             <motion.div
               initial={{ scaleX: 0, opacity: 0 }}
               animate={{ scaleX: 1, opacity: 0.5 }}
-              transition={{ delay: 0.8, duration: 0.8, ease: "circOut" }}
+              transition={{ delay: 0.8, duration: 0.8, ease: 'circOut' }}
               className="absolute -bottom-1.5 left-[0.5rem] right-[0.5rem] h-[1px]"
               style={{ 
                 background: `linear-gradient(90deg, transparent 0%, ${isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD} 40%, ${isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD} 100%)`,
-                transformOrigin: "left",
+                transformOrigin: 'left',
               }}
             />
           </motion.div>

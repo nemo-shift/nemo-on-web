@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo } from "react";
-import PropTypes from "prop-types";
-import { motion, useAnimation } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { motion, useAnimation } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
-import useIsInView from "../../../hooks/useIsInView";
+import useIsInView from '../../../hooks/useIsInView';
 
 /**
  * FadeInContainer 컴포넌트 (실제 뷰포트 감지 방식)
@@ -34,7 +34,7 @@ import useIsInView from "../../../hooks/useIsInView";
  */
 function FadeInContainer({
   children,
-  direction = "bottom",
+  direction = 'bottom',
   offset = 50,
   duration = 0.5,
   delay = 0,
@@ -59,8 +59,8 @@ function FadeInContainer({
   const initialState = useMemo(
     () => ({
       opacity: 0,
-      x: direction === "left" ? -offset : direction === "right" ? offset : 0,
-      y: direction === "top" ? -offset : direction === "bottom" ? offset : 0,
+      x: direction === 'left' ? -offset : direction === 'right' ? offset : 0,
+      y: direction === 'top' ? -offset : direction === 'bottom' ? offset : 0,
     }),
     [direction, offset]
   );
@@ -108,7 +108,7 @@ function FadeInContainer({
         delay,
         ease: [0.4, 0.0, 0.2, 1], // Material Design 표준 ease out
       }}
-      style={{ ...style, width: "100%" }}
+      style={{ ...style, width: '100%' }}
       {...props}
     >
       {children}
@@ -118,7 +118,7 @@ function FadeInContainer({
 
 FadeInContainer.propTypes = {
   children: PropTypes.node.isRequired,
-  direction: PropTypes.oneOf(["left", "right", "top", "bottom", "none"]),
+  direction: PropTypes.oneOf(['left', 'right', 'top', 'bottom', 'none']),
   offset: PropTypes.number,
   duration: PropTypes.number,
   delay: PropTypes.number,

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { homeContent } from "@/data/homeContent";
-import { useBigTypoSizing } from "@/hooks";
-import { runExplodeFromColon, runFlyToShapes, runImplodeToColon } from "@/lib";
-import type { HeroBigTypoProps } from "@/types";
-import { COLORS } from "@/constants/colors";
+import React, { useEffect, useRef, useState } from 'react';
+import { homeContent } from '@/data/homeContent';
+import { useBigTypoSizing, useScramble } from '@/hooks';
+import { runExplodeFromColon, runImplodeToColon } from '@/lib';
+import type { HeroBigTypoProps } from '@/types';
+import { COLORS } from '@/constants/colors';
 
 /**
  * HeroBigTypo — 빅 타이포 + 플래시 마우스오버 + flyParticle + Scramble
@@ -14,19 +14,15 @@ export default function HeroBigTypo({
   isOn,
   isMobile = false,
   tcRef,
-  shapesStageRef,
   onInteraction,
   onExplodeComplete,
   isTransitioning = false,
   isTitleDown = false,
   onScrambleComplete,
-  sequenceStep = 0, // 추가
+  sequenceStep = 0,
 }: HeroBigTypoProps & {
-  isTransitioning?: boolean;
-  isTitleDown?: boolean;
-  onScrambleComplete?: () => void;
-  onExplodeComplete?: () => void;
   onInteraction?: (active: boolean) => void;
+  isTitleDown?: boolean;
   sequenceStep?: number;
 }): React.ReactElement {
   const { bigTypo } = homeContent.hero;
@@ -37,56 +33,20 @@ export default function HeroBigTypo({
   const [coverRevealed, setCoverRevealed] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  // Scramble 로직
-  const scrambleChars = "!<>-_\\/[]{}—=+*^?#_~";
-  const [scrambleText, setScrambleText] = useState(bigTypo.off);
-  const scrambleIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const isScramblingRef = useRef(false);
+  const {
+    scrambleText,
+    isScrambling,
+    startScramble,
+    resetScramble
+  } = useScramble(bigTypo.off, bigTypo.on, onScrambleComplete);
 
   useEffect(() => {
-    if (isTransitioning && !isOn && !isScramblingRef.current) {
-      const delayTimer = setTimeout(() => {
-        isScramblingRef.current = true;
-        let iteration = 0;
-        const targetText = bigTypo.on;
-
-        if (scrambleIntervalRef.current) clearInterval(scrambleIntervalRef.current);
-
-        scrambleIntervalRef.current = setInterval(() => {
-          const scrambled = targetText
-            .split("")
-            .map((char, index) => {
-              if (index < iteration) {
-                return char;
-              }
-              return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-            })
-            .join("");
-
-          setScrambleText(scrambled);
-          iteration += 0.12;
-
-          if (iteration >= targetText.length) {
-            if (scrambleIntervalRef.current) clearInterval(scrambleIntervalRef.current);
-            setScrambleText(targetText);
-            isScramblingRef.current = false;
-            onScrambleComplete?.();
-          }
-        }, 35);
-      }, 500);
-
-      return () => clearTimeout(delayTimer);
+    if (isTransitioning && !isOn) {
+      startScramble();
     } else if (!isTransitioning && !isOn) {
-      setScrambleText(bigTypo.off);
-      isScramblingRef.current = false;
+      resetScramble();
     }
-  }, [isTransitioning, isOn, bigTypo.on, bigTypo.off, onScrambleComplete]);
-
-  useEffect(() => {
-    return () => {
-      if (scrambleIntervalRef.current) clearInterval(scrambleIntervalRef.current);
-    };
-  }, []);
+  }, [isTransitioning, isOn, startScramble, resetScramble]);
 
 
   useEffect(() => {
@@ -140,10 +100,10 @@ export default function HeroBigTypo({
         style={{
           opacity: visible ? 1 : 0,
           transform: visible 
-            ? (isTitleDown ? "translateY(50px)" : "translateY(0)") 
-            : "translateY(50px)",
+            ? (isTitleDown ? 'translateY(50px)' : 'translateY(0)') 
+            : 'translateY(50px)',
           // 컨테이너 자체는 이벤트를 받지 않도록 함 (내부 div에서 처리)
-          pointerEvents: "none", 
+          pointerEvents: 'none', 
         }}
       >
         {/* [v18] 실제 텍스트 영역에만 인터랙션 한정 */}
@@ -152,84 +112,84 @@ export default function HeroBigTypo({
           onMouseEnter={() => !isMobile && isOn && sequenceStep >= 4 && onInteraction?.(true)}
           onMouseLeave={() => !isMobile && isOn && sequenceStep >= 4 && onInteraction?.(false)}
           onClick={() => isOn && sequenceStep >= 4 && onInteraction?.(true)}
-          data-cursor={isOn && sequenceStep >= 4 ? "pointer" : undefined}
+          data-cursor={isOn && sequenceStep >= 4 ? 'pointer' : undefined}
           style={{
-            cursor: isOn && sequenceStep >= 4 ? "pointer" : "default",
-            pointerEvents: "auto",
+            cursor: isOn && sequenceStep >= 4 ? 'pointer' : 'default',
+            pointerEvents: 'auto',
           }}
-        >
-        <span
-          ref={nemoRef}
-          className="bt-hover-nemo leading-[0.88] whitespace-nowrap transition-colors duration-700"
-          style={{
-            fontFamily: "var(--font-esamanru)",
-            color: isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
-            transform: isMobile ? "none" : "translateY(0.18em)",
-            cursor: "inherit",
-          }}
-        >
-          {bigTypo.nemo}
-        </span>
-
-        <span
-          ref={colonRef}
-          className="inline-flex flex-col items-center justify-center -translate-y-[0.8em] transition-all duration-200"
         >
           <span
-            ref={triRef}
-            className="block w-0 h-0 bt-hover-tri transition-all duration-700"
+            ref={nemoRef}
+            className="bt-hover-nemo leading-[0.88] whitespace-nowrap transition-colors duration-700"
             style={{
-              borderLeft: "13px solid transparent",
-              borderRight: "13px solid transparent",
-              borderBottomStyle: "solid",
-              borderBottomColor: showActiveUI
+              fontFamily: 'var(--font-esamanru)',
+              color: isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
+              transform: isMobile ? 'none' : 'translateY(0.18em)',
+              cursor: 'inherit',
+            }}
+          >
+            {bigTypo.nemo}
+          </span>
+
+          <span
+            ref={colonRef}
+            className="inline-flex flex-col items-center justify-center -translate-y-[0.8em] transition-all duration-200"
+          >
+            <span
+              ref={triRef}
+              className="block w-0 h-0 bt-hover-tri transition-all duration-700"
+              style={{
+                borderLeft: '13px solid transparent',
+                borderRight: '13px solid transparent',
+                borderBottomStyle: 'solid',
+                borderBottomColor: showActiveUI
+                  ? (isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD)
+                  : COLORS.EFFECTS.TRI_DIM,
+                cursor: 'inherit',
+                filter: (isTransitioning && !isOn) ? `drop-shadow(0 0 8px ${COLORS.BRAND.GOLD})` : 'none',
+                animation: showActiveUI ? 'pulseAbt 2.5s ease infinite' : 'none',
+              }}
+            />
+            <span
+              ref={cirRef}
+              className="block rounded-full bt-hover-cir transition-all duration-700 mt-1.5"
+              style={{
+                background: showActiveUI
+                  ? (isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.BROWN)
+                  : COLORS.EFFECTS.TRI_DIM,
+                width: '18px',
+                height: '18px',
+                cursor: 'inherit',
+                filter: (isTransitioning && !isOn) ? `drop-shadow(0 0 6px ${COLORS.BRAND.BROWN})` : 'none',
+                animation: showActiveUI ? 'pulseAbt 2.5s ease .5s infinite' : 'none',
+              }}
+            />
+          </span>
+
+          <span
+            ref={onRef}
+            className="bt-hover-on leading-[0.88] whitespace-nowrap transition-all duration-700"
+            style={{
+              fontFamily: 'var(--font-gmarket)',
+              color: showActiveUI 
                 ? (isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD)
-                : COLORS.EFFECTS.TRI_DIM,
-              cursor: "inherit",
-              filter: (isTransitioning && !isOn) ? `drop-shadow(0 0 8px ${COLORS.BRAND.GOLD})` : "none",
-              animation: showActiveUI ? "pulseAbt 2.5s ease infinite" : "none",
+                : (isScrambling ? COLORS.EFFECTS.SCRAMBLE_OFF : COLORS.TEXT.LIGHT),
+              transform: isMobile ? 'none' : 'translateY(0.18em)',
+              textShadow: (isTransitioning && !isOn) ? `0 0 30px ${COLORS.BRAND.GOLD}4d` : 'none', // 0.3 opacity
+              cursor: 'inherit',
             }}
-          />
-          <span
-            ref={cirRef}
-            className="block rounded-full bt-hover-cir transition-all duration-700 mt-1.5"
-            style={{
-              background: showActiveUI
-                ? (isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.BROWN)
-                : COLORS.EFFECTS.TRI_DIM,
-              width: "18px",
-              height: "18px",
-              cursor: "inherit",
-              filter: (isTransitioning && !isOn) ? `drop-shadow(0 0 6px ${COLORS.BRAND.BROWN})` : "none",
-              animation: showActiveUI ? "pulseAbt 2.5s ease .5s infinite" : "none",
-            }}
-          />
-        </span>
-
-        <span
-          ref={onRef}
-          className="bt-hover-on leading-[0.88] whitespace-nowrap transition-all duration-700"
-          style={{
-            fontFamily: "var(--font-gmarket)",
-            color: showActiveUI 
-              ? (isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD)
-              : (isScramblingRef.current ? COLORS.EFFECTS.SCRAMBLE_OFF : COLORS.TEXT.LIGHT),
-            transform: isMobile ? "none" : "translateY(0.18em)",
-            textShadow: (isTransitioning && !isOn) ? `0 0 30px ${COLORS.BRAND.GOLD}4d` : "none", // 0.3 opacity
-            cursor: "inherit",
-          }}
-        >
-          {isTransitioning && !isOn ? scrambleText : (isOn ? bigTypo.on : bigTypo.off)}
-        </span>
+          >
+            {isTransitioning && !isOn ? scrambleText : (isOn ? bigTypo.on : bigTypo.off)}
+          </span>
 
         </div>
 
         <div
           className="absolute inset-0 z-[2] pointer-events-none transition-all duration-1000 cubic-bezier(0.77,0,.18,1)"
           style={{
-            background: "var(--bg)",
-            transformOrigin: "left",
-            transform: coverRevealed ? "scaleX(0)" : "scaleX(1)",
+            background: 'var(--bg)',
+            transformOrigin: 'left',
+            transform: coverRevealed ? 'scaleX(0)' : 'scaleX(1)',
             opacity: coverRevealed ? 0 : 1,
           }}
         />

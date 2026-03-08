@@ -1,17 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   turbopack: {},
-  webpack: (config, { dev }) => {
-    // Windows errno -4094 방지: 네이티브 watcher 대신 polling 사용 (백신/파일잠금 완화)
-    if (dev) {
-      config.watchOptions = {
-        poll: 1000,
-        ignored: /node_modules/,
-      };
-    }
-    return config;
-  },
+  // Windows 환경에서 속도가 심각하게 느릴 경우에만 webpack polling 고려
 };
 
 export default nextConfig;

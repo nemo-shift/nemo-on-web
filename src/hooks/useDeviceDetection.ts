@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 export function useDeviceDetection(): {
   isTouchDevice: boolean;
   isMobile: boolean;
-} {
+  } {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -20,10 +20,12 @@ export function useDeviceDetection(): {
       navigator.maxTouchPoints > 0 ||
       ((navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0;
 
-    setIsTouchDevice(checkTouchDevice());
-    // isMobile: 768px 미만 = 모바일 (Tailwind md 기준, HeroSection 등과 동일)
     const updateMobile = (): void => setIsMobile(window.innerWidth < 768);
-    updateMobile();
+
+    requestAnimationFrame(() => {
+      setIsTouchDevice(checkTouchDevice());
+      updateMobile();
+    });
 
     const handleResize = (): void => updateMobile();
 
