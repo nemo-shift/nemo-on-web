@@ -48,8 +48,8 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             // PC: 우측 영역 확보 (텍스트와 거리 두기)
             // Mobile: 우측 상단 여백 (텍스트 위쪽)
             left: isCentered ? '50%' : 'auto',
-            right: isCentered ? 'auto' : (isMobile ? '4%' : '10%'), // 8% -> 4% (우측 이동)
-            top: isCentered ? '50%' : (isMobile ? '25%' : '40%'), // 더 아래로
+            right: isCentered ? 'auto' : (isMobile ? '8%' : '12%'),
+            top: isCentered ? '50%' : (isMobile ? '35%' : '45%'),
             transform: isCentered 
               ? 'translate(-50%, -50%) scale(1.1)' 
               : 'translateY(-50%)',

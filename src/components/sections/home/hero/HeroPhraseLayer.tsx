@@ -59,7 +59,7 @@ export default function HeroPhraseLayer({
     alignItems: isMobile ? 'flex-start' : 'center',
     gap: isMobile ? '.24em' : '1vh',
     fontSize: isMobile ? 'inherit' : 'clamp(0.8rem, 3.5vh, 1.8vw)',
-    transform: isMobile ? 'translateX(8%) translateY(-5%)' : 'translateX(-8%) translateY(12vh)',
+    transform: isMobile ? 'translateX(8%) translateY(-5%)' : 'translateX(-8%) translateY(5vh)',
     pointerEvents: 'none',
     zIndex: 20,
     visibility: (isOn && visible) ? 'visible' : 'hidden',

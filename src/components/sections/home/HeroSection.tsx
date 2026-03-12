@@ -175,44 +175,107 @@ export default function HeroSection({
           }}
         />
 
-        <div style={{ minHeight: '64px', flexShrink: 0 }} />
+        {/* [v25.70] 레이아웃 가변 영역 시작 (Editorial Frame) */}
+        
+        {/* 1. 상단 스페이서 (PC OFF 모드에서 넓은 여백 확보) */}
+        <div style={{ 
+          minHeight: (!isOn && !isMobile) ? '12vh' : '64px', 
+          flexShrink: 0, 
+          order: 0,
+          transition: 'min-height 0.7s ease'
+        }} />
 
+        {/* 2. 빅 타이포 (NEMO ON 메인 타이틀) */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 40,
+            flexShrink: 0,
+            gap: isMobile ? '20px' : '2vh',
+            marginBottom: (!isOn && isMobile) ? '8vh' : '2vh',
+            transition: 'order 0.7s ease, margin 0.7s ease',
+            // PC: OFF(1), ON(10) | 모바일: OFF(1), ON(10)
+            order: isOn ? 10 : 1
+          }}
+        >
+          <HeroBigTypo
+            isOn={isOn}
+            isMobile={isMobile}
+            tcRef={tcRef}
+            shapesStageRef={shapesStageRef}
+            sequenceStep={sequenceStep}
+            onInteraction={handleTitleInteraction}
+            isTransitioning={isTransitioning}
+            isTitleDown={isTitleDown}
+            onScrambleComplete={handleScrambleComplete}
+          />
+
+          {/* PC 오프 모드 스크롤 힌트 (타이틀 바로 아래 배치) */}
+          {!isMobile && !isOn && (
+            <div 
+              style={{
+                position: 'relative',
+                left: '50%',
+                marginTop: '2vh',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: 0.2,
+              }}
+            >
+              <div 
+                style={{
+                  width: '1px',
+                  height: '30px',
+                  background: 'var(--fg)',
+                  animation: 'scrollLine 2s ease-in-out infinite',
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 3. 슬로건 & 토글 영역 (tcRef) */}
         <div
           ref={tcRef}
           className="relative z-30 w-full flex-shrink-0"
           style={{
-            marginTop: isMobile ? '0px' : '0', 
+            // PC: OFF(5), ON(1) | 모바일: OFF(2), ON(1)
+            order: isOn ? 1 : (isMobile ? 2 : 5),
+            marginTop: isMobile ? '0px' : (isOn ? '0' : '2vh'),
+            marginBottom: (!isOn && !isMobile) ? '6vh' : '0', 
             opacity: showCenteredShapes ? 0 : 1, 
-            transition: 'opacity 0.5s ease',
-            minHeight: isMobile ? '220px' : '10vh', // [v25.61] 최소 높이 더 하향
+            transition: 'opacity 0.5s ease, order 0.7s ease, margin 0.7s ease',
+            minHeight: isMobile ? '220px' : '10vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            gap: isMobile ? '24px' : '1.5vh' // [v25.61] 간격 축소
+            gap: isMobile ? '24px' : '1.5vh'
           }}
         >
-          {/* Header Area (Slogan & Toggle) - 절대 흔들리지 않는 프레임 */}
           <div 
             className={isMobile ? 'px-5' : 'px-[48px]'} 
             style={{ 
               position: 'relative',
               width: '100%',
-              marginTop: isMobile ? '5px' : '6vh', 
+              marginTop: isMobile ? '5px' : (isOn ? '6vh' : '0'), 
               display: 'flex',
-              flexDirection: isMobile ? 'column' : 'column', // [v25.43] PC/모바일 모두 세로 배치이나 분리 유지
-              justifyContent: isMobile ? 'flex-start' : 'flex-start',
-              alignItems: isMobile ? 'flex-start' : 'flex-start',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
               pointerEvents: 'none',
               zIndex: 100,
-              flexShrink: 0 // 상단 영역 크기 고수
+              flexShrink: 0
             }}
           >
-            {/* 슬로건 영역 (Editorial Grid) - 고정 높이로 스위치 위치 박제 */}
             <div 
               className="relative flex-shrink-0" 
               style={{ 
                 width: isMobile ? '100%' : 'auto',
-                height: '120px', // [v25.32] PC도 고정 높이 적용하여 ON/OFF 시 Toggle 상하 움직임 방지
+                height: '120px',
                 pointerEvents: 'auto',
                 display: 'flex',
                 justifyContent: 'flex-start',
@@ -241,13 +304,12 @@ export default function HeroSection({
             <div 
               className="flex-shrink-0" 
               style={{ 
-                position: isMobile ? 'absolute' : 'relative', // [v25.43] 모바일 절대 좌표 복구
+                position: isMobile ? 'absolute' : 'relative',
                 top: isMobile ? '115px' : 'auto',
                 left: isMobile ? '20px' : 'auto',
-                marginTop: isMobile ? '0px' : '-15px', // [v25.34] PC만 상향 밀착
+                marginTop: isMobile ? '0px' : '-15px',
                 zIndex: 50,
                 pointerEvents: 'auto',
-                transform: isMobile ? 'none' : 'none' 
               }}
               onMouseEnter={() => setIsToggleHovered(true)}
               onMouseLeave={() => setIsToggleHovered(false)}
@@ -261,20 +323,23 @@ export default function HeroSection({
           </div>
         </div>
 
+        {/* 4. 중앙 인터랙션 영역 (도형 & 파티클) */}
         <div
           style={{
+            // PC/모바일 공통 OFF(3), ON(3) - 중간 영역 고수
+            order: 3, 
             position: 'relative',
             zIndex: showCenteredShapes ? 600 : 20,
             width: '100%', 
-            flexShrink: 1, // [v25.51] 창이 줄어들 때 함께 축소되도록 허용
-            marginTop: '0px', 
-            flexGrow: 1,   // [v25.51] 가용 공간 최대한 점유
-            minHeight: isMobile ? '220px' : '25vh', // [v25.51] 고정 픽셀 대신 뷰포트 비례로 변경
+            flexShrink: 1,
+            flexGrow: 1, // 가용 공간 최대한 점유 (Editorial 핵심)
+            minHeight: isMobile ? '280px' : '30vh',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             pointerEvents: 'none',
-            transform: (isMobile && isOn) ? 'translateY(-35px)' : 'none'
+            transform: (isMobile && isOn) ? 'translateY(-35px)' : 'none',
+            transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
           }}
         >
           <HeroPhraseLayer
@@ -284,14 +349,13 @@ export default function HeroSection({
             sequenceStep={sequenceStep}
             onActiveShapeChange={handleActiveShapeChange}
             onCopyVisible={() => setShapesOnRevealed(true)}
-            isInteractionActive={isInteractionActive} // [v25.23] 변주 메시지 활성화 여부
+            isInteractionActive={isInteractionActive}
           />
-          {/* [v25.16] PC/모바일 공통 중앙 CTA 복원 (isMobile 필터 해제) */}
           {!isOn && (
             <div 
               className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
               style={{
-                transform: isMobile ? 'translateY(-55px)' : 'none' 
+                transform: isMobile ? 'translateY(-30px)' : 'none' 
               }}
             >
               <div className="pointer-events-auto">
@@ -312,70 +376,20 @@ export default function HeroSection({
             onModeRevealed={shapesOnRevealed}
             isCentered={showCenteredShapes}
             sequenceStep={sequenceStep}
-            activeShape={activeShape} // [v25.21] 필터링용 상태 전달
+            activeShape={activeShape}
           />
         </div>
 
-        {/* [v12] 완충 공간 (Spacer Buffer): 상단 시프트를 하단 타이틀에 전달하지 않음 */}
-        <div className="flex-1 min-h-[20px]" />
+        {/* 5. 하단 시각적 완충 및 최종 여백 */}
+        <div className="flex-1" style={{ order: isOn ? 4 : 4, minHeight: isMobile ? '20px' : '4vh' }} />
 
         <div
           style={
             isMobile
-              ? { flexShrink: 0, minHeight: '40px', height: '40px' } // 하단 여백 추가하여 옹기종기 해결
-              : { flex: 1, minHeight: 0 }
+              ? { order: isOn ? 5 : 6, flexShrink: 0, minHeight: '60px', height: '60px' }
+              : { order: isOn ? 11 : 11, flexShrink: 0, minHeight: '10vh' }
           }
         />
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            zIndex: 20,
-            flexShrink: 0,
-            gap: isMobile ? '40px' : '2vh', // [v25.51] 가변 간격
-            marginBottom: isMobile ? '145px' : '4vh', // [v25.51] 고정 60px에서 가변 4vh로 변경
-            transition: 'none'
-          }}
-        >
-          <HeroBigTypo
-            isOn={isOn}
-            isMobile={isMobile}
-            tcRef={tcRef}
-            shapesStageRef={shapesStageRef}
-            sequenceStep={sequenceStep}
-            onInteraction={handleTitleInteraction}
-            isTransitioning={isTransitioning}
-            isTitleDown={isTitleDown}
-            onScrambleComplete={handleScrambleComplete}
-          />
-
-          {/* [v25.32] PC 오프 모드용 정밀 스크롤 힌트 (전문가 제안) */}
-          {!isMobile && !isOn && (
-            <div 
-              style={{
-                position: 'absolute',
-                left: '50%',
-                bottom: '-35px',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                opacity: 0.3,
-              }}
-            >
-              <div 
-                style={{
-                  width: '1px',
-                  height: '20px',
-                  background: 'var(--fg)',
-                  animation: 'scrollLine 2s ease-in-out infinite',
-                }}
-              />
-            </div>
-          )}
-        </div>
         
         <style>{`
           @keyframes scrollLine {

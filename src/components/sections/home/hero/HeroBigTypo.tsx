@@ -78,7 +78,7 @@ export default function HeroBigTypo({
   const showActiveUI = isOn || isTransitioning;
 
   return (
-    <div className="relative z-20 mt-auto overflow-visible select-none">
+    <div className="relative z-20 overflow-visible select-none">
       <style>{`
         .bt-on-mode .bt-hover-nemo:hover { transform: scale(1.06); }
         .bt-on-mode .bt-hover-tri:hover { transform: scale(1.2); filter: brightness(1.15); }
