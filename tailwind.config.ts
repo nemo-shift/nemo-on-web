@@ -10,25 +10,32 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: '#0891b2',
+          DEFAULT: '#0891b2',
           accent: '#E8734A',
-          dark: '#0B0F12',
         },
-        surface: {
-          cream: '#f7f1e9',
+        bg: {
           dark: '#0a0a0a',
-          light: '#faf7f2',
+          section: '#0D1A1F',
+          cream: '#f7f1e9',
         },
         text: {
-          primary: '#0d1a1f',
-          muted: 'rgba(10,10,10,0.45)',
-          dim: 'rgba(10,10,10,0.2)',
+          light: '#f0ebe3',
+          dark: '#0d1a1f',
         },
       },
       fontFamily: {
-        sans: ['var(--font-noto-sans-kr)', 'sans-serif'],
-        mono: ['var(--font-dm-mono)', 'monospace'],
-        display: ['var(--font-dm-sans)', 'sans-serif'],
+        suit: ['var(--font-suit)', 'sans-serif'],
+        dm: ['var(--font-dm-sans)', 'sans-serif'],
+        bebas: ['var(--font-bebas)', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
+        esamanru: ['var(--font-esamanru)', 'sans-serif'],
+        gmarket: ['var(--font-gmarket)', 'sans-serif'],
+      },
+      zIndex: {
+        'bg-box': '1',
+        'border-box': '10',
+        'logo-text': '100',
+        'header': '1000',
       },
     },
   },

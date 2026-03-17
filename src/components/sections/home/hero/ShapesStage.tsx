@@ -180,49 +180,32 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
                 </motion.g>
               )}
 
-              {/* 3. 네모 (결) */}
-              {(isStep3 || (isStepAll && (activeShape === 'all' || activeShape === 'square'))) && (
+              {/* 3. 네모 (결) - 복구됨 */}
+              {(isStep3 || isStepAll) && (
                 <motion.g 
                   key="square-group"
                   className="shS"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                   style={{ '--glow-color': 'rgba(8,145,178,0.15)' } as React.CSSProperties}
                 >
                   <rect
-                    x="138"
-                    y="132"
-                    width="224"
-                    height="224"
+                    x="110"
+                    y="110"
+                    width="280"
+                    height="280"
+                    rx="4"
                     className="glow-filter"
                     fill={activeShape === 'square' ? '#0891b2' : 'none'}
                     fillOpacity={activeShape === 'square' ? 0.08 : 0}
                     stroke="#0891b2"
                     strokeWidth="1.2"
-                    strokeOpacity=".35"
+                    strokeDasharray="8 4"
+                    strokeOpacity=".45"
                     style={{ transition: 'fill 0.4s ease, fill-opacity 0.4s ease' }}
                   />
-                  {/* 모서리 강조 라인들 */}
-                  {[
-                    { x1: 138, y1: 138, x2: 164, y2: 138 },
-                    { x1: 138, y1: 138, x2: 138, y2: 164 },
-                    { x1: 362, y1: 138, x2: 336, y2: 138 },
-                    { x1: 362, y1: 138, x2: 362, y2: 164 },
-                    { x1: 138, y1: 356, x2: 164, y2: 356 },
-                    { x1: 138, y1: 356, x2: 138, y2: 330 },
-                    { x1: 362, y1: 356, x2: 336, y2: 356 },
-                    { x1: 362, y1: 356, x2: 362, y2: 330 },
-                  ].map((l, i) => (
-                    <line
-                      key={i}
-                      {...l}
-                      stroke="#0891b2"
-                      strokeWidth="2"
-                      strokeOpacity=".65"
-                    />
-                  ))}
                   <text
                     x="116"
                     y="248"

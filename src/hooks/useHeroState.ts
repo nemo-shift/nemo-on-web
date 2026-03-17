@@ -8,16 +8,19 @@ import { HERO_TIMING } from '@/constants/hero';
 /**
  * HeroSection의 복잡한 상태를 통합 관리하는 훅
  */
-export function useHeroState(isOn: boolean, onToggle: () => void) {
-  const { isMobile } = useDeviceDetection();
+export function useHeroState(
+  isOn: boolean, 
+  onToggle: () => void, 
+  isTransitioning: boolean, 
+  setIsTransitioning: (val: boolean) => void
+) {
+  const { isMobile, isTablet, isPC, isTouchDevice } = useDeviceDetection();
   
   // 기본 애니메이션 시퀀스 관리
   const { sequenceStep, setSequenceStep } = useHeroSequence(isOn);
 
   // 전환 관련 상태
   const [isGathering, setIsGathering] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isTitleDown, setIsTitleDown] = useState(false);
   
   // UI 요소 노출 관련 상태
   const [shapesOnRevealed, setShapesOnRevealed] = useState(false);
@@ -28,6 +31,7 @@ export function useHeroState(isOn: boolean, onToggle: () => void) {
   const [activeShape, setActiveShape] = useState<'all' | 'circle' | 'triangle' | 'square'>('all');
   const [isInteractionActive, setIsInteractionActive] = useState(false);
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const activeShapeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -35,48 +39,31 @@ export function useHeroState(isOn: boolean, onToggle: () => void) {
   const handleToggle = useCallback(() => {
     if (!isOn) {
       setIsTransitioning(true);
-      setIsTitleDown(true);
     } else {
       onToggle();
     }
-  }, [isOn, onToggle]);
+  }, [isOn, onToggle, setIsTransitioning]);
 
   // 스크램블 완료 시 동작
   const finalizeTransition = useCallback((runWipe: (callback: () => void) => void) => {
     setIsGathering(true);
     setTimeout(() => {
-      setIsTitleDown(false);
       runWipe(onToggle);
     }, HERO_TIMING.WIPE_TRANSITION_DELAY);
   }, [onToggle]);
 
-  // 타이틀(BigTypo) 상호작용
-  const handleTitleInteraction = useCallback((active: boolean) => {
-    if (!isOn || sequenceStep < 4) return;
-    
-    if (isMobile) {
-      if (active) {
-        setIsInteractionActive(true);
-        if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
-        interactionTimerRef.current = setTimeout(() => {
-          setIsInteractionActive(false);
-        }, HERO_TIMING.MOBILE_INTERACTION_RESET);
-      }
-    } else {
-      setIsInteractionActive(active);
-    }
-  }, [isOn, sequenceStep, isMobile]);
 
   // 도형 강조 상태 변경
   const handleActiveShapeChange = useCallback((shape: 'all' | 'circle' | 'triangle' | 'square') => {
     setActiveShape(shape);
-    if (isMobile && shape !== 'all') {
+    // [v26.23] 모바일 또는 태블릿(터치 기기)일 경우 일정 시간 후 리셋
+    if ((isMobile || isTablet || isTouchDevice) && shape !== 'all') {
       if (activeShapeTimerRef.current) clearTimeout(activeShapeTimerRef.current);
       activeShapeTimerRef.current = setTimeout(() => {
         setActiveShape('all');
       }, HERO_TIMING.MOBILE_INTERACTION_RESET);
     }
-  }, [isMobile]);
+  }, [isMobile, isTablet, isTouchDevice]);
 
   // 초기화 및 리셋 (isOn 변경 시)
   const resetHeroState = useCallback(() => {
@@ -85,22 +72,22 @@ export function useHeroState(isOn: boolean, onToggle: () => void) {
       setIsGathering(false);
       setShowCenteredShapes(false);
       setIsTransitioning(false);
-      setIsTitleDown(false);
     } else {
       setActiveShape('all');
     }
-  }, [isOn]);
+  }, [isOn, setIsTransitioning]);
 
   return {
     isMobile,
+    isTablet,
+    isPC,
+    isTouchDevice,
     sequenceStep,
     setSequenceStep,
     isGathering,
     setIsGathering,
     isTransitioning,
     setIsTransitioning,
-    isTitleDown,
-    setIsTitleDown,
     shapesOnRevealed,
     setShapesOnRevealed,
     showCenteredShapes,
@@ -111,7 +98,6 @@ export function useHeroState(isOn: boolean, onToggle: () => void) {
     isInteractionActive,
     handleToggle,
     finalizeTransition,
-    handleTitleInteraction,
     handleActiveShapeChange,
     resetHeroState
   };

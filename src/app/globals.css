@@ -1,7 +1,18 @@
 @import "tailwindcss";
 @config '../../tailwind.config.ts';
 
-/* --- 로컬 폰트: 이사만룬체 Light (woff2) --- */
+/* --- 디자인 토큰 및 로컬 폰트 --- */
+
+/* --- 로컬 폰트: SUIT Variable --- */
+@font-face {
+  font-family: "SUIT";
+  src: url("/fonts/SUIT-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- 로컬 폰트: 이사만룬체 Light (로고 네모 전용) --- */
 @font-face {
   font-family: "ESAMANRU";
   src: url("/fonts/ESAMANRU%20OTF%20LIGHT.woff2") format("woff2");
@@ -10,48 +21,61 @@
   font-display: swap;
 }
 
-/* --- 로컬 폰트: Gmarket Sans Medium (woff2) --- */
+/* --- 로컬 폰트: Gmarket Sans Medium (로고 ON 전용) --- */
 @font-face {
   font-family: "Gmarket Sans";
   src: url("/fonts/GmarketSansMedium.woff2") format("woff2");
-  font-weight: 300;
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
-/* --- CSS 변수 (토큰) --- */
+/* --- CSS 변수 (디자인 토큰) --- */
 :root {
   --brand: #0891b2;
   --accent: #e8734a;
   --bg-dark: #0a0a0a;
+  --bg-section-dark: #0d1a1f;
   --bg-cream: #f7f1e9;
-  --text-dark: #0d1a1f;
   --text-light: #f0ebe3;
+  --text-dark: #0d1a1f;
+
+  /* 실시간 배경색 인터폴레이션을 위한 변수 */
+  --bg: var(--bg-cream);
 }
 
-/* --- Tailwind v4 @theme (globals.css 참조용) --- */
+/* --- Tailwind v4 @theme --- */
 @theme inline {
   --color-brand: var(--brand);
   --color-accent: var(--accent);
   --color-bg-dark: var(--bg-dark);
+  --color-bg-section: var(--bg-section-dark);
   --color-bg-cream: var(--bg-cream);
-  --color-text-dark: var(--text-dark);
   --color-text-light: var(--text-light);
-  /* tailwind.config.ts 토큰과 연동 */
-  --color-brand-primary: #0891b2;
-  --color-brand-accent: #e8734a;
-  --color-brand-dark: #0b0f12;
-  --color-surface-cream: #f7f1e9;
-  --color-surface-dark: #0a0a0a;
-  --color-surface-light: #faf7f2;
-  --color-text-primary: #0d1a1f;
-  --color-text-muted: rgba(10, 10, 10, 0.45);
-  --color-text-dim: rgba(10, 10, 10, 0.2);
-  --font-sans: var(--font-noto-sans-kr), sans-serif;
-  --font-mono: var(--font-dm-mono), monospace;
-  --font-display: var(--font-dm-sans), sans-serif;
+  --color-text-dark: var(--text-dark);
+
+  /* 폰트 패밀리 정의 */
+  --font-suit: "SUIT", sans-serif;
+  --font-dm-sans: "DM Sans", sans-serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-mono: "DM Mono", monospace;
   --font-esamanru: "ESAMANRU", sans-serif;
   --font-gmarket: "Gmarket Sans", sans-serif;
+
+  /* Z-index 계층 (기획서 5-4 반영) */
+  --z-bg-box: 1;
+  --z-border-box: 10;
+  --z-logo-text: 100;
+  --z-header: 1000;
+}
+
+/* --- 기본 스타일 --- */
+body {
+  background: var(--bg);
+  color: var(--text-dark);
+  font-family: var(--font-suit);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* --- 커스텀 커서 활성 시 기본 커서 숨김 --- */
@@ -62,14 +86,7 @@ html.custom-cursor-active *::after {
   cursor: none !important;
 }
 
-/* --- 기본 스타일 --- */
-body {
-  background: var(--bg-cream);
-  color: var(--text-dark);
-  font-family: var(--font-noto-sans-kr), sans-serif;
-}
-
-/* --- 노이즈 텍스처 배경 유틸리티 --- */
+/* --- 노이즈 텍스처 --- */
 .noise-overlay {
   position: relative;
 }
@@ -80,43 +97,6 @@ body {
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 1;
-}
-
-/* --- 플래시 애니메이션 (HeroSection) --- */
-@keyframes flashIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  20% {
-    opacity: 1;
-    transform: scale(0.95);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.7);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(4.5);
-  }
-}
-
-/* dvh 미지원 브라우저 fallback */
-@supports not (height: 1dvh) {
-  .full-page-section {
-    height: 100vh;
-  }
-}
-
-/* prefers-reduced-motion 대응 */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  z-index: 100;
+  opacity: 0.4;
 }

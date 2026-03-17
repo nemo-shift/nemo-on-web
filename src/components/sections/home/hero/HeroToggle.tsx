@@ -46,8 +46,8 @@ export default function HeroToggle({
           className="text-[9px] uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
             color: !showAsOn
-              ? COLORS.BRAND.GOLD
-              : (isOn ? COLORS.TEXT.DIM_DARK : COLORS.TEXT.DIM_LIGHT),
+              ? COLORS.HERO.OFF.ACCENT
+              : (isOn ? '#4b5563' : '#9ca3af'),
           }}
         >
           OFF
@@ -58,10 +58,10 @@ export default function HeroToggle({
           className="relative w-[50px] h-[26px] rounded-[13px] border-[1.5px] transition-all duration-500"
           style={{
             borderColor: showAsOn
-              ? isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD
-              : COLORS.EFFECTS.TRI_DIM,
+              ? isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT
+              : '#4b5563',
             background: showAsOn 
-              ? isOn ? COLORS.BRAND.TEAL : 'rgba(196,168,130,0.15)' 
+              ? isOn ? COLORS.HERO.ON.ACCENT : 'rgba(196,168,130,0.15)' 
               : 'transparent',
             animation: showAsOn ? 'none' : 'togglePulse 2.2s ease infinite',
           }}
@@ -71,12 +71,12 @@ export default function HeroToggle({
             className="absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-500"
             style={{
               background: showAsOn 
-                ? isOn ? COLORS.BG.CREAM : COLORS.BRAND.GOLD 
-                : COLORS.EFFECTS.NEMO_HOVER_DIM,
+                ? isOn ? COLORS.BG.CREAM : COLORS.HERO.OFF.ACCENT 
+                : '#4b5563',
               transform: showAsOn ? 'translateX(24px)' : 'translateX(0)',
               boxShadow: isOn 
-                ? `0 0 12px ${COLORS.BRAND.TEAL}80` // 0.5 opacity for Teal
-                : (isTransitioning && !isOn) ? `0 0 12px ${COLORS.BRAND.GOLD}cc` : 'none',
+                ? `0 0 12px ${COLORS.HERO.ON.ACCENT}80` // 0.5 opacity for Teal
+                : (isTransitioning && !isOn) ? `0 0 12px ${COLORS.HERO.OFF.ACCENT}cc` : 'none',
             }}
           />
         </div>
@@ -86,8 +86,8 @@ export default function HeroToggle({
           className="text-[9px] uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
             color: showAsOn
-              ? isOn ? COLORS.TEXT.DARK : COLORS.BRAND.GOLD 
-              : COLORS.TEXT.DIM_LIGHT,
+              ? isOn ? COLORS.TEXT.DARK : COLORS.HERO.OFF.ACCENT 
+              : COLORS.TEXT.LIGHT,
           }}
         >
           ON

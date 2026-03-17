@@ -110,7 +110,14 @@ export default function useParticles(
     const drawParticle = (p: Particle) => {
       ctx.save();
       ctx.globalAlpha = p.a * particleAlphaRef.current;
-      const col = isOnRef.current ? COLORS.BRAND.TEAL : COLORS.TEXT.LIGHT;
+      const useDarkColors = !isOnRef.current; // Assuming isOnRef.current means light mode
+      const triColor = useDarkColors ? COLORS.HERO.OFF.ACCENT : COLORS.HERO.ON.ACCENT;
+      const cirColor = useDarkColors ? COLORS.HERO.OFF.SUB_ACCENT : COLORS.HERO.ON.SUB_ACCENT;
+      // The original 'col' variable was defined here.
+      // Based on the new 'triColor' and 'cirColor', it seems the intention is to use these new colors.
+      // Assuming 'col' should be replaced by a conditional choice between triColor and cirColor.
+      // For now, I'll define 'col' based on the particle type, as it makes sense with the new colors.
+      const col = p.s === 'c' ? cirColor : triColor;
       ctx.strokeStyle = col;
       ctx.lineWidth = 0.6;
       ctx.translate(p.x, p.y);
@@ -155,8 +162,8 @@ export default function useParticles(
 
         const g = ctx.createRadialGradient(pmx, pmy, 0, pmx, pmy, 280);
         g.addColorStop(0, on
-          ? `${COLORS.BRAND.TEAL}10` // 0.06 alpha approx
-          : `${COLORS.BRAND.GOLD}14` // 0.08 alpha approx
+          ? `${COLORS.HERO.ON.ACCENT}10` // 0.06 alpha approx
+          : `${COLORS.HERO.OFF.ACCENT}14` // 0.08 alpha approx
         );
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
@@ -170,7 +177,7 @@ export default function useParticles(
             if (d < 110) {
               ctx.save();
               ctx.globalAlpha = (1 - d / 110) * 0.08 * alpha;
-              ctx.strokeStyle = on ? COLORS.BRAND.TEAL : COLORS.TEXT.LIGHT;
+              ctx.strokeStyle = on ? COLORS.HERO.ON.ACCENT : COLORS.TEXT.LIGHT;
               ctx.lineWidth = 0.4;
               ctx.beginPath();
               ctx.moveTo(ptsRef.current[i].x, ptsRef.current[i].y);

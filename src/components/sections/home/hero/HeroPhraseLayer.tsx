@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import PhraseLine from './PhraseLine';
 import { COLORS } from '@/constants/colors';
 
 type HeroPhraseLayerProps = {
@@ -11,12 +10,46 @@ type HeroPhraseLayerProps = {
   sequenceStep?: number;
   onCopyVisible?: () => void;
   onActiveShapeChange?: (shape: 'all' | 'circle' | 'triangle' | 'square') => void;
-  isInteractionActive?: boolean; // 추가: 인터랙션 메시지 표시 여부
+  isInteractionActive?: boolean;
 };
 
 /**
+ * PhraseLine 멤버 컴포넌트 (내부용)
+ */
+const PhraseLine = ({ 
+  visible, 
+  baseColor, 
+  children, 
+  isMobile = false 
+}: { 
+  visible: boolean; 
+  baseColor: string; 
+  children: React.ReactNode; 
+  isMobile?: boolean;
+}) => (
+  <div
+    style={{
+      fontFamily: 'var(--font-suit), sans-serif',
+      fontSize: isMobile ? 'clamp(44px, 9vw, 130px)' : 'clamp(32px, 6.5vw, 100px)',
+      lineHeight: 1,
+      letterSpacing: '-.01em',
+      color: baseColor,
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(28px)',
+      transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1)',
+      whiteSpace: 'nowrap',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.1em',
+      pointerEvents: 'auto',
+    }}
+  >
+    {children}
+  </div>
+);
+
+/**
  * HeroPhraseLayer — 프레이즈 3줄 (도형 포함)
- * 줄1: ○ 감성위에 / 줄2: 구조 △를 더해 / 줄3: 당신의 □로
  */
 export default function HeroPhraseLayer({
   isOn,
@@ -28,27 +61,24 @@ export default function HeroPhraseLayer({
   isInteractionActive = false,
 }: HeroPhraseLayerProps): React.ReactElement {
   
-  // sequenceStep에 따라 각 줄의 가시성 결정
   const lineVisible = [
     sequenceStep >= 1,
     sequenceStep >= 2,
     sequenceStep >= 3,
   ];
 
-  // 메시지 3줄 다 나온 뒤 콜백 실행 (4단계 진입 시)
   useEffect(() => {
     if (!isOn || sequenceStep < 4) return;
-    
     const t1 = setTimeout(() => {
       onCopyVisible?.();
     }, 400);
     return () => clearTimeout(t1);
   }, [isOn, sequenceStep, onCopyVisible]);
 
-  const circleColor = isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.BROWN;
-  const triColor = isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.GOLD;
-  const squareColor = isOn ? COLORS.BRAND.TEAL : COLORS.TEXT.LIGHT; 
-  const baseColor = isOn ? COLORS.TEXT.DIM_DARK : COLORS.TEXT.DIM_LIGHT;
+  const circleColor = isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.SUB_ACCENT;
+  const triColor = isOn ? COLORS.HERO.ON.SUB_ACCENT : COLORS.HERO.OFF.ACCENT;
+  const squareColor = isOn ? COLORS.HERO.ON.ACCENT : COLORS.TEXT.LIGHT; 
+  const baseColor = isOn ? '#1a1a1a' : '#9ca3af';
 
   const containerStyle: React.CSSProperties = {
     position: 'absolute',
@@ -124,12 +154,9 @@ export default function HeroPhraseLayer({
         <PhraseLine isMobile={isMobile} visible={lineVisible[2]} baseColor={baseColor}>
           <span>당신의</span>
           <span
-            onMouseEnter={() => {
-              if (!isMobile && sequenceStep >= 4) onActiveShapeChange?.('square');
-            }}
-            onMouseLeave={() => {
-              if (!isMobile) onActiveShapeChange?.('all');
-            }}
+            id="hero-nemo-origin"
+            onMouseEnter={() => !isMobile && sequenceStep >= 4 && onActiveShapeChange?.('square')}
+            onMouseLeave={() => !isMobile && onActiveShapeChange?.('all')}
             onTouchStart={() => isMobile && sequenceStep >= 4 && onActiveShapeChange?.('square')}
             data-cursor={!isMobile && sequenceStep >= 4 ? 'pointer' : undefined}
             style={{
@@ -170,7 +197,6 @@ export default function HeroPhraseLayer({
         </PhraseLine>
       </div>
 
-      {/* [v25.23] 인터랙션 시 등장하는 통합 메시지 */}
       <div
         style={{
           position: 'absolute',
@@ -189,8 +215,8 @@ export default function HeroPhraseLayer({
       >
         <span
           style={{
-            fontFamily: 'var(--font-ibm-plex)',
-            fontSize: isMobile ? '1.8rem' : 'clamp(1.8rem, 4vh, 2.6rem)', // [v25.60] 변주 메시지도 높이에 맞게 조절
+            fontFamily: 'var(--font-suit)',
+            fontSize: isMobile ? '1.8rem' : 'clamp(1.8rem, 4vh, 2.6rem)',
             fontWeight: 500,
             color: '#1a1a1a',
             whiteSpace: 'nowrap',

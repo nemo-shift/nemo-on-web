@@ -1,5 +1,5 @@
 import React from 'react';
-import HomeClient from '@/components/sections/home/HomeClient';
+import HomeStage from '@/components/sections/home/HomeStage';
 
 /**
  * 홈페이지 (Server Component)
@@ -8,7 +8,7 @@ import HomeClient from '@/components/sections/home/HomeClient';
 export default function HomePage(): React.ReactElement {
   return (
     <div>
-      <HomeClient />
+      <HomeStage />
     </div>
   );
 }

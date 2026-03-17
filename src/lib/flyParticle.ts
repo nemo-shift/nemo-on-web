@@ -31,8 +31,8 @@ function flyParticle(
   const triSize = isPc ? 26 : 16;
   const triH = isPc ? triSize * 1.732 : triSize * 1.732;
   const cirSize = isPc ? 32 : 22;
-  const triColor = useDarkColors ? COLORS.BRAND.GOLD : COLORS.BRAND.TEAL;
-  const cirColor = useDarkColors ? COLORS.BRAND.BROWN : COLORS.BRAND.DEEP_TEAL;
+  const triColor = useDarkColors ? COLORS.HERO.OFF.ACCENT : COLORS.HERO.ON.ACCENT;
+  const cirColor = useDarkColors ? COLORS.HERO.OFF.SUB_ACCENT : COLORS.HERO.ON.SUB_ACCENT;
   const div = document.createElement('div');
   div.style.cssText = `position:fixed;top:0;left:0;z-index:400;transform:translate(${fx}px,${fy}px);pointer-events:none;`;
   if (isTri) {

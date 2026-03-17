@@ -1,11 +1,22 @@
 import React from 'react';
 
+/**
+ * /offerings/studio 페이지
+ * 브랜딩 + 웹개발 서비스 상세
+ */
 export default function StudioPage() {
   return (
-    <main className="min-h-screen pt-24 pb-12 px-6 flex items-center justify-center">
-      <h1 className="text-4xl font-suit font-bold uppercase tracking-tighter">
-        STUDIO
-      </h1>
+    <main className="min-h-screen pt-24 px-6 md:px-12 bg-surface-cream text-text-dark">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl md:text-6xl font-bold mb-8">Studio</h1>
+        <p className="text-xl md:text-2xl leading-relaxed opacity-80">
+          당신의 브랜드는 지금, 설명 가능한가요? <br />
+          본질을 디자인하고, 디지털 구조로 번역합니다.
+        </p>
+        <div className="mt-20 py-10 border-t border-black/10">
+          <p className="text-sm uppercase tracking-widest opacity-40">Coming Soon</p>
+        </div>
+      </div>
     </main>
   );
 }

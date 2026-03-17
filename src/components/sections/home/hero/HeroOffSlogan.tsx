@@ -64,7 +64,7 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
             <span className="opacity-50">흐릿한</span>
             <div 
               className="font-bold relative flex items-center"
-              style={{ color: COLORS.BRAND.GOLD }}
+              style={{ color: COLORS.HERO.OFF.ACCENT }}
             >
               <RotatingText
                 texts={['아이디어를', '생각을', '확신을', '방향을']}

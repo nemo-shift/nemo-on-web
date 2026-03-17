@@ -27,10 +27,7 @@ export type FooterColumn = {
   links: { label: string; href: string }[];
 };
 
-export type NavLink = {
-  label: string;
-  href: string;
-};
+import { NavLink } from './nav';
 
 export type HomeContent = {
   hero: {

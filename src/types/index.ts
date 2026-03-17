@@ -8,13 +8,6 @@ export type ButtonProps = {
   className?: string;
 };
 
-export type { HeroSectionProps, HeroBigTypoProps } from './hero';
-
-export type {
-  BrandStoryScene,
-  MessageBubble,
-  AboutContent,
-  FooterColumn,
-  NavLink,
-  HomeContent,
-} from './home';
+export * from './nav';
+export * from './home';
+export * from './hero';

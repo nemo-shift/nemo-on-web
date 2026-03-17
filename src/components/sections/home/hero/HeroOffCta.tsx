@@ -55,7 +55,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
             ease: 'easeInOut'
           }}
           style={{
-            background: COLORS.BRAND.GOLD,
+            background: COLORS.HERO.OFF.ACCENT,
             zIndex: -1,
             width: '200px',
             height: '100px',
@@ -66,7 +66,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
         />
       )}
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={(isMobile && !isTransitioning && !isClearing) ? {
           filter: 'blur(0px)',
@@ -82,12 +82,12 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
         }}
         className="flex flex-col items-center"
       >
-        <span 
+        <span
           className="font-medium tracking-[0.3em] md:tracking-[0.5em] uppercase whitespace-nowrap text-center"
-          style={{ 
+          style={{
             fontSize: isMobile ? '0.95rem' : '1.2rem',
-            color: COLORS.BRAND.GOLD,
-            textShadow: isMobile ? `0 0 30px ${COLORS.BRAND.GOLD}66` : 'none',
+            color: (isToggleHovered || isClearing || isTransitioning) ? COLORS.HERO.OFF.ACCENT : COLORS.TEXT.LIGHT,
+            textShadow: isMobile ? `0 0 30px ${COLORS.HERO.OFF.ACCENT}66` : 'none',
             display: 'block'
           }}
         >

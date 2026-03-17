@@ -107,9 +107,11 @@ export default function LenisScrollRestoration(): null {
           typeof scrollPosition === 'number' &&
           scrollPosition > 0
         ) {
-          if (window.lenis) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((window as any).lenis) {
             try {
-              window.lenis.scrollTo(scrollPosition, {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (window as any).lenis.scrollTo(scrollPosition, {
                 immediate: true,
                 force: true,
                 lock: false,
@@ -128,8 +130,10 @@ export default function LenisScrollRestoration(): null {
 
     if (navType === 'direct') {
       setTimeout(() => {
-        if (window.lenis) {
-          window.lenis.scrollTo(0, { immediate: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((window as any).lenis) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).lenis.scrollTo(0, { immediate: true });
         } else {
           window.scrollTo(0, 0);
         }
@@ -140,8 +144,8 @@ export default function LenisScrollRestoration(): null {
   // 스크롤 위치 저장
   useEffect(() => {
     const saveScrollPosition = (): void => {
-      const scrollY =
-        window.lenis?.scroll ??
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const scrollY = (window as any).lenis?.scroll ??
         window.pageYOffset ??
         document.documentElement.scrollTop ??
         0;

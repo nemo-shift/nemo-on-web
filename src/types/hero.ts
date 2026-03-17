@@ -3,6 +3,7 @@
  */
 
 export type HeroSectionProps = {
+  id?: string;
   isOn: boolean;
   onToggle: () => void;
 };

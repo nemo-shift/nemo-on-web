@@ -77,19 +77,19 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
                         <div className="relative w-full h-full border-[1.5px] border-transparent">
                           <div 
                             className="absolute -top-[1.5px] -left-[1.5px] w-2.5 h-2.5 border-t-2 border-l-2" 
-                            style={{ borderColor: COLORS.BRAND.GOLD }}
+                            style={{ borderColor: COLORS.HERO.OFF.ACCENT }}
                           />
                           <div 
                             className="absolute -top-[1.5px] -right-[1.5px] w-2.5 h-2.5 border-t-2 border-r-2" 
-                            style={{ borderColor: COLORS.BRAND.GOLD }}
+                            style={{ borderColor: COLORS.HERO.OFF.ACCENT }}
                           />
                           <div 
                             className="absolute -bottom-[1.5px] -left-[1.5px] w-2.5 h-2.5 border-b-2 border-l-2" 
-                            style={{ borderColor: COLORS.BRAND.GOLD }}
+                            style={{ borderColor: COLORS.HERO.OFF.ACCENT }}
                           />
                           <div 
                             className="absolute -bottom-[1.5px] -right-[1.5px] w-2.5 h-2.5 border-b-2 border-r-2" 
-                            style={{ borderColor: COLORS.BRAND.GOLD }}
+                            style={{ borderColor: COLORS.HERO.OFF.ACCENT }}
                           />
                         </div>
                       </motion.div>
@@ -115,7 +115,7 @@ const HeroTrueFocusSlogan: React.FC<HeroTrueFocusSloganProps> = ({
               transition={{ delay: 0.8, duration: 0.8, ease: 'circOut' }}
               className="absolute -bottom-1.5 left-[0.5rem] right-[0.5rem] h-[1px]"
               style={{ 
-                background: `linear-gradient(90deg, transparent 0%, ${isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD} 40%, ${isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD} 100%)`,
+                background: `linear-gradient(90deg, transparent 0%, ${isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT} 40%, ${isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT} 100%)`,
                 transformOrigin: 'left',
               }}
             />

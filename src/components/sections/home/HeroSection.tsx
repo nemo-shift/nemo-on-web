@@ -8,19 +8,16 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useHeroContext } from '@/context';
 import { useHeroState, useParticles } from '@/hooks';
 import { PointRingCursor } from '@/components/ui';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
 import Header from '@/components/layout/Header';
-import HeroTrueFocusSlogan from './hero/HeroTrueFocusSlogan';
-import HeroOffSlogan from './hero/HeroOffSlogan';
-import HeroToggle from './hero/HeroToggle';
-import ShapesStage from './hero/ShapesStage';
-import HeroPhraseLayer from './hero/HeroPhraseLayer';
-import HeroOffCta from './hero/HeroOffCta';
-import HeroBigTypo from './hero/HeroBigTypo';
 import HeroBottomBar from './hero/HeroBottomBar';
+import HeroPCView from './hero/views/HeroPCView';
+import HeroTabletView from './hero/views/HeroTabletView';
+import HeroMobileView from './hero/views/HeroMobileView';
 import { COLORS } from '@/constants/colors';
 
 /**
@@ -40,20 +37,23 @@ import { COLORS } from '@/constants/colors';
  * <HeroSection isOn={isOn} onToggle={handleToggle} />
  */
 export default function HeroSection({
+  id,
   isOn,
   onToggle,
 }: HeroSectionProps): React.ReactElement {
   const [mounted, setMounted] = useState(false);
+  const { isTransitioning, setIsTransitioning } = useHeroContext();
+
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const {
     isMobile,
+    isTablet,
+    isPC,
     sequenceStep,
     isGathering,
-    isTransitioning,
-    isTitleDown,
     shapesOnRevealed,
     setShapesOnRevealed,
     showCenteredShapes,
@@ -63,14 +63,13 @@ export default function HeroSection({
     isInteractionActive,
     handleToggle,
     finalizeTransition,
-    handleTitleInteraction,
     handleActiveShapeChange,
     resetHeroState
-  } = useHeroState(isOn, onToggle);
+  } = useHeroState(isOn, onToggle, isTransitioning, setIsTransitioning);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const tcRef = useRef<HTMLDivElement>(null);
-  const shapesStageRef = useRef<HTMLDivElement>(null);
+  const tcRef = useRef<HTMLDivElement | null>(null);
+  const shapesStageRef = useRef<HTMLDivElement | null>(null);
   const wipeRef = useRef<HTMLDivElement>(null);
 
   useParticles(canvasRef, isOn, isGathering);
@@ -80,17 +79,38 @@ export default function HeroSection({
     requestAnimationFrame(resetHeroState);
   }, [isOn, resetHeroState]);
 
-  // 스크램블 완료 핸들러
+  // 스크램블 완료 핸들러 (와이프 효과 시작)
   const handleScrambleComplete = useCallback(() => {
     finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback));
   }, [finalizeTransition]);
 
+  // [v25.80] 시퀀스 완독 후 스크롤 해제 보정 (수직적 통합)
+  const { setIsScrollable } = useHeroContext();
+  useEffect(() => {
+    if (isOn && sequenceStep === 5) {
+      // 슬로건 애니메이션 시간을 고려하여 약간의 여유(0.5초)를 두고 해제
+      const timer = setTimeout(() => setIsScrollable(true), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [isOn, sequenceStep, setIsScrollable]);
+
+  // [전문가 제안] 전환(isTransitioning) 상태 감시 및 자동 시퀀스 실행
+  useEffect(() => {
+    if (isTransitioning && !isOn) {
+      // 0.8초 정도 스크램블이 도는 시간을 벌어준 뒤 배경 와이프 실행
+      const timer = setTimeout(() => {
+        handleScrambleComplete();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, isOn, handleScrambleComplete]);
+
   // CSS 변수 주입 (ON/OFF에 따른 색상 토큰)
   const cssVars = useMemo(() => ({
-    '--bg': isOn ? COLORS.BG.CREAM : COLORS.BG.DARK,
-    '--fg': isOn ? COLORS.TEXT.DARK : COLORS.TEXT.LIGHT,
-    '--accent': isOn ? COLORS.BRAND.TEAL : COLORS.BRAND.GOLD,
-    '--sub': isOn ? COLORS.BRAND.DEEP_TEAL : COLORS.BRAND.BROWN,
+    '--bg': isOn ? COLORS.HERO.ON.BG : COLORS.HERO.OFF.BG,
+    '--fg': isOn ? COLORS.HERO.ON.TEXT : COLORS.HERO.OFF.TEXT,
+    '--accent': isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT,
+    '--sub': isOn ? COLORS.HERO.ON.SUB_ACCENT : COLORS.HERO.OFF.SUB_ACCENT,
   } as React.CSSProperties), [isOn]);
 
   const wipeOverlay = useMemo(() => 
@@ -118,10 +138,28 @@ export default function HeroSection({
       <PointRingCursor isOn={isOn} />
     ) : null, [mounted, isOn]);
 
+  // 공통 Props 묶음
+  const viewProps = {
+    isOn,
+    isTransitioning,
+    sequenceStep,
+    shapesOnRevealed,
+    setShapesOnRevealed,
+    showCenteredShapes,
+    isToggleHovered,
+    setIsToggleHovered,
+    activeShape,
+    isInteractionActive,
+    handleToggle,
+    handleActiveShapeChange,
+    tcRef,
+    shapesStageRef
+  };
+
   return (
     <div 
       className="relative flex flex-col w-full min-h-screen overflow-hidden transition-colors duration-1000"
-      style={cssVars}
+      style={{ ...cssVars, zIndex: 1 }} // 다른 섹션들보다 아래에 위치하도록 명시
     >
       {pointCursor}
       
@@ -130,6 +168,7 @@ export default function HeroSection({
           {wipeOverlay}
           <Header />
           <div style={cssVars}>
+            {/* HeroBottomBar는 Portal에 유지하되, 내부 스타일링은 각 뷰에서 처리 */}
             <HeroBottomBar isOn={isOn} />
           </div>
         </>,
@@ -137,6 +176,8 @@ export default function HeroSection({
       )}
 
       <section
+        id={id}
+        className="hero-content-layer"
         style={{
           ...cssVars,
           position: 'relative',
@@ -145,8 +186,8 @@ export default function HeroSection({
           height: '100svh',
           display: 'flex',
           flexDirection: 'column',
-          padding: isMobile ? '24px 20px' : '36px 48px',
-          background: 'var(--bg)',
+          // padding은 각 뷰에서 처리
+          background: isOn ? 'transparent' : 'var(--bg)', // ON일 때 SharedNemo 노출
           color: 'var(--fg)',
           transition: 'background 0.7s ease, color 0.7s ease',
           overflow: 'hidden',
@@ -162,234 +203,41 @@ export default function HeroSection({
           }}
         />
 
+        {/* [v26.10] 램프 이펙트 (중앙 상단 베이지 빛) */}
+        {!isOn && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '-15%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '100vw',
+              height: '80vh',
+              background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.08) 0%, rgba(240, 235, 227, 0.03) 40%, transparent 70%)',
+              zIndex: 1,
+              pointerEvents: 'none',
+              filter: 'blur(40px)',
+            }}
+          />
+        )}
+
         <div
           style={{
             position: 'absolute',
             inset: 0,
             zIndex: 5,
             pointerEvents: 'none',
-            opacity: isOn ? 0.02 : 0.06, // OFF 모드에서 노이즈 질감 강화
+            opacity: isOn ? 0.02 : 0.06, 
             backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
             backgroundSize: '200px',
             transition: 'opacity 1s ease',
           }}
         />
 
-        {/* [v25.70] 레이아웃 가변 영역 시작 (Editorial Frame) */}
-        
-        {/* 1. 상단 스페이서 (PC OFF 모드에서 넓은 여백 확보) */}
-        <div style={{ 
-          minHeight: (!isOn && !isMobile) ? '12vh' : '64px', 
-          flexShrink: 0, 
-          order: 0,
-          transition: 'min-height 0.7s ease'
-        }} />
-
-        {/* 2. 빅 타이포 (NEMO ON 메인 타이틀) */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            zIndex: 40,
-            flexShrink: 0,
-            gap: isMobile ? '20px' : '2vh',
-            marginBottom: (!isOn && isMobile) ? '8vh' : '2vh',
-            transition: 'order 0.7s ease, margin 0.7s ease',
-            // PC: OFF(1), ON(10) | 모바일: OFF(1), ON(10)
-            order: isOn ? 10 : 1
-          }}
-        >
-          <HeroBigTypo
-            isOn={isOn}
-            isMobile={isMobile}
-            tcRef={tcRef}
-            shapesStageRef={shapesStageRef}
-            sequenceStep={sequenceStep}
-            onInteraction={handleTitleInteraction}
-            isTransitioning={isTransitioning}
-            isTitleDown={isTitleDown}
-            onScrambleComplete={handleScrambleComplete}
-          />
-
-          {/* PC 오프 모드 스크롤 힌트 (타이틀 바로 아래 배치) */}
-          {!isMobile && !isOn && (
-            <div 
-              style={{
-                position: 'relative',
-                left: '50%',
-                marginTop: '2vh',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                opacity: 0.2,
-              }}
-            >
-              <div 
-                style={{
-                  width: '1px',
-                  height: '30px',
-                  background: 'var(--fg)',
-                  animation: 'scrollLine 2s ease-in-out infinite',
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* 3. 슬로건 & 토글 영역 (tcRef) */}
-        <div
-          ref={tcRef}
-          className="relative z-30 w-full flex-shrink-0"
-          style={{
-            // PC: OFF(5), ON(1) | 모바일: OFF(2), ON(1)
-            order: isOn ? 1 : (isMobile ? 2 : 5),
-            marginTop: isMobile ? '0px' : (isOn ? '0' : '2vh'),
-            marginBottom: (!isOn && !isMobile) ? '6vh' : '0', 
-            opacity: showCenteredShapes ? 0 : 1, 
-            transition: 'opacity 0.5s ease, order 0.7s ease, margin 0.7s ease',
-            minHeight: isMobile ? '220px' : '10vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            gap: isMobile ? '24px' : '1.5vh'
-          }}
-        >
-          <div 
-            className={isMobile ? 'px-5' : 'px-[48px]'} 
-            style={{ 
-              position: 'relative',
-              width: '100%',
-              marginTop: isMobile ? '5px' : (isOn ? '6vh' : '0'), 
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              alignItems: 'flex-start',
-              pointerEvents: 'none',
-              zIndex: 100,
-              flexShrink: 0
-            }}
-          >
-            <div 
-              className="relative flex-shrink-0" 
-              style={{ 
-                width: isMobile ? '100%' : 'auto',
-                height: '120px',
-                pointerEvents: 'auto',
-                display: 'flex',
-                justifyContent: 'flex-start',
-                transform: isMobile ? 'translateY(55px)' : 'none' 
-              }}
-            >
-              <div style={{ position: 'relative', width: isMobile ? '100%' : '600px', height: '100%' }}>
-                <div className="absolute top-0 left-0 w-full flex justify-start">
-                  <HeroTrueFocusSlogan 
-                    isOn={isOn && (isMobile ? sequenceStep >= 4 : sequenceStep >= 1)} 
-                    sentence="불안을 끄고, 기준을 켭니다" 
-                  />
-                </div>
-                <div className="absolute top-0 left-0 w-full flex justify-start">
-                  <HeroOffSlogan 
-                    isVisible={!isOn} 
-                    isToggleHovered={isToggleHovered}
-                    isMobile={isMobile}
-                    isTransitioning={isTransitioning}
-                    onToggle={handleToggle}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className="flex-shrink-0" 
-              style={{ 
-                position: isMobile ? 'absolute' : 'relative',
-                top: isMobile ? '115px' : 'auto',
-                left: isMobile ? '20px' : 'auto',
-                marginTop: isMobile ? '0px' : '-15px',
-                zIndex: 50,
-                pointerEvents: 'auto',
-              }}
-              onMouseEnter={() => setIsToggleHovered(true)}
-              onMouseLeave={() => setIsToggleHovered(false)}
-            >
-              <HeroToggle
-                isOn={isOn}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 4. 중앙 인터랙션 영역 (도형 & 파티클) */}
-        <div
-          style={{
-            // PC/모바일 공통 OFF(3), ON(3) - 중간 영역 고수
-            order: 3, 
-            position: 'relative',
-            zIndex: showCenteredShapes ? 600 : 20,
-            width: '100%', 
-            flexShrink: 1,
-            flexGrow: 1, // 가용 공간 최대한 점유 (Editorial 핵심)
-            minHeight: isMobile ? '280px' : '30vh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            pointerEvents: 'none',
-            transform: (isMobile && isOn) ? 'translateY(-35px)' : 'none',
-            transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
-          }}
-        >
-          <HeroPhraseLayer
-            isOn={isOn}
-            visible={!showCenteredShapes}
-            isMobile={isMobile}
-            sequenceStep={sequenceStep}
-            onActiveShapeChange={handleActiveShapeChange}
-            onCopyVisible={() => setShapesOnRevealed(true)}
-            isInteractionActive={isInteractionActive}
-          />
-          {!isOn && (
-            <div 
-              className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
-              style={{
-                transform: isMobile ? 'translateY(-30px)' : 'none' 
-              }}
-            >
-              <div className="pointer-events-auto">
-                <HeroOffCta 
-                  isVisible={true} 
-                  isToggleHovered={isToggleHovered}
-                  isMobile={isMobile}
-                  isTransitioning={isTransitioning}
-                  onToggle={handleToggle}
-                />
-              </div>
-            </div>
-          )}
-          <ShapesStage
-            ref={shapesStageRef}
-            isOn={isOn} 
-            isMobile={isMobile}
-            onModeRevealed={shapesOnRevealed}
-            isCentered={showCenteredShapes}
-            sequenceStep={sequenceStep}
-            activeShape={activeShape}
-          />
-        </div>
-
-        {/* 5. 하단 시각적 완충 및 최종 여백 */}
-        <div className="flex-1" style={{ order: isOn ? 4 : 4, minHeight: isMobile ? '20px' : '4vh' }} />
-
-        <div
-          style={
-            isMobile
-              ? { order: isOn ? 5 : 6, flexShrink: 0, minHeight: '60px', height: '60px' }
-              : { order: isOn ? 11 : 11, flexShrink: 0, minHeight: '10vh' }
-          }
-        />
+        {/* [v26.24] 디바이스별 독립 레이아웃 분기 */}
+        {isMobile && <HeroMobileView {...viewProps} />}
+        {isTablet && <HeroTabletView {...viewProps} />}
+        {isPC && <HeroPCView {...viewProps} />}
         
         <style>{`
           @keyframes scrollLine {
