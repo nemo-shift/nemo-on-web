@@ -47,8 +47,22 @@ export default function HeroPCView({
         minHeight: isOn ? '20vh' : '12vh', 
         flexShrink: 0, 
         order: 0,
-        transition: 'min-height 0.7s ease'
-      }} />
+        transition: 'min-height 0.7s ease',
+        position: 'relative' // 앵커의 기준점
+      }}>
+        {/* [V4.3 Editorial] 로고 빅 타이포 앵커 - 슬로건 이동과 무관하게 상단 고정 */}
+        <div 
+          id="hero-logo-anchor" 
+          className="invisible pointer-events-none" 
+          style={{ 
+            position: 'absolute',
+            top: '80px',
+            left: '48px',
+            width: '400px', 
+            height: '80px' 
+          }} 
+        />
+      </div>
 
       {/* 3. 슬로건 & 토글 영역 (tcRef) */}
       <div
@@ -91,10 +105,12 @@ export default function HeroPCView({
             className="relative flex-shrink-0" 
             style={{ 
               width: '600px', 
-              height: '120px',
+              height: '140px', // 로고 여유 공간 포함
               pointerEvents: 'auto',
               display: 'flex',
-              justifyContent: 'flex-start'
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              gap: '20px'
             }}
           >
             <div style={{ position: 'relative', width: '600px', height: '100%' }}>

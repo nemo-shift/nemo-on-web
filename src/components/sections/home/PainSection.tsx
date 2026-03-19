@@ -1,8 +1,4 @@
-'use client';
-
 import React, { useRef } from 'react';
-
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { COLORS } from '@/constants/colors';
 
 import { PAIN_POINTS, RESONANCE_SENTENCES, CORE_MESSAGE_SENTENCES } from '@/data/home/pain';

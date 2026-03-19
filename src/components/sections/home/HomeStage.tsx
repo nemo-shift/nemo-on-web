@@ -10,7 +10,7 @@ import { MessageSection } from './MessageSection';
 import { ForWhoSection } from './ForWhoSection';
 import { BrandStorySection } from './BrandStorySection';
 import { CTASection } from './CTASection';
-import { GlobalInteractionStage } from './GlobalInteractionStage';
+import GlobalInteractionStage from './GlobalInteractionStage';
 
 /**
  * HomeStage 컴포넌트: 전체 페이지의 섹션 스택 관리

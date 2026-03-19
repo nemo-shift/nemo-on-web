@@ -1,7 +1,4 @@
-'use client';
-
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import Image from 'next/image';
 import { FOR_WHO_LIST } from '@/data/home/forwho';
 

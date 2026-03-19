@@ -4,27 +4,23 @@ import React, { useRef, useImperativeHandle, forwardRef, useEffect } from 'react
 import { useScramble } from '@/hooks/useScramble';
 
 /**
- * JourneyLogoHandle: GlobalInteractionStage에서 Ref로 직접 제어할 핸들
+ * JourneyLogoHandle: GlobalInteractionStage에서 제어할 핸들
  */
 export interface JourneyLogoHandle {
-  /** 루트 컨테이너 */
   containerEl: HTMLDivElement | null;
-  /** 'REC' 부분 */
-  recEl: HTMLSpanElement | null;
-  /** 'T' 문자 (+로 모핑) */
-  tEl: HTMLSpanElement | null;
-  /** '+' 문자 (opacity 증가하며 등장) */
-  plusEl: HTMLSpanElement | null;
-  /** 'ANGLE' 부분 */
-  angleEl: HTMLSpanElement | null;
+  /** RECTANGLE 로고 전체 */
+  rectangleEl: HTMLDivElement | null;
+  /** 'T' 문자를 구성하는 십자 선 (모핑용) */
+  tLines: {
+    h: HTMLDivElement | null;
+    v: HTMLDivElement | null;
+  };
   /** 한글 '네모' */
-  nemoKrEl: HTMLSpanElement | null;
-  /** 도형 [▲/○] 묶음 */
-  shapesEl: HTMLSpanElement | null;
-  /** [ON / OFF] 텍스트 */
-  statusEl: HTMLSpanElement | null;
-  /** 'RECTANGLE' 텍스트 전체 래퍼 */
-  rectangleEl: HTMLSpanElement | null;
+  nemoKrEl: HTMLDivElement | null;
+  /** 도형 세트 */
+  shapesEl: HTMLDivElement | null;
+  /** ON / OFF 텍스트 */
+  statusEl: HTMLDivElement | null;
 }
 
 interface JourneyLogoProps {
@@ -34,122 +30,104 @@ interface JourneyLogoProps {
 }
 
 /**
- * [Visual] 로고 8단계 여정 렌더링 컴포넌트
+ * [V4.3 Foundation] 로고 8단계 여정 (실용적 DOM 복구 버전)
+ * 브랜드 폰트의 심미성을 유지하면서 가벼운 CSS 선으로 'T->+' 모핑을 수행합니다.
  */
 const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
   (_props, ref) => {
     const { progress = 0, isOn, isTransitioning } = _props;
-    const containerRef  = useRef<HTMLDivElement>(null);
-    const nemoKrRef     = useRef<HTMLSpanElement>(null);
-    const shapesRef     = useRef<HTMLSpanElement>(null);
-    const statusRef     = useRef<HTMLSpanElement>(null);
-    const rectangleRef  = useRef<HTMLSpanElement>(null);
-    const recRef        = useRef<HTMLSpanElement>(null);
-    const tRef          = useRef<HTMLSpanElement>(null);
-    const plusRef       = useRef<HTMLSpanElement>(null);
-    const angleRef      = useRef<HTMLSpanElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const nemoKrRef = useRef<HTMLDivElement>(null);
+    const shapesRef = useRef<HTMLDivElement>(null);
+    const statusRef = useRef<HTMLDivElement>(null);
+    const rectangleRef = useRef<HTMLDivElement>(null);
+    
+    // T 모핑용 두 개의 선
+    const tLineHRef = useRef<HTMLDivElement>(null);
+    const tLineVRef = useRef<HTMLDivElement>(null);
 
     const { scrambledText, startScramble, setScrambledText } = useScramble();
     const prevTargetRef = useRef<string>('');
 
+    // ON/OFF 스크램블 효과 (V4.3: 전환 시작 전 즉시 발동)
     useEffect(() => {
-      if (statusRef.current && progress === 0) {
-        const target = (isOn || isTransitioning) ? 'ON' : 'OFF';
-        if (prevTargetRef.current !== target) {
-          startScramble(target, 600);
-          prevTargetRef.current = target;
-        }
-      } else if (progress > 0) {
-        const target = isOn ? 'ON' : 'OFF';
-        setScrambledText(target);
+      const target = (isOn || isTransitioning) ? 'ON' : 'OFF';
+      
+      // 전환 중이거나 타겟이 달라지면 즉시 스크램블 시작
+      if (prevTargetRef.current !== target || isTransitioning) {
+        startScramble(target, 450); // 타격감을 위해 450ms로 설정
         prevTargetRef.current = target;
       }
-    }, [isOn, isTransitioning, progress, startScramble, setScrambledText]);
+    }, [isOn, isTransitioning, startScramble]);
 
     useImperativeHandle(ref, () => ({
       get containerEl() { return containerRef.current; },
-      get nemoKrEl()    { return nemoKrRef.current; },
-      get shapesEl()    { return shapesRef.current; },
-      get statusEl()    { return statusRef.current; },
+      get nemoKrEl() { return nemoKrRef.current; },
+      get shapesEl() { return shapesRef.current; },
+      get statusEl() { return statusRef.current; },
       get rectangleEl() { return rectangleRef.current; },
-      get recEl()       { return recRef.current; },
-      get tEl()         { return tRef.current; },
-      get plusEl()      { return plusRef.current; },
-      get angleEl()     { return angleRef.current; },
+      tLines: {
+        get h() { return tLineHRef.current; },
+        get v() { return tLineVRef.current; }
+      }
     }));
+
+    const colorStyle = { color: 'var(--header-fg)' };
 
     return (
       <div
         ref={containerRef}
-        className="journey-logo-container relative overflow-visible select-none"
-        style={{ willChange: 'transform' }}
-        aria-label="네모:ON 로고"
+        className="journey-logo flex items-baseline gap-2 select-none"
+        style={{ height: '32px', willChange: 'transform' }}
       >
-        {/* Layer A [네모 ▲/○ ON/OFF] */}
-        <div className="logo-layer-kr flex items-baseline gap-[0.1em] origin-top-left">
-          <span
-            ref={nemoKrRef}
-            className="font-esamanru"
-            style={{
-              fontSize: '2.0em', lineHeight: 1, letterSpacing: '-0.02em',
-              color: 'var(--header-fg, #f0ebe3)', display: 'inline-block'
-            }}
-          >
-            네모
-          </span>
-
-          <span
-            ref={shapesRef}
-            className="logo-shapes inline-flex flex-col items-center justify-center underline-offset-0"
-            style={{
-              fontSize: '0.25em', lineHeight: 1, margin: '0 0.6em', gap: '0.08em',
-              transform: 'translateY(-2.75em)',
-            }}
-          >
-            <span className="shape-triangle leading-none" style={{ fontSize: '1.2em', color: isOn || isTransitioning ? '#0891b2' : '#e8d5b0' }}>▲</span>
-            <span className="shape-circle leading-none" style={{ color: isOn || isTransitioning ? '#0891b2' : '#c4a882' }}>○</span>
-          </span>
-
-          <span
-            ref={statusRef}
-            className="logo-status font-gmarket"
-            style={{
-              fontSize: '2.0em', lineHeight: 1, letterSpacing: '0.04em',
-              color: 'var(--header-fg, #f0ebe3)', display: 'inline-block',
-              minWidth: '2.5em', textAlign: 'left'
-            }}
-          >
-            {(progress === 0 && !isTransitioning) 
-              ? (isOn ? 'ON' : 'OFF') 
-              : (scrambledText || (isOn ? 'ON' : 'OFF'))
-            }
-          </span>
+        {/* 1. 한글 네모 (Layer A) */}
+        <div 
+          ref={nemoKrRef} 
+          className="font-esamanru font-bold text-[24px] tracking-tighter"
+          style={colorStyle}
+        >
+          네모
         </div>
 
-        {/* Layer B [RECTANGLE] T -> + Morphing */}
-        <span
-          ref={rectangleRef}
-          className="logo-layer-rectangle absolute top-0 left-0 flex items-baseline font-bebas text-text-light"
-          style={{
-            opacity: 0, pointerEvents: 'none', whiteSpace: 'nowrap',
-            letterSpacing: '0.02em', lineHeight: 0.9,
-          }}
+        {/* 2. 기호 [▲/○] */}
+        <div ref={shapesRef} className="flex flex-col items-center justify-center gap-0.5 mt-1.5 opacity-80">
+          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#0891b2]" />
+          <div className="w-[6px] h-[6px] rounded-full bg-[#0891b2]" />
+        </div>
+
+        {/* 3. ON/OFF (Scramble) */}
+        <div 
+          ref={statusRef} 
+          className="font-gmarket font-bold text-[22px] tracking-tight min-w-[36px]"
+          style={colorStyle}
         >
-          <span ref={recRef}>REC</span>
+          {scrambledText || (isOn ? 'ON' : 'OFF')}
+        </div>
 
-          <span style={{ position: 'relative', display: 'inline-block' }}>
-            <span ref={tRef} className="morph-t" style={{ display: 'inline-block' }}>T</span>
-            <span
-              ref={plusRef}
-              className="morph-plus"
-              style={{ opacity: 0, position: 'absolute', left: 0, top: 0 }}
-            >
-              +
-            </span>
-          </span>
-
-          <span ref={angleRef}>ANGLE</span>
-        </span>
+        {/* 4. RECTANGLE (Layer B - Hidden initially) */}
+        <div 
+          ref={rectangleRef} 
+          className="absolute inset-0 flex items-baseline font-bebas text-[28px] tracking-widest opacity-0 pointer-events-none"
+          style={colorStyle}
+        >
+          <span>REC</span>
+          {/* T Morphing Point (Using CSS Lines for Practicality) */}
+          <div className="relative w-[18px] h-[24px] mx-0.5">
+            {/* 가로 선 (Horizontal Bar) */}
+            <div 
+              ref={tLineHRef}
+              className="absolute left-0 top-[4px] w-full h-[3.5px] bg-current rounded-sm"
+              style={{ transition: 'top 0.3s ease' }}
+            />
+            {/* 세로 선 (Vertical Bar) */}
+            <div 
+              ref={tLineVRef}
+              className="absolute left-1/2 -translateX-1/2 top-[4px] w-[3.5px] h-[85%] bg-current rounded-sm"
+              style={{ transform: 'translateX(-50%)' }}
+            />
+          </div>
+          <span>ANGLE</span>
+        </div>
       </div>
     );
   },

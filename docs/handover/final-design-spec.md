@@ -1,21 +1,21 @@
-# 네모:ON 최종 인터랙션 설계서 (V4.3 Final Spec)
+# 네모:ON 최종 인터랙션 설계서 (V4.5 Data-Driven)
 
-본 문서는 `master-prompt.md`의 기획을 실제 코드로 구현한 **V4.3 Strict Whole-Pin & Manual Scroll** 아키텍처의 최종 기술 설계도이다. 내일 이후 모든 구현의 **유일한 기술적 기준**이 된다.
+본 문서는 `master-prompt.md`의 기획을 실제 코드로 구현한 **V4.5 Data-Driven Interaction** 아키텍처의 최종 기술 설계도이다.
 
 ---
 
-## 🏗️ 1. 아키텍처 원칙 (V4.3 무결성 표준)
+## 🏗️ 1. 아키텍처 원칙 (V4.5 무결성 표준)
 
-### ⏱️ 전역 동기화 (Strict Whole-Pin & Manual Scroll)
-- **전체 핀(Whole-Pin)**: 스크롤 핸드오버의 픽셀 단위 정밀도를 위해 `#home-stage` 전체에 `pin: true`를 적용.
-- **Manual Scroll Engine (V4.3 Core)**: 전체 핀 상태에서는 네이티브 스크롤이 발생하지 않으므로, 타임라인 레이블에 맞춰 섹션 콘텐츠 래퍼(`#sections-content-wrapper`)를 **Y축으로 직접 밀어 올림**으로써 물리적 스테이지 전환을 구현함.
-- **Double-Lock 보호**:
-  1. `requestAnimationFrame` 지연 초기화로 핀 생성 시점 보호.
-  2. 스크롤 잠금 해제 0.1초 후 `ScrollTrigger.refresh()` 강제 실행으로 레이아웃 좌표 무결성 확보.
+### ⏱️ 데이터 기반 구동 (Data-Driven Engine)
+- **마스터 여정 시트 (`journey.ts`)**: 모든 섹션의 배경색, 로고 가시성, 네모 상자의 상태(크기, 좌표, 보더 등)를 중앙 데이터 시트에서 관리.
+- **전역 상수화 (`interaction.ts`)**: 헤더 위치, 이징(Ease), 섹션별 스크롤 높이 등 모든 정량적 수치를 상수로 관리하여 인라인 수치 배제.
+- **상태 루프 애니메이션**: `GlobalInteractionStage.tsx`는 마스터 데이터를 순회하며 타임라인을 자동으로 생성하는 '엔진' 역할만 수행.
 
-### 📂 컴포넌트 생명주기 (Always-in-DOM)
-- **DOM Stability**: 모든 섹션은 초기 로드 시 DOM에 생성됨.
-- **Visibility Control**: `isOn` 상태에 따라 `opacity`와 `visibility`로만 노출을 제어하여 ScrollTrigger 좌표계의 정적성을 유지함.
+### 🛡️ 시스템 무결성 보호 (Strict Integrity)
+- **절대 변경 금지 (No-Touch Rules)**:
+    1. **#home-stage 핀 구조**: 스크롤 동기화의 근간인 고정 트리거 및 핀 설정 보존.
+    2. **타임라인 아키텍처**: 라벨 기반의 가중치 계산 방식 및 마스터 타임라인 생성 구조 보존.
+    3. **Double-Lock 안정화**: `requestAnimationFrame`과 `ScrollTrigger.refresh()`를 통한 좌표 무결성 확보 로직 보존.
 
 ---
 
@@ -32,32 +32,38 @@
 
 ---
 
-## 🔡 3. 로고 여정 (Logo Journey & Morphing)
+## 🔡 3. 로고 여정 및 네모 모핑 (Logo & Nemo Integration)
 
-- **스펠링 구조**: **`REC` + `T` (모핑 대상) + `ANGLE`**
-- **모핑 기획**: `RECTANGLE`의 **'T'**가 **'+'** 기호로 교차 페이드되며 변형됨.
-- **상징성**: 전환(T)이 연결과 확장(+)으로 변화하는 브랜드 언어를 시각적으로 구현.
+- **로고 구현 (DOM + Text)**:
+  - 브랜드 폰트의 고유 아이덴티티를 유지하기 위해 **DOM 기반 렌더링**을 사용함.
+  - **T-Morphing**: 'RECTANGLE' 내의 'T'는 두 개의 CSS Line으로 구성하여 '+'로의 정밀한 모핑을 구현.
+  - **Fixed Proxy 전략**: 고정된 에디토리얼 앵커 위치에서 헤더 자리로 탈출하는 궤적 구현.
+- **네모 모핑 (Single Object)**:
+  - 히어로 [결] 박스 → 섹션 전체 배경 → 테두리 박스 → 이미지 프레임을 단일 DOM 요소로 구현.
 
 ---
 
-## 🔄 4. State Flow (단계별 정의)
+## 🔄 4. State Flow (Master Journey Sequence)
 
-| Progress | Section Y-Offset | Background | Nemo & Logo State |
+| Stage | Nemo Shape | Logo State | Background |
 | :--- | :--- | :--- | :--- |
-| **HERO** | `0` | #0a0a0a | 빅 타이틀 & 결 박스 |
-| **PAIN** | `-100vh` | #0D1A1F (Dark) | 뷰포트 확장 후 카드 수축 |
-| **MESSAGE** | `-1100vh` | #0891b2 (Teal) | 세로 틸 박스 & T->+ 모핑 |
-| **FORWHO** | `-1900vh` | #faf7f2 (Cream) | 가로 이미지 프레임 |
-| **STORY** | `-2900vh` | #faf7f2 (Cream) | 브랜드 스토리 텍스트 |
-| **CTA** | `-3000vh` | #0D1A1F (Dark) | 최종 행동 유도 |
+| **HERO** | 초기 56px (투명) | 빅 타이틀 (네모:ON) | **ON:Cream / OFF:Dark** |
+| **START_TO_PAIN** | **100vw/100vh (배경화)** | 헤더 안착 (네모) | #0D1A1F (Dark) |
+| **TO_PAIN** | 카드 테두리 수축 완료 | 헤더 유지 (네모) | #0D1A1F (Dark) |
+| **RESONANCE** | 중앙 채워진 박스 | RECTANGLE 등장 (T) | #0D1A1F (Dark) |
+| **TO_MESSAGE** | 틸 세로 박스 | **REC+ANGLE (+)** | **#f7f1e9 (Cream)** |
+| **FORWHO** | 가로 이미지 프레임 | **네모:ON 복구** | #f7f1e9 (Cream) |
+| **CTA** | 뷰포트 확장 (Dark) | 헤더 유지 | #0D1A1F (Dark) |
 
 ---
 
-## 🛠️ 5. 기술 스택 및 라이브러리 연동
-- **GSAP + ScrollTrigger**: 애니메이션 및 스크롤 핸들링 핵심 엔진.
-- **V4.3 Scroll Engine**: `buildSectionScrollTimeline`을 통한 수동 배경 제어 로직.
-- **Matter.js**: `FallingKeywordsStage` 물리 엔진 담당.
+## 📜 6. 결정 히스토리 (Decision History)
+
+### **왜 마스터 여정 시트(Master Journey Sheet)인가?**
+- **문제점**: 이전의 로직-수치 결합 방식은 미세 수정(색상, 크기) 시마다 복잡한 GSAP 타임라인 코드를 직접 건드려야 했으며, 이는 뼈대 훼손과 버그의 주범이었음.
+- **해결책**: 모든 시각적 인자를 `journey.ts`로 수납하고 `GlobalInteractionStage.tsx`는 순수 엔진으로 정제함.
+- **기대 효과**: 비개발자나 AI 에이전트도 데이터 시트 수정만으로 안전하고 빠르게 인터랙션을 튜닝할 수 있는 **'가장 안정적인 고도화 환경'** 구축.
 
 ---
 
-**"본 문서는 현재 시스템의 최신 무결성 표준(V4.3)을 반영하고 있으며, 이전의 모든 handover 문서는 본 문서로 대체된다."**
+**"본 문서는 현재 시스템의 최신의 무결성 표준(V4.5)을 반영하고 있으며, 이전의 모든 handover 문서는 본 문서로 대체된다."**

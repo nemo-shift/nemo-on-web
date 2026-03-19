@@ -16,6 +16,7 @@ export interface FallingKeywordsHandle {
 
 interface FallingKeywordsStageProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
+  isMobile: boolean;
 }
 
 /**
@@ -110,11 +111,12 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         });
       },
       reset: () => {
-        if (engineRef.current) {
-          const allBodies = Matter.Composite.allBodies(engineRef.current.world);
+        const engine = engineRef.current;
+        if (engine) {
+          const allBodies = Matter.Composite.allBodies(engine.world);
           allBodies.forEach(body => {
             if (!body.isStatic || (body as any).text) {
-              Matter.World.remove(engineRef.current.world, body);
+              Matter.World.remove(engine.world, body);
             }
           });
           bodiesRef.current = [];

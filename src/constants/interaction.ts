@@ -20,17 +20,20 @@ export const INTERACTION_Z_INDEX = {
 };
 
 // ─────────────────────────────────────────────
-// 2. 브랜드 컬러 팔레트
+// 2. 브랜드 컬러 팔레트 (V4.3 Integrity: colors.ts와 동기화)
 // ─────────────────────────────────────────────
 export const COLORS = {
   BRAND: '#0891b2',
   ACCENT: '#E8734A',
-  BG_DARK: '#0a0a0a',
-  BG_SECTION_DARK: '#0D1A1F',
-  BG_CREAM: '#faf7f2',
-  BG_CREAM_ALT: '#f7f1e9',
-  TEXT_LIGHT: '#f0ebe3',
-  TEXT_DARK: '#0d1a1f',
+  BG: {
+    DARK_HERO: '#0a0a0a',
+    DARK_SECTION: '#0D1A1F',
+    CREAM: '#f7f1e9', // 라이트 배경 (메시지, 포후용)
+  },
+  TEXT: {
+    LIGHT: '#f0ebe3', // 다크 배경 위 텍스트
+    DARK: '#0d1a1f',  // 라이트 배경 위 텍스트
+  }
 };
 
 // ─────────────────────────────────────────────
@@ -54,11 +57,38 @@ export const STAGES = {
 } as const;
 
 // ─────────────────────────────────────────────
+// 3.5. [V4.5] 헤더 위치 및 인터랙션 수치
+// ─────────────────────────────────────────────
+export const HEADER_POS = {
+  PC:  { x: 40, y: 32 },
+  MOBILE: { x: 20, y: 20 },
+};
+
+export const EASE = {
+  TRANSITION: 'power3.inOut',
+  FADE: 'power2.in',
+  SETTLE: 'power2.inOut',
+  BOUNCE: 'back.out(1.2)',
+};
+
+// 섹션 스크롤 높이 (buildSectionScrollTimeline 전용)
+export const SECTION_SCROLL_HEIGHT = {
+  HERO:    100,   // vh
+  PAIN:    1000,
+  MESSAGE: 800,
+  FORWHO:  1000,
+  STORY:   100,
+};
+
+// ─────────────────────────────────────────────
 // 4. 감도 및 가중치 설정 (V4.0 Tuning)
 // ─────────────────────────────────────────────
 export const TIMING_CFG = {
   // 전이 과정의 시각적 호흡 (낮을수록 급격함)
   TRANSITION_WEIGHT: 0.4, 
+  
+  // 전이 완료 비율 (90% 지점에서 선제적 완결)
+  TRANSITION_FINISH_RATIO: 0.9, 
   
   // 섹션별 정지(Stillness) 가중치 - 스크롤 호흡 결정
   SECTION_WEIGHT: {

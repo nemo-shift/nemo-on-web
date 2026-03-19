@@ -42,15 +42,29 @@ export default function HeroMobileView({
 }: HeroViewProps) {
   return (
     <>
-      {/* 1. 상단 스페이서 (Mobile: 40px) */}
+      {/* 1. 상단 스페이서 (Mobile: 고정 위치 확보용) */}
       <div style={{ 
-        minHeight: '40px', 
+        minHeight: isOn ? '16vh' : '10vh', 
         flexShrink: 0, 
         order: 0,
-        transition: 'min-height 0.7s ease'
-      }} />
+        transition: 'min-height 0.7s ease',
+        position: 'relative'
+      }}>
+        {/* [V4.3 Editorial] 모바일 로고 빅 타이포 앵커 - 슬로건 이동과 상관없이 상단 고정 */}
+        <div 
+          id="hero-logo-anchor" 
+          className="invisible pointer-events-none" 
+          style={{ 
+            position: 'absolute',
+            top: '40px',
+            left: '20px',
+            width: '280px', 
+            height: '60px' 
+          }} 
+        />
+      </div>
 
-      {/* 3. 슬로건 영역 (tcRef) - Mobile 전용: 수직 스택, 절대 위치 보정 */}
+      {/* 2. 슬로건 영역 (tcRef) */}
       <div
         ref={tcRef}
         className="w-full flex-shrink-0 px-5"
@@ -60,11 +74,8 @@ export default function HeroMobileView({
           left: 0,
           zIndex: 30,
           order: isOn ? 10 : 2,
-          marginTop: '0px',
-          marginBottom: '0',
           opacity: showCenteredShapes ? 0 : 1,
           transition: 'opacity 0.5s ease',
-          minHeight: 'auto',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-start',
@@ -72,46 +83,18 @@ export default function HeroMobileView({
           pointerEvents: 'none'
         }}
       >
-        <div 
-          style={{ 
-            position: 'relative',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            pointerEvents: 'none',
-            zIndex: 100,
-            flexShrink: 0
-          }}
-        >
-          <div 
-            className="relative flex-shrink-0" 
-            style={{ 
-              width: '100%', 
-              height: '110px',
-              pointerEvents: 'auto',
-              display: 'flex',
-              justifyContent: 'flex-start',
-              transform: 'translateY(55px)'
-            }}
-          >
-            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-              <HeroSlogan
-                isOn={isOn}
-                isMobile={true}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
-                sentence="불안을 끄고, 기준을 켭니다"
-              />
-            </div>
-          </div>
-
-          {/* [v26.35] 모바일 히어로 다크모드 토글 중앙 이동 */}
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <HeroSlogan
+            isOn={isOn}
+            isMobile={true}
+            onToggle={handleToggle}
+            isTransitioning={isTransitioning}
+            sentence="불안을 끄고, 기준을 켭니다"
+          />
         </div>
       </div>
 
-      {/* 4. 중앙 인터랙션 영역 - Mobile Dedicated Layout */}
+      {/* 3. 중앙 인터랙션 영역 */}
       <div
         style={{
           order: 3, 
@@ -120,12 +103,12 @@ export default function HeroMobileView({
           width: '100%', 
           flexShrink: 1,
           flexGrow: 1,
-          minHeight: '280px',
+          minHeight: '320px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           pointerEvents: 'none',
-          transform: isOn ? 'translateY(-35px)' : 'none',
+          transform: isOn ? 'translateY(-20px)' : 'none',
           transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
         }}
       >
