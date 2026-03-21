@@ -5,6 +5,7 @@ import { useHeroContext } from '@/context';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { COLORS } from '@/constants/colors';
+import { NemoIcon } from '@/components/ui';
 
 /**
  * Footer 컴포넌트 [V5.2 Reveal Pattern]
@@ -65,12 +66,16 @@ export default function Footer(): React.ReactElement {
 
       {/* 2. 중앙: 네모:ON 빅타이포 (Full-bleed) */}
       <div className="flex-1 flex items-center justify-center pointer-events-none">
-        <h2 className="text-[18vw] md:text-[22vw] font-bold leading-none tracking-tighter whitespace-nowrap overflow-hidden">
+        <h2 className="text-[clamp(60px,18vw,200px)] md:text-[clamp(120px,22vw,450px)] font-bold leading-none tracking-tighter whitespace-nowrap overflow-hidden">
           <span className="font-esamanru">네모</span>
-          <span className="inline-flex flex-col items-center justify-center gap-2 px-[2vw] mb-[2vw]">
-             <div className="w-0 h-0 border-l-[3vw] border-l-transparent border-r-[3vw] border-r-transparent border-b-[4.5vw] border-b-[#0891b2]" />
-             <div className="w-[4.5vw] h-[4.5vw] rounded-full bg-[#0891b2]" />
-          </span>
+          <NemoIcon 
+            style={{ transform: 'translateY(-5vw)' }}
+            gapClassName="gap-[0.5vw]"
+            className="px-[2vw] mb-[2vw]"
+            triangleClassName="border-l-[clamp(15px,3vw,60px)] border-r-[clamp(15px,3vw,60px)] border-b-[clamp(22.5px,4.5vw,90px)]"
+            triangleStyle={{ transform: 'translateY(-2vw)' }}
+            circleClassName="w-[clamp(22.5px,4.5vw,90px)] h-[clamp(22.5px,4.5vw,90px)] border-[0.6vw] -translate-y-[1.2vw] md:translate-y-0"
+          />
           <span className="font-gmarket">ON</span>
         </h2>
       </div>

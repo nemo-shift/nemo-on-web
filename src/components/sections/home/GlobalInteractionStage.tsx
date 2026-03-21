@@ -296,11 +296,10 @@ function _initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: boolea
   if (anchorEl) {
     const anchorRect = anchorEl.getBoundingClientRect();
     
-    const isMobileNow = window.innerWidth < 768;
-    const bigScale = isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
+    const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
     const scale = isScrollable
       ? anchorRect.height / 32
-      : (isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE);
+      : (isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE);
     
     gsap.set(container, {
       x: 0,

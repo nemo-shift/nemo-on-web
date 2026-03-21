@@ -12,35 +12,40 @@ export function useDeviceDetection(): {
   isMobile: boolean;
   isTablet: boolean;
   isPC: boolean;
-  } {
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [isPC, setIsPC] = useState(false);
+  isInitialized: boolean;
+} {
+  const [device, setDevice] = useState({
+    isTouchDevice: false,
+    isMobile: false, // 서버에서는 기본적으로 PC(false)로 가정하거나 안전값 유지
+    isTablet: false,
+    isPC: false,
+    isInitialized: false,
+  });
 
   useEffect(() => {
     const checkTouchDevice = (): boolean =>
       'ontouchstart' in window ||
       navigator.maxTouchPoints > 0 ||
-      ((navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0;
+      ((navigator as any).msMaxTouchPoints ?? 0) > 0;
 
     const updateDevice = (): void => {
       const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsTablet(width >= 768 && width < 1024);
-      setIsPC(width >= 1024);
+      setDevice({
+        isTouchDevice: checkTouchDevice(),
+        isMobile: width < 768,
+        isTablet: width >= 768 && width < 1024,
+        isPC: width >= 1024,
+        isInitialized: true,
+      });
     };
 
-    requestAnimationFrame(() => {
-      setIsTouchDevice(checkTouchDevice());
-      updateDevice();
-    });
+    // 초기 마운트 시 즉시 실행 (Next.js 하이드레이션 이후 타이밍)
+    updateDevice();
 
     const handleResize = (): void => updateDevice();
-
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return { isTouchDevice, isMobile, isTablet, isPC };
+  return device;
 }

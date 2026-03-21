@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { NemoIcon } from '@/components/ui';
 import { usePathname } from 'next/navigation';
 import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
@@ -44,14 +45,17 @@ export default function Header(): React.ReactElement {
             href="/"
             className="pointer-events-auto no-underline flex items-baseline gap-1.5 md:gap-2 group"
           >
-            <span className="font-esamanru font-light text-[20px] md:text-[26px] tracking-tight text-[#0d1a1f]">
+            <span className="font-esamanru font-light text-[clamp(20px,2vw,26px)] md:text-[clamp(24px,1.8vw,32px)] tracking-tight text-[#0d1a1f]">
               네모
             </span>
-            <span className="flex flex-col items-center justify-center gap-[2px] mb-[2px] opacity-90 transition-transform group-hover:scale-110">
-              <div className="w-0 h-0 border-l-[3.5px] border-l-transparent border-r-[3.5px] border-r-transparent border-b-[5px] border-b-[#0891b2]" />
-              <div className="w-[5px] h-[5px] rounded-full bg-[#0891b2]" />
-            </span>
-            <span className="font-gmarket font-medium text-[19px] md:text-[24px] tracking-tighter text-[#0d1a1f]">
+            <NemoIcon 
+              className="opacity-90 transition-transform group-hover:scale-110"
+              style={{ transform: 'translateY(-0.4vw)' }}
+              triangleClassName="border-l-[clamp(3px,0.25vw,4.5px)] border-r-[clamp(3px,0.25vw,4.5px)] border-b-[clamp(4.5px,0.4vw,6.5px)]"
+              circleClassName="w-[clamp(4.5px,0.4vw,6.5px)] h-[clamp(4.5px,0.4vw,6.5px)] border-[1.2px]"
+              gapClassName="gap-[0.15vw]"
+            />
+            <span className="font-gmarket font-medium text-[clamp(19px,1.8vw,24px)] md:text-[clamp(22px,1.6vw,30px)] tracking-tighter text-[#0d1a1f]">
               ON
             </span>
           </Link>
@@ -103,14 +107,16 @@ export default function Header(): React.ReactElement {
               onClick={() => setMenuOpen(false)}
               className="no-underline flex items-baseline gap-2 text-white"
             >
-              <span className="font-esamanru font-light text-[24px] md:text-[32px] tracking-tight">
+              <span className="font-esamanru font-light text-[clamp(24px,4vw,36px)] md:text-[clamp(32px,3.5vw,48px)] tracking-tight">
                 네모
               </span>
-              <span className="flex flex-col items-center gap-[3px] mb-1">
-                <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[7px] border-b-[#0891b2]" />
-                <div className="w-2 h-2 rounded-full bg-[#0891b2]" />
-              </span>
-              <span className="font-gmarket font-medium text-[22px] md:text-[30px] tracking-tighter">
+              <NemoIcon 
+                style={{ transform: 'translateY(-0.8vw)' }}
+                triangleClassName="border-l-[clamp(5px,0.4vw,7.5px)] border-r-[clamp(5px,0.4vw,7.5px)] border-b-[clamp(7.5px,0.6vw,11px)]"
+                circleClassName="w-[clamp(8px,0.7vw,12px)] h-[clamp(8px,0.7vw,12px)] border-[1.8px]"
+                gapClassName="gap-[0.25vw]"
+              />
+              <span className="font-gmarket font-medium text-[clamp(22px,3.5vw,32px)] md:text-[clamp(30px,3.2vw,44px)] tracking-tighter">
                 ON
               </span>
             </Link>

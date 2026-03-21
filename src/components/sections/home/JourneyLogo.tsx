@@ -2,6 +2,7 @@
 
 import React, { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useScramble } from '@/hooks/useScramble';
+import { NemoIcon } from '@/components/ui';
 
 /**
  * JourneyLogoHandle: GlobalInteractionStage에서 제어할 핸들
@@ -90,11 +91,14 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
           네모
         </div>
 
-        {/* 2. 기호 [▲/○] */}
-        <div ref={shapesRef} className="flex flex-col items-center justify-center gap-0.5 mt-1.5 opacity-80">
-          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#0891b2]" />
-          <div className="w-[6px] h-[6px] rounded-full bg-[#0891b2]" />
-        </div>
+        <NemoIcon 
+          ref={shapesRef}
+          className="mt-0 opacity-80"
+          style={{ transform: 'translateY(-0.6vw)' }}
+          triangleClassName="border-l-[clamp(4px,0.35vw,6px)] border-r-[clamp(4px,0.35vw,6px)] border-b-[clamp(6px,0.55vw,9px)]"
+          circleClassName="w-[clamp(6px,0.55vw,9px)] h-[clamp(6px,0.55vw,9px)] border-[1.5px]"
+          gapClassName="gap-[0.1vw]"
+        />
 
         {/* 3. ON/OFF (Scramble) */}
         <div 
