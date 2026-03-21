@@ -4,17 +4,17 @@
 
 V4.6 데이터 기반 단일 엔진 체계가 구축되었습니다. 이제 복잡한 코드를 건드리지 않고 `journey.ts`와 `interaction.ts`의 수치를 보정하여 최상의 미학적 경험을 완성합니다.
 
-### [ ] 1. 마스터 시트(`journey.ts`)를 통한 '영점 조절' (Zeroing)
-- **1px Sync**: 히어로 [결] 박스와 `SharedNemo`의 합체가 일어나는 시점의 좌표(`left`, `top`)를 데이터 시트에서 미세 조정.
-- **Logo Transition**: 로고가 헤더로 안착할 때의 스케일과 위치를 `interaction.ts`의 `HEADER_POS`와 `journey.ts`의 `HERO` 설정을 통해 고도화.
+### [ ] 1. 푸터 리빌 '영점 조절' (Fine-tuning)
+- **Scroll Sync**: `interaction.ts`의 `SCROLL_SENSITIVITY` 수치를 실시간으로 보정하여, 스크롤바 바닥 도착과 푸터 3/4 노출 완료 시점을 1px 단위로 일치시킴.
+- **Visual Threshold**: CTA 섹션이 상단에 정확히 25vh 남는지 브라우저 인스펙터로 확인 및 보정.
 
-### [ ] 2. 단일 엔진 기반 '전이 리듬' 튜닝
-- 각 섹션 시작선(Red Line)에 맞춰 배경색 전환과 로고 변형이 일어나는 타이밍을 `interaction.ts`의 `SECTION_SCROLL_HEIGHT`와 `journey.ts`의 스테이지 데이터를 통해 싱크 조절.
-- **T -> + 모핑**: `journey.ts`의 `morph` 속성과 `interaction.ts`의 `EASE.TRANSITION`을 활용하여 모핑의 리듬감 극대화.
+### [ ] 2. 사이드바 메뉴 (Side Menu) 구현
+- **Push Layout**: 메뉴 오픈 시 메인 콘텐츠(`#home-stage`)가 좌측으로 밀려나는 애니메이션 구현.
+- **Brand Identity**: 브랜드 컬러(Teal)와 폰트 가이드라인을 준수한 메뉴 UI 완성.
 
-### [ ] 3. 실 서비스 콘텐츠 주입 (Phase 4 본격 가동)
-- `MessageSection`, `ForWhoSection`, `BrandStory` 등의 섹션에 기획안의 실제 UI와 텍스트를 주입.
-- 모든 섹션 내 애니메이션은 **GSAP(`useGSAP`)**으로 통일하여 구현함으로써 스크롤 동기화 무결성 유지.
+### [ ] 3. 실 서비스 콘텐츠 주입 및 전이 리듬 튜닝
+- `journey.ts`와 `interaction.ts`를 활용하여 각 섹션의 노출 시간과 전이 애니메이션의 이징(Ease)을 미세 조정.
+- 모든 섹션 내 애니메이션은 **GSAP(`useGSAP`)** 단일 엔진 원칙 고수.
 
 ---
 

@@ -11,6 +11,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import {
   Header,
+  Footer,
   LenisScrollRestoration,
   GlobalScrollTriggerCleanup,
   SmoothScroll,
@@ -81,6 +82,7 @@ export default function RootLayout({
           <HeroProvider>
             <Header />
             <main className="flex-1">{children}</main>
+            <Footer />
           </HeroProvider>
         </SmoothScroll>
       </body>

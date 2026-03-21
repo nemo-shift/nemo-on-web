@@ -1,4 +1,4 @@
-import React from 'react';
+import SubPageLayout from '@/components/layout/SubPageLayout';
 
 /**
  * /offerings/lab 페이지
@@ -6,7 +6,7 @@ import React from 'react';
  */
 export default function LabPage() {
   return (
-    <main className="min-h-screen pt-24 px-6 md:px-12 bg-surface-cream text-text-dark">
+    <SubPageLayout className="pt-24 px-6 md:px-12 text-text-dark">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-6xl font-bold mb-8">Lab.</h1>
         <p className="text-xl md:text-2xl leading-relaxed opacity-80">
@@ -17,6 +17,6 @@ export default function LabPage() {
           <p className="text-sm uppercase tracking-widest opacity-40">Coming Soon</p>
         </div>
       </div>
-    </main>
+    </SubPageLayout>
   );
 }

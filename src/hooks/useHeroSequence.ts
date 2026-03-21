@@ -12,16 +12,20 @@ export function useHeroSequence(isOn: boolean) {
 
   useEffect(() => {
     if (isOn) {
-      // 감성적 딜레이 후 첫 번째 단계 시작
+      // [V12.3] 이미 시퀀스가 시작되었거나(>0) 완료된 경우 시작 타이머 중복 가동 방지
+      // sequenceStep을 의존성 배열에서 제외하여 무한 루프를 원천 차단함
+      if (sequenceStep > 0) return;
+
       const timer = setTimeout(() => {
-        setSequenceStep(1);
+        // [V12.4] 타이머 실행 시점에 상태 재확인: 이미 외부에서 완료(5)시켰다면 1로 되돌리지 않음 (하극상 방지)
+        setSequenceStep(prev => prev >= 5 ? prev : 1);
       }, HERO_TIMING.SEQUENCE_INITIAL_DELAY);
       return () => clearTimeout(timer);
     } else {
       // cascading render 방지를 위해 rAF 사용
       requestAnimationFrame(() => setSequenceStep(0));
     }
-  }, [isOn]);
+  }, [isOn]); // sequenceStep 제거
 
   useEffect(() => {
     if (!isOn || sequenceStep === 0 || sequenceStep >= 5) return;

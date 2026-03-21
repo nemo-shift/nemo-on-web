@@ -35,13 +35,24 @@ export const GlobalInteractionStage = ({
   isOn,
   isTransitioning,
 }: GlobalInteractionStageProps) => {
-  const { isScrollable } = useHeroContext();
+  const { isScrollable, isTimelineReady, footerHeight, setIsTimelineReady } = useHeroContext();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const logoHandle   = useRef<JourneyLogoHandle>(null);
   const nemoHandle   = useRef<SharedNemoHandle>(null);
   const fallingRef   = useRef<FallingKeywordsHandle>(null);
   const masterTl     = useRef<gsap.core.Timeline | null>(null);
+  const rafId        = useRef<number | null>(null);
+
+  // [V5.4] 브라우저의 강제 스크롤 복구 방지 (영점 동기화 하드닝)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.scrollRestoration = 'manual';
+      if (ScrollTrigger.clearScrollMemory) {
+        ScrollTrigger.clearScrollMemory('manual');
+      }
+    }
+  }, []);
 
   useGSAP(() => {
     const logo = logoHandle.current;
@@ -52,22 +63,38 @@ export const GlobalInteractionStage = ({
 
     const ctx = gsap.context(() => {
       _initGlobalStyles(isOn);
-      _initLogoState(logo, isOn, isMobile);
+      if (!masterTl.current) {
+        _initLogoState(logo, isOn, isMobile, isScrollable);
+      }
       _initNemoState(nemo, isMobile);
 
       if (isScrollable) {
+        // [V5.4 Zombie Kill] 새 엔진이 가동되기 직전, 모든 이전 잔재(좀비) 소거
+        // 사용자 제안 V6 정밀 구조를 반영하여 인트로 이후에 배치
+        ScrollTrigger.getAll().forEach((t) => t.kill());
+
+        // [V5.3] 푸터 높이가 측정되기 전에는 타임라인 빌드를 보류하여 영점 오류 방지
+        if (footerHeight === 0) return;
+
         // [V4.2] 타이밍 보호: 브라우저가 레이아웃(스크롤바 생성 등)을 확정할 때까지 한 틱 대기
-        requestAnimationFrame(() => {
-          const L = _calculateLabels();
+        rafId.current = requestAnimationFrame(() => {
+          masterTl.current = gsap.timeline();
+          const { offsets: L, totalWeight } = _calculateLabels();
           
+          // [V5.3 Fix] 실제 이동 거리(px)를 먼저 계산하여 ScrollTrigger end와 1:1 동기화
+          const H = SECTION_SCROLL_HEIGHT;
+          const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
+          const finalY = vhToPx(H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA) + footerHeight;
+
           masterTl.current = gsap.timeline({
             scrollTrigger: {
               trigger: '#home-stage',
               start: 'top top',
-              end: 'bottom bottom',
+              // [V5.3 Fix] 이동 거리 == 스크롤 거리 → 잘림/데드스크롤 원천 차단
+              end: () => `+=${finalY}`,
               scrub: TIMING_CFG.SCRUB,
               pin: true,
-              pinSpacing: false,
+              pinSpacing: true, 
             },
             defaults: { ease: 'none' },
           });
@@ -80,18 +107,53 @@ export const GlobalInteractionStage = ({
 
           buildLogoTimeline(tl, logo, isMobile, L);
           buildNemoTimeline(tl, nemo, isMobile, falling, L);
-          buildSectionScrollTimeline(tl, L);
+          buildSectionScrollTimeline(tl, L, finalY);
 
           _buildHeroSwapSequence(tl, nemo);
 
           // 핀 계산 후 좌표 무결성 강제 갱신
           ScrollTrigger.refresh();
+          
+          // [V5.4] 타임라인 및 레이아웃 준비 완료 신호 전송 (푸터 마스킹 해제용)
+          setTimeout(() => {
+            setIsTimelineReady(true);
+            // [V5.4 Fix] 모바일 등에서 레이아웃 확정 후 최종 좌표 갱신
+            ScrollTrigger.refresh();
+          }, 100);
         });
       }
     });
 
-    return () => ctx.revert();
-  }, { dependencies: [isScrollable, isOn, isMobile] });
+    return () => {
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+
+      // [V5.4 Fix] ctx.revert() 전에 스타일을 먼저 초기화하여 레이아웃 무결성 선제적 확보
+      const wrapper = document.getElementById('sections-content-wrapper');
+      if (wrapper) {
+        wrapper.style.position = '';
+        wrapper.style.top = '';
+        wrapper.style.left = '';
+        wrapper.style.width = '';
+        wrapper.style.transform = '';
+      }
+
+      ctx.revert();
+
+      // [V5.4 Fix] GSAP 표준 방식으로 스타일 초기화 (revert 후에 최종 정리)
+      gsap.set('#home-stage', { clearProps: 'transform,position' });
+
+      // [V5.4 Fix] rAF 내부에서 생성된 ScrollTrigger/타임라인은 ctx.revert()에 포착되지 않으므로
+      // masterTl.current를 통해 직접 추적하여 명시적으로 제거
+      if (masterTl.current) {
+        masterTl.current.scrollTrigger?.kill();
+        masterTl.current.kill();
+        masterTl.current = null;
+      }
+
+      // [V5.4] 언마운트 또는 초기화 시 준비 상태 리셋
+      setIsTimelineReady(false);
+    };
+  }, { dependencies: [isScrollable, isOn, isMobile, footerHeight] });
 
   // [V4.2] 레이라우트 무결성 Double-Lock: 
   // 스크롤 해제(overflow hidden 제거) 시 발생하는 레이아웃 시프트를 감지하여 핀 좌표 최종 갱신
@@ -186,7 +248,13 @@ function _calculateLabels() {
   curr += w.CTA_STILL;
   offsets[STAGES.CTA_CONTENT] = curr;
 
-  return offsets;
+  curr += t;
+  offsets[STAGES.TO_FOOTER] = curr;
+
+  // [V5.3 Fix] 마지막 TO_FOOTER 구간의 가중치(t)까지 합산하여 전체 타임라인의 실제 길이를 산출
+  const totalWeight = curr + t;
+
+  return { offsets, totalWeight };
 }
 
 function _initGlobalStyles(isOn: boolean) {
@@ -207,7 +275,7 @@ function _initGlobalStyles(isOn: boolean) {
   document.documentElement.style.setProperty('--bg', env.bg);
 }
 
-function _initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: boolean, isTransitioning?: boolean): void {
+function _initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: boolean, isScrollable: boolean): void {
   const container = logo.containerEl;
   if (!container) return;
 
@@ -227,18 +295,24 @@ function _initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: boolea
   
   if (anchorEl) {
     const anchorRect = anchorEl.getBoundingClientRect();
-    const scale = anchorRect.height / 32; 
+    
+    const isMobileNow = window.innerWidth < 768;
+    const bigScale = isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
+    const scale = isScrollable
+      ? anchorRect.height / 32
+      : (isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE);
     
     gsap.set(container, {
-      x: anchorRect.left - headerPos.x,
-      y: anchorRect.top - headerPos.y,
+      x: 0,
+      y: 0,
       scale: scale,
       transformOrigin: 'top left',
       visibility: 'visible',
       opacity: 1
     });
   } else {
-    const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
+    const isMobileNow = window.innerWidth < 768;
+    const bigScale = isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
     gsap.set(container, { scale: bigScale, x: 0, y: 0, transformOrigin: 'top left', visibility: 'visible', opacity: 1 });
   }
 
@@ -270,7 +344,7 @@ function _initNemoState(nemo: SharedNemoHandle, isMobile: boolean): void {
     border: style.border, 
     borderColor: style.borderColor, 
     boxShadow: style.boxShadow, 
-    opacity: 1, 
+    opacity: 0, 
     position: 'fixed',
   });
 }
@@ -287,6 +361,12 @@ function _buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHandle) 
 }
 
 function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandle, isMobile: boolean, L: Record<string, number>) {
+  const isMobileNow = window.innerWidth < 768;
+  const bigScale = isMobileNow ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
+  
+  // [V5.4 Fix] 타임라인 시작 시점에 로고를 빅 타이포 상태로 명시적으로 고정 (성급한 축소 방지)
+  tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
+
   const headerScale = LOGO_SIZE.HEADER_SCALE;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
@@ -427,10 +507,16 @@ function buildNemoTimeline(tl: gsap.core.Timeline, nemo: SharedNemoHandle, isMob
  * [V4.3] 섹션 스크롤링 타임라인
  * 전체 고정(Whole-Pin) 상태에서 실제 섹션 콘텐츠들이 스크롤 호흡에 맞춰 위로 올라가도록 제어합니다.
  */
-function buildSectionScrollTimeline(tl: gsap.core.Timeline, L: Record<string, number>) {
+function buildSectionScrollTimeline(tl: gsap.core.Timeline, L: Record<string, number>, finalY: number) {
   const target = '#sections-content-wrapper';
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const H = SECTION_SCROLL_HEIGHT;
+
+  // [V5.3 Fix] 런타임 흐름 격리 및 높이 보정: 
+  // 1. home-stage에 min-height: 100vh를 주어 브라우저 가용 스크롤 범위(scrollHeight - 100vh)를 finalY와 일치시킴
+  // 2. sections-content-wrapper를 absolute로 띄어 물리적 높이 중복 합산 방지
+  gsap.set('#home-stage', { minHeight: '100vh' });
+  gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
   // 1. Hero -> Pain
   tl.to(target, {
@@ -466,4 +552,12 @@ function buildSectionScrollTimeline(tl: gsap.core.Timeline, L: Record<string, nu
     duration: t,
     ease: EASE.TRANSITION
   }, L[STAGES.TO_CTA]);
+
+  // 6. CTA -> Footer Reveal
+  // [V5.3 Fix] 외부에서 계산된 정확한 PX 절대값을 직접 사용 (1~5단계는 미변경)
+  tl.to(target, {
+    y: -finalY,
+    duration: t,
+    ease: EASE.TRANSITION
+  }, L[STAGES.TO_FOOTER]);
 }

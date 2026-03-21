@@ -57,6 +57,21 @@
 
 ---
 
+---
+
+## 📜 5. 운영 및 유지보수 주의사항 (Safety & Maintenance)
+
+본 시스템은 정교한 GSAP 타임라인과 레이어 계층을 기반으로 하므로, 다음 사항을 무단 수정 시 전체 사용자 경험이 파괴될 수 있다.
+
+### ⚠️ **DANGER ZONE (수정 시 극도로 주의)**
+1. **z-index 레이어링**: `Header (10000)`, `Content (20)`, `Nemo (11)`, `Footer (-1)`의 계층을 무너뜨리면 푸터 리빌 및 인터랙션 순서가 모두 꼬인다.
+2. **섹션 불투명도 유지**: 푸터가 중간 섹션에서 비쳐 보이거나(Ghosts) 원치 않는 타이밍에 노출되는 것을 막기 위해, 모든 섹션의 외곽 래퍼는 반드시 `style={{ backgroundColor: 'var(--bg)' }}`를 유지해야 한다.
+3. **ScrollTrigger 종료 지점 (end)**: `GlobalInteractionStage`의 `end` 설정(가중치 연동 수식)을 임의의 상수로 변경 시, 스크롤바 정밀도가 깨지고 '데드 스페이스'가 대량 발생한다.
+4. **GSAP 단일 엔진 원칙**: 이미 전체 스크롤이 `ScrollTrigger`에 고정되어 있으므로, 섹션 내부에서 `framer-motion`의 `useScroll` 등을 혼용하는 것을 엄격히 금지한다 (스크롤 저크 및 성능 저하 유발).
+5. **데이터 시트 우선 원칙**: 모든 시각적 좌표(`left`, `top`), 크기(`width`, `height`), 색상(`bg`)은 컴포넌트 내부가 아닌 `journey.ts`와 `interaction.ts`에서만 보정한다.
+
+---
+
 ## 📜 6. 결정 히스토리 (Decision History)
 
 ### **왜 마스터 여정 시트(Master Journey Sheet)인가?**

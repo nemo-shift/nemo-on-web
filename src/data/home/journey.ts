@@ -50,11 +50,11 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
     }
   },
 
-  // [2] 페인 진입 (배경 확장 시점)
+  // [2] 페인 진입 (배경 확장 시점) - 내려오는 느낌을 위해 Top을 60%로 상향
   [STAGES.START_TO_PAIN]: {
     env: { bg: COLORS.BG.DARK_SECTION, fg: COLORS.TEXT.LIGHT },
     logo: { nemoKr: true, shapes: false, status: false, rectangle: false, morph: 'T' },
-    nemo: { width: '100vw', height: '100vh', borderRadius: 0, backgroundColor: COLORS.BG.DARK_SECTION, border: '0px solid transparent', opacity: 1, left: '50%', top: '50%' }
+    nemo: { width: '100vw', height: '100vh', borderRadius: 0, backgroundColor: COLORS.BG.DARK_SECTION, border: '0px solid transparent', opacity: 1, left: '50%', top: '60%' }
   },
 
   // [3] 페인 안착 (테두리 박스 수축 완료)

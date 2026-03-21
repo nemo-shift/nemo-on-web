@@ -24,7 +24,8 @@ type PointRingCursorProps = {
  */
 export default function PointRingCursor({ isOn }: PointRingCursorProps): React.ReactElement | null {
   const [mounted, setMounted] = useState(false);
-  const [isHover, setIsHover] = useState(false);
+  const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'contact'>('default');
+  const isHover = cursorType !== 'default';
   const { position } = useMousePosition();
   const { isMobile } = useDeviceDetection();
   const positionRef = useRef(position);
@@ -60,10 +61,18 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
   // 인터랙티브 요소 호버 시 링 → 네모 변환
   useEffect(() => {
     if (!mounted) return;
-    const selectors = 'a, button, [data-cursor="pointer"], .pill, [data-bt], [role="button"]';
+    const selectors = 'a, button, [data-cursor="pointer"], .pill, [data-bt], [role="button"], [data-cursor="contact"]';
 
-    const onEnter = () => setIsHover(true);
-    const onLeave = () => setIsHover(false);
+    const onEnter = (e: Event) => {
+      const target = e.currentTarget as HTMLElement;
+      const type = target.getAttribute('data-cursor') as any;
+      if (type === 'contact') {
+        setCursorType('contact');
+      } else {
+        setCursorType('pointer');
+      }
+    };
+    const onLeave = () => setCursorType('default');
 
     // 현재 리스너가 등록된 요소 목록 추적 (중복 등록 방지)
     const trackedElements = new Set<Element>();
@@ -116,7 +125,9 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
         pointRef.current.style.transform = `translate3d(${px - 4}px, ${py - 4}px, 0)`;
       }
       if (ringRef.current) {
-        const size = isHoverRef.current ? 50 : 30;
+        let size = 30;
+        if (cursorType === 'pointer') size = 50;
+        if (cursorType === 'contact') size = 80; // contact는 좀 더 크게
         const half = size / 2;
         ringRef.current.style.transform = `translate3d(${rx - half}px, ${ry - half}px, 0)`;
       }
@@ -152,23 +163,34 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
           transition: 'background-color 0.5s ease',
         }}
       />
-      {/* 바깥 링 — 기본 원(30×30), 호버 시 네모(50×50) */}
+      {/* 바깥 링 — 기본 원(30×30), 호버 시 네모(50×50) 또는 커스텀 원 */}
       <div
         ref={ringRef}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
-          width: isHover ? 50 : 30,
-          height: isHover ? 50 : 30,
-          border: `1px solid ${isHover ? squareColor : ringColor}`,
-          borderRadius: isHover ? '4px' : '50%',
+          width: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 50 : 30),
+          height: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 50 : 30),
+          border: cursorType === 'contact' ? 'none' : `1px solid ${isHover ? squareColor : ringColor}`,
+          backgroundColor: cursorType === 'contact' ? '#ffffff' : 'transparent',
+          borderRadius: cursorType === 'pointer' ? '4px' : '50%',
           pointerEvents: 'none',
           zIndex: 99998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           willChange: 'transform',
-          transition: 'width .25s, height .25s, border-radius .25s, border-color .6s ease',
+          transition: 'width .25s, height .25s, border-radius .25s, border-color .6s, background-color .3s ease',
+          overflow: 'hidden'
         }}
-      />
+      >
+        {cursorType === 'contact' && (
+          <span className="text-[#0d1a1f] text-[12px] font-bold uppercase tracking-widest animate-in fade-in zoom-in duration-300">
+            Contact
+          </span>
+        )}
+      </div>
     </>
   );
 

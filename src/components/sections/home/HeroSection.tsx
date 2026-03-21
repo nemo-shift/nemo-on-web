@@ -42,7 +42,8 @@ export default function HeroSection({
   onToggle,
 }: HeroSectionProps): React.ReactElement {
   const [mounted, setMounted] = useState(false);
-  const { isTransitioning, setIsTransitioning } = useHeroContext();
+  const { isTransitioning, setIsTransitioning, isScrollable, setIsScrollable } = useHeroContext();
+  const isFirstMount = useRef(true);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
@@ -64,7 +65,8 @@ export default function HeroSection({
     handleToggle,
     finalizeTransition,
     handleActiveShapeChange,
-    resetHeroState
+    resetHeroState,
+    setSequenceStep
   } = useHeroState(isOn, onToggle, isTransitioning, setIsTransitioning);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,7 +87,6 @@ export default function HeroSection({
   }, [finalizeTransition]);
 
   // [v25.80] 시퀀스 완독 후 스크롤 해제 보정 (수직적 통합)
-  const { setIsScrollable } = useHeroContext();
   useEffect(() => {
     if (isOn && sequenceStep === 5) {
       // 슬로건 애니메이션 시간을 고려하여 약간의 여유(0.5초)를 두고 해제
@@ -93,6 +94,15 @@ export default function HeroSection({
       return () => clearTimeout(timer);
     }
   }, [isOn, sequenceStep, setIsScrollable]);
+
+  // [V5.4 Fix] 진짜 '복귀(Return)'인 경우(마운트 시점에 이미 ON)만 5단계 점프 적용
+  useEffect(() => {
+    if (isFirstMount.current && isOn) {
+      setSequenceStep(5);
+    }
+    // 마운트 직후 바로 플래그를 꺼서, 이후 발생하는 모든 토글(OFF->ON)은 정상 순차 로직을 타게 함
+    isFirstMount.current = false;
+  }, []); // 의존성 배열을 비워 마운트 시 1회만 판정
 
   // [전문가 제안] 전환(isTransitioning) 상태 감시 및 자동 시퀀스 실행
   useEffect(() => {

@@ -47,7 +47,8 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     const tLineVRef = useRef<HTMLDivElement>(null);
 
     const { scrambledText, startScramble, setScrambledText } = useScramble();
-    const prevTargetRef = useRef<string>('');
+    // [V5.4 Fix] 초기 상태를 현재 isOn에 맞게 설정하여 마운트 시 불필요한 스크램블 방지
+    const prevTargetRef = useRef<string>((_props.isOn || _props.isTransitioning) ? 'ON' : 'OFF');
 
     // ON/OFF 스크램블 효과 (V4.3: 전환 시작 전 즉시 발동)
     useEffect(() => {

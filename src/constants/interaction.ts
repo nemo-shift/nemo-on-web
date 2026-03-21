@@ -54,6 +54,7 @@ export const STAGES = {
   STORY_CONTENT: 'story_content',
   TO_CTA: 'to_cta',
   CTA_CONTENT: 'cta_content',
+  TO_FOOTER: 'to_footer',
 } as const;
 
 // ─────────────────────────────────────────────
@@ -78,6 +79,8 @@ export const SECTION_SCROLL_HEIGHT = {
   MESSAGE: 800,
   FORWHO:  1000,
   STORY:   100,
+  CTA:     100,
+  FOOTER:  75,     // 뷰포트의 75% (3/4) 노출
 };
 
 // ─────────────────────────────────────────────
@@ -104,6 +107,9 @@ export const TIMING_CFG = {
   SCRUB: 1.0, 
   EASE_TRANS: 'power2.inOut',
   EASE_STILL: 'none',
+
+  // [V5.3] 스크롤 감도: 가중치 1당 실제 스크롤 픽셀 수
+  SCROLL_SENSITIVITY: 1000, 
 };
 
 // ─────────────────────────────────────────────
