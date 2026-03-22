@@ -20,6 +20,8 @@ export const INTERACTION_Z_INDEX = {
 
   HEADER: 10000,
   MENU: 10002,
+  // [계층 최상위] 햄버거 모핑 토글 버튼 — 항상 SideMenu 패널(10002) 위에 위치
+  MENU_TOGGLE: 10003,
   
   // [계층 3] 스크롤 가이드
   SCROLL_HINT: 1000, 

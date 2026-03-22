@@ -15,6 +15,7 @@ import {
   LenisScrollRestoration,
   GlobalScrollTriggerCleanup,
   SmoothScroll,
+  MenuSystem,
 } from '@/components/layout';
 import { HeroProvider } from '@/context';
 
@@ -81,6 +82,8 @@ export default function RootLayout({
         >
           <HeroProvider>
             <Header />
+            {/* MenuSystem: MenuToggle(모핑 버튼) + SideMenu(패널) 전역 관리 */}
+            <MenuSystem />
             <main className="flex-1">{children}</main>
             <Footer />
           </HeroProvider>
