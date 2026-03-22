@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import Matter from 'matter-js';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 export interface FallingKeywordsHandle {
   /** 키워드 하나를 대기열(상단)에 추가 */
@@ -29,6 +30,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     const renderRef = useRef<Matter.Render | null>(null);
     const runnerRef = useRef<Matter.Runner | null>(null);
     const bodiesRef = useRef<Matter.Body[]>([]);
+    const groundRef = useRef<Matter.Body | null>(null);
 
     // 키워드 바디 생성을 위한 헬퍼 함수
     const createKeywordBody = (text: string) => {
@@ -77,7 +79,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         }
       });
 
-      (body as any).text = text;
+      body.text = text;
       bodiesRef.current.push(body);
       World.add(engineRef.current.world, body);
     };
@@ -89,7 +91,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       popKeyword: (text: string) => {
         if (engineRef.current) {
           // 가장 최근에 추가된 해당 텍스트 바디 찾기 (뒤에서부터 검색)
-          const idx = [...bodiesRef.current].reverse().findIndex(b => (b as any).text === text);
+          const idx = [...bodiesRef.current].reverse().findIndex(b => b.text === text);
           if (idx !== -1) {
             const actualIdx = bodiesRef.current.length - 1 - idx;
             const body = bodiesRef.current[actualIdx];
@@ -115,7 +117,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         if (engine) {
           const allBodies = Matter.Composite.allBodies(engine.world);
           allBodies.forEach(body => {
-            if (!body.isStatic || (body as any).text) {
+            if (!body.isStatic || body.text) {
               Matter.World.remove(engine.world, body);
             }
           });
@@ -145,6 +147,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       renderRef.current = render;
 
       const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth * 2, 100, { isStatic: true });
+      groundRef.current = ground;
       World.add(engine.world, [ground]);
 
       Render.run(render);
@@ -154,10 +157,22 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
 
       const handleResize = () => {
         if (!canvasRef.current || !renderRef.current) return;
-        renderRef.current.options.width = window.innerWidth;
-        renderRef.current.options.height = window.innerHeight;
-        canvasRef.current.width = window.innerWidth;
-        canvasRef.current.height = window.innerHeight;
+        
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        renderRef.current.options.width = width;
+        renderRef.current.options.height = height;
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+
+        // [V4.11.1] 리사이즈 시 물리 엔진 바닥(ground) 위치 동적으로 재배치
+        if (groundRef.current) {
+          Matter.Body.setPosition(groundRef.current, { 
+            x: width / 2, 
+            y: height + 50 
+          });
+        }
       };
 
       window.addEventListener('resize', handleResize);
@@ -185,7 +200,8 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
                 bodiesRef.current.forEach(body => {
                     const { x, y } = body.position;
                     const angle = body.angle;
-                    const text = (body as any).text;
+                    const text = body.text;
+                    if (!text) return;
 
                     ctx.save();
                     ctx.translate(x, y);
@@ -209,7 +225,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           position: 'fixed', 
           inset: 0, 
           pointerEvents: 'none',
-          zIndex: 500 // 로고(10001) 및 헤더(10000)보다 아래
+          zIndex: INTERACTION_Z_INDEX.KEYWORDS
         }} 
       />
     );

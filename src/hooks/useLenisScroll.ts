@@ -66,8 +66,8 @@ export default function useLenisScroll(
         if (typeof lenisRef.current.destroy === 'function') {
           lenisRef.current.destroy();
         }
-        if ((window as unknown as { lenis: unknown }).lenis === lenisRef.current) {
-          (window as unknown as { lenis: null }).lenis = null;
+        if (window.lenis === lenisRef.current) {
+          window.lenis = null;
         }
         lenisRef.current = null;
       }
@@ -87,8 +87,7 @@ export default function useLenisScroll(
     const lenis = new Lenis(config);
 
     lenisRef.current = lenis;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).lenis = lenis;
+    window.lenis = lenis;
 
     const raf = (time: number) => {
       if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
@@ -138,8 +137,8 @@ export default function useLenisScroll(
         }
       }
 
-      if ((window as unknown as { lenis: unknown }).lenis === lenisRef.current) {
-        (window as unknown as { lenis: null }).lenis = null;
+      if (window.lenis === lenisRef.current) {
+        window.lenis = null;
       }
       if (lenisRef.current && typeof lenisRef.current.destroy === 'function') {
         lenisRef.current.destroy();

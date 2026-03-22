@@ -1,14 +1,10 @@
 'use client';
 
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import {
-  motion,
-  AnimatePresence,
-  Transition,
-  type VariantLabels,
-  type Target,
-  type TargetAndTransition
-} from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(' ');
@@ -23,16 +19,10 @@ export interface RotatingTextRef {
 
 export interface RotatingTextProps
   extends Omit<
-    React.ComponentPropsWithoutRef<typeof motion.span>,
-    'children' | 'transition' | 'initial' | 'animate' | 'exit'
+    React.ComponentPropsWithoutRef<'span'>,
+    'children'
   > {
   texts: string[];
-  transition?: Transition;
-  initial?: boolean | Target | VariantLabels;
-  animate?: boolean | VariantLabels | TargetAndTransition;
-  exit?: Target | VariantLabels;
-  animatePresenceMode?: 'sync' | 'wait';
-  animatePresenceInitial?: boolean;
   rotationInterval?: number;
   staggerDuration?: number;
   staggerFrom?: 'first' | 'last' | 'center' | 'random' | number;
@@ -43,7 +33,6 @@ export interface RotatingTextProps
   mainClassName?: string;
   splitLevelClassName?: string;
   elementLevelClassName?: string;
-  disableLayout?: boolean; // 추가: 레이아웃 애니메이션 비활성화 옵션
 }
 
 /**
@@ -56,15 +45,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
   (
     {
       texts,
-      transition = { type: 'spring', damping: 25, stiffness: 200 },
-      // 초기 상태: 아래에서 회전하며 올라옴 (흐릿함)
-      initial = { y: '100%', opacity: 0, rotateX: 45, filter: 'blur(10px)' },
-      // 애니메이션: 제자리로 오며 선명해짐
-      animate = { y: 0, opacity: 1, rotateX: 0, filter: 'blur(0px)' },
-      // 종료 상태: 위로 올라가며 회전하며 사라짐 (흐릿함)
-      exit = { y: '-100%', opacity: 0, rotateX: -45, filter: 'blur(10px)' },
-      animatePresenceMode = 'wait',
-      animatePresenceInitial = false,
       rotationInterval = 2500,
       staggerDuration = 0.05,
       staggerFrom = 'first',
@@ -75,7 +55,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       mainClassName,
       splitLevelClassName,
       elementLevelClassName,
-      disableLayout = false, // 기본값 false
       ...rest
     },
     ref
@@ -176,6 +155,35 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       [next, previous, jumpTo, reset]
     );
 
+    const containerRef = React.useRef<HTMLSpanElement>(null);
+
+    useGSAP(() => {
+      const chars = containerRef.current?.querySelectorAll('.char-unit');
+      if (!chars || chars.length === 0) return;
+
+      // [V16.3] 캐릭터 단위 시네마틱 등장 애니메이션
+      gsap.fromTo(chars, 
+        { 
+          y: '100%', 
+          opacity: 0, 
+          rotateX: 45, 
+          filter: 'blur(10px)' 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          rotateX: 0, 
+          filter: 'blur(0px)',
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: {
+            each: staggerDuration,
+            from: staggerFrom as any
+          }
+        }
+      );
+    }, { dependencies: [currentTextIndex], scope: containerRef });
+
     useEffect(() => {
       if (!auto) return;
       const intervalId = setInterval(next, rotationInterval);
@@ -183,52 +191,34 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     }, [next, rotationInterval, auto]);
 
     return (
-      <motion.span
+      <span
+        ref={containerRef}
         className={cn('inline-flex flex-wrap whitespace-pre-wrap relative perspective-[500px]', mainClassName)}
         {...rest}
-        layout={disableLayout ? undefined : true}
-        transition={transition}
       >
         <span className="sr-only">{texts[currentTextIndex]}</span>
-        <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
-          <motion.span
-            key={currentTextIndex}
-            className="flex flex-wrap whitespace-pre-wrap relative"
-            style={{ transformStyle: 'preserve-3d' }}
-            layout={disableLayout ? undefined : true}
-            aria-hidden="true"
-          >
-            {elements.map((wordObj, wordIndex, array) => {
-              const previousCharsCount = array
-                .slice(0, wordIndex)
-                .reduce((sum, word) => sum + word.characters.length, 0);
-              const totalChars = array.reduce((sum, word) => sum + word.characters.length, 0);
-              
-              return (
-                <span key={wordIndex} className={cn('inline-flex', splitLevelClassName)}>
-                  {wordObj.characters.map((char, charIndex) => (
-                    <motion.span
-                      key={charIndex}
-                      initial={initial}
-                      animate={animate}
-                      exit={exit}
-                      transition={{
-                        ...transition,
-                        delay: getStaggerDelay(previousCharsCount + charIndex, totalChars)
-                      }}
-                      className={cn('inline-block', elementLevelClassName)}
-                      style={{ backfaceVisibility: 'hidden' }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                  {wordObj.needsSpace && <span className="whitespace-pre"> </span>}
+        <span
+          key={currentTextIndex}
+          className="flex flex-wrap whitespace-pre-wrap relative"
+          style={{ transformStyle: 'preserve-3d' }}
+          aria-hidden="true"
+        >
+          {elements.map((wordObj, wordIndex) => (
+            <span key={wordIndex} className={cn('inline-flex', splitLevelClassName)}>
+              {wordObj.characters.map((char, charIndex) => (
+                <span
+                  key={charIndex}
+                  className={cn('char-unit inline-block', elementLevelClassName)}
+                  style={{ backfaceVisibility: 'hidden' }}
+                >
+                  {char}
                 </span>
-              );
-            })}
-          </motion.span>
-        </AnimatePresence>
-      </motion.span>
+              ))}
+              {wordObj.needsSpace && <span className="whitespace-pre"> </span>}
+            </span>
+          ))}
+        </span>
+      </span>
     );
   }
 );

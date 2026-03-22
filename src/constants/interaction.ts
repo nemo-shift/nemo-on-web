@@ -12,29 +12,35 @@
 // 1. Z-index 레이어 계층 (V4.0 Integrity Standard)
 // ─────────────────────────────────────────────
 export const INTERACTION_Z_INDEX = {
-  JOURNEY_LOGO: 10001, // 브랜드 정체성 (항상 최상위)
-  CONTENT_LAYER: 20,   // 섹션 콘텐츠 (상자보다 위에 위치하여 가독성 확보)
-  SHARED_NEMO: 11,     // 배경 위, 콘텐츠 아래
+  // [계층 4] 브랜드 로고: 헤더(HEADER: 10000)보다 위에 위치.
+  // GlobalInteractionStage가 position: fixed라 부모 z-index 제약 없이
+  // 뷰포트 기준 독립적 stacking context를 형성함.
+  // 로고의 실제 전역 순위는 자식값(10001)이 아닌 이 값 자체로 결정됨.
+  JOURNEY_LOGO: 10001, 
+
+  HEADER: 10000,
+  MENU: 10002,
+  
+  // [계층 3] 스크롤 가이드
   SCROLL_HINT: 1000, 
+  
+  // [계층 2] 주요 애니메이션 객체 (공유 네모)
+  SHARED_NEMO: 20, 
+  
+  // [계층 1] 배경 물리 시뮬레이션 (감정 키워드)
+  KEYWORDS: 10,
+  
+  // [향후] 섹션 콘텐츠 레이어용 (콘텐츠 작업 시 활성화)
+  CONTENT_LAYER: 20,
+  // [향후] 배경 레이어용
   BACKGROUND: 0,
 };
 
 // ─────────────────────────────────────────────
 // 2. 브랜드 컬러 팔레트 (V4.3 Integrity: colors.ts와 동기화)
 // ─────────────────────────────────────────────
-export const COLORS = {
-  BRAND: '#0891b2',
-  ACCENT: '#E8734A',
-  BG: {
-    DARK_HERO: '#0a0a0a',
-    DARK_SECTION: '#0D1A1F',
-    CREAM: '#f7f1e9', // 라이트 배경 (메시지, 포후용)
-  },
-  TEXT: {
-    LIGHT: '#f0ebe3', // 다크 배경 위 텍스트
-    DARK: '#0d1a1f',  // 라이트 배경 위 텍스트
-  }
-};
+import { COLORS } from './colors';
+export { COLORS };
 
 // ─────────────────────────────────────────────
 // 3. 인터랙션 시퀀스 레이블 (Logical Stages)

@@ -2,9 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-
-const SESSION_KEY_PREFIX = 'scroll-';
-const NAV_TYPE_KEY = 'lenis-nav-type';
+import { STORAGE_KEYS, RESTORE_TIMING } from '@/constants/storage';
 
 /**
  * 세션 스토리지 안전 접근
@@ -27,7 +25,7 @@ function safeSessionStorage(): Storage | null {
 function getNavigationType(): 'direct' | 'normal' {
   if (typeof window === 'undefined') return 'direct';
 
-  // Navigation API (최신) - 표준 타입에 없을 수 있음
+  // Navigation API (최신)
   const nav = (window as Window & { navigation?: { type?: string } }).navigation;
   if (nav?.type) {
     if (nav.type === 'navigate' || nav.type === 'reload') return 'direct';
@@ -43,12 +41,12 @@ function getNavigationType(): 'direct' | 'normal' {
     if (navEntry.type === 'back_forward') return 'normal';
   }
 
-  // sessionStorage 폴백 (popstate에서 'normal' 설정)
+  // sessionStorage 폴백
   const storage = safeSessionStorage();
   if (storage) {
-    const stored = storage.getItem(NAV_TYPE_KEY);
+    const stored = storage.getItem(STORAGE_KEYS.NAV_TYPE);
     if (stored === 'normal') {
-      storage.removeItem(NAV_TYPE_KEY);
+      storage.removeItem(STORAGE_KEYS.NAV_TYPE);
       return 'normal';
     }
   }
@@ -58,8 +56,6 @@ function getNavigationType(): 'direct' | 'normal' {
 
 /**
  * Lenis 스크롤 복원 컴포넌트
- * 뒤로가기/앞으로가기 시 Lenis로 스크롤 위치 복원
- * 페이지 이동 시 스크롤 위치를 세션 스토리지에 저장
  */
 export default function LenisScrollRestoration(): null {
   const pathname = usePathname();
@@ -84,7 +80,7 @@ export default function LenisScrollRestoration(): null {
     const handlePopState = () => {
       popStateFlagRef.current = true;
       const storage = safeSessionStorage();
-      storage?.setItem(NAV_TYPE_KEY, 'normal');
+      storage?.setItem(STORAGE_KEYS.NAV_TYPE, 'normal');
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -96,10 +92,11 @@ export default function LenisScrollRestoration(): null {
     const navType = popStateFlagRef.current ? 'normal' : getNavigationType();
     popStateFlagRef.current = false;
 
-    if (navType === 'normal') {
+    // 홈('/') 제외 - 항상 0에서 시작
+    if (navType === 'normal' && pathname !== '/') {
       const timer = setTimeout(() => {
         const storage = safeSessionStorage();
-        const stored = storage?.getItem(`${SESSION_KEY_PREFIX}${pathname}`);
+        const stored = storage?.getItem(`${STORAGE_KEYS.SCROLL_PREFIX}${pathname}`);
         const scrollPosition = stored ? parseFloat(stored) : null;
 
         if (
@@ -107,11 +104,9 @@ export default function LenisScrollRestoration(): null {
           typeof scrollPosition === 'number' &&
           scrollPosition > 0
         ) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if ((window as any).lenis) {
+          if (window.lenis) {
             try {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (window as any).lenis.scrollTo(scrollPosition, {
+              window.lenis.scrollTo(scrollPosition, {
                 immediate: true,
                 force: true,
                 lock: false,
@@ -123,36 +118,33 @@ export default function LenisScrollRestoration(): null {
             window.scrollTo({ top: scrollPosition, behavior: 'auto' });
           }
         }
-      }, 150);
+      }, RESTORE_TIMING.NORMAL);
 
       return () => clearTimeout(timer);
     }
 
-    if (navType === 'direct') {
+    if (getNavigationType() === 'direct') {
       setTimeout(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).lenis) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).lenis.scrollTo(0, { immediate: true });
+        if (window.lenis) {
+          window.lenis.scrollTo(0, { immediate: true });
         } else {
           window.scrollTo(0, 0);
         }
-      }, 50);
+      }, RESTORE_TIMING.DIRECT);
     }
   }, [pathname]);
 
   // 스크롤 위치 저장
   useEffect(() => {
     const saveScrollPosition = (): void => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const scrollY = (window as any).lenis?.scroll ??
+      const scrollY = window.lenis?.scroll ??
         window.pageYOffset ??
         document.documentElement.scrollTop ??
         0;
 
       if (scrollY > 0) {
         const storage = safeSessionStorage();
-        storage?.setItem(`${SESSION_KEY_PREFIX}${pathname}`, scrollY.toString());
+        storage?.setItem(`${STORAGE_KEYS.SCROLL_PREFIX}${pathname}`, scrollY.toString());
       }
     };
 

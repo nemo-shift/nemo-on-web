@@ -8,6 +8,7 @@ import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
 import { NAV_LINKS } from '@/data/nav';
 import HeroToggle from '@/components/sections/home/hero/HeroToggle';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 /**
  * Header 컴포넌트 [V5.3 Path-aware Header]
@@ -37,7 +38,8 @@ export default function Header(): React.ReactElement {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-[10000] bg-transparent pointer-events-none flex items-center px-6 py-5 md:px-12 md:py-8 ${isHome ? 'justify-end' : 'justify-between'}`}
+        className={`fixed top-0 left-0 right-0 bg-transparent pointer-events-none flex items-center px-6 py-5 md:px-12 md:py-8 ${isHome ? 'justify-end' : 'justify-between'}`}
+        style={{ zIndex: INTERACTION_Z_INDEX.HEADER }}
       >
         {/* 1. 좌측: 정적 로고 (홈이 아닐 때만 노출) */}
         {!isHome && (
@@ -91,7 +93,8 @@ export default function Header(): React.ReactElement {
           role="dialog"
           aria-modal="true"
           aria-label="메뉴"
-          className="fixed inset-0 z-[10001] bg-[#0a0a0a] flex flex-col p-6 md:p-12 animate-[menuFadeIn_0.4s_ease-out_forwards]"
+          className="fixed inset-0 bg-[#0a0a0a] flex flex-col p-6 md:p-12 animate-[menuFadeIn_0.4s_ease-out_forwards]"
+          style={{ zIndex: INTERACTION_Z_INDEX.MENU }}
         >
           <style>{`
             @keyframes menuFadeIn {

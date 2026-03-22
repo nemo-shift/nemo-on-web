@@ -31,8 +31,6 @@ export function useHeroState(
   const [activeShape, setActiveShape] = useState<'all' | 'circle' | 'triangle' | 'square'>('all');
   const [isInteractionActive, setIsInteractionActive] = useState(false);
   
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const activeShapeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 토글 핸들러 (Business Logic)

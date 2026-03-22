@@ -72,6 +72,21 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
     }
   }, [pathname, isMobile, isOn]);
 
+  // [뼈대] 브랜드 진단 섹션 복귀 시나리오 (CTA 콘텐츠 작업 시 활성화)
+  /*
+  useEffect(() => {
+    if (pathname === '/') {
+      const returnTarget = sessionStorage.getItem('return_target');
+      if (returnTarget === 'cta') {
+        // CTA 섹션으로 직접 점프 (동적 ID 부여 후 구현)
+      } else {
+        // 일반 홈 진입 시 영점 강제 강화 가드 자리
+      }
+      sessionStorage.removeItem('return_target');
+    }
+  }, [pathname]);
+  */
+
   // [v26.34] 전역 스크롤 잠금 로직 (Hero ON 인트로 완료 전까지 잠금)
   // [v5.4 Fix] 서브 페이지에서는 스크롤 잠금이 발생하지 않도록 경로 조건(pathname === '/') 추가
   useEffect(() => {
