@@ -17,7 +17,7 @@ import GlobalInteractionStage from './GlobalInteractionStage';
  */
 export default function HomeStage(): React.ReactElement {
   const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
-  const { isMobile } = useDeviceDetection();
+  const { isMobile, isTablet } = useDeviceDetection();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
@@ -26,7 +26,7 @@ export default function HomeStage(): React.ReactElement {
   return (
     <main className="relative w-full overflow-x-hidden">
       {/* 0. Global Interaction Layer (Outside pinned area for stable fixed positioning) */}
-      <GlobalInteractionStage isMobile={isMobile} isOn={isOn} isTransitioning={isTransitioning} />
+      <GlobalInteractionStage isMobile={isMobile} isTablet={isTablet} isOn={isOn} isTransitioning={isTransitioning} />
       
       {/* 콘텐츠 영역: 내부 래퍼에 배경색을 주어 푸터를 가림 */}
       <div id="home-stage" ref={containerRef} className="relative w-full">

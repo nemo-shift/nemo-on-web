@@ -27,6 +27,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const GlobalInteractionStage = ({
   isMobile,
+  isTablet,
   isOn,
   isTransitioning,
 }: GlobalInteractionStageProps) => {
@@ -38,6 +39,7 @@ export const GlobalInteractionStage = ({
   const fallingRef   = useRef<FallingKeywordsHandle>(null);
   const masterTl     = useRef<gsap.core.Timeline | null>(null);
   const rafId        = useRef<number | null>(null);
+  const keywordsTrigger = useRef<ScrollTrigger | null>(null); // [V16.41] 독립형 트리거
 
   // [V5.4] 브라우저의 강제 스크롤 복구 방지 (영점 동기화 하드닝)
   useEffect(() => {
@@ -101,10 +103,21 @@ export const GlobalInteractionStage = ({
           });
 
           buildLogoTimeline(tl, logo, isMobile, L);
-          buildNemoTimeline(tl, nemo, isMobile, falling, L);
+          buildNemoTimeline(tl, nemo, { isMobile, isTablet }, falling, L);
           buildSectionScrollTimeline(tl, L, finalY);
 
           buildHeroSwapSequence(tl, nemo);
+
+          // [V16.41] 독립형 물리 엔진 제어 트리거 (마스터 타임라인과 분리)
+          keywordsTrigger.current = ScrollTrigger.create({
+            trigger: '#section-pain', // [V16.42 Fix] ID 오기 수정 (#pain-section -> #section-pain)
+            start: 'top bottom',      // 화면 아래에서 진입 시
+            end: 'bottom top',        // 화면 위로 나갈 시
+            onEnter: () => fallingRef.current?.resumeSimulation(),
+            onLeave: () => fallingRef.current?.pauseSimulation(),
+            onEnterBack: () => fallingRef.current?.resumeSimulation(),
+            onLeaveBack: () => fallingRef.current?.pauseSimulation(),
+          });
 
           // 핀 계산 후 좌표 무결성 강제 갱신
           ScrollTrigger.refresh();
@@ -145,10 +158,16 @@ export const GlobalInteractionStage = ({
         masterTl.current = null;
       }
 
+      // [V16.41] 독립형 트리거 명시적 제거 (좀비 인스턴스 방지)
+      if (keywordsTrigger.current) {
+        keywordsTrigger.current.kill();
+        keywordsTrigger.current = null;
+      }
+
       // [V5.4] 언마운트 또는 초기화 시 준비 상태 리셋
       setIsTimelineReady(false);
     };
-  }, { dependencies: [isScrollable, isOn, isMobile, footerHeight] });
+  }, { dependencies: [isScrollable, isOn, isMobile, isTablet, footerHeight] });
 
   // [V4.2] 레이라우트 무결성 Double-Lock: 
   // 스크롤 해제(overflow hidden 제거) 시 발생하는 레이아웃 시프트를 감지하여 핀 좌표 최종 갱신
@@ -186,10 +205,14 @@ export const GlobalInteractionStage = ({
         </div>
       </div>
 
-      <FallingKeywordsStage ref={fallingRef} containerRef={containerRef} isMobile={isMobile} />
+      <FallingKeywordsStage 
+        ref={fallingRef} 
+        containerRef={containerRef} 
+        isMobile={isMobile}
+        isTablet={isTablet} 
+      />
     </div>
   );
 };
 
 export default GlobalInteractionStage;
-

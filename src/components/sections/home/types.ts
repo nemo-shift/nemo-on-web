@@ -4,6 +4,7 @@
 
 export interface GlobalInteractionStageProps {
   isMobile: boolean;
+  isTablet: boolean;
   isOn: boolean;
   isTransitioning: boolean;
 }

@@ -2,11 +2,20 @@
 
 ---
 
-## [최신] 🏛️ V16.3: Modularized Data-Driven Spec
+## [최신] 🏛️ V14.8: Menu System & Interaction Standards
 
-V12.0~V16.3 고도화를 통해 정립된 모듈형 설계 표준입니다.
+V13.0~V14.8 고도화를 통해 정립된 메뉴 인터랙션 및 스타일 캡슐화 표준입니다.
 
-### 🧩 1. 아키텍처 원칙: 관심사 분리
+### ⚓ 1. 메뉴 시스템 아키텍처
+- **`MenuSystem.tsx` (Wrapper)**: `isOpen` 상태를 중앙 관리하며 `MenuToggle`과 `SideMenu`를 조율.
+- **`MenuToggle.tsx` (Controller)**: 3단계 SVG 모핑을 통한 직관적 상태 피드백 (☰ ↔ ◀ ↔ ▶).
+- **`SideMenu.tsx` (Panel)**: 3중 레이어 슬라이드 및 All-at-once 닫기 로직 적용.
+
+### 🍱 2. 상수 기반 스타일 및 캡슐화 (Scoped Style)
+- **`interaction.ts`**: `MENU_WIDTH`, `INTERACTION_Z_INDEX.MENU_TOGGLE` 등 모든 수치를 중앙 집중화.
+- **Zero Globals**: `:root` 대신 특정 클래스(`.side-menu-container`)에 CSS 변수를 가두어 스타일 충돌 방지.
+
+### 🧩 3. 아키텍처 원칙: 관심사 분리
 - **`GlobalInteractionStage.tsx` (Heart)**: 스크롤 핸들링 및 타임라인 조립.
 - **`builders.ts` (Logic)**: 실제 타임라인 시퀀스 구축 (로고, 네모, 스크롤 빌더).
 - **`utils.ts` (Core Helpers)**: 기기 감지, 수치 정규화, 로컬 상수 허브.

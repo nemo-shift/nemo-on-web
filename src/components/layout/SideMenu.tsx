@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { NAV_LINKS } from '@/data/nav';
-import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
 
 // ─────────────────────────────────────────────
@@ -325,7 +325,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 pointer-events-none"
+      className="side-menu-container fixed inset-0 pointer-events-none"
       style={{ zIndex: INTERACTION_Z_INDEX.MENU, visibility: 'hidden' }}
     >
       {/* ── 딤 오버레이 (PC/태블릿만 — 모바일에서는 숨김) ── */}
@@ -403,19 +403,19 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         </div>
       </div>
 
-      {/* ── CSS 변수: 반응형 패널 너비 (Mobile: 100vw / Tablet: 55vw / PC: 35vw) ── */}
+      {/* ── CSS 변수: 반응형 패널 너비 (Mobile / Tablet / PC) ── */}
       <style>{`
-        :root {
-          --menu-width: 100vw;
+        .side-menu-container {
+          --menu-width: ${MENU_WIDTH.MOBILE};
         }
         @media (min-width: 768px) {
-          :root {
-            --menu-width: 55vw;
+          .side-menu-container {
+            --menu-width: ${MENU_WIDTH.TABLET};
           }
         }
         @media (min-width: 1024px) {
-          :root {
-            --menu-width: 35vw;
+          .side-menu-container {
+            --menu-width: ${MENU_WIDTH.PC};
           }
         }
       `}</style>

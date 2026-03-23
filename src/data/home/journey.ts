@@ -32,8 +32,17 @@ export interface StageState {
   };
   // 4. ON 상태용 오버라이드 (히어로 섹션 전용)
   on?: Partial<Omit<StageState, 'on' | 'mobile'>>;
-  // 5. 모바일 전용 오버라이드 (필요한 경우에만 정의)
-  mobile?: Partial<Omit<StageState, 'mobile'>>;
+  // 5. 모바일/태블릿 전용 오버라이드
+  mobile?: {
+    env?: Partial<StageState['env']>;
+    logo?: Partial<StageState['logo']>;
+    nemo?: Partial<StageState['nemo']>;
+  };
+  tablet?: {
+    env?: Partial<StageState['env']>;
+    logo?: Partial<StageState['logo']>;
+    nemo?: Partial<StageState['nemo']>;
+  };
 }
 
 export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
@@ -57,13 +66,16 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
     nemo: { width: '100vw', height: '100vh', borderRadius: 0, backgroundColor: COLORS.BG.DARK_SECTION, border: '0px solid transparent', opacity: 1, left: '50%', top: '60%' }
   },
 
-  // [3] 페인 안착 (테두리 박스 수축 완료)
+  // [3] 페인 안착 (좌측 테두리 박스 수축 완료)
   [STAGES.TO_PAIN]: {
     env: { bg: COLORS.BG.DARK_SECTION, fg: COLORS.TEXT.LIGHT },
     logo: { nemoKr: true, shapes: false, status: false, rectangle: false, morph: 'T' },
-    nemo: { width: '18vw', height: '48vh', borderRadius: 12, backgroundColor: 'transparent', border: `1.5px solid ${COLORS.TEXT.LIGHT}`, opacity: 1, left: '75%', top: '50%' },
+    nemo: { width: '18vw', height: '48vh', borderRadius: 12, backgroundColor: 'transparent', border: `1.5px solid ${COLORS.TEXT.LIGHT}`, opacity: 1, left: '25%', top: '50%' },
+    tablet: {
+      nemo: { width: '30vw', height: '40vh', left: '35%' }
+    },
     mobile: {
-      nemo: { width: '70vw', height: '35vh', borderRadius: 12, backgroundColor: 'transparent', border: `1.5px solid ${COLORS.TEXT.LIGHT}`, opacity: 1, left: '50%', top: '50%' }
+      nemo: { width: '70vw', height: '35vh', borderRadius: 12, backgroundColor: 'transparent', border: `1.5px solid ${COLORS.TEXT.LIGHT}`, opacity: 1, left: '45%', top: '50%' }
     }
   },
 

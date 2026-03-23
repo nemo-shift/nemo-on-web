@@ -146,3 +146,39 @@ export const NEMO_SIZE = {
   IMAGE_W: '72vw',
   IMAGE_H: '52vh',
 };
+
+// ─────────────────────────────────────────────
+// 6. 사이드메뉴 너비 (Responsive Widths)
+// ─────────────────────────────────────────────
+export const MENU_WIDTH = {
+  MOBILE: '100vw',
+  TABLET: '55vw',
+  PC: '35vw',
+};
+
+// ─────────────────────────────────────────────
+// 7. 감정 키워드 시뮬레이션 설정 (V16.38)
+// ─────────────────────────────────────────────
+export const KEYWORD_CFG = {
+  // 생성 영역 (x축 비율)
+  SPAWN_AREA: {
+    PC: { START: 0.35, END: 0.85 },    // 35% ~ 85%
+    MOBILE: { START: 0.1, END: 0.9 },   // 10% ~ 90% (태블릿 공용)
+  },
+  
+  // 기기별 디자인 스펙
+  DESIGN: {
+    PC:      { bh: 52, fontSize: 24, padding: 35, minW: 100 },
+    TABLET:  { bh: 46, fontSize: 24, padding: 30, minW: 80 },
+    MOBILE:  { bh: 40, fontSize: 20, padding: 25, minW: 60 },
+  },
+
+  // 물리 엔진 파라미터
+  PHYSICS: {
+    ATTEMPTS: 100,      // 빈자리 탐색 시도 횟수
+    MARGIN_X: 0.7,      // 텍스트 너비 대비 충돌 감지 비율 (0.7 = 캡슐 중첩 허용)
+    MARGIN_Y: 10,       // 세로 최소 여유 공간 (px)
+    RESTITUTION: 0.4,   // 탄성
+    FRICTION: 0.1,      // 마찰
+  }
+};
