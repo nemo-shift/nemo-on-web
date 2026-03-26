@@ -7,7 +7,8 @@
 
 1.  **#home-stage ScrollTrigger 핀 구조**: 
     - `trigger`, `pin: true`, `pinSpacing: false` 설정 변경 금지.
-    - 전체 프로젝트의 스크롤 동기화가 이 핀 구조에 의존합니다.
+    - 절대 수정 금지 ID: `#home-stage`, `#section-pain`, `#sections-content-wrapper`, `#hero-nemo-origin`.
+    - 전체 프로젝트의 스크롤 동기화가 이 구조에 의존합니다.
 2.  **타임라인 아키텍처**: 
     - `masterTl` 생성 방식 및 `_calculateLabels()`의 가중치 기반 라벨 계산 엔진 구조 변경 금지.
 3.  **Double-Lock 안정화 로직**: 

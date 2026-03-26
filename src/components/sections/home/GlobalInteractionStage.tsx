@@ -20,7 +20,7 @@ import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { GlobalInteractionStageProps } from './types';
 import { LOGO_JOURNEY_SECTIONS, NEMO_JOURNEY_SECTIONS } from './journey-data';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState } from './utils';
-import { buildHeroSwapSequence, buildLogoTimeline, buildNemoTimeline, buildSectionScrollTimeline } from './builders';
+import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline } from './builders';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +28,9 @@ gsap.registerPlugin(ScrollTrigger);
 export const GlobalInteractionStage = ({
   isMobile,
   isTablet,
+  interactionMode,
+  isMobileView,
+  isTabletPortrait,
   isOn,
   isTransitioning,
 }: GlobalInteractionStageProps) => {
@@ -61,7 +64,7 @@ export const GlobalInteractionStage = ({
     const ctx = gsap.context(() => {
       initGlobalStyles(isOn);
       if (!masterTl.current) {
-        initLogoState(logo, isOn, window.innerWidth < 768);
+        initLogoState(logo, isOn, isMobileView);
       }
       initNemoState(nemo);
 
@@ -102,17 +105,18 @@ export const GlobalInteractionStage = ({
             tl.addLabel(key, time);
           });
 
-          buildLogoTimeline(tl, logo, isMobile, L);
-          buildNemoTimeline(tl, nemo, { isMobile, isTablet }, falling, L);
+          buildLogoTimeline(tl, logo, isMobileView, L);
+          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTablet }, falling, L);
           buildSectionScrollTimeline(tl, L, finalY);
 
+          buildMessageTimeline(tl, nemo, L);
           buildHeroSwapSequence(tl, nemo);
 
           // [V16.41] 독립형 물리 엔진 제어 트리거 (마스터 타임라인과 분리)
           keywordsTrigger.current = ScrollTrigger.create({
-            trigger: '#section-pain', // [V16.42 Fix] ID 오기 수정 (#pain-section -> #section-pain)
-            start: 'top bottom',      // 화면 아래에서 진입 시
-            end: 'bottom top',        // 화면 위로 나갈 시
+            trigger: '#section-pain', 
+            start: 'top bottom',      
+            end: 'bottom+=400% top',   // [V26.85 Fix] 다음 섹션까지 충분히 가동되도록 범위 확장 (낙하 멈춤 방지)
             onEnter: () => fallingRef.current?.resumeSimulation(),
             onLeave: () => fallingRef.current?.pauseSimulation(),
             onEnterBack: () => fallingRef.current?.resumeSimulation(),
@@ -167,7 +171,7 @@ export const GlobalInteractionStage = ({
       // [V5.4] 언마운트 또는 초기화 시 준비 상태 리셋
       setIsTimelineReady(false);
     };
-  }, { dependencies: [isScrollable, isOn, isMobile, isTablet, footerHeight] });
+  }, { dependencies: [isScrollable, isOn, isMobileView, isTablet, footerHeight] });
 
   // [V4.2] 레이라우트 무결성 Double-Lock: 
   // 스크롤 해제(overflow hidden 제거) 시 발생하는 레이아웃 시프트를 감지하여 핀 좌표 최종 갱신
@@ -185,15 +189,23 @@ export const GlobalInteractionStage = ({
     <div ref={containerRef} className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
       {/* 1. Shared Nemo */}
       <div style={{ zIndex: INTERACTION_Z_INDEX.SHARED_NEMO }}>
-        <SharedNemo ref={nemoHandle} isMobile={isMobile} />
+        <SharedNemo ref={nemoHandle} isMobile={isMobileView} />
       </div>
 
       {/* 2. Journey Logo */}
-      <div className="absolute origin-top-left" style={{ 
-        left: isMobile ? HEADER_POS.MOBILE.x : HEADER_POS.PC.x, 
-        top: isMobile ? HEADER_POS.MOBILE.y : HEADER_POS.PC.y, 
-        zIndex: INTERACTION_Z_INDEX.JOURNEY_LOGO 
-      }}>
+      <div 
+        className="absolute origin-top-left cursor-pointer pointer-events-auto" 
+        style={{ 
+          left: isMobile ? `${HEADER_POS.MOBILE.x}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.x}vw` : `${HEADER_POS.PC.x}vw`), 
+          top: isMobile ? `${HEADER_POS.MOBILE.y}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.y}vw` : `${HEADER_POS.PC.y}vw`), 
+          zIndex: INTERACTION_Z_INDEX.JOURNEY_LOGO 
+        }}
+        onClick={() => {
+          // [V26.96 Global UX] 물리 엔진 리셋 선행 후 최상단 즉시 이동 (시각적 무결성 확보)
+          fallingRef.current?.reset();
+          window.lenis?.scrollTo(0, { immediate: true });
+        }}
+      >
         <JourneyLogo ref={logoHandle} isOn={isOn} progress={0} isTransitioning={isTransitioning} />
       </div>
 

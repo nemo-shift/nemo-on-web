@@ -97,7 +97,11 @@ export default function useParticles(
     };
     setSize();
 
-    ptsRef.current = Array.from({ length: 80 }, (_, i) => ({
+    // [v26.98 UI Detail] 기기별 파티클 밀도 최적화 (PC 140개, 모바일/태블릿 80개)
+    const isPC = window.innerWidth > 1024;
+    const particleCount = isPC ? 180 : 80;
+
+    ptsRef.current = Array.from({ length: particleCount }, (_, i) => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       vx: (Math.random() - 0.5) * 0.25,
@@ -110,16 +114,20 @@ export default function useParticles(
     const drawParticle = (p: Particle) => {
       ctx.save();
       ctx.globalAlpha = p.a * particleAlphaRef.current;
-      const useDarkColors = !isOnRef.current; // Assuming isOnRef.current means light mode
+      const isPC = window.innerWidth > 1024; // [v26.98 UI Detail] 기기별 최적화된 스트로크 적용
+      
+      const useDarkColors = !isOnRef.current;
       const triColor = useDarkColors ? COLORS.HERO.OFF.ACCENT : COLORS.HERO.ON.ACCENT;
       const cirColor = useDarkColors ? COLORS.HERO.OFF.SUB_ACCENT : COLORS.HERO.ON.SUB_ACCENT;
-      // The original 'col' variable was defined here.
-      // Based on the new 'triColor' and 'cirColor', it seems the intention is to use these new colors.
-      // Assuming 'col' should be replaced by a conditional choice between triColor and cirColor.
-      // For now, I'll define 'col' based on the particle type, as it makes sense with the new colors.
+      
       const col = p.s === 'c' ? cirColor : triColor;
+
+      // [v26.98 UI Detail] 파티클에 미세한 글로우(Shadow)와 심도 부여
+      ctx.shadowBlur = isPC ? p.r * 8 : p.r * 5;
+      ctx.shadowColor = col;
       ctx.strokeStyle = col;
-      ctx.lineWidth = 0.6;
+      ctx.lineWidth = isPC ? 0.4 : 0.6; // PC는 더 가느다랗고 섬세하게
+      
       ctx.translate(p.x, p.y);
 
       if (p.s === 'c') {

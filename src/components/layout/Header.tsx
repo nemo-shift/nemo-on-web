@@ -19,16 +19,16 @@ export default function Header(): React.ReactElement {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 bg-transparent pointer-events-none flex items-center px-6 py-5 md:px-12 md:py-8 ${isHome ? 'justify-end' : 'justify-between'}`}
+      className={`fixed top-0 left-0 right-0 bg-transparent pointer-events-none flex items-center px-6 py-5 tablet:px-[clamp(32px,3.3vw,56px)] tablet:py-[clamp(24px,2.5vw,40px)] ${isHome ? 'justify-end' : 'justify-between'}`}
       style={{ zIndex: INTERACTION_Z_INDEX.HEADER }}
     >
       {/* 좌측: 정적 로고 (홈이 아닐 때만 노출) */}
       {!isHome && (
         <Link
           href="/"
-          className="pointer-events-auto no-underline flex items-baseline gap-1.5 md:gap-2 group"
+          className="pointer-events-auto no-underline flex items-baseline gap-1.5 tablet:gap-[0.6vw] group"
         >
-          <span className="font-esamanru font-light text-[clamp(20px,2vw,26px)] md:text-[clamp(24px,1.8vw,32px)] tracking-tight text-[#0d1a1f]">
+          <span className="font-esamanru font-light text-[clamp(20px,2vw,26px)] tablet:text-[clamp(24px,2.2vw,36px)] tracking-tight text-[#0d1a1f]">
             네모
           </span>
           <NemoIcon 
@@ -38,7 +38,7 @@ export default function Header(): React.ReactElement {
             circleClassName="w-[clamp(4.5px,0.4vw,6.5px)] h-[clamp(4.5px,0.4vw,6.5px)] border-[1.2px]"
             gapClassName="gap-[0.15vw]"
           />
-          <span className="font-gmarket font-medium text-[clamp(19px,1.8vw,24px)] md:text-[clamp(22px,1.6vw,30px)] tracking-tighter text-[#0d1a1f]">
+          <span className="font-gmarket font-medium text-[clamp(19px,1.8vw,24px)] tablet:text-[clamp(22px,2vw,32px)] tracking-tighter text-[#0d1a1f]">
             ON
           </span>
         </Link>

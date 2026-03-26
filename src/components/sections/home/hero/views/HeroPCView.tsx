@@ -56,10 +56,10 @@ export default function HeroPCView({
           className="invisible pointer-events-none" 
           style={{ 
             position: 'absolute',
-            top: '80px',
-            left: '48px',
-            width: '400px', 
-            height: '80px' 
+            top: '5.555vw', // HEADER_POS.PC.y 동기화
+            left: '3.333vw', // HEADER_POS.PC.x 동기화
+            width: '20vw', 
+            height: '10vw' 
           }} 
         />
       </div>
@@ -87,7 +87,7 @@ export default function HeroPCView({
         }}
       >
         <div 
-          className="px-[48px]" 
+          className="px-[3.333vw]" 
           style={{ 
             position: 'relative',
             width: '100%',
@@ -156,7 +156,7 @@ export default function HeroPCView({
         />
         {!isOn && (
           <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <div className="pointer-events-auto flex flex-col items-center gap-2">
+            <div className="pointer-events-auto flex flex-col items-center gap-2" style={{ transform: 'translateY(15vh)' }}>
               <HeroOffCta 
                 isVisible={true} 
                 isToggleHovered={isToggleHovered}

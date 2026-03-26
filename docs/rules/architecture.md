@@ -24,3 +24,11 @@
 ## ⚠️ 4. 수정 금지 구역 (Safe-Guard)
 - `layout.tsx`의 전역 스크롤 컨테이너 구조 및 `id="home-stage"`의 스위칭 로직은 절대 변경 금지.
 - 스크롤 가중치 계산 수식(`ScrollTrigger`의 `end` 설정)은 아키텍처의 근간이므로 임의 수정 금지.
+
+## 🔒 5. 시스템 무결성 인터페이스 (DOM ID)
+- `#home-stage`: 전체 타임라인 핀의 루트.
+- `#section-pain`: 물리 시뮬레이션 제어 트리거.
+- `#sections-content-wrapper`: 전역 배경 및 레이아웃 레일.
+- `#hero-nemo-origin`: 히어로-오브젝트 전이(Transfer) 기준점.
+
+이 ID들이 수정될 경우 GSAP ScrollTrigger 및 물리 엔진의 연쇄적 파괴가 발생하므로 절대 수정 금지 구역으로 관리함.

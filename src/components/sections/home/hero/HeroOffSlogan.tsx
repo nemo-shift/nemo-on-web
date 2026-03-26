@@ -34,10 +34,10 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
     if (isVisible) {
       gsap.fromTo(containerRef.current,
         { opacity: 0, scale: 0.98 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' }
+        { opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' } // [v26.98 UI Detail] 통일감 있는 파워풀한 이징 적용
       );
     } else {
-      gsap.to(containerRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in' });
+      gsap.to(containerRef.current, { opacity: 0, duration: 0.3, ease: 'power3.in' });
     }
   }, { dependencies: [isVisible], scope: containerRef });
 
@@ -54,13 +54,14 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col items-start justify-center text-left gap-1 md:gap-2 pointer-events-auto"
+      className="flex flex-col items-start justify-center text-left gap-1 md:gap-2 pointer-events-auto select-none"
       style={{
         fontFamily: 'var(--font-suit), sans-serif',
         color: COLORS.TEXT.LIGHT,
         maxWidth: isMobile ? '100%' : '600px',
         cursor: isMobile ? 'pointer' : 'default',
         opacity: isVisible ? 1 : 0,
+        transition: 'opacity 0.5s ease',
       }}
       onClick={handleMobileClick}
     >
@@ -69,7 +70,7 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
         className="flex flex-wrap items-center justify-start gap-x-2 font-light tracking-tight"
         style={{ fontSize: isMobile ? '1.1rem' : '1.6rem' }}
       >
-        <span className="opacity-50">흐릿한</span>
+        <span className="opacity-40">흐릿한</span>
         <div 
           className="font-bold relative flex items-center"
           style={{ color: COLORS.HERO.OFF.ACCENT }}
@@ -85,8 +86,11 @@ const HeroOffSlogan: React.FC<HeroOffSloganProps> = ({
 
       {/* 두 번째 줄: 작동하는 브랜드로. (항상 선명) */}
       <div
-        className="font-semibold tracking-tighter"
-        style={{ fontSize: isMobile ? '1.6rem' : '2.4rem' }}
+        className="font-bold tracking-[-0.03em] md:tracking-[-0.04em]"
+        style={{ 
+          fontSize: isMobile ? '1.6rem' : '2.5rem',
+          lineHeight: 1.2
+        }}
       >
         작동하는 브랜드로.
       </div>

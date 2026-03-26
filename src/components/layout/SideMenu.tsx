@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
@@ -61,6 +62,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const pathname = usePathname();
   const isHome = pathname === '/';
 
+  const { isMobileView } = useDevice();
+  
   // ── Refs ──
   const containerRef = useRef<HTMLDivElement>(null);
   const layer1Ref = useRef<HTMLDivElement>(null);
@@ -122,7 +125,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     }, 0);
 
     // 3) fixed 요소 딤 처리 (PC/태블릿만, 경로별 분기 적용)
-    const isMobileView = window.innerWidth < 768;
     if (!isMobileView) {
       const dimTargets = getDimTargets();
       if (dimTargets.length > 0) {
@@ -228,7 +230,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     }, '-=0.3');
 
     // 5) fixed 요소 opacity 원복 (PC/태블릿만, 경로별 분기 적용)
-    const isMobileView = window.innerWidth < 768;
     if (!isMobileView) {
       const dimTargets = getDimTargets();
       if (dimTargets.length > 0) {
@@ -408,12 +409,12 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         .side-menu-container {
           --menu-width: ${MENU_WIDTH.MOBILE};
         }
-        @media (min-width: 768px) {
+        @media (min-width: 992px) {
           .side-menu-container {
             --menu-width: ${MENU_WIDTH.TABLET};
           }
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) {
           .side-menu-container {
             --menu-width: ${MENU_WIDTH.PC};
           }

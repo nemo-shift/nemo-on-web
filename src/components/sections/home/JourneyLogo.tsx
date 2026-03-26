@@ -79,13 +79,13 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     return (
       <div
         ref={containerRef}
-        className="journey-logo flex items-baseline gap-2 select-none"
-        style={{ height: '32px', willChange: 'transform' }}
+        className="journey-logo flex items-baseline gap-4 tablet-p:gap-6 tablet:gap-10 select-none h-[80px] tablet-p:h-[120px] tablet:h-[clamp(150px,12.5vw,220px)]"
+        style={{ willChange: 'transform' }}
       >
         {/* 1. 한글 네모 (Layer A) */}
         <div 
           ref={nemoKrRef} 
-          className="font-esamanru font-bold text-[24px] tracking-tighter"
+          className="font-esamanru font-bold text-[75px] tablet-p:text-[110px] tablet:text-[clamp(140px,16.66vw,260px)] tracking-normal"
           style={colorStyle}
         >
           네모
@@ -93,17 +93,17 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
 
         <NemoIcon 
           ref={shapesRef}
-          className="mt-0 opacity-80"
-          style={{ transform: 'translateY(-0.6vw)' }}
-          triangleClassName="border-l-[clamp(4px,0.35vw,6px)] border-r-[clamp(4px,0.35vw,6px)] border-b-[clamp(6px,0.55vw,9px)]"
+          className="opacity-80 scale-[3] tablet-p:scale-[4] tablet:scale-[clamp(4.5,0.38vw,6.5)] origin-center"
+          style={{ transform: 'translateY(-1vw)' }}
+          triangleClassName="border-l-[clamp(4px,0.35vw,6px)] border-r-[clamp(4px,0.35vw,6px)] border-b-[clamp(6px,0.55vw,9px)] transform -translate-y-[2.5px] tablet-p:translate-y-0"
           circleClassName="w-[clamp(6px,0.55vw,9px)] h-[clamp(6px,0.55vw,9px)] border-[1.5px]"
-          gapClassName="gap-[0.1vw]"
+          gapClassName="gap-[0.5vw]"
         />
 
         {/* 3. ON/OFF (Scramble) */}
         <div 
           ref={statusRef} 
-          className="font-gmarket font-bold text-[22px] tracking-tight min-w-[36px]"
+          className="font-gmarket font-bold text-[70px] tablet-p:text-[100px] tablet:text-[clamp(130px,15.2vw,240px)] tracking-tight min-w-[80px] tablet-p:min-w-[120px] tablet:min-w-[clamp(150px,13.8vw,220px)]"
           style={colorStyle}
         >
           {scrambledText || (isOn ? 'ON' : 'OFF')}
@@ -117,17 +117,17 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         >
           <span>REC</span>
           {/* T Morphing Point (Using CSS Lines for Practicality) */}
-          <div className="relative w-[18px] h-[24px] mx-0.5">
+          <div className="relative w-[90px] h-[120px] mx-1 md:mx-2"> // [v26.98 UI Detail] 고해상도 모핑 포인트 확장
             {/* 가로 선 (Horizontal Bar) */}
             <div 
               ref={tLineHRef}
-              className="absolute left-0 top-[4px] w-full h-[3.5px] bg-current rounded-sm"
+              className="absolute left-0 top-[20px] w-full h-[18px] bg-current rounded-sm"
               style={{ transition: 'top 0.3s ease' }}
             />
             {/* 세로 선 (Vertical Bar) */}
             <div 
               ref={tLineVRef}
-              className="absolute left-1/2 -translateX-1/2 top-[4px] w-[3.5px] h-[85%] bg-current rounded-sm"
+              className="absolute left-1/2 -translateX-1/2 top-[20px] w-[18px] h-[85%] bg-current rounded-sm"
               style={{ transform: 'translateX(-50%)' }}
             />
           </div>

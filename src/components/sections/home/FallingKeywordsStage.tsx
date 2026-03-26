@@ -52,8 +52,11 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       return KEYWORD_CFG.DESIGN.PC;
     }, [isMobile, isTablet]);
 
-    // [V16.25] 바디 ↔ 핀(Constraint) 1:1 매핑
+    // [V16.25] 핀(Constraint) ↔ 바디 매핑
     const pinsRef = useRef<Map<Matter.Body, Matter.Constraint>>(new Map());
+
+    // [V26.80] 렌더 루프 함수 Ref (전역 오염 제거)
+    const renderLoopRef = useRef<(() => void) | null>(null);
 
     // 뷰포트 크기 안전 측정 헬퍼
     const getViewport = useCallback(() => ({
@@ -238,7 +241,9 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       },
 
       reset: () => {
-        if (!engineRef.current) return;
+        if (!engineRef.current || !canvasRef.current) return;
+        
+        // 1. 물리 엔진 월드에서 모든 바디와 핀 제거
         bodiesRef.current.forEach(body => {
           const pin = pinsRef.current.get(body);
           if (pin) Matter.World.remove(engineRef.current!.world, pin);
@@ -246,6 +251,13 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         });
         bodiesRef.current = [];
         pinsRef.current.clear();
+
+        // 2. [V26.98 Fix] 렌더 루프가 중단되더라도 잔상이 남지 않도록 캔버스를 즉시 박박 닦아냄
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          const dpr = window.devicePixelRatio || 1;
+          ctx.clearRect(0, 0, canvasRef.current.width / dpr, canvasRef.current.height / dpr);
+        }
       },
 
       pauseSimulation: () => {
@@ -263,9 +275,9 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         if (runnerRef.current && engineRef.current) {
           Matter.Runner.run(runnerRef.current, engineRef.current);
         }
-        const renderLoop = (window as any).__fallingRenderLoop;
-        if (renderLoop) {
-          rafIdRef.current = requestAnimationFrame(renderLoop);
+        // [V26.80] 내부 Ref를 통한 루프 즉시 재개
+        if (renderLoopRef.current) {
+          rafIdRef.current = requestAnimationFrame(renderLoopRef.current);
         }
         isRunningRef.current = true;
       },
@@ -288,7 +300,6 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       const engine = Matter.Engine.create();
       engineRef.current = engine;
 
-      (window as any).__falling = { engine: engineRef, bodies: bodiesRef, runner: runnerRef, pins: pinsRef };
 
       const ground = Matter.Bodies.rectangle(
         viewW / 2,
@@ -338,67 +349,68 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     }, [containerRef, getViewport]);
 
     // ─── rAF 렌더링 루프 (기기별 사이즈 적용) ───
+    const renderLoop = useCallback(() => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+
+      if (ctx && canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+        ctx.clearRect(0, 0, w, h);
+
+        const spec = getDesignSpec();
+        ctx.font = `bold ${spec.fontSize}px SUIT`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        bodiesRef.current.forEach(body => {
+          const { x, y } = body.position;
+          const angle = body.angle;
+          const text = body.text;
+          if (!text) return;
+
+          const bw = (body as any).bodyWidth || spec.minW;
+          const bh = (body as any).bodyHeight || spec.bh;
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle);
+
+          const radius = bh / 2.5; 
+          ctx.beginPath();
+          ctx.moveTo(-bw / 2 + radius, -bh / 2);
+          ctx.lineTo(bw / 2 - radius, -bh / 2);
+          ctx.arcTo(bw / 2, -bh / 2, bw / 2, -bh / 2 + radius, radius);
+          ctx.lineTo(bw / 2, bh / 2 - radius);
+          ctx.arcTo(bw / 2, bh / 2, bw / 2 - radius, bh / 2, radius);
+          ctx.lineTo(-bw / 2 + radius, bh / 2);
+          ctx.arcTo(-bw / 2, bh / 2, -bw / 2, bh / 2 - radius, radius);
+          ctx.lineTo(-bw / 2, -bh / 2 + radius);
+          ctx.arcTo(-bw / 2, -bh / 2, -bw / 2 + radius, -bh / 2, radius);
+          ctx.closePath();
+
+          ctx.fillStyle = 'rgba(8, 145, 178, 0.25)';
+          ctx.fill();
+
+          ctx.fillStyle = '#f0ebe3';
+          ctx.fillText(text, 0, 1);
+          ctx.restore();
+        });
+      }
+
+      rafIdRef.current = requestAnimationFrame(renderLoop);
+    }, [getDesignSpec]);
+
+    // [V26.80] 렌더 루프 Ref 동기화 및 시작
     useEffect(() => {
-      const renderLoop = () => {
-        const canvas = canvasRef.current;
-        const ctx = canvas?.getContext('2d');
-
-        if (ctx && canvas) {
-          const w = canvas.width / (window.devicePixelRatio || 1);
-          const h = canvas.height / (window.devicePixelRatio || 1);
-          ctx.clearRect(0, 0, w, h);
-
-          const spec = getDesignSpec();
-          ctx.font = `bold ${spec.fontSize}px SUIT`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-
-          bodiesRef.current.forEach(body => {
-            const { x, y } = body.position;
-            const angle = body.angle;
-            const text = body.text;
-            if (!text) return;
-
-            const bw = (body as any).bodyWidth || spec.minW;
-            const bh = (body as any).bodyHeight || spec.bh;
-
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-
-            const radius = bh / 2.5; 
-            ctx.beginPath();
-            ctx.moveTo(-bw / 2 + radius, -bh / 2);
-            ctx.lineTo(bw / 2 - radius, -bh / 2);
-            ctx.arcTo(bw / 2, -bh / 2, bw / 2, -bh / 2 + radius, radius);
-            ctx.lineTo(bw / 2, bh / 2 - radius);
-            ctx.arcTo(bw / 2, bh / 2, bw / 2 - radius, bh / 2, radius);
-            ctx.lineTo(-bw / 2 + radius, bh / 2);
-            ctx.arcTo(-bw / 2, bh / 2, -bw / 2, bh / 2 - radius, radius);
-            ctx.lineTo(-bw / 2, -bh / 2 + radius);
-            ctx.arcTo(-bw / 2, -bh / 2, -bw / 2 + radius, -bh / 2, radius);
-            ctx.closePath();
-
-            ctx.fillStyle = 'rgba(8, 145, 178, 0.25)';
-            ctx.fill();
-
-            // 텍스트 드로잉
-            ctx.fillStyle = '#f0ebe3';
-            ctx.fillText(text, 0, 1);
-            ctx.restore();
-          });
-        }
-
-        rafIdRef.current = requestAnimationFrame(renderLoop);
-      };
-
-      (window as any).__fallingRenderLoop = renderLoop;
+      renderLoopRef.current = renderLoop;
       rafIdRef.current = requestAnimationFrame(renderLoop);
 
       return () => {
         if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       };
-    }, [getDesignSpec]);
+    }, [renderLoop]);
 
     return (
       <canvas

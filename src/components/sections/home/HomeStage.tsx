@@ -17,16 +17,25 @@ import GlobalInteractionStage from './GlobalInteractionStage';
  */
 export default function HomeStage(): React.ReactElement {
   const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
-  const { isMobile, isTablet } = useDeviceDetection();
+  const { isMobile, isTablet, interactionMode, isMobileView, isTabletPortrait } = useDeviceDetection();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
   // Phase 5 아키텍처 전환에 따라 GlobalInteractionStage의 GSAP 타임라인으로 이관됩니다.
+  // [v16.3] 'isScrollable'은 HeroContext에서 전역 관리됩니다.
 
   return (
     <main className="relative w-full overflow-x-hidden">
       {/* 0. Global Interaction Layer (Outside pinned area for stable fixed positioning) */}
-      <GlobalInteractionStage isMobile={isMobile} isTablet={isTablet} isOn={isOn} isTransitioning={isTransitioning} />
+      <GlobalInteractionStage 
+        isMobile={isMobile} 
+        isTablet={isTablet} 
+        interactionMode={interactionMode}
+        isMobileView={isMobileView}
+        isTabletPortrait={isTabletPortrait}
+        isOn={isOn} 
+        isTransitioning={isTransitioning} 
+      />
       
       {/* 콘텐츠 영역: 내부 래퍼에 배경색을 주어 푸터를 가림 */}
       <div id="home-stage" ref={containerRef} className="relative w-full">

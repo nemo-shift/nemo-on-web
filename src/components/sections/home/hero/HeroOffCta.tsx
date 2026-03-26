@@ -53,7 +53,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
       filter: shouldShow ? 'blur(0px)' : 'blur(15px)',
       opacity: shouldShow ? 1 : 0.1,
       duration: 0.6,
-      ease: 'power2.out',
+      ease: 'power3.out', // [v26.98 UI Detail] 더욱 부드럽게 초점이 잡히는 느낌 연출
       delay: (isMobile && !isToggleHovered && !isClearing) ? 0.8 : 0
     });
   }, { dependencies: [isToggleHovered, isClearing, isTransitioning, isMobile], scope: containerRef });
@@ -99,11 +99,14 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
         style={{ filter: 'blur(15px)', opacity: 0.1 }}
       >
         <span
-          className="font-medium tracking-[0.3em] md:tracking-[0.5em] uppercase whitespace-nowrap text-center"
+          className="font-medium tracking-[0.4em] md:tracking-[0.6em] uppercase whitespace-nowrap text-center transition-all duration-700"
           style={{
             fontSize: isMobile ? '0.95rem' : '1.2rem',
             color: (isToggleHovered || isClearing || isTransitioning) ? COLORS.HERO.OFF.ACCENT : COLORS.TEXT.LIGHT,
-            textShadow: isMobile ? `0 0 30px ${COLORS.HERO.OFF.ACCENT}66` : 'none',
+            // [v26.98 UI Detail] PC/Mobile 최적화된 은은한 보석 글로우 적용
+            textShadow: isMobile 
+              ? `0 0 30px ${COLORS.HERO.OFF.ACCENT}66` 
+              : `0 0 40px rgba(240, 235, 227, 0.35)`,
             display: 'block'
           }}
         >

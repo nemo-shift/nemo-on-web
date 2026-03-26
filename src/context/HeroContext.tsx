@@ -58,19 +58,17 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
 
   /* [v26.34] 지능형 자동 ON 엔진 영구 제거 (사용자 요청: 수동 진입만 허용) */
 
-  // [V5.4 Fix] 홈('/') 복귀 시 모바일 한정 엔진 핸드셰이크 + 영점 강제 동기화 (V5)
+  // [V5.4 Fix] 홈('/') 복귀 시 영점 강제 동기화 (V5)
+  // [v1.6] 리사이즈 시 스크롤 잠김 방지를 위해 isMobile 의존성 및 잠금 로직 제거
   useEffect(() => {
-    if (pathname === '/' && isMobile && isOn) {
-      setIsTimelineReady(false);
-      setIsScrollable(false);
-      
+    if (pathname === '/' && isOn) {
       // [V5.4] 브라우저 표준 API를 활용하여 GSAP 빌드 전 영점 보정
       if (typeof window !== 'undefined') {
         window.history.scrollRestoration = 'manual';
-        window.scrollTo(0, 0);
+        // 최초 진입 시점에만 필요한 경우를 위해 조건부 작동 고려 가능
       }
     }
-  }, [pathname, isMobile, isOn]);
+  }, [pathname, isOn]);
 
   // [뼈대] 브랜드 진단 섹션 복귀 시나리오 (CTA 콘텐츠 작업 시 활성화)
   /*

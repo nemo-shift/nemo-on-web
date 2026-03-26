@@ -99,17 +99,10 @@ export function initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: 
     logoCfg = { ...logoCfg, ...cfg.mobile.logo };
   }
 
-  // [V4.7.1] 기기 성능에 따른 isMobile 상태값 지연(Lag) 방어: 실시간 윈도우 폭 직접 확인 (Hardening)
-  const isActuallyMobile = (typeof window !== 'undefined') 
-    ? (window.innerWidth < 768 || isMobile) 
-    : isMobile;
-
-  const bigScale = isActuallyMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
-  
   gsap.set(container, {
     x: 0,
     y: 0,
-    scale: bigScale,
+    scale: 1, // CSS(font-size)에 스케일링 위임
     transformOrigin: 'top left',
     visibility: 'visible',
     opacity: 1
@@ -122,8 +115,9 @@ export function initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: 
   
   if (logo.tLines.h && logo.tLines.v) {
     const isPlus = logoCfg.morph === '+';
-    gsap.set(logo.tLines.h, { width: '100%', top: isPlus ? '12px' : '4px', left: 0 });
-    gsap.set(logo.tLines.v, { height: '100%', top: isPlus ? '4px' : '4px' });
+    // [v26.98 UI Detail] 고해상도 소스에 맞춘 좌표 스케일 업 (4px -> 20px, 12px -> 60px)
+    gsap.set(logo.tLines.h, { width: '100%', top: isPlus ? '60px' : '20px', left: 0 });
+    gsap.set(logo.tLines.v, { height: '100%', top: isPlus ? '20px' : '20px' });
   }
 }
 

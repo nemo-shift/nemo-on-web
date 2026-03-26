@@ -16,8 +16,10 @@ import {
   GlobalScrollTriggerCleanup,
   SmoothScroll,
   MenuSystem,
+  GlobalElements,
 } from '@/components/layout';
-import { HeroProvider } from '@/context';
+import { PointRingCursor } from '@/components/ui';
+import { HeroProvider, DeviceProvider } from '@/context';
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -80,13 +82,16 @@ export default function RootLayout({
           integrateGSAP={true}
           className="flex-1 flex flex-col"
         >
-          <HeroProvider>
-            <Header />
-            {/* MenuSystem: MenuToggle(모핑 버튼) + SideMenu(패널) 전역 관리 */}
-            <MenuSystem />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </HeroProvider>
+          <DeviceProvider>
+            <HeroProvider>
+              <GlobalElements />
+              <Header />
+              {/* MenuSystem: MenuToggle(모핑 버튼) + SideMenu(패널) 전역 관리 */}
+              <MenuSystem />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </HeroProvider>
+          </DeviceProvider>
         </SmoothScroll>
       </body>
     </html>

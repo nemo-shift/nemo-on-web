@@ -61,7 +61,8 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
 
     if (logo.tLines.h && logo.tLines.v) {
       const isPlus = cfg.logo.morph === '+';
-      tl.to(logo.tLines.h, { top: isPlus ? '12px' : '4px', duration: 0.2 }, time);
+      // [v26.98 UI Detail] 고해상도 모핑 포인트 동기화 (12px -> 60px)
+      tl.to(logo.tLines.h, { top: isPlus ? '60px' : '20px', duration: 0.2 }, time);
     }
   });
 

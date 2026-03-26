@@ -129,7 +129,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
       >
         <div 
           className="flex flex-wrap items-center justify-start gap-x-2 font-light tracking-tight"
-          style={{ fontSize: isMobile ? '1.1rem' : '1.6rem' }}
+          style={{ fontSize: isMobile ? '1.1rem' : 'clamp(1.2rem, 1.33vw, 1.8rem)' }}
         >
           <span className="opacity-50">흐릿한</span>
           <div 
@@ -146,7 +146,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
         </div>
         <div
           className="font-semibold tracking-tighter"
-          style={{ fontSize: isMobile ? '1.6rem' : '2.4rem' }}
+          style={{ fontSize: isMobile ? '1.62rem' : 'clamp(2rem, 2.77vw, 3.2rem)' }}
         >
           작동하는 브랜드로.
         </div>
@@ -186,7 +186,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
                 className="flex items-center justify-center px-1.5 py-1 min-w-fit"
               >
                 <span
-                  className="text-[1.3rem] md:text-[1.85rem] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
+                  className="text-[1.3rem] tablet-p:text-[1.5rem] tablet:text-[clamp(2rem,2.15vw,3rem)] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,

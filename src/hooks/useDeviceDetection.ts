@@ -12,13 +12,28 @@ export function useDeviceDetection(): {
   isMobile: boolean;
   isTablet: boolean;
   isPC: boolean;
+  interactionMode: 'mouse' | 'touch';
+  isMobileView: boolean;
+  isTabletPortrait: boolean; // [v1.6] 768px~991px 구간 보정용
   isInitialized: boolean;
 } {
-  const [device, setDevice] = useState({
+  const [device, setDevice] = useState<{
+    isTouchDevice: boolean;
+    isMobile: boolean;
+    isTablet: boolean;
+    isPC: boolean;
+    interactionMode: 'mouse' | 'touch';
+    isMobileView: boolean;
+    isTabletPortrait: boolean;
+    isInitialized: boolean;
+  }>({
     isTouchDevice: false,
-    isMobile: false, // 서버에서는 기본적으로 PC(false)로 가정하거나 안전값 유지
+    isMobile: false,
     isTablet: false,
     isPC: false,
+    interactionMode: 'mouse',
+    isMobileView: false,
+    isTabletPortrait: false,
     isInitialized: false,
   });
 
@@ -30,11 +45,20 @@ export function useDeviceDetection(): {
 
     const updateDevice = (): void => {
       const width = window.innerWidth;
+      const isActuallyPC = width >= 1024;
+      
       setDevice({
         isTouchDevice: checkTouchDevice(),
+        // [v1.6] Level 1: Mobile (0~767)
         isMobile: width < 768,
-        isTablet: width >= 768 && width < 1024,
-        isPC: width >= 1024,
+        // [v1.6] Level 2: Tablet Portrait (768~991)
+        isTabletPortrait: width >= 768 && width < 992,
+        // [v1.6] Level 3-A: Tablet Landscape (992~1199)
+        isTablet: width >= 992 && width < 1200,
+        // [v1.6] Level 3-B: Desktop (1200~)
+        isPC: width >= 1200,
+        interactionMode: isActuallyPC ? 'mouse' : 'touch',
+        isMobileView: width < 992, 
         isInitialized: true,
       });
     };

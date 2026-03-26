@@ -7,6 +7,16 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    screens: {
+      'tablet-p': '768px',  // 태블릿 세로 (Level 2)
+      'tablet': '992px',    // 태블릿 가로/데스크탑 (Level 3)
+      'desktop': '1280px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         brand: {

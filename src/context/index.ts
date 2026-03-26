@@ -1,1 +1,2 @@
-export { HeroProvider, useHeroContext } from './HeroContext';
+export * from './HeroContext';
+export * from './DeviceContext';

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useMousePosition, useDeviceDetection } from '@/hooks';
+import { useMousePosition } from '@/hooks';
+import { useDevice } from '@/context';
 
 type PointRingCursorProps = {
   isOn: boolean; // ON 상태 여부 — 색상 전환에 사용 [Required]
@@ -12,7 +13,7 @@ type PointRingCursorProps = {
  * PointRingCursor 컴포넌트
  *
  * 마우스 커서를 숨기고 커스텀 point + ring 커서를 렌더링한다.
- * - 모바일 뷰포트(768px 미만)에서만 숨김 (PC/터치 PC 모두 데스크탑 뷰에서는 표시)
+ * - 태블릿/모바일(Touch Mode)에서는 숨기고 PC(Mouse Mode)에서만 표시
  * - OFF: point #e8d5b0, ring rgba(196,168,130,.3)
  * - ON: point rgba(8,145,178,.7), ring rgba(8,145,178,.35)
  * - 인터랙티브 요소 hover 시 링이 네모(50×50, border-radius 4px)로 변환
@@ -27,7 +28,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
   const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'contact'>('default');
   const isHover = cursorType !== 'default';
   const { position } = useMousePosition();
-  const { isMobile } = useDeviceDetection();
+  const { interactionMode } = useDevice();
   const positionRef = useRef(position);
   const pointRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -42,7 +43,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
     isHoverRef.current = isHover;
   }, [isHover]);
 
-  const showCursor = !isMobile;
+  const showCursor = interactionMode === 'mouse';
 
   // 클라이언트 마운트 후에만 커서 렌더 (하이드레이션 불일치 방지)
   useEffect(() => {

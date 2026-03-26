@@ -69,8 +69,9 @@ export const STAGES = {
 // 3.5. [V4.5] 헤더 위치 및 인터랙션 수치
 // ─────────────────────────────────────────────
 export const HEADER_POS = {
-  PC:  { x: 40, y: 32 },
-  MOBILE: { x: 20, y: 20 },
+  PC:  { x: 3.333, y: 5.555 }, // vw (at 1440px -> x:48, y:80)
+  TABLET: { x: 4.8, y: 4.8 },   // vw (at 1000px -> x:48, y:48)
+  MOBILE: { x: 24, y: 24 },     // px (Fixed)
 };
 
 export const EASE = {
@@ -124,9 +125,12 @@ export const TIMING_CFG = {
 // 5. 시각 수치 (Visual Units)
 // ─────────────────────────────────────────────
 export const LOGO_SIZE = {
-  BIG_SCALE: 5,
-  BIG_SCALE_MOBILE: 2.8,
-  HEADER_SCALE: 1,
+  // [v26.98 UI Detail] 고해상도 소스 기반 스케일 다운 설계
+  // 히어로 중앙이 원본(1.0)으로 보여야 가장 선명함
+  BIG_SCALE: 1.0,           
+  BIG_SCALE_MOBILE: 1.0,    
+  HEADER_SCALE: 0.2,        // PC (150px -> 30px)
+  HEADER_SCALE_MOBILE: 0.35, // Mobile (approx 70px -> 24px)
 };
 
 export const NEMO_SIZE = {

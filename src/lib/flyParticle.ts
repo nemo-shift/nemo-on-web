@@ -27,10 +27,10 @@ function flyParticle(
   easeFn: (t: number) => number,
   useDarkColors: boolean
 ): void {
-  const isPc = typeof window !== 'undefined' && window.innerWidth >= 768;
-  const triSize = isPc ? 26 : 16;
-  const triH = isPc ? triSize * 1.732 : triSize * 1.732;
-  const cirSize = isPc ? 32 : 22;
+  const isActuallyPCView = typeof window !== 'undefined' && window.innerWidth >= 992;
+  const triSize = isActuallyPCView ? 26 : 16;
+  const triH = isActuallyPCView ? triSize * 1.732 : triSize * 1.732;
+  const cirSize = isActuallyPCView ? 32 : 22;
   const triColor = useDarkColors ? COLORS.HERO.OFF.ACCENT : COLORS.HERO.ON.ACCENT;
   const cirColor = useDarkColors ? COLORS.HERO.OFF.SUB_ACCENT : COLORS.HERO.ON.SUB_ACCENT;
   const div = document.createElement('div');

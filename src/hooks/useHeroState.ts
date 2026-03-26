@@ -14,7 +14,7 @@ export function useHeroState(
   isTransitioning: boolean, 
   setIsTransitioning: (val: boolean) => void
 ) {
-  const { isMobile, isTablet, isPC, isTouchDevice } = useDeviceDetection();
+  const { isMobile, isTablet, isPC, isTouchDevice, isMobileView } = useDeviceDetection();
   
   // 기본 애니메이션 시퀀스 관리
   const { sequenceStep, setSequenceStep } = useHeroSequence(isOn);
@@ -79,6 +79,7 @@ export function useHeroState(
     isMobile,
     isTablet,
     isPC,
+    isMobileView,
     isTouchDevice,
     sequenceStep,
     setSequenceStep,

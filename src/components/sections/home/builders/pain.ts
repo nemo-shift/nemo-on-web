@@ -3,7 +3,7 @@ import {
   COLORS, STAGES, TIMING_CFG, EASE 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
-import { PAIN_POINTS, RESONANCE_MESSAGE, MESSAGE_SECTION_GROUPS } from '@/data/homeContent';
+import { PAIN_POINTS, RESONANCE_MESSAGE } from '@/data/home/pain';
 import { NEMO_JOURNEY_SECTIONS } from '../journey-data';
 import { SharedNemoHandle } from '../SharedNemo';
 import { FallingKeywordsHandle } from '../FallingKeywordsStage';
@@ -130,15 +130,6 @@ export function buildNemoTimeline(
 
   tl.to(content, { opacity: 0, duration: 0.2 }, L[STAGES.RESONANCE] + TIMING_CFG.SECTION_WEIGHT.RESONANCE_STILL - 0.2);
 
-  MESSAGE_SECTION_GROUPS.forEach((text, i) => {
-    const msgGap = TIMING_CFG.SECTION_WEIGHT.MESSAGE_STILL / MESSAGE_SECTION_GROUPS.length;
-    const time = L[STAGES.MSG_CONTENT] + (i * msgGap);
-    tl.set(content, { textContent: text, color: COLORS.TEXT.LIGHT, fontWeight: '400', opacity: 0 }, time);
-    tl.to(content, { opacity: 1, duration: 0.3 }, time);
-    if (i < MESSAGE_SECTION_GROUPS.length - 1) {
-      tl.to(content, { opacity: 0, duration: 0.2 }, time + msgGap - 0.2);
-    }
-  });
   
   if (nemo.imageEl) tl.to(nemo.imageEl, { opacity: 1, duration: 0.5 }, L[STAGES.TO_FORWHO] + 0.2);
 }

@@ -10,7 +10,6 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useHeroContext } from '@/context';
 import { useHeroState, useParticles } from '@/hooks';
-import { PointRingCursor } from '@/components/ui';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
 import Header from '@/components/layout/Header';
@@ -53,6 +52,7 @@ export default function HeroSection({
     isMobile,
     isTablet,
     isPC,
+    isMobileView,
     sequenceStep,
     isGathering,
     shapesOnRevealed,
@@ -143,10 +143,6 @@ export default function HeroSection({
       />
     ) : null, [mounted]);
 
-  const pointCursor = useMemo(() =>
-    mounted && typeof document !== 'undefined' ? (
-      <PointRingCursor isOn={isOn} />
-    ) : null, [mounted, isOn]);
 
   // 공통 Props 묶음
   const viewProps = {
@@ -171,7 +167,6 @@ export default function HeroSection({
       className="relative flex flex-col w-full min-h-screen overflow-hidden transition-colors duration-1000"
       style={{ ...cssVars, zIndex: 1 }} // 다른 섹션들보다 아래에 위치하도록 명시
     >
-      {pointCursor}
       
       {mounted && typeof document !== 'undefined' && createPortal(
         <>
@@ -213,22 +208,43 @@ export default function HeroSection({
           }}
         />
 
-        {/* [v26.10] 램프 이펙트 (중앙 상단 베이지 빛) */}
+        {/* [v26.98 UI Detail] 램프 이펙트 (다중 레이어 시네마틱 보정) */}
         {!isOn && (
           <div
             style={{
               position: 'absolute',
-              top: '-15%',
+              top: isMobileView ? '-10%' : '-15%',
               left: '50%',
               transform: 'translateX(-50%)',
               width: '100vw',
-              height: '80vh',
-              background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.08) 0%, rgba(240, 235, 227, 0.03) 40%, transparent 70%)',
+              height: isMobileView ? '60vh' : '90vh',
               zIndex: 1,
               pointerEvents: 'none',
-              filter: 'blur(40px)',
+              filter: 'blur(60px)',
+              display: 'flex',
+              justifyContent: 'center',
             }}
-          />
+          >
+            {/* Core Glow: 중심부의 따뜻한 빛 */}
+            <div
+              className={isMobile ? 'animate-lamp-pulse-mobile' : ''}
+              style={{
+                width: isMobile ? '70%' : '50%',
+                height: '100%',
+                background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.12) 0%, rgba(240, 235, 227, 0.04) 45%, transparent 75%)',
+                opacity: isMobile ? 1 : 0.9, // PC는 정적인 상태에서 최적의 농도로 고정
+              }}
+            />
+            {/* Ambient Glow: 배경 전체로 은은하게 퍼지는 빛 */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.03) 0%, transparent 80%)',
+                opacity: 0.5,
+              }}
+            />
+          </div>
         )}
 
         <div
@@ -245,9 +261,12 @@ export default function HeroSection({
         />
 
         {/* [v26.24] 디바이스별 독립 레이아웃 분기 */}
-        {isMobile && <HeroMobileView {...viewProps} />}
-        {isTablet && <HeroTabletView {...viewProps} />}
-        {isPC && <HeroPCView {...viewProps} />}
+        {/* [v1.6] 992px 기준 전역 이원화 레이아웃 채택 (중복 차단) */}
+        {isMobileView ? (
+          <HeroMobileView {...viewProps} />
+        ) : (
+          <HeroPCView {...viewProps} />
+        )}
         
         <style>{`
           @keyframes scrollLine {
@@ -255,6 +274,20 @@ export default function HeroSection({
             50% { transform: scaleY(1); transform-origin: top; }
             50.1% { transform: scaleY(1); transform-origin: bottom; }
             100% { transform: scaleY(0); transform-origin: bottom; }
+          }
+          @keyframes lampPulsePC {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+          }
+          @keyframes lampPulseMobile {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+          }
+          .animate-lamp-pulse-pc {
+            animation: lampPulsePC 12s ease-in-out infinite;
+          }
+          .animate-lamp-pulse-mobile {
+            animation: lampPulseMobile 8s ease-in-out infinite;
           }
         `}</style>
       </section>
