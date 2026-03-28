@@ -50,9 +50,9 @@ export function useDeviceDetection(): {
       setDevice({
         isTouchDevice: checkTouchDevice(),
         // [v1.6] Level 1: Mobile (0~767)
-        isMobile: width < 768,
+        isMobile: width < 744,
         // [v1.6] Level 2: Tablet Portrait (768~991)
-        isTabletPortrait: width >= 768 && width < 992,
+        isTabletPortrait: width >= 744 && width < 992,
         // [v1.6] Level 3-A: Tablet Landscape (992~1199)
         isTablet: width >= 992 && width < 1200,
         // [v1.6] Level 3-B: Desktop (1200~)

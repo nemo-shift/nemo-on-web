@@ -30,7 +30,7 @@ const PhraseLine = ({
   <div
     style={{
       fontFamily: 'var(--font-suit), sans-serif',
-      fontSize: isMobile ? 'clamp(44px, 9vw, 130px)' : 'clamp(32px, 6.5vw, 100px)',
+      fontSize: isMobile ? 'clamp(44px, min(9vw, 14vh), 130px)' : 'clamp(32px, min(6.5vw, 12vh), 100px)',
       lineHeight: 1,
       letterSpacing: '-.01em',
       color: baseColor,
@@ -87,8 +87,8 @@ export default function HeroPhraseLayer({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: isMobile ? 'flex-start' : 'center',
-    gap: isMobile ? '.24em' : '1vh',
-    fontSize: isMobile ? 'inherit' : 'clamp(0.8rem, 3.5vh, 1.8vw)',
+    gap: isMobile ? '.24em' : 'min(1vw, 1.5vh)',
+    fontSize: isMobile ? 'inherit' : 'clamp(0.8rem, min(3.5vh, 1.8vw), 1.8vw)',
     transform: isMobile ? 'translateX(8%) translateY(-5%)' : 'translateX(-8%) translateY(5vh)',
     pointerEvents: 'none',
     zIndex: 20,

@@ -6,9 +6,17 @@ import {
   DM_Mono,
   Bebas_Neue,
   IBM_Plex_Sans_KR,
+  EB_Garamond,
 } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
+
+const ebGaramond = EB_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-eb-garamond',
+});
 import {
   Header,
   Footer,
@@ -69,7 +77,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${notoSansKR.variable} ${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable}`}
+      className={`${notoSansKR.variable} ${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col font-sans">
         <LenisScrollRestoration />

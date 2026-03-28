@@ -10,6 +10,7 @@ interface DeviceContextValue {
   isTouchDevice: boolean;
   isMobile: boolean;
   isTablet: boolean;
+  isTabletPortrait: boolean;
   isPC: boolean;
   interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
@@ -29,6 +30,7 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
     device.isTouchDevice, 
     device.isMobile, 
     device.isTablet, 
+    device.isTabletPortrait,
     device.isPC, 
     device.interactionMode, 
     device.isMobileView, 

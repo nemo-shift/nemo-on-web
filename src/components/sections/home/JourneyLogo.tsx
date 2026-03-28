@@ -3,6 +3,8 @@
 import React, { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useScramble } from '@/hooks/useScramble';
 import { NemoIcon } from '@/components/ui';
+import { cn } from '@/lib';
+import { LOGO_COLOR_CFG } from '@/constants/interaction';
 
 /**
  * JourneyLogoHandle: GlobalInteractionStage에서 제어할 핸들
@@ -74,37 +76,63 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
       }
     }));
 
+    const activeLogoColors = isOn ? LOGO_COLOR_CFG.ON : LOGO_COLOR_CFG.OFF;
     const colorStyle = { color: 'var(--header-fg)' };
+    const statusColorStyle = {
+      color: activeLogoColors.TEXT,
+      transition: 'color 0.7s ease'
+    };
 
     return (
       <div
         ref={containerRef}
-        className="journey-logo flex items-baseline gap-4 tablet-p:gap-6 tablet:gap-10 select-none h-[80px] tablet-p:h-[120px] tablet:h-[clamp(150px,12.5vw,220px)]"
+        className="journey-logo flex items-baseline select-none gap-4 tablet-p:gap-6 tablet:gap-[clamp(40px,calc(-4px+4.5vw),60px)] desktop-wide:gap-[clamp(60px,calc(30px+2.1vw),70px)] desktop-cap:gap-[70px] h-[clamp(75px,calc(71px+1.2vw),85px)] tablet-p:h-[clamp(85px,calc(-200px+38.3vw),200px)] tablet:h-[clamp(200px,calc(111px+9vw),240px)] desktop-wide:h-[clamp(240px,calc(120px+8.35vw),280px)] desktop-cap:h-[280px]"
         style={{ willChange: 'transform' }}
       >
         {/* 1. 한글 네모 (Layer A) */}
         <div 
           ref={nemoKrRef} 
-          className="font-esamanru font-bold text-[75px] tablet-p:text-[110px] tablet:text-[clamp(140px,16.66vw,260px)] tracking-normal"
+          className="font-esamanru font-bold tablet:font-light text-[clamp(55px,calc(50px+1.5vw),62px)] tablet-p:text-[clamp(70px,calc(-170px+32vw),150px)] tablet:text-[clamp(150px,calc(75px+7.5vw),185px)] desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)] desktop-cap:text-[220px] tracking-normal"
           style={colorStyle}
         >
           네모
         </div>
 
-        <NemoIcon 
+        {/* 2. 시그니처 도형 (NemoIcon) - [V11 Architecture Refactoring] 텍스트 크기 비례 em 위치 제어 및 클래스 기반 트랜스폼 통합 */}
+        {/* 2. 시그니처 도형 (NemoIcon) - [V11 Native CSS Engine] 테일윈드 파서 한계 극복을 위한 CSS 통합 제어 */}
+        <div 
           ref={shapesRef}
-          className="opacity-80 scale-[3] tablet-p:scale-[4] tablet:scale-[clamp(4.5,0.38vw,6.5)] origin-center"
-          style={{ transform: 'translateY(-1vw)' }}
-          triangleClassName="border-l-[clamp(4px,0.35vw,6px)] border-r-[clamp(4px,0.35vw,6px)] border-b-[clamp(6px,0.55vw,9px)] transform -translate-y-[2.5px] tablet-p:translate-y-0"
-          circleClassName="w-[clamp(6px,0.55vw,9px)] h-[clamp(6px,0.55vw,9px)] border-[1.5px]"
-          gapClassName="gap-[0.5vw]"
-        />
+          className="flex items-center justify-center child-nemo-logo-engine"
+          style={{ 
+            filter: `drop-shadow(0 0 8px ${activeLogoColors.GLOW})`,
+            willChange: 'transform'
+          }}
+        >
+          <NemoIcon 
+            className={cn(
+              "opacity-80 nemo-logo-engine"
+            )}
+            triangleColor={activeLogoColors.TRIANGLE}
+            circleColor={activeLogoColors.CIRCLE}
+            triangleStyle={{ animation: !isOn ? 'pulseAbt 2.5s ease-in-out infinite' : undefined }}
+            circleStyle={{ animation: !isOn ? 'pulseAbt 2.5s ease-in-out 0.5s infinite' : undefined }}
+            triangleClassName="border-l-[0.35em] border-r-[0.35em] border-b-[0.55em] transform -translate-y-[0.05em]"
+            circleClassName="w-[0.55em] h-[0.55em] border-[0.12em]"
+            gapClassName={cn(
+              "gap-[0.15em]",
+              "tablet-p:gap-[0.25em]",
+              "tablet:gap-[0.4em]",
+              "desktop-wide:gap-[0.35em]",
+              "desktop-cap:gap-[0.65em]"
+            )}
+          />
+        </div>
 
         {/* 3. ON/OFF (Scramble) */}
         <div 
           ref={statusRef} 
-          className="font-gmarket font-bold text-[70px] tablet-p:text-[100px] tablet:text-[clamp(130px,15.2vw,240px)] tracking-tight min-w-[80px] tablet-p:min-w-[120px] tablet:min-w-[clamp(150px,13.8vw,220px)]"
-          style={colorStyle}
+          className="font-gmarket font-bold tablet:font-light text-[clamp(52px,calc(48px+1.2vw),58px)] tablet-p:text-[clamp(62px,calc(-180px+32vw),140px)] tablet:text-[clamp(140px,calc(68px+7.5vw),175px)] desktop-wide:text-[clamp(175px,calc(75px+7.2vw),210px)] desktop-cap:text-[210px] tracking-tight min-w-[clamp(65px,calc(56px+2.5vw),90px)] tablet-p:min-w-[clamp(90px,calc(-20px+15vw),135px)] tablet:min-w-[clamp(170px,calc(8vw+10vw),250px)] desktop-wide:min-w-[clamp(250px,calc(-25px+19vw),380px)] desktop-cap:min-w-[380px]"
+          style={statusColorStyle}
         >
           {scrambledText || (isOn ? 'ON' : 'OFF')}
         </div>

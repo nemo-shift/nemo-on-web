@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { RotatingText } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { COLORS } from '@/constants/colors';
 
 interface HeroSloganProps {
@@ -128,8 +129,11 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
         onClick={handleMobileClick}
       >
         <div 
-          className="flex flex-wrap items-center justify-start gap-x-2 font-light tracking-tight"
-          style={{ fontSize: isMobile ? '1.1rem' : 'clamp(1.2rem, 1.33vw, 1.8rem)' }}
+          className={cn(
+            "flex flex-wrap items-center gap-x-2 font-light",
+            isMobile ? "justify-start text-left tracking-tight" : "justify-center text-center tracking-[0.12em]"
+          )}
+          style={{ fontSize: isMobile ? '1.1rem' : 'clamp(1.2rem, min(1.33vw, 2.5vh), 1.8rem)' }}
         >
           <span className="opacity-50">흐릿한</span>
           <div 
@@ -145,8 +149,11 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
           </div>
         </div>
         <div
-          className="font-semibold tracking-tighter"
-          style={{ fontSize: isMobile ? '1.62rem' : 'clamp(2rem, 2.77vw, 3.2rem)' }}
+          className={cn(
+            "font-semibold",
+            isMobile ? "text-left tracking-tighter" : "text-center w-full tracking-[0.05em]"
+          )}
+          style={{ fontSize: isMobile ? '1.62rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
         >
           작동하는 브랜드로.
         </div>
@@ -186,7 +193,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
                 className="flex items-center justify-center px-1.5 py-1 min-w-fit"
               >
                 <span
-                  className="text-[1.3rem] tablet-p:text-[1.5rem] tablet:text-[clamp(2rem,2.15vw,3rem)] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
+                  className="text-[1.3rem] tablet-p:text-[1.5rem] tablet:text-[clamp(2rem,min(2.15vw,3.5vh),3rem)] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,

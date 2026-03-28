@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { useHeroContext } from '@/context';
-import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useHeroContext, useDevice } from '@/context';
 import HeroSection from './HeroSection';
 import { PainSection } from './PainSection';
 import { MessageSection } from './MessageSection';
@@ -17,7 +16,7 @@ import GlobalInteractionStage from './GlobalInteractionStage';
  */
 export default function HomeStage(): React.ReactElement {
   const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
-  const { isMobile, isTablet, interactionMode, isMobileView, isTabletPortrait } = useDeviceDetection();
+  const { isMobile, isTablet, interactionMode, isMobileView, isTabletPortrait } = useDevice();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 

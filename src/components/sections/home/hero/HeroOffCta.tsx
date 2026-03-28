@@ -4,6 +4,7 @@ import React from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { COLORS } from '@/constants/colors';
+import { cn } from '@/lib/utils';
 
 interface HeroOffCtaProps {
   isVisible: boolean;
@@ -47,13 +48,14 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
   useGSAP(() => {
     if (!textRef.current) return;
 
-    const shouldShow = (isMobile && !isTransitioning && !isClearing) || isToggleHovered || isClearing;
+    // [V26.96] PC/Mobile 모두 상시 노출로 변경 (UX 개선)
+    const shouldShow = true;
     
     gsap.to(textRef.current, {
-      filter: shouldShow ? 'blur(0px)' : 'blur(15px)',
-      opacity: shouldShow ? 1 : 0.1,
+      filter: 'blur(0px)',
+      opacity: 1,
       duration: 0.6,
-      ease: 'power3.out', // [v26.98 UI Detail] 더욱 부드럽게 초점이 잡히는 느낌 연출
+      ease: 'power3.out',
       delay: (isMobile && !isToggleHovered && !isClearing) ? 0.8 : 0
     });
   }, { dependencies: [isToggleHovered, isClearing, isTransitioning, isMobile], scope: containerRef });
@@ -96,22 +98,54 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
       <div
         ref={textRef}
         className="flex flex-col items-center"
-        style={{ filter: 'blur(15px)', opacity: 0.1 }}
+        style={{ filter: 'blur(16px)', opacity: 0.25 }}
       >
-        <span
-          className="font-medium tracking-[0.4em] md:tracking-[0.6em] uppercase whitespace-nowrap text-center transition-all duration-700"
+        <div
+          className={cn(
+            "text-center transition-all duration-700 leading-[0.8]",
+            isMobile 
+              ? "font-medium tracking-[0.4em] md:tracking-[0.6em] uppercase font-sans text-[0.95rem]" 
+              : "font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center"
+          )}
           style={{
-            fontSize: isMobile ? '0.95rem' : '1.2rem',
-            color: (isToggleHovered || isClearing || isTransitioning) ? COLORS.HERO.OFF.ACCENT : COLORS.TEXT.LIGHT,
-            // [v26.98 UI Detail] PC/Mobile 최적화된 은은한 보석 글로우 적용
+            color: (isToggleHovered || isClearing || isTransitioning) 
+              ? COLORS.HERO.OFF.ACCENT 
+              : isMobile ? COLORS.TEXT.LIGHT : 'rgba(240, 235, 227, 0.32)',
             textShadow: isMobile 
               ? `0 0 30px ${COLORS.HERO.OFF.ACCENT}66` 
-              : `0 0 40px rgba(240, 235, 227, 0.35)`,
+              : `0 0 120px rgba(240, 235, 227, 0.25)`,
             display: 'block'
           }}
         >
-          브랜드를 켜다
-        </span>
+          {isMobile ? (
+            "브랜드를켜다"
+          ) : (
+            <div className="relative flex flex-col items-center">
+              {/* Line 1: Turn on the Switch, [Pivot to right-ish center] */}
+              <span 
+                className="whitespace-nowrap"
+                style={{ 
+                  fontSize: '10rem', 
+                  transform: 'translateX(-17vw) scaleX(0.7) scaleY(1)' 
+                }}
+              >
+                스위치를 켜고,
+              </span>
+              
+              {/* Line 2: Switch on the Brand. [Pivot from left-ish center] */}
+              <span 
+                className="whitespace-nowrap"
+                style={{ 
+                  fontSize: '10rem', 
+                  transform: 'translateX(17vw) scaleX(0.7) scaleY(1)',
+                  marginTop: '-3vh' // 획이 맞물리도록 위로 당김
+                }}
+              >
+                브랜드를 켜세요.
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

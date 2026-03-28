@@ -54,10 +54,13 @@ export const STAGES = {
   PAIN_CONTENT: 'pain_content',
   PAIN_SHIFT: 'pain_shift',
   RESONANCE: 'resonance',
+  PAIN_TO_MSG: 'pain_to_msg',
   TO_MESSAGE: 'to_msg',
   MSG_CONTENT: 'msg_content',
+  MSG_TO_FW: 'msg_to_fw',
   TO_FORWHO: 'to_fw',
   FW_CONTENT: 'fw_content',
+  FW_TO_STORY: 'fw_to_story',
   TO_STORY: 'to_story',
   STORY_CONTENT: 'story_content',
   TO_CTA: 'to_cta',
@@ -69,9 +72,9 @@ export const STAGES = {
 // 3.5. [V4.5] 헤더 위치 및 인터랙션 수치
 // ─────────────────────────────────────────────
 export const HEADER_POS = {
-  PC:  { x: 3.333, y: 5.555 }, // vw (at 1440px -> x:48, y:80)
-  TABLET: { x: 4.8, y: 4.8 },   // vw (at 1000px -> x:48, y:48)
-  MOBILE: { x: 24, y: 24 },     // px (Fixed)
+  PC:  { x: 3.333, y: 2 }, // vw (상단 아이콘 라인 2.5vw와의 시각적 균형을 위해 2vw로 상향)
+  TABLET: { x: 4.8, y: 3.5 },   // vw (at 1000px -> x:48, y:48)
+  MOBILE: { x: 24, y: 15 },     // px (Fixed)
 };
 
 export const EASE = {
@@ -184,5 +187,23 @@ export const KEYWORD_CFG = {
     MARGIN_Y: 10,       // 세로 최소 여유 공간 (px)
     RESTITUTION: 0.4,   // 탄성
     FRICTION: 0.1,      // 마찰
+  }
+};
+
+// ─────────────────────────────────────────────
+// 8. 브랜드 로고 상세 색상 (State-dependent Colors)
+// ─────────────────────────────────────────────
+export const LOGO_COLOR_CFG = {
+  OFF: {
+    TEXT: '#e8d5b0',
+    TRIANGLE: '#e8d5b0',
+    CIRCLE: '#c4a882',
+    GLOW: 'rgba(232, 213, 176, 0.3)',
+  },
+  ON: {
+    TEXT: '#0891b2',
+    TRIANGLE: '#0891b2',
+    CIRCLE: '#0891b2',
+    GLOW: 'transparent',
   }
 };

@@ -33,16 +33,25 @@ export function calculateLabels() {
   offsets[STAGES.RESONANCE] = curr;
 
   curr += t;
+  offsets[STAGES.PAIN_TO_MSG] = curr;
+
+  curr += t;
   offsets[STAGES.TO_MESSAGE] = curr;
 
   curr += w.MESSAGE_STILL;
   offsets[STAGES.MSG_CONTENT] = curr;
 
   curr += t;
+  offsets[STAGES.MSG_TO_FW] = curr;
+
+  curr += t;
   offsets[STAGES.TO_FORWHO] = curr;
 
   curr += w.FOR_WHO_STILL;
   offsets[STAGES.FW_CONTENT] = curr;
+
+  curr += t;
+  offsets[STAGES.FW_TO_STORY] = curr;
 
   curr += t;
   offsets[STAGES.TO_STORY] = curr;

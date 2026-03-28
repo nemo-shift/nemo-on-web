@@ -4,9 +4,10 @@ import React from 'react';
 import { COLORS } from '@/constants/colors';
 
 type HeroToggleProps = {
-  isOn: boolean;       // 현재 ON/OFF 상태 [Required]
+  isOn: boolean;       // 현재 ON/OFF 상태
   onToggle: () => void; // 토글 클릭 핸들러 [Required]
   isTransitioning?: boolean; // 전환 진행 중 여부 (Knob 선반영용)
+  isMobile?: boolean; // 모바일 여부
 };
 
 /**
@@ -18,6 +19,7 @@ export default function HeroToggle({
   isOn,
   onToggle,
   isTransitioning = false,
+  isMobile = false,
 }: HeroToggleProps): React.ReactElement {
   // 실제 ON이거나 전환 중일 때 ON의 시각적 상태를 보여줌
   const showAsOn = isOn || isTransitioning;
@@ -43,8 +45,9 @@ export default function HeroToggle({
       >
         {/* OFF 레이블 */}
         <span
-          className="text-[9px] uppercase tracking-[0.3em] transition-colors duration-500"
+          className="uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
+            fontSize: isMobile ? '9px' : '12px',
             color: !showAsOn
               ? COLORS.HERO.OFF.ACCENT
               : (isOn ? '#4b5563' : '#9ca3af'),
@@ -55,8 +58,10 @@ export default function HeroToggle({
 
         {/* Pill */}
         <div
-          className="relative w-[50px] h-[26px] rounded-[13px] border-[1.5px] transition-all duration-500"
+          className="relative rounded-full border-[1.5px] transition-all duration-500"
           style={{
+            width: isMobile ? '50px' : '68px',
+            height: isMobile ? '26px' : '34px',
             borderColor: showAsOn
               ? isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT
               : '#4b5563',
@@ -68,12 +73,18 @@ export default function HeroToggle({
         >
           {/* Knob */}
           <div
-            className="absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-500"
+            className="absolute rounded-full transition-all duration-500"
             style={{
+              left: isMobile ? '4px' : '6px',
+              top: isMobile ? '4px' : '6px',
+              width: isMobile ? '16px' : '20px',
+              height: isMobile ? '16px' : '20px',
               background: showAsOn 
                 ? isOn ? COLORS.BG.CREAM : COLORS.HERO.OFF.ACCENT 
                 : '#4b5563',
-              transform: showAsOn ? 'translateX(24px)' : 'translateX(0)',
+              transform: showAsOn 
+                ? `translateX(${isMobile ? '24px' : '34px'})` 
+                : 'translateX(0)',
               boxShadow: isOn 
                 ? `0 0 12px ${COLORS.HERO.ON.ACCENT}80` // 0.5 opacity for Teal
                 : (isTransitioning && !isOn) ? `0 0 12px ${COLORS.HERO.OFF.ACCENT}cc` : 'none',
@@ -83,8 +94,9 @@ export default function HeroToggle({
 
         {/* ON 레이블 */}
         <span
-          className="text-[9px] uppercase tracking-[0.3em] transition-colors duration-500"
+          className="uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
+            fontSize: isMobile ? '9px' : '12px',
             color: showAsOn
               ? isOn ? COLORS.TEXT.DARK : COLORS.HERO.OFF.ACCENT 
               : COLORS.TEXT.LIGHT,

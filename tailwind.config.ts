@@ -8,8 +8,10 @@ const config: Config = {
   ],
   theme: {
     screens: {
-      'tablet-p': '768px',  // 태블릿 세로 (Level 2)
-      'tablet': '992px',    // 태블릿 가로/데스크탑 (Level 3)
+      'tablet-p': '744px',  // 태블릿 세로 (Level 2)
+      'tablet': '992px',    // 태블릿 가로/데스크탑 (Level 3-A: Mid)
+      'desktop-wide': '1440px', // [v4.7] PC Wide (Level 3-B)
+      'desktop-cap': '1920px',  // [v4.7] PC Max Cap (Level 3-C)
       'desktop': '1280px',
       'sm': '640px',
       'md': '768px',

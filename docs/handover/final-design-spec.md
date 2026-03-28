@@ -2,6 +2,24 @@
 
 ---
 
+## [최신] 🏛️ V11.2: PC Hero 'Switch Pivot' Architecture
+
+PC 환경의 압도적인 첫인상을 위한 **'버티컬 스파인(Vertical Spine)'** 및 **'피벗 타이포그래피(Pivot Typography)'** 설계 표준입니다.
+
+### ⚓ 1. 버티컬 스파인 (Vertical Spine) 구조
+- **Central Axis**: 브랜드 로고(Top) → 토글 스위치(Center) → 이중 슬로건(Bottom)이 하나의 수직축에 정렬되어 시각적 위계 확립.
+- **Visual Depth**: 슬로건을 단순 텍스트가 아닌 낮은 투명도의 '시각적 지층(Backdrop)'으로 취급하여 토글 스위치가 그 위에 떠 있는 듯한 입체감 형성.
+
+### 🍱 2. 스위치 피벗 (Switch Pivot) 타이포그래피
+- **Dual Layer Stagger**: 'Turn on the Switch,'와 'Switch on the Brand.'를 각기 다른 방향으로 오프셋(`translateX`)하여 중앙의 'Switch' 단어를 축으로 한 지그재그 균형미 구현.
+- **High-Stretch Scaling**: `scaleX(0.6)`, `scaleY(2)`의 극한 조절을 통해 정교한 세리프(`EB Garamond`)를 건축적 기둥으로 변모시키는 하이엔드 기법 적용.
+
+### 🧩 3. 반응형 분기 전략 (PC vs Mobile)
+- **Hybrid Hero Layer**: `isMobile` 플래그를 통해 모바일(수평/간결)과 PC(수직/웅장)의 레이아웃을 완전히 독립적으로 렌더링하면서도 동일한 브랜드 정체성을 유지.
+
+---
+
+
 ## [최신] 🏛️ V14.8: Menu System & Interaction Standards
 
 V13.0~V14.8 고도화를 통해 정립된 메뉴 인터랙션 및 스타일 캡슐화 표준입니다.

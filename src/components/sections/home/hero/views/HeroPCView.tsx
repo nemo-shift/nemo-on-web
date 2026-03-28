@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import HeroSlogan from '../HeroSlogan';
 import HeroToggle from '../HeroToggle';
 import ShapesStage from '../ShapesStage';
@@ -40,6 +42,39 @@ export default function HeroPCView({
   tcRef,
   shapesStageRef,
 }: HeroViewProps) {
+
+  // [V11.1 Fluid Entry] - 중앙 집중형 스택의 시네마틱 시차 등장
+  useGSAP(() => {
+    if (isOn) return;
+
+    const tl = gsap.timeline({ delay: 0.5 });
+    
+    // 1. 배경 아우라 먼저 슬며시 등장
+    tl.to("#hero-central-aura", {
+      opacity: 1,
+      duration: 1.5,
+      ease: "sine.inOut"
+    }, 0);
+
+    // 2. 프레이즈 -> 스위치 세트 순차 안착
+    tl.fromTo([
+      "#hero-central-phrase",
+      "#hero-central-toggle-stack"
+    ], 
+    { 
+      opacity: 0, 
+      y: -15 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      stagger: 0.3,
+      ease: "power3.out"
+    }, 0.3);
+
+  }, { dependencies: [isOn] });
+
   return (
     <>
       {/* 1. 상단 스페이서 (PC Fluid: 12vh -> 20vh) */}
@@ -56,7 +91,7 @@ export default function HeroPCView({
           className="invisible pointer-events-none" 
           style={{ 
             position: 'absolute',
-            top: '5.555vw', // HEADER_POS.PC.y 동기화
+            top: '2vw', // 헤더 아이콘(2.5vw)과 수평을 맞추기 위한 상향 조정
             left: '3.333vw', // HEADER_POS.PC.x 동기화
             width: '20vw', 
             height: '10vw' 
@@ -64,71 +99,7 @@ export default function HeroPCView({
         />
       </div>
 
-      {/* 3. 슬로건 & 토글 영역 (tcRef) */}
-      <div
-        ref={tcRef}
-        className="w-full flex-shrink-0"
-        style={{
-          position: isOn ? 'absolute' : 'relative',
-          bottom: isOn ? '8vh' : 'auto',
-          left: 0,
-          zIndex: 30,
-          order: isOn ? 10 : 5,
-          marginTop: isOn ? '0' : '2vh',
-          marginBottom: isOn ? '0' : '6vh',
-          opacity: showCenteredShapes ? 0 : 1,
-          transition: 'opacity 0.5s ease, order 0.7s ease, transform 0.7s ease, bottom 0.7s ease',
-          minHeight: isOn ? 'auto' : '10vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          gap: '1.5vh',
-          pointerEvents: 'none'
-        }}
-      >
-        <div 
-          className="px-[3.333vw]" 
-          style={{ 
-            position: 'relative',
-            width: '100%',
-            marginTop: isOn ? '6vh' : '0',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            pointerEvents: 'none',
-            zIndex: 100,
-            flexShrink: 0
-          }}
-        >
-          <div 
-            className="relative flex-shrink-0" 
-            style={{ 
-              width: '600px', 
-              height: '140px', // 로고 여유 공간 포함
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              gap: '20px'
-            }}
-          >
-            <div style={{ position: 'relative', width: '600px', height: '100%' }}>
-              <HeroSlogan
-                isOn={isOn}
-                isMobile={false}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
-                sentence="불안을 끄고, 기준을 켭니다"
-              />
-            </div>
-          </div>
-
-          {/* [v26.35] 히어로 다크모드 토글이 중앙으로 이동함에 따라 이곳에서는 제거 */}
-        </div>
-      </div>
-
-      {/* 4. 중앙 인터랙션 영역 (도형 & 파티클) - PC 전용 Fluid Layout */}
+      {/* 4. 중앙 인터랙션 영역 (도형 & 파티클 & 중앙 집중형 스택) */}
       <div
         style={{
           order: 3, 
@@ -137,7 +108,7 @@ export default function HeroPCView({
           width: '100%', 
           flexShrink: 1,
           flexGrow: 1,
-          minHeight: '30vh',
+          minHeight: '60vh', // 중앙 스택을 위한 높이 확보
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -145,6 +116,76 @@ export default function HeroPCView({
           transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
         }}
       >
+        {/* [V11 Central Spine Engine] - PC 전용 수직 레이아웃 */}
+        <div 
+          className="absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none"
+        >
+          {/* [V11.1 Luminous Aura] - 중앙 스택을 감싸는 신비로운 광배 */}
+          {!isOn && (
+            <div 
+              id="hero-central-aura"
+              className="absolute pointer-events-none opacity-0"
+              style={{
+                width: '100vw',
+                height: '80vh',
+                background: `radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)`,
+                transform: 'translateY(15vh)',
+                filter: 'blur(60px)',
+                zIndex: -1
+              }}
+            />
+          )}
+
+          <div className="flex flex-col items-center gap-16" style={{ transform: 'translateY(18vh)' }}>
+            
+            {/* 4-1. 프레이즈/슬로건 (HeroSlogan 내부에서 ON/OFF 상호 운용) */}
+            <div 
+              id="hero-central-phrase"
+              className="pointer-events-auto opacity-0"
+              style={{ marginBottom: '-2vh' }}
+              onMouseEnter={() => setIsToggleHovered(true)}
+              onMouseLeave={() => setIsToggleHovered(false)}
+            >
+              <HeroSlogan
+                isOn={isOn}
+                isMobile={false}
+                onToggle={handleToggle}
+                isTransitioning={isTransitioning}
+                sentence="불안을 끄고, 기준을 켭니다"
+              />
+            </div>
+
+            {/* 4-2. 스위치 (토글 버튼 + CTA) - 다크모드(OFF)에서만 필요 */}
+            {!isOn && (
+              <div 
+                id="hero-central-toggle-stack"
+                className="flex flex-col items-center gap-0 pointer-events-auto opacity-0"
+                onMouseEnter={() => setIsToggleHovered(true)}
+                onMouseLeave={() => setIsToggleHovered(false)}
+              >
+                <div className="relative z-20">
+                  <HeroToggle
+                    isOn={isOn}
+                    onToggle={handleToggle}
+                    isTransitioning={isTransitioning}
+                    isMobile={false}
+                  />
+                </div>
+                <div className="relative z-10" style={{ marginTop: '-1.8vh' }}>
+                  <HeroOffCta 
+                    isVisible={!isOn} 
+                    isToggleHovered={isToggleHovered}
+                    isMobile={false}
+                    isTransitioning={isTransitioning}
+                    onToggle={handleToggle}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 배경 인터랙션 레이어 (프레이즈, 도형) */}
         <HeroPhraseLayer
           isOn={isOn}
           visible={!showCenteredShapes}
@@ -154,29 +195,6 @@ export default function HeroPCView({
           onCopyVisible={() => setShapesOnRevealed(true)}
           isInteractionActive={isInteractionActive}
         />
-        {!isOn && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <div className="pointer-events-auto flex flex-col items-center gap-2" style={{ transform: 'translateY(15vh)' }}>
-              <HeroOffCta 
-                isVisible={true} 
-                isToggleHovered={isToggleHovered}
-                isMobile={false}
-                isTransitioning={isTransitioning}
-                onToggle={handleToggle}
-              />
-              <div 
-                onMouseEnter={() => setIsToggleHovered(true)}
-                onMouseLeave={() => setIsToggleHovered(false)}
-              >
-                <HeroToggle
-                  isOn={isOn}
-                  onToggle={handleToggle}
-                  isTransitioning={isTransitioning}
-                />
-              </div>
-            </div>
-          </div>
-        )}
         <ShapesStage
           ref={shapesStageRef}
           isOn={isOn} 

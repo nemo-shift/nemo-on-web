@@ -100,3 +100,54 @@ html.custom-cursor-active *::after {
   z-index: 100;
   opacity: 0.4;
 }
+
+/* --- 애니메이션: 로고 도형 숨쉬기 (pulseAbt) --- */
+@keyframes pulseAbt {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px currentColor); }
+  50% { opacity: 0.3; filter: drop-shadow(0 0 8px currentColor); }
+}
+
+.animate-pulse-abt {
+  animation: pulseAbt 2.5s ease-in-out infinite;
+}
+
+.animate-pulse-abt-delayed {
+  animation: pulseAbt 2.5s ease-in-out 0.5s infinite;
+}
+
+@layer utilities {
+  /* --- 히어로 로고 무결성 수동 엔진 (V11 Dual-Axis: font-size 기반) --- */
+  .nemo-logo-engine {
+    /* 1. 데이터 레이어: scale 폐기 → font-size 기반 체급 제어 */
+    --nemo-size: 28px;
+    --nemo-y: -18px;
+
+    /* 2. 물리 레이어: font-size로 도형(em 단위)의 기초 체급 결정 */
+    font-size: var(--nemo-size);
+    translate: 0 var(--nemo-y);
+    
+    transform-origin: center;
+    will-change: translate;
+    transition: font-size 0.2s ease, translate 0.2s ease;
+  }
+
+  /* [Tablet-P] 744px~ */
+  @media (min-width: 744px) {
+    .nemo-logo-engine { --nemo-size: 35px; --nemo-y: -35px; }
+  }
+
+  /* [Tablet-Mid] 992px~ */
+  @media (min-width: 992px) {
+    .nemo-logo-engine { --nemo-size: 42px; --nemo-y: -50px; }
+  }
+
+  /* [Desktop-Wide] 1440px~ */
+  @media (min-width: 1440px) {
+    .nemo-logo-engine { --nemo-size: 63px; --nemo-y: -70px; }
+  }
+
+  /* [Desktop-Cap] 1920px~ (Golden Standard) */
+  @media (min-width: 1920px) {
+    .nemo-logo-engine { --nemo-size: 55px; --nemo-y: -90px; }
+  }
+}
