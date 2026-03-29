@@ -12,7 +12,7 @@ type HeroToggleProps = {
 };
 
 /**
- * HeroToggle 컴포넌트
+ * HeroToggle 스위치 컴포넌트
  *
  * OFF / ON 토글 pill + knob.
  */

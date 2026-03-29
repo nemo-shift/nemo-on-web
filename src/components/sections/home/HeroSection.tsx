@@ -104,8 +104,11 @@ export default function HeroSection({
 
   // 스크램블 완료 핸들러 (와이프 효과 시작)
   const handleScrambleComplete = useCallback(() => {
-    finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback));
-  }, [finalizeTransition]);
+    // [V11.22] PC 버전은 다크모드 액센트(#e8d5b0) 사용, 나머지는 기존 브랜드 틸(#0891b2) 유지
+   // const wipeColor = isPC ? COLORS.HERO.OFF.ACCENT : '#0891b2';
+    const wipeColor = '#0891b2';
+    finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback, wipeColor));
+  }, [finalizeTransition, isPC]);
 
   // [v25.80] 시퀀스 완독 후 스크롤 해제 보정 (수직적 통합)
   useEffect(() => {
@@ -156,13 +159,13 @@ export default function HeroSection({
           width: 0,
           height: 0,
           opacity: 0,
-          background: '#0891b2',
+          background: isPC ? COLORS.HERO.OFF.ACCENT : '#0891b2',
           zIndex: 500,
           pointerEvents: 'none',
           borderRadius: 0,
         }}
       />
-    ) : null, [mounted]);
+    ) : null, [mounted, isPC]);
 
 
   // 공통 Props 묶음
@@ -221,15 +224,18 @@ export default function HeroSection({
           overflow: 'hidden',
         }}
       >
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: 'none',
-          }}
-        />
+        {/* [V11.21] 파티클 캔버스: 오프모드에서만 렌더링, 온모드 진입 시 DOM에서 완전 제거하여 GPU 부하 해소 */}
+        {!isOn && (
+          <canvas
+            ref={canvasRef}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
 
         {/* [v26.98 UI Detail] 램프 이펙트 (다중 레이어 시네마틱 보정) */}
         {!isOn && (

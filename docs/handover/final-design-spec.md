@@ -2,6 +2,32 @@
 
 ---
 
+## [최신] 🏛️ V11.21: Hero Component JIT Isolation Architecture
+
+히어로 섹션의 컴포넌트 라이프사이클을 모드(OFF/ON)에 따라 **물리적으로 완전 격리**하는 설계 표준입니다.
+
+### ⚓ 1. JIT(Just-in-Time) 마운트 전략
+- **오프모드(OFF)**: `HeroPhraseLayer`, `ShapesStage`는 DOM에서 **완전 제거(Unmounted)**. 터치 간섭, SVG 연산, GSAP 바인딩 모두 0%.
+- **전환 시작**: 토글 클릭 직후 `isTransitioning: true`가 되면 `{(isOn || isTransitioning) && ...}` 조건에 의해 마운트. `#hero-nemo-origin` 기준점이 DOM에 생성되어 `buildHeroSwapSequence`가 위치를 정확히 계산.
+- **온모드(ON)**: 전환 완료 후 파티클 캔버스(`{!isOn && <canvas />}`)와 램프 이펙트는 DOM에서 제거. 크림 배경의 순수한 미니멀리즘 확보.
+
+### 🍱 2. 히어로 컴포넌트 소유권 맵 (V11.21)
+| 컴포넌트 | 모드 | 역할 |
+| :--- | :--- | :--- |
+| `HeroSloganOff.tsx` | OFF 전용 | 로테이팅 텍스트 ("흐릿한 [아이디어를...] 작동하는 브랜드로.") |
+| `HeroSloganOn.tsx` | ON 전용 | 단어별 포커스 블러 ("불안을 끄고, 기준을 켭니다") |
+| `HeroPhraseLayer.tsx` | ON + Transitioning | "감성 위에 구조를 더해 당신의 결로" + `#hero-nemo-origin` 앵커 |
+| `ShapesStage.tsx` | ON + Transitioning | 원(감성), 세모(구조), 네모(결) SVG 도형 |
+| `HeroToggle.tsx` | OFF 전용 | ON/OFF 토글 스위치 |
+| `HeroOffCta.tsx` | OFF 전용 | "스위치를 켜고, 브랜드를 켜세요" CTA |
+| `canvas` (파티클) | OFF 전용 | 배경 파티클 캔버스 |
+
+### 🧩 3. 레거시 파일 (삭제 대상)
+- `HeroOffSlogan.tsx`: v6 시절 유산, 프로젝트 어디에서도 미사용 (고아 파일)
+- `HeroSlogan.tsx`: V11.21 이전의 하이브리드 통합 컴포넌트, 3개 뷰에서 더 이상 import하지 않음
+
+---
+
 ## [최신] 🏛️ V11.2: PC Hero 'Switch Pivot' Architecture
 
 PC 환경의 압도적인 첫인상을 위한 **'버티컬 스파인(Vertical Spine)'** 및 **'피벗 타이포그래피(Pivot Typography)'** 설계 표준입니다.

@@ -3,7 +3,8 @@
 import React from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import HeroSlogan from '../HeroSlogan';
+import HeroSloganOff from '../HeroSloganOff';
+import HeroSloganOn from '../HeroSloganOn';
 import HeroToggle from '../HeroToggle';
 import ShapesStage from '../ShapesStage';
 import HeroPhraseLayer from '../HeroPhraseLayer';
@@ -153,11 +154,8 @@ export default function HeroPCView({
                 onMouseLeave={() => setIsToggleHovered(false)}
               >
                 {/* [다크모드 로테이팅 프레이즈] */}
-                <HeroSlogan
-                  isOn={isOn}
+                <HeroSloganOff
                   isMobile={false}
-                  onToggle={handleToggle}
-                  isTransitioning={isTransitioning}
                 />
                 
                 {/* [토글 버튼] */}
@@ -205,11 +203,8 @@ export default function HeroPCView({
                 transform: 'translate(-50%, -50%)'
               }}
             >
-              <HeroSlogan
-                isOn={isOn}
+              <HeroSloganOn
                 isMobile={false}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
                 sentence="불안을 끄고, 기준을 켭니다"
               />
             </div>
@@ -217,24 +212,30 @@ export default function HeroPCView({
         </div>
 
         {/* 배경 인터랙션 레이어 (프레이즈, 도형) */}
-        <HeroPhraseLayer
-          isOn={isOn}
-          visible={!showCenteredShapes}
-          isMobile={false}
-          sequenceStep={sequenceStep}
-          onActiveShapeChange={handleActiveShapeChange}
-          onCopyVisible={() => setShapesOnRevealed(true)}
-          isInteractionActive={isInteractionActive}
-        />
-        <ShapesStage
-          ref={shapesStageRef}
-          isOn={isOn} 
-          isMobile={false}
-          onModeRevealed={shapesOnRevealed}
-          isCentered={showCenteredShapes}
-          sequenceStep={sequenceStep}
-          activeShape={activeShape}
-        />
+        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 전환 시작 또는 온모드에서만 마운트 */}
+        {(isOn || isTransitioning) && (
+          <HeroPhraseLayer
+            isOn={isOn}
+            visible={!showCenteredShapes}
+            isMobile={false}
+            sequenceStep={sequenceStep}
+            onActiveShapeChange={handleActiveShapeChange}
+            onCopyVisible={() => setShapesOnRevealed(true)}
+            isInteractionActive={isInteractionActive}
+          />
+        )}
+        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 온모드에서만 마운트 */}
+        {(isOn || isTransitioning) && (
+          <ShapesStage
+            ref={shapesStageRef}
+            isOn={isOn} 
+            isMobile={false}
+            onModeRevealed={shapesOnRevealed}
+            isCentered={showCenteredShapes}
+            sequenceStep={sequenceStep}
+            activeShape={activeShape}
+          />
+        )}
       </div>
 
       {/* 5. 하단 여백 (PC) */}

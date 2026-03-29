@@ -34,8 +34,10 @@ export default function Header(): React.ReactElement {
           <NemoIcon 
             className="opacity-90 transition-transform group-hover:scale-110"
             style={{ transform: 'translateY(-0.4vw)' }}
-            triangleClassName="border-l-[clamp(3px,0.25vw,4.5px)] border-r-[clamp(3px,0.25vw,4.5px)] border-b-[clamp(4.5px,0.4vw,6.5px)]"
-            circleClassName="w-[clamp(4.5px,0.4vw,6.5px)] h-[clamp(4.5px,0.4vw,6.5px)] border-[1.2px]"
+            triangleColor="#0891b2"
+            circleColor="#0e7490"
+            triangleClassName="animate-nemo-pulse border-l-[clamp(3px,0.25vw,4.5px)] border-r-[clamp(3px,0.25vw,4.5px)] border-b-[clamp(4.5px,0.4vw,6.5px)]"
+            circleClassName="animate-nemo-pulse-delay w-[clamp(4.5px,0.4vw,6.5px)] h-[clamp(4.5px,0.4vw,6.5px)] border-[1.2px]"
             gapClassName="gap-[0.15vw]"
           />
           <span className="font-gmarket font-medium text-[clamp(19px,1.8vw,24px)] tablet:text-[clamp(22px,2vw,32px)] tracking-tighter text-[#0d1a1f]">

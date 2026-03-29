@@ -6,6 +6,8 @@ import { useGSAP } from '@gsap/react';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
 
+
+
 interface HeroOffCtaProps {
   isVisible: boolean;
   isToggleHovered: boolean;
@@ -15,6 +17,11 @@ interface HeroOffCtaProps {
   onToggle?: () => void;
 }
 
+/**
+ * HeroOffCta — OFF 모드 CTA
+ *
+ * 스위치를 켜고, 브랜드를 켜세요
+ */
 const HeroOffCta: React.FC<HeroOffCtaProps> = ({
   isVisible,
   isToggleHovered,
@@ -78,10 +85,10 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
                 fontSize: isMobile ? '2.4rem' : isTablet ? '5.2rem' : '6rem', 
                 transform: isMobile ? 'translateX(-12vw) scaleX(0.8)' : isTablet ? 'translateX(-10vw) scaleX(0.75)' : 'translateX(-8vw) scaleX(0.7)',
                 color: (isToggleHovered || isClearing || isTransitioning)
-                  ? '#FFFFFF'
+                  ? COLORS.TEXT.LIGHT
                   : 'rgba(240, 235, 227, 0.15)',
                 textShadow: (isToggleHovered || isClearing || isTransitioning)
-                  ? '0 0 15px rgba(255, 255, 255, 0.4)'
+                  ? `0 0 15px rgba(240, 235, 227, 0.4)`
                   : 'none',
                 letterSpacing: isMobile ? '0.2em' : isTablet ? '0.15em' : 'normal'
               }}
@@ -97,12 +104,8 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
                 fontSize: isMobile ? '3.0rem' : isTablet ? '6rem' : '7.5rem', 
                 transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : isTablet ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)',
                 marginTop: isMobile ? '-0.2vh' : isTablet ? '-0.1vh' : '-1vh',
-                color: (isToggleHovered || isClearing || isTransitioning || isMobile || isTablet)
-                  ? COLORS.HERO.OFF.ACCENT
-                  : 'rgba(240, 235, 227, 0.25)',
-                textShadow: (isToggleHovered || isClearing || isTransitioning || isMobile || isTablet)
-                  ? `0 0 20px ${COLORS.HERO.OFF.ACCENT}40` // 0.25 alpha approx
-                  : 'none'
+                color: COLORS.HERO.OFF.ACCENT,
+                textShadow: `0 0 20px ${COLORS.HERO.OFF.ACCENT}40`, // 0.25 alpha approx
               }}
             >
               브랜드를 켜세요.

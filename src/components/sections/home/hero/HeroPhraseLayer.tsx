@@ -52,6 +52,11 @@ const PhraseLine = ({
 
 /**
  * HeroPhraseLayer — 프레이즈 3줄 (도형 포함)
+ * 
+ * [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 전환 시작 또는 온모드에서만 마운트
+ * nemo-origin id로 네모 도형을 식별
+ * 감성위에 구조를 더해 당신의 결로
+ * 
  */
 export default function HeroPhraseLayer({
   isOn,

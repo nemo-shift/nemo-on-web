@@ -16,6 +16,27 @@
 
 ---
 
+### [x] [3B] V11.21 히어로 컴포넌트 JIT 격리 패턴 표준화 (2026-03-29 완료)
+
+- **대상**: `HeroPCView.tsx`, `HeroTabletView.tsx`, `HeroMobileView.tsx`, `HeroSection.tsx`
+- **내용**: 오프모드에서 불필요한 컴포넌트(`HeroPhraseLayer`, `ShapesStage`, `canvas`)를 DOM에서 완전 제거하는 JIT(Just-in-Time) 마운트 패턴을 표준화.
+- **성과**: 터치 간섭 0%, GPU 부하 해소, 코드 복잡도 감소.
+- **검증**: `pnpm build` 성공 + 브라우저 테스트로 네모 박스 모핑 애니메이션 무결성 확인.
+
+### [ ] [3C] 레거시 파일 정리 (Legacy Cleanup)
+
+- **대상**: `HeroOffSlogan.tsx`, `HeroSlogan.tsx`
+- **내용**: V11.21 이후 프로젝트에서 더 이상 사용되지 않는 파일 삭제.
+- **주의**: 삭제 전 `grep` 검색으로 사용처가 없음을 재확인.
+
+### [ ] [3D] ShapesStage 내부 오프모드 방어 코드 제거
+
+- **대상**: `ShapesStage.tsx`
+- **내용**: JIT 마운트에 의해 오프모드에서는 컴포넌트 자체가 존재하지 않으므로, 내부의 `if (!isOn) return`, `visibility: isOn ? 'visible' : 'hidden'`, `display: isOn ? 'block' : 'none'` 등의 중복 방어 코드 제거 가능.
+- **목적**: 코드 단순화 및 의도 명확화.
+
+---
+
 ### [3A] 물리 엔진 안정성 표준화 (Physics Stability Pattern)
 
 - **대상**: `src/components/sections/home/FallingKeywordsStage.tsx` 및 향후 물리 효과 컴포넌트

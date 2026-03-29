@@ -3,16 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { RotatingText } from '@/components/ui';
-import { cn } from '@/lib/utils';
 import { COLORS } from '@/constants/colors';
 
-interface HeroSloganProps {
-  isOn: boolean;
+interface HeroSloganOnProps {
   isMobile?: boolean;
   isTablet?: boolean;
-  isTransitioning?: boolean;
-  onToggle?: () => void;
   sentence?: string;
   blurAmount?: number;
   animationDuration?: number;
@@ -20,60 +15,36 @@ interface HeroSloganProps {
 }
 
 /**
- * HeroSlogan 컴포넌트
- * OFF 모드 슬로건(로테이팅 텍스트)과 ON 모드 슬로건(포커스 텍스트)을 통합 관리합니다.
+ * HeroSloganOn 컴포넌트
+ * 온모드(ON) 전용 슬로건 — 단어별 포커스 블러 애니메이션.
+ * 불안을 끄고, 기준을 켭니다
+ * 오프모드(OFF)와 완전히 분리된 독립 컴포넌트.
  */
-const HeroSlogan: React.FC<HeroSloganProps> = ({
-  isOn,
+const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   isMobile = false,
   isTablet = false,
-  onToggle,
   sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
   animationDuration = 0.6,
   pauseBetweenAnimations = 2,
 }) => {
-  // ON 모드용 상태
   const segments = sentence.split(',').map(s => s.trim());
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    if (!isOn) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % segments.length);
     }, (animationDuration + pauseBetweenAnimations) * 1000);
     return () => clearInterval(interval);
-  }, [isOn, animationDuration, pauseBetweenAnimations, segments.length]);
+  }, [animationDuration, pauseBetweenAnimations, segments.length]);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const onSloganRef = React.useRef<HTMLDivElement>(null);
-  const offSloganRef = React.useRef<HTMLDivElement>(null);
   const focusBoxRef = React.useRef<HTMLDivElement>(null);
   const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([]);
 
-
-  // [V16.3] ON/OFF 모드 전환 애니메이션
+  // 단어별 포커스 애니메이션
   useGSAP(() => {
-    if (isOn) {
-      // OFF 모드 페이드아웃 후 ON 모드 페이드인
-      gsap.to(offSloganRef.current, { opacity: 0, y: -10, duration: 0.4, ease: 'power2.inOut', display: 'none' });
-      gsap.fromTo(onSloganRef.current, 
-        { opacity: 0, y: 10, display: 'flex' },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 }
-      );
-    } else {
-      // ON 모드 페이드아웃 후 OFF 모드 페이드인
-      gsap.to(onSloganRef.current, { opacity: 0, y: -10, duration: 0.4, ease: 'power2.inOut', display: 'none' });
-      gsap.fromTo(offSloganRef.current, 
-        { opacity: 0, y: 10, display: 'flex' },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.1 }
-      );
-    }
-  }, { dependencies: [isOn], scope: containerRef });
-
-  // [V16.3] ON 모드 내부 단어별 포커스 애니메이션
-  useGSAP(() => {
-    if (!isOn || !onSloganRef.current) return;
+    if (!containerRef.current) return;
 
     segmentRefs.current.forEach((el, index) => {
       if (!el) return;
@@ -101,64 +72,18 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
     });
 
     // 데코레이티브 라인
-    const decoLine = onSloganRef.current.querySelector('.deco-line');
+    const decoLine = containerRef.current.querySelector('.deco-line');
     if (decoLine) {
       gsap.fromTo(decoLine, 
         { scaleX: 0, opacity: 0 },
         { scaleX: 1, opacity: 0.5, duration: 0.8, delay: 0.3, ease: 'circ.out' }
       );
     }
-  }, { dependencies: [currentIndex, isOn], scope: containerRef });
+  }, { dependencies: [currentIndex], scope: containerRef });
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[120px] flex flex-col justify-start overflow-hidden">
-      {/* --- OFF MODE SLOGAN --- */}
-      <div
-        ref={offSloganRef}
-        className="flex flex-col items-center justify-center text-center gap-1 md:gap-2 pointer-events-auto"
-        style={{
-          fontFamily: 'var(--font-suit), sans-serif',
-          color: COLORS.TEXT.LIGHT,
-          display: !isOn ? 'flex' : 'none'
-        }}
-      >
-        <div 
-          className={cn(
-            "flex flex-wrap items-center gap-x-2 font-light",
-            isMobile ? "justify-start text-left tracking-tight" : "justify-center text-center tracking-[0.12em]"
-          )}
-          style={{ fontSize: isMobile ? '1.1rem' : isTablet ? '2.5rem' : 'clamp(1.4rem, min(1.7vw, 3vh), 2.1rem)' }}
-        >
-          <span className="opacity-50">흐릿한</span>
-          <div 
-            className="font-bold relative flex items-center"
-            style={{ color: COLORS.HERO.OFF.ACCENT }}
-          >
-            <RotatingText
-              texts={['아이디어를', '생각을', '확신을', '방향을']}
-              mainClassName="justify-center inline-flex"
-              staggerDuration={0.04}
-              rotationInterval={3000}
-            />
-          </div>
-        </div>
-        <div
-          className={cn(
-            "font-semibold text-center w-full",
-            isMobile ? "tracking-tighter" : "tracking-[0.05em]"
-          )}
-          style={{ fontSize: isMobile ? '1.62rem' : isTablet ? '3.5rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
-        >
-          작동하는 브랜드로.
-        </div>
-      </div>
-
-      {/* --- ON MODE SLOGAN --- */}
-      <div
-        ref={onSloganRef}
-        className="flex items-center relative"
-        style={{ display: isOn ? 'flex' : 'none' }}
-      >
+      <div className="flex items-center relative">
         <div className="flex items-center relative">
           {/* 공통 포커스 박스 (하나의 엘리먼트가 이동) */}
           <div
@@ -221,4 +146,4 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
   );
 };
 
-export default HeroSlogan;
+export default HeroSloganOn;

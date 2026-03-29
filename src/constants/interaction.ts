@@ -203,7 +203,7 @@ export const LOGO_COLOR_CFG = {
   ON: {
     TEXT: '#0891b2',
     TRIANGLE: '#0891b2',
-    CIRCLE: '#0891b2',
+    CIRCLE: '#0e7490',
     GLOW: 'transparent',
   }
 };

@@ -86,6 +86,9 @@ export default function useParticles(
   }, [isOn]);
 
   useEffect(() => {
+    // [V11.21] 온모드에서는 rAF 루프를 아예 시작하지 않음 — 캔버스 DOM도 없으므로 완전 중단
+    if (isOn) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -151,17 +154,9 @@ export default function useParticles(
 
     const animate = () => {
       const alpha = particleAlphaRef.current;
-      const on = isOnRef.current;
       const gathering = isGatheringRef.current;
 
-      if (on) {
-        // 온모드에서는 캔버스를 완전히 비워 HeroSection의 배경색이 그대로 보이게 하고 불필요한 잔상을 없앰
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        rafRef.current = requestAnimationFrame(animate);
-        return; // 온모드에서는 아래의 파티클 그리기 로직을 수행하지 않음
-      } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (alpha > 0.005) {
         const { x: pmx, y: pmy } = mouseRef.current;
@@ -169,10 +164,7 @@ export default function useParticles(
         const cy = canvas.height / 2;
 
         const g = ctx.createRadialGradient(pmx, pmy, 0, pmx, pmy, 280);
-        g.addColorStop(0, on
-          ? `${COLORS.HERO.ON.ACCENT}10` // 0.06 alpha approx
-          : `${COLORS.HERO.OFF.ACCENT}14` // 0.08 alpha approx
-        );
+        g.addColorStop(0, `${COLORS.HERO.OFF.ACCENT}14`); // 오프모드 전용 (0.08 alpha)
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -185,7 +177,7 @@ export default function useParticles(
             if (d < 110) {
               ctx.save();
               ctx.globalAlpha = (1 - d / 110) * 0.08 * alpha;
-              ctx.strokeStyle = on ? COLORS.HERO.ON.ACCENT : COLORS.TEXT.LIGHT;
+              ctx.strokeStyle = COLORS.TEXT.LIGHT; // 오프모드 전용
               ctx.lineWidth = 0.4;
               ctx.beginPath();
               ctx.moveTo(ptsRef.current[i].x, ptsRef.current[i].y);
@@ -213,8 +205,8 @@ export default function useParticles(
               p.vx += (dx / d) * 0.08;
               p.vy += (dy / d) * 0.08;
             }
-            p.vx *= on ? 0.7 : 0.98; // 온모드 진입 시(fade out) 속도 빠르게 감쇄
-            p.vy *= on ? 0.7 : 0.98;
+            p.vx *= 0.98; // 오프모드 전용 감쇄
+            p.vy *= 0.98;
           }
           
           p.x += p.vx;
@@ -258,7 +250,7 @@ export default function useParticles(
       window.removeEventListener('touchmove', handleTouch);
       window.removeEventListener('resize', handleResize);
     };
-  }, [canvasRef]);
+  }, [canvasRef, isOn]);
 
   return { particleAlpha };
 }

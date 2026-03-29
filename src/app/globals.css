@@ -103,8 +103,8 @@ html.custom-cursor-active *::after {
 
 /* --- 애니메이션: 로고 도형 숨쉬기 (pulseAbt) --- */
 @keyframes pulseAbt {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px currentColor); }
-  50% { opacity: 0.3; filter: drop-shadow(0 0 8px currentColor); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .animate-pulse-abt {
@@ -150,4 +150,17 @@ html.custom-cursor-active *::after {
   @media (min-width: 1920px) {
     .nemo-logo-engine { --nemo-size: 55px; --nemo-y: -90px; }
   }
+}
+
+
+/* [V11.23] NemoIcon Pulse Animation */
+@keyframes nemo-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.animate-nemo-pulse {
+  animation: nemo-pulse 2.5s ease-in-out infinite;
+}
+.animate-nemo-pulse-delay {
+  animation: nemo-pulse 2.5s ease-in-out 0.5s infinite;
 }

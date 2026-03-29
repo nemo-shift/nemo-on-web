@@ -3,7 +3,8 @@
 import React from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import HeroSlogan from '../HeroSlogan';
+import HeroSloganOff from '../HeroSloganOff';
+import HeroSloganOn from '../HeroSloganOn';
 import HeroToggle from '../HeroToggle';
 import ShapesStage from '../ShapesStage';
 import HeroPhraseLayer from '../HeroPhraseLayer';
@@ -108,15 +109,18 @@ export default function HeroMobileView({
           transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
         }}
       >
-        <HeroPhraseLayer
-          isOn={isOn}
-          visible={!showCenteredShapes}
-          isMobile={true}
-          sequenceStep={sequenceStep}
-          onActiveShapeChange={handleActiveShapeChange}
-          onCopyVisible={() => setShapesOnRevealed(true)}
-          isInteractionActive={isInteractionActive}
-        />
+        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 전환 시작 또는 온모드에서만 마운트 */}
+        {(isOn || isTransitioning) && (
+          <HeroPhraseLayer
+            isOn={isOn}
+            visible={!showCenteredShapes}
+            isMobile={true}
+            sequenceStep={sequenceStep}
+            onActiveShapeChange={handleActiveShapeChange}
+            onCopyVisible={() => setShapesOnRevealed(true)}
+            isInteractionActive={isInteractionActive}
+          />
+        )}
 
         {/* [V11.6 3-Tier Layering] - 모바일 독립 레이아웃 */}
         {!isOn && (
@@ -136,11 +140,8 @@ export default function HeroMobileView({
               onMouseEnter={() => setIsToggleHovered(true)}
               onMouseLeave={() => setIsToggleHovered(false)}
             >
-              <HeroSlogan
-                isOn={isOn}
+              <HeroSloganOff
                 isMobile={true}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
               />
               
               <div
@@ -191,25 +192,25 @@ export default function HeroMobileView({
               padding: '0 20px'
             }}
           >
-            <HeroSlogan
-              isOn={isOn}
+            <HeroSloganOn
               isMobile={true}
-              onToggle={handleToggle}
-              isTransitioning={isTransitioning}
               sentence="불안을 끄고, 기준을 켭니다"
             />
           </div>
         )}
 
-        <ShapesStage
-          ref={shapesStageRef}
-          isOn={isOn} 
-          isMobile={true}
-          onModeRevealed={shapesOnRevealed}
-          isCentered={showCenteredShapes}
-          sequenceStep={sequenceStep}
-          activeShape={activeShape}
-        />
+        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 온모드에서만 마운트 */}
+        {(isOn || isTransitioning) && (
+          <ShapesStage
+            ref={shapesStageRef}
+            isOn={isOn} 
+            isMobile={true}
+            onModeRevealed={shapesOnRevealed}
+            isCentered={showCenteredShapes}
+            sequenceStep={sequenceStep}
+            activeShape={activeShape}
+          />
+        )}
       </div>
 
       <div className="flex-1" style={{ order: 4, minHeight: '10px' }} />

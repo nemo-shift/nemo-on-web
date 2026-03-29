@@ -1,3 +1,5 @@
+import gsap from 'gsap';
+
 /**
  * 와이프 전환 애니메이션
  * 틸 사각형이 중앙에서 확장 → onDone 콜백 → 박스 fade out
@@ -13,7 +15,7 @@ function easeInOutCubic(t: number): number {
 /**
  * 와이프 박스에 확장 애니메이션 실행 후 onDone 호출
  */
-export function runWipeTransition(box: HTMLDivElement | null, onDone: () => void): void {
+export function runWipeTransition(box: HTMLDivElement | null, onDone: () => void, color: string = WIPE_COLOR): void {
   if (!box) {
     onDone();
     return;
@@ -25,7 +27,7 @@ export function runWipeTransition(box: HTMLDivElement | null, onDone: () => void
     transform:translate(-50%,-50%);
     transition:none;
     width:0; height:0; opacity:1;
-    background:${WIPE_COLOR};
+    background:${color};
     border-radius:0;
     z-index:500;
     pointer-events:none;
@@ -43,14 +45,21 @@ export function runWipeTransition(box: HTMLDivElement | null, onDone: () => void
     if (t < 1) {
       requestAnimationFrame(expand);
     } else {
+      // 1. 배경 전환(onDone) 즉시 실행
       onDone();
-      setTimeout(() => {
-        box.style.transition = 'opacity 0.4s ease';
-        box.style.opacity = '0';
-        setTimeout(() => {
-          box.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;opacity:0;background:${WIPE_COLOR};border-radius:0;z-index:500;pointer-events:none;`;
-        }, 420);
-      }, 140);
+
+      // 2. [V11.23] GSAP을 이용한 시네마틱 페이드아웃
+      // 0.15초 대기 후 0.6초간 부드럽게 사라짐
+      gsap.to(box, {
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.inOut',
+        delay: 0.15,
+        onComplete: () => {
+          // 3. 완전히 사라진 후 초기화
+          box.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;opacity:0;background:${color};border-radius:0;z-index:500;pointer-events:none;`;
+        }
+      });
     }
   };
 

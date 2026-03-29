@@ -1,5 +1,20 @@
 <!-- [DOCUMENTATION POLICY] 본 문서는 스택(Stack) 방식으로 관리됩니다. 최신 성과는 항상 상단에 배치하며, 과거 히스토리는 지우지 않고 하단으로 밀어내어 프로젝트의 발전 과정을 보존합니다. -->
 
+## [최신] 🚀 2026-03-29 (3): V11.21 히어로 컴포넌트 JIT 격리 및 자원 최적화
+
+히어로 섹션의 OFF/ON 컴포넌트를 물리적으로 완전 분리하고, 오프모드에서 불필요한 DOM 노드를 원천 제거하여 터치 간섭 0% 및 성능 최적화를 달성했습니다.
+
+### 💎 주요 달성 성과 (V11.21 - JIT Isolation)
+- **Slogan Physical Separation**: `HeroSlogan.tsx`(하이브리드)를 `HeroSloganOff.tsx`(OFF 전용)와 `HeroSloganOn.tsx`(ON 전용)으로 완전 분리하여 레이어 간섭 원천 차단.
+- **JIT(Just-in-Time) Mount Strategy**: `HeroPhraseLayer`와 `ShapesStage`를 `{(isOn || isTransitioning) && ...}` 조건으로 감싸 오프모드에서는 DOM에서 완전 제거(Unmounted). 토글 클릭 직후에만 찰나의 차이로 마운트되어 `#hero-nemo-origin` 기준점 제공.
+- **Canvas Cleanup**: 파티클 캔버스를 `{!isOn && <canvas />}` 조건으로 온모드 진입 시 DOM에서 완전 제거하여 GPU 부하 해소.
+- **Legacy Identification**: `HeroOffSlogan.tsx`가 프로젝트 어디에서도 사용되지 않는 고아 파일(Orphan)임을 확인 — 삭제 대상.
+
+### 🧩 V11.21 향후 정리 과제
+- [ ] **레거시 파일 삭제**: `HeroOffSlogan.tsx`, `HeroSlogan.tsx` 제거 검토
+- [ ] **ShapesStage 내부 방어 코드 제거**: JIT 마운트에 의해 오프모드 가드(`if (!isOn) return` 등)가 불필요해짐
+
+
 ## 🚀 2026-03-29 (2): ON 모드 슬로건 무결성 복구 및 히어로 레이어 위계(z-index) 정밀 튜닝
 
 모드 전환 시 발생하던 슬로건 유실 문제를 근본적으로 해결하고, 다크모드의 시각적 깊이감을 완성했습니다.

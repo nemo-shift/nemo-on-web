@@ -104,7 +104,6 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
           ref={shapesRef}
           className="flex items-center justify-center child-nemo-logo-engine"
           style={{ 
-            filter: `drop-shadow(0 0 8px ${activeLogoColors.GLOW})`,
             willChange: 'transform'
           }}
         >
@@ -114,8 +113,8 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
             )}
             triangleColor={activeLogoColors.TRIANGLE}
             circleColor={activeLogoColors.CIRCLE}
-            triangleStyle={{ animation: !isOn ? 'pulseAbt 2.5s ease-in-out infinite' : undefined }}
-            circleStyle={{ animation: !isOn ? 'pulseAbt 2.5s ease-in-out 0.5s infinite' : undefined }}
+            triangleStyle={{ animation: 'pulseAbt 2.5s ease-in-out infinite' }}
+            circleStyle={{ animation: 'pulseAbt 2.5s ease-in-out 0.5s infinite' }}
             triangleClassName="border-l-[0.35em] border-r-[0.35em] border-b-[0.55em] transform -translate-y-[0.05em]"
             circleClassName="w-[0.55em] h-[0.55em] border-[0.12em]"
             gapClassName={cn(

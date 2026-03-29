@@ -1,5 +1,19 @@
 <!-- [DOCUMENTATION POLICY] 본 문서는 스택(Stack) 방식으로 관리됩니다. 최신 성과는 항상 상단에 배치하며, 과거 히스토리는 지우지 않고 하단으로 밀어내어 프로젝트의 발전 과정을 보존합니다. -->
 
+## [최신] ✅ 2026-03-29 (3): V11.21 히어로 컴포넌트 JIT 격리 아키텍처 확립
+
+히어로 섹션의 OFF/ON 컴포넌트를 **물리적으로 완전 분리(Physical Isolation)**하여, 오프모드에서 DOM에 불필요한 노드가 0개인 최적 상태를 달성했습니다.
+
+### 💎 주요 달성 성과 (V11.21)
+- **Component Lifecycle Control**: `HeroPhraseLayer`, `ShapesStage`를 오프모드에서 DOM 완전 제거(Unmounted). `{(isOn || isTransitioning) && ...}` 조건으로 전환 시작 시에만 JIT 마운트.
+- **Slogan Decoupling**: `HeroSlogan.tsx`(하이브리드)를 `HeroSloganOff.tsx`(OFF 전용) + `HeroSloganOn.tsx`(ON 전용)으로 분리하여 레이어 간섭 및 코드 복잡도 해소.
+- **GPU Resource Cleanup**: 파티클 캔버스를 `{!isOn && <canvas />}` 조건으로 온모드 진입 시 DOM에서 완전 제거.
+- **Animation Integrity Verified**: `buildHeroSwapSequence`의 `#hero-nemo-origin` 참조가 JIT 마운트 환경에서도 정상 작동함을 빌드 및 브라우저 테스트로 검증 완료.
+
+### 🔄 다음 작업 방향: "Legacy Cleanup & Content Infusion"
+레거시 파일(`HeroOffSlogan.tsx`, `HeroSlogan.tsx`) 정리 후, 안정화된 히어로 아키텍처 위에 실제 콘텐츠 주입 단계로 진입.
+
+
 ## ✅ 2026-03-29 (2): ON 모드 슬로건 무결성 회복 및 다크모드 입체적 레이어링 정립
 온 모드에서 유실되었던 '트루 포커스' 슬로건을 성공적으로 복구하고, 다크모드의 시네마틱한 깊이감을 위해 토글 스위치와 거대 슬로건 간의 레이어 위계(z-index)를 명확히 했습니다. 
 
