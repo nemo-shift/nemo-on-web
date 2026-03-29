@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import HeroSlogan from '../HeroSlogan';
 import HeroToggle from '../HeroToggle';
 import ShapesStage from '../ShapesStage';
@@ -40,9 +42,34 @@ export default function HeroMobileView({
   tcRef,
   shapesStageRef,
 }: HeroViewProps) {
+
+  // [V11.6 Mobile Entry] - 모바일 시네마틱 입차 애니메이션
+  useGSAP(() => {
+    if (isOn) return;
+
+    const tl = gsap.timeline({ delay: 0.3 });
+    
+    tl.fromTo([
+      "#hero-mobile-central-action-group",
+      "#hero-mobile-bottom-message-layer"
+    ], 
+    { 
+      opacity: 0, 
+      y: -10 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1.0,
+      stagger: 0.2,
+      ease: "power2.out"
+    }, 0.2);
+
+  }, { dependencies: [isOn] });
+
   return (
     <>
-      {/* 1. 상단 스페이서 (Mobile: 고정 위치 확보용) */}
+      {/* 1. 상단 스페이서 (Mobile: 로고 앵커 보존) */}
       <div style={{ 
         minHeight: isOn ? '16vh' : '10vh', 
         flexShrink: 0, 
@@ -50,7 +77,7 @@ export default function HeroMobileView({
         transition: 'min-height 0.7s ease',
         position: 'relative'
       }}>
-        {/* [V4.3 Editorial] 모바일 로고 빅 타이포 앵커 - 슬로건 이동과 상관없이 상단 고정 */}
+        {/* [V4.3 Editorial] 모바일 로고 빅 타이포 앵커 - 기존 위치 고수 */}
         <div 
           id="hero-logo-anchor" 
           className="invisible pointer-events-none" 
@@ -64,37 +91,7 @@ export default function HeroMobileView({
         />
       </div>
 
-      {/* 2. 슬로건 영역 (tcRef) */}
-      <div
-        ref={tcRef}
-        className="w-full flex-shrink-0 px-5"
-        style={{
-          position: isOn ? 'absolute' : 'relative',
-          bottom: isOn ? '60px' : 'auto',
-          left: 0,
-          zIndex: 30,
-          order: isOn ? 10 : 2,
-          opacity: showCenteredShapes ? 0 : 1,
-          transition: 'opacity 0.5s ease',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          gap: '24px',
-          pointerEvents: 'none'
-        }}
-      >
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <HeroSlogan
-            isOn={isOn}
-            isMobile={true}
-            onToggle={handleToggle}
-            isTransitioning={isTransitioning}
-            sentence="불안을 끄고, 기준을 켭니다"
-          />
-        </div>
-      </div>
-
-      {/* 3. 중앙 인터랙션 영역 */}
+      {/* 2. 중앙 인터랙션 영역 (독립 레이어 구조) */}
       <div
         style={{
           order: 3, 
@@ -103,12 +100,11 @@ export default function HeroMobileView({
           width: '100%', 
           flexShrink: 1,
           flexGrow: 1,
-          minHeight: '320px',
+          minHeight: '40vh',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           pointerEvents: 'none',
-          transform: isOn ? 'translateY(-20px)' : 'none',
           transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
         }}
       >
@@ -121,12 +117,56 @@ export default function HeroMobileView({
           onCopyVisible={() => setShapesOnRevealed(true)}
           isInteractionActive={isInteractionActive}
         />
+
+        {/* [V11.6 3-Tier Layering] - 모바일 독립 레이아웃 */}
         {!isOn && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
-            style={{ transform: 'translateY(-30px)' }}
-          >
-            <div className="pointer-events-auto flex flex-col items-center gap-2">
+          <>
+            {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) - 화면 정중앙 50% 정박 */}
+            <div 
+              id="hero-mobile-central-action-group"
+              className="absolute flex flex-col items-center gap-[0.5vh] pointer-events-auto opacity-0"
+              style={{ 
+                top: '48%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '100%',
+                padding: '0 20px',
+                zIndex: 100
+              }}
+              onMouseEnter={() => setIsToggleHovered(true)}
+              onMouseLeave={() => setIsToggleHovered(false)}
+            >
+              <HeroSlogan
+                isOn={isOn}
+                isMobile={true}
+                onToggle={handleToggle}
+                isTransitioning={isTransitioning}
+              />
+              
+              <div
+                className="relative z-50"
+                style={{ marginTop: '0vh' }}
+              >
+                <HeroToggle
+                  isOn={isOn}
+                  onToggle={handleToggle}
+                  isTransitioning={isTransitioning}
+                  isMobile={true}
+                />
+              </div>
+            </div>
+
+            {/* 2. 하단 메시지 레이어 (영어 슬로건) - 화면 하단 8vh 정박 */}
+            <div 
+              id="hero-mobile-bottom-message-layer"
+              className="absolute flex flex-col items-center pointer-events-auto opacity-0"
+              style={{ 
+                bottom: '-25vh', 
+                left: '50%', 
+                transform: 'translateX(-50%)',
+                width: '100%'
+              }}
+            >
               <HeroOffCta 
                 isVisible={true} 
                 isToggleHovered={isToggleHovered}
@@ -134,19 +174,33 @@ export default function HeroMobileView({
                 isTransitioning={isTransitioning}
                 onToggle={handleToggle}
               />
-              <div
-                onMouseEnter={() => setIsToggleHovered(true)}
-                onMouseLeave={() => setIsToggleHovered(false)}
-              >
-                <HeroToggle
-                  isOn={isOn}
-                  onToggle={handleToggle}
-                  isTransitioning={isTransitioning}
-                />
-              </div>
             </div>
+          </>
+        )}
+
+        {/* [온모드 전용] - 오직 트루 포커스 프레이즈만 정중앙 노출 */}
+        {isOn && (
+          <div 
+            id="hero-mobile-on-center-phrase"
+            className="absolute pointer-events-auto"
+            style={{ 
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
+              padding: '0 20px'
+            }}
+          >
+            <HeroSlogan
+              isOn={isOn}
+              isMobile={true}
+              onToggle={handleToggle}
+              isTransitioning={isTransitioning}
+              sentence="불안을 끄고, 기준을 켭니다"
+            />
           </div>
         )}
+
         <ShapesStage
           ref={shapesStageRef}
           isOn={isOn} 
@@ -158,8 +212,8 @@ export default function HeroMobileView({
         />
       </div>
 
-      <div className="flex-1" style={{ order: 4, minHeight: '20px' }} />
-      <div style={{ order: 5, flexShrink: 0, minHeight: '60px', height: '60px' }} />
+      <div className="flex-1" style={{ order: 4, minHeight: '10px' }} />
+      <div style={{ order: 5, flexShrink: 0, minHeight: '40px', height: '40px' }} />
     </>
   );
 }

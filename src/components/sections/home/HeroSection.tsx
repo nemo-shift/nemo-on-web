@@ -53,6 +53,8 @@ export default function HeroSection({
     isTablet,
     isPC,
     isMobileView,
+    isTabletPortrait,
+    isInitialized,
     sequenceStep,
     isGathering,
     shapesOnRevealed,
@@ -73,6 +75,25 @@ export default function HeroSection({
   const tcRef = useRef<HTMLDivElement | null>(null);
   const shapesStageRef = useRef<HTMLDivElement | null>(null);
   const wipeRef = useRef<HTMLDivElement>(null);
+
+  // [V11.17 Global Touch Management - Intelligent Hold]
+  const touchTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleGlobalTouchStart = useCallback(() => {
+    if (isOn || isTransitioning) return;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    setIsToggleHovered(true);
+  }, [isOn, isTransitioning, setIsToggleHovered]);
+
+  const handleGlobalTouchEnd = useCallback(() => {
+    if (isOn || isTransitioning) return;
+    
+    // 떼는 순간부터 0.8초 뒤에 꺼짐 (여운 효과)
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      setIsToggleHovered(false);
+    }, 800);
+  }, [isOn, isTransitioning, setIsToggleHovered]);
 
   useParticles(canvasRef, isOn, isGathering);
 
@@ -183,6 +204,8 @@ export default function HeroSection({
       <section
         id={id}
         className="hero-content-layer"
+        onTouchStart={handleGlobalTouchStart}
+        onTouchEnd={handleGlobalTouchEnd}
         style={{
           ...cssVars,
           position: 'relative',
@@ -260,10 +283,13 @@ export default function HeroSection({
           }}
         />
 
-        {/* [v26.24] 디바이스별 독립 레이아웃 분기 */}
-        {/* [v1.6] 992px 기준 전역 이원화 레이아웃 채택 (중복 차단) */}
-        {isMobileView ? (
+        {/* [v26.98 UI Detail] 초기화 보호 가드: 기기 판정(isInitialized)이 완료된 후에만 정확한 뷰를 노출하여 새로고침 시 위치 튐 방지 */}
+        {!isInitialized ? (
+          <div className="flex-1 w-full bg-[var(--bg)]" />
+        ) : isMobile ? (
           <HeroMobileView {...viewProps} />
+        ) : isTabletPortrait ? (
+          <HeroTabletView {...viewProps} />
         ) : (
           <HeroPCView {...viewProps} />
         )}

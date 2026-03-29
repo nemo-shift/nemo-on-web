@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import HeroSlogan from '../HeroSlogan';
 import HeroToggle from '../HeroToggle';
 import ShapesStage from '../ShapesStage';
@@ -40,7 +42,31 @@ export default function HeroTabletView({
   tcRef,
   shapesStageRef,
 }: HeroViewProps) {
-  // 태블릿은 PC 레이아웃을 기반으로 하되, 여백과 크기를 조정함
+  
+  // [V11.6 Tablet Entry] - 태블릿 시네마틱 입차 애니메이션
+  useGSAP(() => {
+    if (isOn) return;
+
+    const tl = gsap.timeline({ delay: 0.4 });
+    
+    tl.fromTo([
+      "#hero-tablet-central-action-group",
+      "#hero-tablet-bottom-message-layer"
+    ], 
+    { 
+      opacity: 0, 
+      y: -15 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      stagger: 0.3,
+      ease: "power3.out"
+    }, 0.2);
+
+  }, { dependencies: [isOn] });
+
   return (
     <>
       <div style={{ 
@@ -51,86 +77,6 @@ export default function HeroTabletView({
       }} />
 
       <div
-        ref={tcRef}
-        className="w-full flex-shrink-0"
-        style={{
-          position: isOn ? 'absolute' : 'relative',
-          bottom: isOn ? '10vh' : 'auto',
-          left: 0,
-          zIndex: 30,
-          order: isOn ? 10 : 5,
-          marginTop: isOn ? '0' : '2vh',
-          marginBottom: isOn ? '0' : '4vh',
-          opacity: showCenteredShapes ? 0 : 1,
-          transition: 'opacity 0.5s ease, order 0.7s ease, transform 0.7s ease, bottom 0.7s ease',
-          minHeight: isOn ? 'auto' : '8vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          gap: '1.5vh',
-          pointerEvents: 'none'
-        }}
-      >
-        <div 
-          className="px-[40px]" 
-          style={{ 
-            position: 'relative',
-            width: '100%',
-            marginTop: isOn ? '4vh' : '0',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            pointerEvents: 'none',
-            zIndex: 100,
-            flexShrink: 0
-          }}
-        >
-          <div 
-            className="relative flex-shrink-0" 
-            style={{ 
-              width: '100%', 
-              maxWidth: '550px',
-              height: '110px',
-              pointerEvents: 'auto',
-              display: 'flex',
-              justifyContent: 'flex-start'
-            }}
-          >
-            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-              <HeroSlogan
-                isOn={isOn}
-                isMobile={false} // 태블릿은 텍스트 줄바꿈 등 PC형 유지
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
-                sentence="불안을 끄고, 기준을 켭니다"
-              />
-            </div>
-          </div>
-
-          {!isOn && (
-            <div 
-              className="flex-shrink-0" 
-              style={{ 
-                position: 'relative',
-                marginTop: '-10px',
-                zIndex: 50,
-                pointerEvents: 'auto',
-              }}
-              onMouseEnter={() => setIsToggleHovered(true)}
-              onMouseLeave={() => setIsToggleHovered(false)}
-            >
-              <HeroToggle
-                isOn={isOn}
-                onToggle={handleToggle}
-                isTransitioning={isTransitioning}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div
         style={{
           order: 3, 
           position: 'relative',
@@ -138,7 +84,7 @@ export default function HeroTabletView({
           width: '100%', 
           flexShrink: 1,
           flexGrow: 1,
-          minHeight: '25vh',
+          minHeight: '40vh',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -155,19 +101,92 @@ export default function HeroTabletView({
           onCopyVisible={() => setShapesOnRevealed(true)}
           isInteractionActive={isInteractionActive}
         />
+
+        {/* [V11.6 3-Tier Layering] - 태블릿 독립 레이아웃 */}
         {!isOn && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <div className="pointer-events-auto">
+          <>
+            {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) - 화면 정중앙 50% 정박 */}
+            <div 
+              id="hero-tablet-central-action-group"
+              className="absolute flex flex-col items-center gap-[4vh] pointer-events-auto opacity-0"
+              style={{ 
+                top: '65%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '100%',
+                padding: '0 40px',
+                zIndex: 100
+              }}
+              onMouseEnter={() => setIsToggleHovered(true)}
+              onMouseLeave={() => setIsToggleHovered(false)}
+            >
+              <HeroSlogan
+                isOn={isOn}
+                isMobile={false}
+                isTablet={true}
+                onToggle={handleToggle}
+                isTransitioning={isTransitioning}
+              />
+              
+              <div 
+                className="relative z-50"
+                style={{ marginTop: '4vh' }}
+              >
+                <HeroToggle
+                  isOn={isOn}
+                  onToggle={handleToggle}
+                  isTransitioning={isTransitioning}
+                  isTablet={true}
+                />
+              </div>
+            </div>
+
+            {/* 2. 하단 베이스라인 레이어 (영어 슬로건) - 화면 하단 12vh 정박 */}
+            <div 
+              id="hero-tablet-bottom-message-layer"
+              className="absolute flex flex-col items-center pointer-events-auto opacity-0"
+              style={{ 
+                bottom: '-30vh', 
+                left: '50%', 
+                transform: 'translateX(-50%)'
+              }}
+            >
               <HeroOffCta 
                 isVisible={true} 
                 isToggleHovered={isToggleHovered}
                 isMobile={false}
+                isTablet={true}
                 isTransitioning={isTransitioning}
                 onToggle={handleToggle}
               />
             </div>
+          </>
+        )}
+
+        {/* [온모드 전용] - 오직 트루 포커스 프레이즈만 정중앙 노출 */}
+        {isOn && (
+          <div 
+            id="hero-tablet-on-center-phrase"
+            className="absolute pointer-events-auto"
+            style={{ 
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
+              padding: '0 40px'
+            }}
+          >
+            <HeroSlogan
+              isOn={isOn}
+              isMobile={false}
+              isTablet={true}
+              onToggle={handleToggle}
+              isTransitioning={isTransitioning}
+              sentence="불안을 끄고, 기준을 켭니다"
+            />
           </div>
         )}
+
         <ShapesStage
           ref={shapesStageRef}
           isOn={isOn} 

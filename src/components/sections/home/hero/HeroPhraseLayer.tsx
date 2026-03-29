@@ -20,12 +20,14 @@ const PhraseLine = ({
   visible, 
   baseColor, 
   children, 
-  isMobile = false 
+  isMobile = false,
+  isOn = false
 }: { 
   visible: boolean; 
   baseColor: string; 
   children: React.ReactNode; 
   isMobile?: boolean;
+  isOn?: boolean;
 }) => (
   <div
     style={{
@@ -41,7 +43,7 @@ const PhraseLine = ({
       display: 'flex',
       alignItems: 'center',
       gap: '0.1em',
-      pointerEvents: 'auto',
+      pointerEvents: isOn ? 'auto' : 'none',
     }}
   >
     {children}
@@ -113,7 +115,7 @@ export default function HeroPhraseLayer({
   return (
     <div style={containerStyle}>
       <div style={innerWrapperStyle}>
-        <PhraseLine isMobile={isMobile} visible={lineVisible[0]} baseColor={baseColor}>
+        <PhraseLine isMobile={isMobile} isOn={isOn} visible={lineVisible[0]} baseColor={baseColor}>
           <span 
             onMouseEnter={() => !isMobile && sequenceStep >= 4 && onActiveShapeChange?.('circle')}
             onMouseLeave={() => !isMobile && onActiveShapeChange?.('all')}
@@ -122,7 +124,7 @@ export default function HeroPhraseLayer({
             style={{ 
               color: circleColor, 
               transition: 'color .7s ease',
-              pointerEvents: 'auto',
+              pointerEvents: isOn ? 'auto' : 'none',
               cursor: sequenceStep >= 4 ? 'pointer' : 'default',
               padding: isMobile ? '0 4px' : '0'
             }}
@@ -132,7 +134,7 @@ export default function HeroPhraseLayer({
           <span>위에</span>
         </PhraseLine>
 
-        <PhraseLine isMobile={isMobile} visible={lineVisible[1]} baseColor={baseColor}>
+        <PhraseLine isMobile={isMobile} isOn={isOn} visible={lineVisible[1]} baseColor={baseColor}>
           <span 
             onMouseEnter={() => !isMobile && sequenceStep >= 4 && onActiveShapeChange?.('triangle')}
             onMouseLeave={() => !isMobile && onActiveShapeChange?.('all')}
@@ -141,7 +143,7 @@ export default function HeroPhraseLayer({
             style={{ 
               color: triColor, 
               transition: 'color .7s ease',
-              pointerEvents: 'auto',
+              pointerEvents: isOn ? 'auto' : 'none',
               cursor: sequenceStep >= 4 ? 'pointer' : 'default',
               padding: isMobile ? '0 4px' : '0'
             }}
@@ -151,7 +153,7 @@ export default function HeroPhraseLayer({
           <span>를 더해</span>
         </PhraseLine>
 
-        <PhraseLine isMobile={isMobile} visible={lineVisible[2]} baseColor={baseColor}>
+        <PhraseLine isMobile={isMobile} isOn={isOn} visible={lineVisible[2]} baseColor={baseColor}>
           <span>당신의</span>
           <span
             id="hero-nemo-origin"
@@ -175,7 +177,7 @@ export default function HeroPhraseLayer({
               overflow: 'hidden',
               transition: 'background 0.3s ease, color 0.3s ease',
               cursor: sequenceStep >= 4 ? 'pointer' : 'default',
-              pointerEvents: 'auto',
+              pointerEvents: isOn ? 'auto' : 'none',
               margin: isMobile ? '0 4px' : '0'
             }}
           >

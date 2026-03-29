@@ -237,7 +237,16 @@ export default function useParticles(
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
+
+    const handleTouch = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchstart', handleTouch, { passive: true });
+    window.addEventListener('touchmove', handleTouch, { passive: true });
 
     const handleResize = () => setSize();
     window.addEventListener('resize', handleResize);
@@ -245,6 +254,8 @@ export default function useParticles(
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchstart', handleTouch);
+      window.removeEventListener('touchmove', handleTouch);
       window.removeEventListener('resize', handleResize);
     };
   }, [canvasRef]);

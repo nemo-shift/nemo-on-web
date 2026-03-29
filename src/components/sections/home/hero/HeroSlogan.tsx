@@ -10,6 +10,7 @@ import { COLORS } from '@/constants/colors';
 interface HeroSloganProps {
   isOn: boolean;
   isMobile?: boolean;
+  isTablet?: boolean;
   isTransitioning?: boolean;
   onToggle?: () => void;
   sentence?: string;
@@ -25,6 +26,7 @@ interface HeroSloganProps {
 const HeroSlogan: React.FC<HeroSloganProps> = ({
   isOn,
   isMobile = false,
+  isTablet = false,
   onToggle,
   sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
@@ -49,12 +51,6 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
   const focusBoxRef = React.useRef<HTMLDivElement>(null);
   const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([]);
 
-  const handleMobileClick = () => {
-    if (!isMobile || isOn) return;
-    setTimeout(() => {
-      onToggle?.();
-    }, 150);
-  };
 
   // [V16.3] ON/OFF 모드 전환 애니메이션
   useGSAP(() => {
@@ -119,21 +115,19 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
       {/* --- OFF MODE SLOGAN --- */}
       <div
         ref={offSloganRef}
-        className="flex flex-col items-start justify-center text-left gap-1 md:gap-2 pointer-events-auto"
+        className="flex flex-col items-center justify-center text-center gap-1 md:gap-2 pointer-events-auto"
         style={{
           fontFamily: 'var(--font-suit), sans-serif',
           color: COLORS.TEXT.LIGHT,
-          cursor: isMobile ? 'pointer' : 'default',
           display: !isOn ? 'flex' : 'none'
         }}
-        onClick={handleMobileClick}
       >
         <div 
           className={cn(
             "flex flex-wrap items-center gap-x-2 font-light",
             isMobile ? "justify-start text-left tracking-tight" : "justify-center text-center tracking-[0.12em]"
           )}
-          style={{ fontSize: isMobile ? '1.1rem' : 'clamp(1.2rem, min(1.33vw, 2.5vh), 1.8rem)' }}
+          style={{ fontSize: isMobile ? '1.1rem' : isTablet ? '2.5rem' : 'clamp(1.4rem, min(1.7vw, 3vh), 2.1rem)' }}
         >
           <span className="opacity-50">흐릿한</span>
           <div 
@@ -142,7 +136,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
           >
             <RotatingText
               texts={['아이디어를', '생각을', '확신을', '방향을']}
-              mainClassName="justify-start inline-flex"
+              mainClassName="justify-center inline-flex"
               staggerDuration={0.04}
               rotationInterval={3000}
             />
@@ -150,10 +144,10 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
         </div>
         <div
           className={cn(
-            "font-semibold",
-            isMobile ? "text-left tracking-tighter" : "text-center w-full tracking-[0.05em]"
+            "font-semibold text-center w-full",
+            isMobile ? "tracking-tighter" : "tracking-[0.05em]"
           )}
-          style={{ fontSize: isMobile ? '1.62rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
+          style={{ fontSize: isMobile ? '1.62rem' : isTablet ? '3.5rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
         >
           작동하는 브랜드로.
         </div>
@@ -197,6 +191,7 @@ const HeroSlogan: React.FC<HeroSloganProps> = ({
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,
+                    fontSize: isTablet ? '4.2rem' : undefined
                   }}
                 >
                   {segment}

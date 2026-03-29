@@ -56,10 +56,10 @@ export default function HeroPCView({
       ease: "sine.inOut"
     }, 0);
 
-    // 2. 프레이즈 -> 스위치 세트 순차 안착
+    // 2. 중앙 액션 그룹 -> 하단 메시지 레이어 순차 등장
     tl.fromTo([
-      "#hero-central-phrase",
-      "#hero-central-toggle-stack"
+      "#hero-central-action-group",
+      "#hero-bottom-message-layer"
     ], 
     { 
       opacity: 0, 
@@ -136,15 +136,74 @@ export default function HeroPCView({
             />
           )}
 
-          <div className="flex flex-col items-center gap-16" style={{ transform: 'translateY(18vh)' }}>
-            
-            {/* 4-1. 프레이즈/슬로건 (HeroSlogan 내부에서 ON/OFF 상호 운용) */}
+          {/* [V11.4 3-Tier Layering] - 3단계 독립 레이어링 개편 */}
+          {!isOn && (
+            <>
+              {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) - 화면 정중앙 50% 정박 */}
+              <div 
+                id="hero-central-action-group"
+                className="absolute flex flex-col items-center gap-[4vh] pointer-events-auto opacity-0"
+                style={{ 
+                  top: '45%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  marginTop: '0vh' 
+                }}
+                onMouseEnter={() => setIsToggleHovered(true)}
+                onMouseLeave={() => setIsToggleHovered(false)}
+              >
+                {/* [다크모드 로테이팅 프레이즈] */}
+                <HeroSlogan
+                  isOn={isOn}
+                  isMobile={false}
+                  onToggle={handleToggle}
+                  isTransitioning={isTransitioning}
+                />
+                
+                {/* [토글 버튼] */}
+                <div className="relative z-20">
+                  <HeroToggle
+                    isOn={isOn}
+                    onToggle={handleToggle}
+                    isTransitioning={isTransitioning}
+                    isMobile={false}
+                  />
+                </div>
+              </div>
+
+              {/* 2. 하단 베이스라인 레이어 (영어 슬로건) - 화면 하단 12vh 정박 */}
+              <div 
+                id="hero-bottom-message-layer"
+                className="absolute flex flex-col items-center pointer-events-auto opacity-0"
+                style={{ 
+                  bottom: '-20vh', 
+                  left: '50%', 
+                  transform: 'translateX(-50%)'
+                }}
+                onMouseEnter={() => setIsToggleHovered(true)}
+                onMouseLeave={() => setIsToggleHovered(false)}
+              >
+                <HeroOffCta 
+                  isVisible={!isOn} 
+                  isToggleHovered={isToggleHovered}
+                  isMobile={false}
+                  isTransitioning={isTransitioning}
+                  onToggle={handleToggle}
+                />
+              </div>
+            </>
+          )}
+
+          {/* [온모드 전용] - 오직 트루 포커스 프레이즈만 정중앙 노출 */}
+          {isOn && (
             <div 
-              id="hero-central-phrase"
-              className="pointer-events-auto opacity-0"
-              style={{ marginBottom: '-2vh' }}
-              onMouseEnter={() => setIsToggleHovered(true)}
-              onMouseLeave={() => setIsToggleHovered(false)}
+              id="hero-on-center-phrase"
+              className="absolute pointer-events-auto"
+              style={{ 
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
             >
               <HeroSlogan
                 isOn={isOn}
@@ -154,35 +213,7 @@ export default function HeroPCView({
                 sentence="불안을 끄고, 기준을 켭니다"
               />
             </div>
-
-            {/* 4-2. 스위치 (토글 버튼 + CTA) - 다크모드(OFF)에서만 필요 */}
-            {!isOn && (
-              <div 
-                id="hero-central-toggle-stack"
-                className="flex flex-col items-center gap-0 pointer-events-auto opacity-0"
-                onMouseEnter={() => setIsToggleHovered(true)}
-                onMouseLeave={() => setIsToggleHovered(false)}
-              >
-                <div className="relative z-20">
-                  <HeroToggle
-                    isOn={isOn}
-                    onToggle={handleToggle}
-                    isTransitioning={isTransitioning}
-                    isMobile={false}
-                  />
-                </div>
-                <div className="relative z-10" style={{ marginTop: '-1.8vh' }}>
-                  <HeroOffCta 
-                    isVisible={!isOn} 
-                    isToggleHovered={isToggleHovered}
-                    isMobile={false}
-                    isTransitioning={isTransitioning}
-                    onToggle={handleToggle}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         {/* 배경 인터랙션 레이어 (프레이즈, 도형) */}
