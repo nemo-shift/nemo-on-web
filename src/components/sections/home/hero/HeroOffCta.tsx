@@ -12,7 +12,7 @@ interface HeroOffCtaProps {
   isVisible: boolean;
   isToggleHovered: boolean;
   isMobile?: boolean;
-  isMidRange?: boolean;
+  isMobileView?: boolean;
   isTransitioning?: boolean;
   onToggle?: () => void;
 }
@@ -26,7 +26,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
   isVisible,
   isToggleHovered,
   isMobile = false,
-  isMidRange = false,
+  isMobileView = false,
   isTransitioning = false,
   onToggle
 }) => {
@@ -67,9 +67,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
         <div
           className={cn(
             "text-center transition-all duration-700 leading-[0.8]",
-            isMobile 
-              ? "font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center" 
-              : "font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center"
+            "font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center"
           )}
           style={{
             color: 'inherit',
@@ -80,32 +78,35 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
           <div className="relative flex flex-col items-center">
             {/* Line 1: Turn on the Switch */}
             <span 
-              className="whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]"
+              className={cn(
+                "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
+                "text-[2.4rem] tablet:text-[5.2rem] desktop-wide:text-[6rem]",
+                "tracking-[0.2em] tablet:tracking-[0.15em] desktop-wide:tracking-normal"
+              )}
               style={{ 
-                fontSize: isMobile ? '2.4rem' : isMidRange ? '5.2rem' : '6rem', 
-                transform: isMobile ? 'translateX(-12vw) scaleX(0.8)' : isMidRange ? 'translateX(-10vw) scaleX(0.75)' : 'translateX(-8vw) scaleX(0.7)',
+                transform: isMobile ? 'translateX(-12vw) scaleX(0.8)' : (isMobileView ? 'translateX(-10vw) scaleX(0.75)' : 'translateX(-8vw) scaleX(0.7)'),
                 color: (isToggleHovered || isClearing || isTransitioning)
                   ? COLORS.TEXT.LIGHT
                   : 'rgba(240, 235, 227, 0.15)',
                 textShadow: (isToggleHovered || isClearing || isTransitioning)
                   ? `0 0 15px rgba(240, 235, 227, 0.4)`
                   : 'none',
-                letterSpacing: isMobile ? '0.2em' : isMidRange ? '0.15em' : 'normal'
               }}
             >
               스위치를 켜고,
             </span>
             
             {/* Line 2: Switch on the Brand */}
-            {/* [V11.8] Mobile/Tablet/PC 3단 독립 수치 관리 체계 구축 */}
             <span 
-              className="whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]"
+              className={cn(
+                "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
+                "text-[3.0rem] tablet:text-[6rem] desktop-wide:text-[7.5rem]",
+                "mt-[-0.2vh] tablet:mt-[-0.1vh] desktop-wide:mt-[-1vh]"
+              )}
               style={{ 
-                fontSize: isMobile ? '3.0rem' : isMidRange ? '6rem' : '7.5rem', 
-                transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : isMidRange ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)',
-                marginTop: isMobile ? '-0.2vh' : isMidRange ? '-0.1vh' : '-1vh',
+                transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : (isMobileView ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)'),
                 color: COLORS.HERO.OFF.ACCENT,
-                textShadow: `0 0 20px ${COLORS.HERO.OFF.ACCENT}40`, // 0.25 alpha approx
+                textShadow: `0 0 20px ${COLORS.HERO.OFF.ACCENT}40`,
               }}
             >
               브랜드를 켜세요.

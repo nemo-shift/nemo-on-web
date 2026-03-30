@@ -62,9 +62,7 @@ export default function HeroOffMobileView({
           zIndex: 100
         }}
       >
-        <HeroSloganOff 
-          isMobile={true} 
-        />
+        <HeroSloganOff />
         
         <div 
           className="relative z-50 flex flex-col items-center gap-4"
@@ -74,7 +72,6 @@ export default function HeroOffMobileView({
             isOn={isOn}
             onToggle={handleToggle}
             isTransitioning={isTransitioning}
-            isMobile={true}
           />
         </div>
       </div>
@@ -92,7 +89,6 @@ export default function HeroOffMobileView({
         <HeroOffCta 
           isVisible={true} 
           isToggleHovered={false}
-          isMobile={true}
           isTransitioning={isTransitioning}
           onToggle={handleToggle}
         />

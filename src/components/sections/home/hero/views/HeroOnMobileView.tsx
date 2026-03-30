@@ -51,7 +51,6 @@ export default function HeroOnMobileView({
           }}
         >
           <HeroSloganOn
-            isMobile={true}
             sentence="불안을 끄고, 기준을 켭니다"
           />
         </div>
@@ -61,7 +60,6 @@ export default function HeroOnMobileView({
       <HeroOnPhraseLayer
         isOn={isOn}
         visible={!showCenteredShapes}
-        isMobile={true}
         sequenceStep={sequenceStep}
         onActiveShapeChange={handleActiveShapeChange}
         onCopyVisible={() => setShapesOnRevealed(true)}
@@ -71,7 +69,6 @@ export default function HeroOnMobileView({
       <HeroOnShapesStage
         ref={shapesStageRef}
         isOn={isOn} 
-        isMobile={true}
         onModeRevealed={shapesOnRevealed}
         isCentered={showCenteredShapes}
         sequenceStep={sequenceStep}

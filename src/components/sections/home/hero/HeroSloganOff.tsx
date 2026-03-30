@@ -5,10 +5,7 @@ import { RotatingText } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { COLORS } from '@/constants/colors';
 
-interface HeroSloganOffProps {
-  isMobile?: boolean;
-  isMidRange?: boolean;
-}
+interface HeroSloganOffProps {}
 
 /**
  * HeroSloganOff 컴포넌트
@@ -16,10 +13,7 @@ interface HeroSloganOffProps {
  * 흐릿한 [아이디어를, 생각을, 확신을, 방향을] 작동하는 브랜드로.
  * 온모드(ON)와 완전히 분리된 독립 컴포넌트.
  */
-const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
-  isMobile = false,
-  isMidRange = false,
-}) => {
+const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
   return (
     <div className="relative w-full min-h-[120px] flex flex-col justify-start overflow-hidden">
       <div
@@ -31,10 +25,10 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
       >
         <div 
           className={cn(
-            "flex flex-wrap items-center gap-x-2 font-light",
-            isMobile ? "justify-start text-left tracking-tight" : "justify-center text-center tracking-[0.12em]"
+            "flex flex-wrap items-center gap-x-2 font-light justify-center text-center",
+            "text-[1.8rem] tablet:text-[2.2rem] desktop-wide:text-[2.5rem]",
+            "tracking-tight tablet:tracking-[0.12em]"
           )}
-          style={{ fontSize: isMobile ? '1.1rem' : isMidRange ? '2.5rem' : 'clamp(1.4rem, min(1.7vw, 3vh), 2.1rem)' }}
         >
           <span className="opacity-50">흐릿한</span>
           <div 
@@ -52,9 +46,9 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
         <div
           className={cn(
             "font-semibold text-center w-full",
-            isMobile ? "tracking-tighter" : "tracking-[0.05em]"
+            "text-[2.4rem] tablet:text-[3.2rem] desktop-wide:text-[3.5rem]",
+            "tracking-tighter tablet:tracking-[0.05em]"
           )}
-          style={{ fontSize: isMobile ? '1.62rem' : isMidRange ? '3.5rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
         >
           작동하는 브랜드로.
         </div>

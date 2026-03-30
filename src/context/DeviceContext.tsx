@@ -7,13 +7,10 @@ import { useDeviceDetection } from '@/hooks/useDeviceDetection';
  * 기기 및 레이아웃 정보를 관리하는 전역 Context
  */
 interface DeviceContextValue {
-  isTouchDevice: boolean;
   isMobile: boolean;
-  isMidRange: boolean;
-  isTabletPortrait: boolean;
-  isPC: boolean;
-  interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
+  isTabletPortrait: boolean;
+  interactionMode: 'mouse' | 'touch';
   isInitialized: boolean;
 }
 
@@ -27,11 +24,8 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     ...device
   }), [
-    device.isTouchDevice, 
     device.isMobile, 
-    device.isMidRange, 
     device.isTabletPortrait,
-    device.isPC, 
     device.interactionMode, 
     device.isMobileView, 
     device.isInitialized

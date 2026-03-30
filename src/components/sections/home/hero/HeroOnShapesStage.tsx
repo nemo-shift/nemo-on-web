@@ -2,9 +2,10 @@ import React, { forwardRef, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
+import { useDevice } from '@/context/DeviceContext';
+
 type ShapesStageProps = {
   isOn: boolean;
-  isMobile?: boolean;
   onModeRevealed?: boolean;
   isCentered?: boolean;
   sequenceStep?: number;
@@ -15,7 +16,6 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
   (
     {
       isOn,
-      isMobile = false,
       onModeRevealed = false,
       isCentered = false,
       sequenceStep = 0,
@@ -23,6 +23,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
     },
     ref,
   ) => {
+    const { isMobileView } = useDevice();
     // 0: OFF, 1: 원, 2: 세모, 3: 네모, 4: 전체합체, 5: 고정
     const isStep1 = sequenceStep === 1;
     const isStep2 = sequenceStep === 2;
@@ -123,15 +124,15 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
         style={{
           position: 'absolute',
           left: isCentered ? '50%' : 'auto',
-          right: isCentered ? 'auto' : (isMobile ? '8%' : '12%'),
-          top: isCentered ? '50%' : (isMobile ? '35%' : '45%'),
+          right: isCentered ? 'auto' : (isMobileView ? '8%' : '12%'),
+          top: isCentered ? '50%' : (isMobileView ? '35%' : '45%'),
           transform: isCentered 
             ? 'translate(-50%, -50%) scale(1.1)' 
             : 'translateY(-50%)',
-          width: isMobile
+          width: isMobileView
             ? 'clamp(120px, 35vw, 180px)'
             : 'clamp(260px, 32vw, 500px)',
-          height: isMobile
+          height: isMobileView
             ? 'clamp(120px, 35vw, 180px)'
             : 'clamp(260px, 32vw, 500px)',
           visibility: isOn ? 'visible' : 'hidden',

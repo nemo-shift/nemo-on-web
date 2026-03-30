@@ -17,9 +17,6 @@ export function useHeroState(
   // 디바이스 감지 상태 가져오기
   const { 
     isMobile, 
-    isMidRange, 
-    isPC, 
-    isTouchDevice, 
     isMobileView, 
     isTabletPortrait, 
     interactionMode,
@@ -64,14 +61,14 @@ export function useHeroState(
   // 도형 강조 상태 변경
   const handleActiveShapeChange = useCallback((shape: 'all' | 'circle' | 'triangle' | 'square') => {
     setActiveShape(shape);
-    // [v26.23] 터치 기기일 경우 일정 시간 후 리셋 (너비와 무관하게 동작 기반으로 판정)
-    if ((isTouchDevice || interactionMode === 'touch') && shape !== 'all') {
+    // [v26.23] 터치 모드일 경우 일정 시간 후 리셋 (동작 기반 판정)
+    if (interactionMode === 'touch' && shape !== 'all') {
       if (activeShapeTimerRef.current) clearTimeout(activeShapeTimerRef.current);
       activeShapeTimerRef.current = setTimeout(() => {
         setActiveShape('all');
       }, HERO_TIMING.MOBILE_INTERACTION_RESET);
     }
-  }, [isTouchDevice, interactionMode]);
+  }, [interactionMode]);
 
   // 초기화 및 리셋 (isOn 변경 시)
   const resetHeroState = useCallback(() => {
@@ -87,11 +84,8 @@ export function useHeroState(
 
   return {
     isMobile,
-    isMidRange,
-    isPC,
     isMobileView,
     isTabletPortrait,
-    isTouchDevice,
     interactionMode,
     isInitialized,
     sequenceStep,

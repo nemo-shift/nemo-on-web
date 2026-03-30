@@ -27,7 +27,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const GlobalInteractionStage = ({
   isMobile,
-  isMidRange,
   interactionMode,
   isMobileView,
   isTabletPortrait,
@@ -119,7 +118,7 @@ export const GlobalInteractionStage = ({
 
           // 개별 섹션 빌더 호출 (로고, 네모, 섹션 스크롤 등)
           buildLogoTimeline(tl, logo, isMobileView, L);
-          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isMidRange }, falling, L);
+          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L);
           buildSectionScrollTimeline(tl, L, finalY);
 
           buildMessageTimeline(tl, nemo, L);
@@ -181,7 +180,7 @@ export const GlobalInteractionStage = ({
 
       setIsTimelineReady(false);
     };
-  }, { dependencies: [isScrollable, isOn, isMobileView, isMidRange, footerHeight] });
+  }, { dependencies: [isScrollable, isOn, isMobileView, isTabletPortrait, footerHeight] });
 
   // [V4.2] 레이라우트 무결성 Double-Lock: 
   // 스크롤 해제(overflow hidden 제거) 시 발생하는 레이아웃 시프트를 감지하여 핀 좌표 최종 갱신
@@ -231,7 +230,7 @@ export const GlobalInteractionStage = ({
         ref={fallingRef} 
         containerRef={containerRef} 
         isMobile={isMobile}
-        isMidRange={isMidRange} 
+        isTabletPortrait={isTabletPortrait} 
       />
     </div>
   );

@@ -4,7 +4,6 @@
 
 export interface GlobalInteractionStageProps {
   isMobile: boolean;
-  isMidRange: boolean;
   interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
   isTabletPortrait: boolean; // [v1.6] 태블릿 세로 판단용

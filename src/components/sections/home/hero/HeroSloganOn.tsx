@@ -6,8 +6,6 @@ import { useGSAP } from '@gsap/react';
 import { COLORS } from '@/constants/colors';
 
 interface HeroSloganOnProps {
-  isMobile?: boolean;
-  isMidRange?: boolean;
   sentence?: string;
   blurAmount?: number;
   animationDuration?: number;
@@ -21,8 +19,6 @@ interface HeroSloganOnProps {
  * 오프모드(OFF)와 완전히 분리된 독립 컴포넌트.
  */
 const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
-  isMobile = false,
-  isMidRange = false,
   sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
   animationDuration = 0.6,
@@ -112,11 +108,10 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                 className="flex items-center justify-center px-1.5 py-1 min-w-fit"
               >
                 <span
-                  className="text-[1.3rem] tablet-p:text-[1.5rem] tablet:text-[clamp(2rem,min(2.15vw,3.5vh),3rem)] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
+                  className="text-[2.2rem] tablet:text-[3.6rem] desktop-wide:text-[4.2rem] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,
-                    fontSize: isMidRange ? '4.2rem' : undefined
                   }}
                 >
                   {segment}

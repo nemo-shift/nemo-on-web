@@ -68,10 +68,7 @@ export default function HeroOffTabletView({
         onMouseEnter={() => setIsToggleHovered(true)}
         onMouseLeave={() => setIsToggleHovered(false)}
       >
-        <HeroSloganOff
-          isMobile={false}
-          isMidRange={true}
-        />
+        <HeroSloganOff />
         
         <div 
           className="relative z-50"
@@ -81,7 +78,6 @@ export default function HeroOffTabletView({
             isOn={isOn}
             onToggle={handleToggle}
             isTransitioning={isTransitioning}
-            isMidRange={true}
           />
         </div>
       </div>
@@ -99,8 +95,7 @@ export default function HeroOffTabletView({
         <HeroOffCta 
           isVisible={true} 
           isToggleHovered={isToggleHovered}
-          isMobile={false}
-          isMidRange={true}
+          isMobileView={true}
           isTransitioning={isTransitioning}
           onToggle={handleToggle}
         />

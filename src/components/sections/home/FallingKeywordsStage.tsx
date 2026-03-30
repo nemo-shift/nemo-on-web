@@ -25,14 +25,14 @@ export interface FallingKeywordsHandle {
 interface FallingKeywordsStageProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   isMobile: boolean;
-  isMidRange: boolean; // [V16.32] 추가
+  isTabletPortrait: boolean;
 }
 
 /**
  * [V16.32] FallingKeywordsStage
  */
 const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsStageProps>(
-  ({ containerRef, isMobile, isMidRange }, ref) => {
+  ({ containerRef, isMobile, isTabletPortrait }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<Matter.Engine | null>(null);
     const runnerRef = useRef<Matter.Runner | null>(null);
@@ -48,9 +48,9 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     // [V16.38] 중앙 집중화된 디자인 토큰으로 교체
     const getDesignSpec = useCallback(() => {
       if (isMobile) return KEYWORD_CFG.DESIGN.MOBILE;
-      if (isMidRange) return KEYWORD_CFG.DESIGN.TABLET;
+      if (isTabletPortrait) return KEYWORD_CFG.DESIGN.TABLET;
       return KEYWORD_CFG.DESIGN.PC;
-    }, [isMobile, isMidRange]);
+    }, [isMobile, isTabletPortrait]);
 
     // [V16.25] 핀(Constraint) ↔ 바디 매핑
     const pinsRef = useRef<Map<Matter.Body, Matter.Constraint>>(new Map());
@@ -91,7 +91,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
 
       while (isOverlapping && attempts < KEYWORD_CFG.PHYSICS.ATTEMPTS) {
         // [V16.38] 중앙 집중화된 영역 토큰 적용
-        const area = (isMobile || isMidRange) ? KEYWORD_CFG.SPAWN_AREA.MOBILE : KEYWORD_CFG.SPAWN_AREA.PC;
+        const area = (isMobile || isTabletPortrait) ? KEYWORD_CFG.SPAWN_AREA.MOBILE : KEYWORD_CFG.SPAWN_AREA.PC;
         x = (Math.random() * (safeViewW * (area.END - area.START))) + (safeViewW * area.START);
         
         y = 120 + (Math.random() * 180);

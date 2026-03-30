@@ -20,7 +20,7 @@ import { FallingKeywordsHandle } from '../FallingKeywordsStage';
 export function buildNemoTimeline(
   tl: gsap.core.Timeline, 
   nemo: SharedNemoHandle, 
-  device: { isMobile: boolean; isMidRange: boolean }, 
+  device: { isMobile: boolean; isTabletPortrait: boolean }, 
   falling: FallingKeywordsHandle, 
   L: Record<string, number>
 ) {
@@ -43,7 +43,7 @@ export function buildNemoTimeline(
     let cfg = raw.nemo;
     if (device.isMobile && raw.mobile?.nemo) {
       cfg = { ...cfg, ...raw.mobile.nemo };
-    } else if (device.isMidRange && raw.tablet?.nemo) {
+    } else if (device.isTabletPortrait && raw.tablet?.nemo) {
       cfg = { ...cfg, ...raw.tablet.nemo };
     }
     

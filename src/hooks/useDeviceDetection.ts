@@ -8,57 +8,40 @@ import { useState, useEffect } from 'react';
  * @returns { isTouchDevice, isMobile }
  */
 export function useDeviceDetection(): {
-  isTouchDevice: boolean;
   isMobile: boolean;
-  isMidRange: boolean;
-  isPC: boolean;
-  interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
-  isTabletPortrait: boolean; // [v1.6] 768px~991px 구간 보정용
+  isTabletPortrait: boolean;
+  interactionMode: 'mouse' | 'touch';
   isInitialized: boolean;
 } {
   const [device, setDevice] = useState<{
-    isTouchDevice: boolean;
     isMobile: boolean;
-    isMidRange: boolean;
-    isPC: boolean;
-    interactionMode: 'mouse' | 'touch';
     isMobileView: boolean;
     isTabletPortrait: boolean;
+    interactionMode: 'mouse' | 'touch';
     isInitialized: boolean;
   }>({
-    isTouchDevice: false,
     isMobile: false,
-    isMidRange: false,
-    isPC: false,
-    interactionMode: 'mouse',
     isMobileView: false,
     isTabletPortrait: false,
+    interactionMode: 'mouse',
     isInitialized: false,
   });
 
   useEffect(() => {
-    const checkTouchDevice = (): boolean =>
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0 ||
-      ((navigator as any).msMaxTouchPoints ?? 0) > 0;
-
     const updateDevice = (): void => {
       const width = window.innerWidth;
       const hasFinePointer = window.matchMedia('(pointer: fine) and (hover: hover)').matches;
       
       setDevice({
-        isTouchDevice: checkTouchDevice(),
-        // [v1.6] Level 1: Mobile (0~767)
+        // [v11.32] UI 브레이크포인트 축
         isMobile: width < 744,
-        // [v1.6] Level 2: Tablet Portrait (768~991)
         isTabletPortrait: width >= 744 && width < 992,
-        // [v1.6] Level 3-A: Mid Range (Tablet Landscape + Small PC) (992~1199)
-        isMidRange: width >= 992 && width < 1200,
-        // [v1.6] Level 3-B: Desktop (Wide) (1200~)
-        isPC: width >= 1200,
-        interactionMode: hasFinePointer ? 'mouse' : 'touch',
         isMobileView: width < 992, 
+
+        // [v11.32] UX 인터랙션 축
+        interactionMode: hasFinePointer ? 'mouse' : 'touch',
+        
         isInitialized: true,
       });
     };

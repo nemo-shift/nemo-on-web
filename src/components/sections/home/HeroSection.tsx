@@ -50,8 +50,6 @@ export default function HeroSection({
 
   const {
     isMobile,
-    isMidRange,
-    isPC,
     isMobileView,
     isTabletPortrait,
     isInitialized,
@@ -104,11 +102,9 @@ export default function HeroSection({
 
   // 스크램블 완료 핸들러 (와이프 효과 시작)
   const handleScrambleComplete = useCallback(() => {
-    // [V11.22] PC 버전은 다크모드 액센트(#e8d5b0) 사용, 나머지는 기존 브랜드 틸(#0891b2) 유지
-   // const wipeColor = isPC ? COLORS.HERO.OFF.ACCENT : '#0891b2';
     const wipeColor = '#0891b2';
     finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback, wipeColor));
-  }, [finalizeTransition, isPC]);
+  }, [finalizeTransition]);
 
   // [v25.80] 시퀀스 완독 후 스크롤 해제 보정 (수직적 통합)
   useEffect(() => {
@@ -159,13 +155,13 @@ export default function HeroSection({
           width: 0,
           height: 0,
           opacity: 0,
-          background: isPC ? COLORS.HERO.OFF.ACCENT : '#0891b2',
+          background: !isMobileView ? COLORS.HERO.OFF.ACCENT : '#0891b2',
           zIndex: 500,
           pointerEvents: 'none',
           borderRadius: 0,
         }}
       />
-    ) : null, [mounted, isPC]);
+    ) : null, [mounted, isMobileView]);
 
 
   // 공통 Props 묶음

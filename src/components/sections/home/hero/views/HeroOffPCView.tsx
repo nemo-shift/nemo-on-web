@@ -93,9 +93,7 @@ export default function HeroOffPCView({
           onMouseLeave={() => setIsToggleHovered(false)}
         >
           {/* [다크모드 로테이팅 프레이즈] */}
-          <HeroSloganOff 
-            isMobile={false} 
-          />
+          <HeroSloganOff />
           
           {/* [토글 버튼] */}
           <div className="relative z-20">
@@ -103,7 +101,6 @@ export default function HeroOffPCView({
               isOn={isOn}
               onToggle={handleToggle}
               isTransitioning={isTransitioning}
-              isMobile={false}
             />
           </div>
         </div>
@@ -123,7 +120,6 @@ export default function HeroOffPCView({
           <HeroOffCta 
             isVisible={!isOn} 
             isToggleHovered={isToggleHovered}
-            isMobile={false}
             isTransitioning={isTransitioning}
             onToggle={handleToggle}
           />
