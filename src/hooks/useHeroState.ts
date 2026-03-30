@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useHeroSequence } from './useHeroSequence';
-import { useDeviceDetection } from './useDeviceDetection';
+import { useDevice } from '@/context/DeviceContext';
 import { HERO_TIMING } from '@/constants/hero';
 
 /**
@@ -17,13 +17,14 @@ export function useHeroState(
   // 디바이스 감지 상태 가져오기
   const { 
     isMobile, 
-    isTablet, 
+    isMidRange, 
     isPC, 
     isTouchDevice, 
     isMobileView, 
     isTabletPortrait, 
+    interactionMode,
     isInitialized 
-  } = useDeviceDetection();
+  } = useDevice();
   
   // 기본 애니메이션 시퀀스 관리
   const { sequenceStep, setSequenceStep } = useHeroSequence(isOn);
@@ -63,14 +64,14 @@ export function useHeroState(
   // 도형 강조 상태 변경
   const handleActiveShapeChange = useCallback((shape: 'all' | 'circle' | 'triangle' | 'square') => {
     setActiveShape(shape);
-    // [v26.23] 모바일 또는 태블릿(터치 기기)일 경우 일정 시간 후 리셋
-    if ((isMobile || isTablet || isTouchDevice) && shape !== 'all') {
+    // [v26.23] 터치 기기일 경우 일정 시간 후 리셋 (너비와 무관하게 동작 기반으로 판정)
+    if ((isTouchDevice || interactionMode === 'touch') && shape !== 'all') {
       if (activeShapeTimerRef.current) clearTimeout(activeShapeTimerRef.current);
       activeShapeTimerRef.current = setTimeout(() => {
         setActiveShape('all');
       }, HERO_TIMING.MOBILE_INTERACTION_RESET);
     }
-  }, [isMobile, isTablet, isTouchDevice]);
+  }, [isTouchDevice, interactionMode]);
 
   // 초기화 및 리셋 (isOn 변경 시)
   const resetHeroState = useCallback(() => {
@@ -86,11 +87,12 @@ export function useHeroState(
 
   return {
     isMobile,
-    isTablet,
+    isMidRange,
     isPC,
     isMobileView,
     isTabletPortrait,
     isTouchDevice,
+    interactionMode,
     isInitialized,
     sequenceStep,
     setSequenceStep,

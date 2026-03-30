@@ -58,7 +58,7 @@ const PhraseLine = ({
  * 감성위에 구조를 더해 당신의 결로
  * 
  */
-export default function HeroPhraseLayer({
+export default function HeroOnPhraseLayer({
   isOn,
   visible = true,
   isMobile = false,

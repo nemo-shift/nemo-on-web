@@ -16,7 +16,7 @@ type PhraseLineProps = {
  * HeroPhraseLayer 내 프레이즈 한 줄 래퍼
  * 공통 스타일 및 등장 애니메이션 적용
  */
-export default function PhraseLine({ visible, baseColor, children, animateFromBottom = true, isMobile = false }: PhraseLineProps): React.ReactElement {
+export default function HeroOnPhraseLine({ visible, baseColor, children, animateFromBottom = true, isMobile = false }: PhraseLineProps): React.ReactElement {
   const transform = animateFromBottom
     ? (visible ? 'translateY(0)' : 'translateY(28px)')
     : 'none';

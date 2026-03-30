@@ -1,14 +1,8 @@
 'use client';
 
 import React from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import HeroSloganOff from '../HeroSloganOff';
-import HeroSloganOn from '../HeroSloganOn';
-import HeroToggle from '../HeroToggle';
-import ShapesStage from '../ShapesStage';
-import HeroPhraseLayer from '../HeroPhraseLayer';
-import HeroOffCta from '../HeroOffCta';
+import HeroOffTabletView from './HeroOffTabletView';
+import HeroOnTabletView from './HeroOnTabletView';
 
 type HeroViewProps = {
   isOn: boolean;
@@ -27,6 +21,10 @@ type HeroViewProps = {
   shapesStageRef: React.RefObject<HTMLDivElement | null>;
 };
 
+/**
+ * [V11.31] HeroTabletView (View Controller)
+ * 태블릿 섹션의 공통 레이아웃 뼈대 및 모드간 전환을 관제하는 최상위 뷰.
+ */
 export default function HeroTabletView({
   isOn,
   isTransitioning,
@@ -40,42 +38,32 @@ export default function HeroTabletView({
   isInteractionActive,
   handleToggle,
   handleActiveShapeChange,
-  tcRef,
   shapesStageRef,
 }: HeroViewProps) {
-  
-  // [V11.6 Tablet Entry] - 태블릿 시네마틱 입차 애니메이션
-  useGSAP(() => {
-    if (isOn) return;
-
-    const tl = gsap.timeline({ delay: 0.4 });
-    
-    tl.fromTo([
-      "#hero-tablet-central-action-group",
-      "#hero-tablet-bottom-message-layer"
-    ], 
-    { 
-      opacity: 0, 
-      y: -15 
-    },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 1.2,
-      stagger: 0.3,
-      ease: "power3.out"
-    }, 0.2);
-
-  }, { dependencies: [isOn] });
 
   return (
     <>
+      {/* 1. 상단 스페이서 (공통 뼈대) */}
       <div style={{ 
         minHeight: isOn ? '15vh' : '10vh', 
         flexShrink: 0, 
         order: 0,
-        transition: 'min-height 0.7s ease'
-      }} />
+        transition: 'min-height 0.7s ease',
+        position: 'relative'
+      }}>
+        {/* [V4.3 Editorial] 로고 빅 타이포 앵커 - 상단 고정 위치 보존 */}
+        <div 
+          id="hero-logo-anchor" 
+          className="invisible pointer-events-none" 
+          style={{ 
+            position: 'absolute',
+            top: '2vw', 
+            left: '3.333vw', 
+            width: '24vw', 
+            height: '12vw' 
+          }} 
+        />
+      </div>
 
       <div
         style={{
@@ -93,108 +81,30 @@ export default function HeroTabletView({
           transition: 'flex-grow 0.7s ease, min-height 0.7s ease'
         }}
       >
-        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 전환 시작 또는 온모드에서만 마운트 */}
-        {(isOn || isTransitioning) && (
-          <HeroPhraseLayer
+        {/* [V11.31 Isolation] OFF 모드 UI 레이어 */}
+        {!isOn && (
+          <HeroOffTabletView
             isOn={isOn}
-            visible={!showCenteredShapes}
-            isMobile={false}
-            sequenceStep={sequenceStep}
-            onActiveShapeChange={handleActiveShapeChange}
-            onCopyVisible={() => setShapesOnRevealed(true)}
-            isInteractionActive={isInteractionActive}
+            isTransitioning={isTransitioning}
+            isToggleHovered={isToggleHovered}
+            setIsToggleHovered={setIsToggleHovered}
+            handleToggle={handleToggle}
           />
         )}
 
-        {/* [V11.6 3-Tier Layering] - 태블릿 독립 레이아웃 */}
-        {!isOn && (
-          <>
-            {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) - 화면 정중앙 50% 정박 */}
-            <div 
-              id="hero-tablet-central-action-group"
-              className="absolute flex flex-col items-center gap-[4vh] pointer-events-auto opacity-0"
-              style={{ 
-                top: '65%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '100%',
-                padding: '0 40px',
-                zIndex: 100
-              }}
-              onMouseEnter={() => setIsToggleHovered(true)}
-              onMouseLeave={() => setIsToggleHovered(false)}
-            >
-              <HeroSloganOff
-                isMobile={false}
-                isTablet={true}
-              />
-              
-              <div 
-                className="relative z-50"
-                style={{ marginTop: '4vh' }}
-              >
-                <HeroToggle
-                  isOn={isOn}
-                  onToggle={handleToggle}
-                  isTransitioning={isTransitioning}
-                  isTablet={true}
-                />
-              </div>
-            </div>
-
-            {/* 2. 하단 베이스라인 레이어 (영어 슬로건) - 화면 하단 12vh 정박 */}
-            <div 
-              id="hero-tablet-bottom-message-layer"
-              className="absolute flex flex-col items-center pointer-events-auto opacity-0"
-              style={{ 
-                bottom: '-30vh', 
-                left: '50%', 
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <HeroOffCta 
-                isVisible={true} 
-                isToggleHovered={isToggleHovered}
-                isMobile={false}
-                isTablet={true}
-                isTransitioning={isTransitioning}
-                onToggle={handleToggle}
-              />
-            </div>
-          </>
-        )}
-
-        {/* [온모드 전용] - 오직 트루 포커스 프레이즈만 정중앙 노출 */}
-        {isOn && (
-          <div 
-            id="hero-tablet-on-center-phrase"
-            className="absolute pointer-events-auto"
-            style={{ 
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '100%',
-              padding: '0 40px'
-            }}
-          >
-            <HeroSloganOn
-              isMobile={false}
-              isTablet={true}
-              sentence="불안을 끄고, 기준을 켭니다"
-            />
-          </div>
-        )}
-
-        {/* [V11.21 JIT] 오프모드에서는 DOM에서 완전 제거, 온모드에서만 마운트 */}
+        {/* [V11.31 Isolation] ON 모드 인터랙션 레이어 (전환 중 또는 온모드일 때 마운트) */}
         {(isOn || isTransitioning) && (
-          <ShapesStage
-            ref={shapesStageRef}
-            isOn={isOn} 
-            isMobile={false}
-            onModeRevealed={shapesOnRevealed}
-            isCentered={showCenteredShapes}
+          <HeroOnTabletView
+            isOn={isOn}
+            isTransitioning={isTransitioning}
             sequenceStep={sequenceStep}
+            shapesOnRevealed={shapesOnRevealed}
+            setShapesOnRevealed={setShapesOnRevealed}
+            showCenteredShapes={showCenteredShapes}
             activeShape={activeShape}
+            isInteractionActive={isInteractionActive}
+            handleActiveShapeChange={handleActiveShapeChange}
+            shapesStageRef={shapesStageRef}
           />
         )}
       </div>

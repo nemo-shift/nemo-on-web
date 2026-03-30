@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useDevice } from './DeviceContext';
 
 type HeroContextType = {
   isOn: boolean;
@@ -14,7 +14,7 @@ type HeroContextType = {
   isTimelineReady: boolean;
   setIsTimelineReady: (val: boolean) => void;
   isMobile: boolean;
-  isTablet: boolean;
+  isMidRange: boolean;
   isPC: boolean;
   footerHeight: number;
   setFooterHeight: (val: number) => void;
@@ -30,14 +30,14 @@ const HeroContext = createContext<HeroContextType>({
   isTimelineReady: false,
   setIsTimelineReady: () => {},
   isMobile: false,
-  isTablet: false,
+  isMidRange: false,
   isPC: false,
   footerHeight: 0,
   setFooterHeight: () => {},
 });
 
 export function HeroProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const { isMobile, isTablet, isPC } = useDeviceDetection();
+  const { isMobile, isMidRange, isPC } = useDevice();
   const [isOn, setIsOn] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -116,7 +116,7 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
       isTimelineReady,
       setIsTimelineReady,
       isMobile,
-      isTablet,
+      isMidRange,
       isPC,
       footerHeight,
       setFooterHeight

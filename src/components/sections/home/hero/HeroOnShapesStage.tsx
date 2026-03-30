@@ -11,7 +11,7 @@ type ShapesStageProps = {
   activeShape?: 'all' | 'circle' | 'triangle' | 'square';
 };
 
-const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
+const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
   (
     {
       isOn,
@@ -290,5 +290,5 @@ const ShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
   },
 );
 
-ShapesStage.displayName = 'ShapesStage';
-export default ShapesStage;
+HeroOnShapesStage.displayName = 'HeroOnShapesStage';
+export default HeroOnShapesStage;

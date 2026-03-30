@@ -16,7 +16,7 @@ import GlobalInteractionStage from './GlobalInteractionStage';
  */
 export default function HomeStage(): React.ReactElement {
   const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
-  const { isMobile, isTablet, interactionMode, isMobileView, isTabletPortrait } = useDevice();
+  const { isMobile, isMidRange, interactionMode, isMobileView, isTabletPortrait } = useDevice();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
@@ -28,7 +28,7 @@ export default function HomeStage(): React.ReactElement {
       {/* 0. Global Interaction Layer (Outside pinned area for stable fixed positioning) */}
       <GlobalInteractionStage 
         isMobile={isMobile} 
-        isTablet={isTablet} 
+        isMidRange={isMidRange} 
         interactionMode={interactionMode}
         isMobileView={isMobileView}
         isTabletPortrait={isTabletPortrait}

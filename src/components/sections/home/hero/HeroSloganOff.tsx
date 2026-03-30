@@ -7,7 +7,7 @@ import { COLORS } from '@/constants/colors';
 
 interface HeroSloganOffProps {
   isMobile?: boolean;
-  isTablet?: boolean;
+  isMidRange?: boolean;
 }
 
 /**
@@ -18,7 +18,7 @@ interface HeroSloganOffProps {
  */
 const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
   isMobile = false,
-  isTablet = false,
+  isMidRange = false,
 }) => {
   return (
     <div className="relative w-full min-h-[120px] flex flex-col justify-start overflow-hidden">
@@ -34,7 +34,7 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
             "flex flex-wrap items-center gap-x-2 font-light",
             isMobile ? "justify-start text-left tracking-tight" : "justify-center text-center tracking-[0.12em]"
           )}
-          style={{ fontSize: isMobile ? '1.1rem' : isTablet ? '2.5rem' : 'clamp(1.4rem, min(1.7vw, 3vh), 2.1rem)' }}
+          style={{ fontSize: isMobile ? '1.1rem' : isMidRange ? '2.5rem' : 'clamp(1.4rem, min(1.7vw, 3vh), 2.1rem)' }}
         >
           <span className="opacity-50">흐릿한</span>
           <div 
@@ -54,7 +54,7 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = ({
             "font-semibold text-center w-full",
             isMobile ? "tracking-tighter" : "tracking-[0.05em]"
           )}
-          style={{ fontSize: isMobile ? '1.62rem' : isTablet ? '3.5rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
+          style={{ fontSize: isMobile ? '1.62rem' : isMidRange ? '3.5rem' : 'clamp(2rem, min(2.77vw, 4vh), 3.2rem)' }}
         >
           작동하는 브랜드로.
         </div>

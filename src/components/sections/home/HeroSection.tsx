@@ -50,7 +50,7 @@ export default function HeroSection({
 
   const {
     isMobile,
-    isTablet,
+    isMidRange,
     isPC,
     isMobileView,
     isTabletPortrait,
@@ -300,28 +300,6 @@ export default function HeroSection({
           <HeroPCView {...viewProps} />
         )}
         
-        <style>{`
-          @keyframes scrollLine {
-            0% { transform: scaleY(0); transform-origin: top; }
-            50% { transform: scaleY(1); transform-origin: top; }
-            50.1% { transform: scaleY(1); transform-origin: bottom; }
-            100% { transform: scaleY(0); transform-origin: bottom; }
-          }
-          @keyframes lampPulsePC {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
-          }
-          @keyframes lampPulseMobile {
-            0%, 100% { opacity: 0.7; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(1.05); }
-          }
-          .animate-lamp-pulse-pc {
-            animation: lampPulsePC 12s ease-in-out infinite;
-          }
-          .animate-lamp-pulse-mobile {
-            animation: lampPulseMobile 8s ease-in-out infinite;
-          }
-        `}</style>
       </section>
     </div>
   );

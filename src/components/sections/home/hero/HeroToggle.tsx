@@ -8,7 +8,7 @@ type HeroToggleProps = {
   onToggle: () => void; // 토글 클릭 핸들러 [Required]
   isTransitioning?: boolean; // 전환 진행 중 여부 (Knob 선반영용)
   isMobile?: boolean; // 모바일 여부
-  isTablet?: boolean; // 태블릿 여부
+  isMidRange?: boolean; // 미드레인지(태블릿 가로/소형 PC) 여부
 };
 
 /**
@@ -21,7 +21,7 @@ export default function HeroToggle({
   onToggle,
   isTransitioning = false,
   isMobile = false,
-  isTablet = false,
+  isMidRange = false,
 }: HeroToggleProps): React.ReactElement {
   // 실제 ON이거나 전환 중일 때 ON의 시각적 상태를 보여줌
   const showAsOn = isOn || isTransitioning;
@@ -49,7 +49,7 @@ export default function HeroToggle({
         <span
           className="uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
-            fontSize: isMobile ? '9px' : isTablet ? '18px' : '12px',
+            fontSize: isMobile ? '9px' : isMidRange ? '18px' : '12px',
             color: !showAsOn
               ? COLORS.HERO.OFF.ACCENT
               : (isOn ? '#4b5563' : '#9ca3af'),
@@ -62,8 +62,8 @@ export default function HeroToggle({
         <div
           className="relative rounded-full border-[1.5px] transition-all duration-500"
           style={{
-            width: isMobile ? '50px' : isTablet ? '110px' : '68px',
-            height: isMobile ? '26px' : isTablet ? '54px' : '34px',
+            width: isMobile ? '50px' : isMidRange ? '110px' : '68px',
+            height: isMobile ? '26px' : isMidRange ? '54px' : '34px',
             borderColor: showAsOn
               ? isOn ? COLORS.HERO.ON.ACCENT : COLORS.HERO.OFF.ACCENT
               : '#4b5563',
@@ -77,15 +77,15 @@ export default function HeroToggle({
           <div
             className="absolute rounded-full transition-all duration-500"
             style={{
-              left: isMobile ? '4px' : isTablet ? '10px' : '6px',
-              top: isMobile ? '4px' : isTablet ? '12px' : '6px',
-              width: isMobile ? '16px' : isTablet ? '30px' : '20px',
-              height: isMobile ? '16px' : isTablet ? '30px' : '20px',
+              left: isMobile ? '4px' : isMidRange ? '10px' : '6px',
+              top: isMobile ? '4px' : isMidRange ? '12px' : '6px',
+              width: isMobile ? '16px' : isMidRange ? '30px' : '20px',
+              height: isMobile ? '16px' : isMidRange ? '30px' : '20px',
               background: showAsOn 
                 ? isOn ? COLORS.BG.CREAM : COLORS.HERO.OFF.ACCENT 
                 : '#4b5563',
               transform: showAsOn 
-                ? `translateX(${isMobile ? '24px' : isTablet ? '56px' : '34px'})` 
+                ? `translateX(${isMobile ? '24px' : isMidRange ? '56px' : '34px'})` 
                 : 'translateX(0)',
               boxShadow: isOn 
                 ? `0 0 12px ${COLORS.HERO.ON.ACCENT}80` // 0.5 opacity for Teal
@@ -98,7 +98,7 @@ export default function HeroToggle({
         <span
           className="uppercase tracking-[0.3em] transition-colors duration-500"
           style={{
-            fontSize: isMobile ? '9px' : isTablet ? '18px' : '12px',
+            fontSize: isMobile ? '9px' : isMidRange ? '18px' : '12px',
             color: showAsOn
               ? isOn ? COLORS.TEXT.DARK : COLORS.HERO.OFF.ACCENT 
               : COLORS.TEXT.LIGHT,

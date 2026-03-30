@@ -9,7 +9,7 @@ import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 interface DeviceContextValue {
   isTouchDevice: boolean;
   isMobile: boolean;
-  isTablet: boolean;
+  isMidRange: boolean;
   isTabletPortrait: boolean;
   isPC: boolean;
   interactionMode: 'mouse' | 'touch';
@@ -29,7 +29,7 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
   }), [
     device.isTouchDevice, 
     device.isMobile, 
-    device.isTablet, 
+    device.isMidRange, 
     device.isTabletPortrait,
     device.isPC, 
     device.interactionMode, 

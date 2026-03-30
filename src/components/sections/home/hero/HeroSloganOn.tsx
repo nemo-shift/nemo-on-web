@@ -7,7 +7,7 @@ import { COLORS } from '@/constants/colors';
 
 interface HeroSloganOnProps {
   isMobile?: boolean;
-  isTablet?: boolean;
+  isMidRange?: boolean;
   sentence?: string;
   blurAmount?: number;
   animationDuration?: number;
@@ -22,7 +22,7 @@ interface HeroSloganOnProps {
  */
 const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   isMobile = false,
-  isTablet = false,
+  isMidRange = false,
   sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
   animationDuration = 0.6,
@@ -116,7 +116,7 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,
-                    fontSize: isTablet ? '4.2rem' : undefined
+                    fontSize: isMidRange ? '4.2rem' : undefined
                   }}
                 >
                   {segment}

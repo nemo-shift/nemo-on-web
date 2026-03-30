@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 export function useDeviceDetection(): {
   isTouchDevice: boolean;
   isMobile: boolean;
-  isTablet: boolean;
+  isMidRange: boolean;
   isPC: boolean;
   interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
@@ -20,7 +20,7 @@ export function useDeviceDetection(): {
   const [device, setDevice] = useState<{
     isTouchDevice: boolean;
     isMobile: boolean;
-    isTablet: boolean;
+    isMidRange: boolean;
     isPC: boolean;
     interactionMode: 'mouse' | 'touch';
     isMobileView: boolean;
@@ -29,7 +29,7 @@ export function useDeviceDetection(): {
   }>({
     isTouchDevice: false,
     isMobile: false,
-    isTablet: false,
+    isMidRange: false,
     isPC: false,
     interactionMode: 'mouse',
     isMobileView: false,
@@ -45,7 +45,7 @@ export function useDeviceDetection(): {
 
     const updateDevice = (): void => {
       const width = window.innerWidth;
-      const isActuallyPC = width >= 1024;
+      const hasFinePointer = window.matchMedia('(pointer: fine) and (hover: hover)').matches;
       
       setDevice({
         isTouchDevice: checkTouchDevice(),
@@ -53,11 +53,11 @@ export function useDeviceDetection(): {
         isMobile: width < 744,
         // [v1.6] Level 2: Tablet Portrait (768~991)
         isTabletPortrait: width >= 744 && width < 992,
-        // [v1.6] Level 3-A: Tablet Landscape (992~1199)
-        isTablet: width >= 992 && width < 1200,
-        // [v1.6] Level 3-B: Desktop (1200~)
+        // [v1.6] Level 3-A: Mid Range (Tablet Landscape + Small PC) (992~1199)
+        isMidRange: width >= 992 && width < 1200,
+        // [v1.6] Level 3-B: Desktop (Wide) (1200~)
         isPC: width >= 1200,
-        interactionMode: isActuallyPC ? 'mouse' : 'touch',
+        interactionMode: hasFinePointer ? 'mouse' : 'touch',
         isMobileView: width < 992, 
         isInitialized: true,
       });
