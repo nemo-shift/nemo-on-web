@@ -16,7 +16,7 @@ export default function GlobalScrollTriggerCleanup(): null {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
+    if (pathname === '/') return; // 홈은 GlobalInteractionStage가 직접 관리
     ScrollTrigger.killAll(true);
 
     const pinSpacers = document.querySelectorAll(

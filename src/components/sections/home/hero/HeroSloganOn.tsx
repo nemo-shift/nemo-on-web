@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { COLORS } from '@/constants/colors';
+import { cn } from '@/lib/utils';
 
 interface HeroSloganOnProps {
   sentence?: string;
@@ -108,7 +109,19 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                 className="flex items-center justify-center px-1.5 py-1 min-w-fit"
               >
                 <span
-                  className="text-[2.2rem] tablet:text-[3.6rem] desktop-wide:text-[4.2rem] font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none"
+                  /* 
+                   * [V11.33] 온모드 슬로건 5단계 정규화
+                   * - 모바일(2.2rem)부터 데스크탑 캡(4.8rem)까지 계단식 성장 적용
+                   * - 특히 tablet-p(744px) 구간의 3.0rem 수치를 추가하여 중형 태블릿의 가독성 확보
+                   */
+                  className={cn(
+                    "font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none transition-all duration-500",
+                    "text-[2.2rem]",                  // Mobile
+                    "tablet-p:text-[3.0rem]",          // 744px
+                    "tablet:text-[3.6rem]",            // 992px
+                    "desktop-wide:text-[4.2rem]",      // 1440px
+                    "desktop-cap:text-[4.8rem]"        // 1920px
+                  )}
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,

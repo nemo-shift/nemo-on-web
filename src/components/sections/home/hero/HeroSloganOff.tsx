@@ -15,9 +15,9 @@ interface HeroSloganOffProps {}
  */
 const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
   return (
-    <div className="relative w-full min-h-[120px] flex flex-col justify-start overflow-hidden">
+    <div className="relative w-fit tablet-p:w-full mx-auto min-h-[120px] flex flex-col justify-start overflow-hidden">
       <div
-        className="flex flex-col items-center justify-center text-center gap-1 md:gap-2 pointer-events-auto"
+        className="flex flex-col items-start tablet-p:items-center gap-1 md:gap-2 pointer-events-auto"
         style={{
           fontFamily: 'var(--font-suit), sans-serif',
           color: COLORS.TEXT.LIGHT,
@@ -25,9 +25,9 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
       >
         <div 
           className={cn(
-            "flex flex-wrap items-center gap-x-2 font-light justify-center text-center",
-            "text-[1.8rem] tablet:text-[2.2rem] desktop-wide:text-[2.5rem]",
-            "tracking-tight tablet:tracking-[0.12em]"
+            "flex flex-wrap items-center gap-x-2 font-light justify-start text-left tablet-p:justify-center tablet-p:text-center",
+            "text-[1.3rem] tablet-p:text-[2rem] tablet:text-[1.7rem] desktop-wide:text-[1.8rem] desktop-cap:text-[2rem]",
+            "tracking-tight tablet-p:tracking-[0.12em]"
           )}
         >
           <span className="opacity-50">흐릿한</span>
@@ -37,7 +37,7 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
           >
             <RotatingText
               texts={['아이디어를', '생각을', '확신을', '방향을']}
-              mainClassName="justify-center inline-flex"
+              mainClassName={cn("justify-start inline-flex", "tablet-p:justify-center")}
               staggerDuration={0.04}
               rotationInterval={3000}
             />
@@ -45,9 +45,9 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
         </div>
         <div
           className={cn(
-            "font-semibold text-center w-full",
-            "text-[2.4rem] tablet:text-[3.2rem] desktop-wide:text-[3.5rem]",
-            "tracking-tighter tablet:tracking-[0.05em]"
+            "font-semibold text-left tablet-p:text-center w-full",
+            "text-[1.8rem] tablet-p:text-[2.8rem] tablet:text-[2.5rem] desktop-wide:text-[2.8rem] desktop-cap:text-[3rem]",
+            "tracking-tighter tablet-p:tracking-[0.05em]"
           )}
         >
           작동하는 브랜드로.

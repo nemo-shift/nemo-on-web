@@ -92,7 +92,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         {/* 1. 한글 네모 (Layer A) */}
         <div 
           ref={nemoKrRef} 
-          className="font-esamanru font-bold tablet:font-light text-[clamp(55px,calc(50px+1.5vw),62px)] tablet-p:text-[clamp(70px,calc(-170px+32vw),150px)] tablet:text-[clamp(150px,calc(75px+7.5vw),185px)] desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)] desktop-cap:text-[220px] tracking-normal"
+          className="font-esamanru font-bold tablet:font-light text-[clamp(55px,calc(60px+1.5vw),80px)] tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)] tablet:text-[clamp(150px,calc(75px+7.5vw),185px)] desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)] desktop-cap:text-[220px] tracking-normal"
           style={colorStyle}
         >
           네모
@@ -130,7 +130,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         {/* 3. ON/OFF (Scramble) */}
         <div 
           ref={statusRef} 
-          className="font-gmarket font-bold tablet:font-light text-[clamp(52px,calc(48px+1.2vw),58px)] tablet-p:text-[clamp(62px,calc(-180px+32vw),140px)] tablet:text-[clamp(140px,calc(68px+7.5vw),175px)] desktop-wide:text-[clamp(175px,calc(75px+7.2vw),210px)] desktop-cap:text-[210px] tracking-tight min-w-[clamp(65px,calc(56px+2.5vw),90px)] tablet-p:min-w-[clamp(90px,calc(-20px+15vw),135px)] tablet:min-w-[clamp(170px,calc(8vw+10vw),250px)] desktop-wide:min-w-[clamp(250px,calc(-25px+19vw),380px)] desktop-cap:min-w-[380px]"
+          className="font-gmarket font-bold tablet:font-light text-[clamp(62px,calc(48px+1.2vw),82px)] tablet-p:text-[clamp(132px,calc(-180px+32vw),250px)] tablet:text-[clamp(140px,calc(68px+7.5vw),175px)] desktop-wide:text-[clamp(175px,calc(75px+7.2vw),210px)] desktop-cap:text-[210px] tracking-tight min-w-[clamp(65px,calc(56px+2.5vw),90px)] tablet-p:min-w-[clamp(90px,calc(-20px+15vw),135px)] tablet:min-w-[clamp(170px,calc(8vw+10vw),250px)] desktop-wide:min-w-[clamp(250px,calc(-25px+19vw),380px)] desktop-cap:min-w-[380px]"
           style={statusColorStyle}
         >
           {scrambledText || (isOn ? 'ON' : 'OFF')}

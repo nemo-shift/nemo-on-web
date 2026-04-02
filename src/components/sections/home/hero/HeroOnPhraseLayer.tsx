@@ -29,9 +29,18 @@ const PhraseLine = ({
   isOn?: boolean;
 }) => (
   <div
+    /* 
+     * [V11.33] PhraseLine 멤버 컴포넌트 5단계 정밀 스케일링
+     * - 모바일(28px)부터 데스크탑 캡(48px)까지 기기별 컨텐츠 비중을 고려해 설계
+     * - 각 텍스트 요소가 로고 주변에서 고정된 비례를 유지하도록 함
+     */
     className={cn(
       "font-[family-name:var(--font-suit)] leading-none -tracking-[0.01em] transition-all duration-1000 ease-out whitespace-nowrap flex items-center gap-[0.1em]",
-      "text-[44px] tablet:text-[32px] desktop-wide:text-[48px]",
+      "text-[28px]",                          // Mobile
+      "tablet-p:text-[32px]",                  // 744px
+      "tablet:text-[36px]",                    // 992px
+      "desktop-wide:text-[44px]",              // 1440px
+      "desktop-cap:text-[48px]",               // 1920px
       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-7"
     )}
     style={{
@@ -84,15 +93,17 @@ export default function HeroOnPhraseLayer({
   return (
     <div 
       className={cn(
-        "absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-opacity duration-400",
-        isMobileView ? "items-start gap-[0.24em] translate-x-[8%] -translate-y-[5%]" : "items-center gap-[min(1vw,1.5vh)] -translate-x-[8%] translate-y-[5vh]",
+        "absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-all duration-500",
+        "items-start gap-[0.24em] translate-x-[8%] -translate-y-[5%]",
+        "tablet-p:items-center tablet-p:gap-[min(1vw,1.5vh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5vh]",
         isOn && visible ? "visible opacity-100" : "hidden opacity-0"
       )}
     >
       <div 
         className={cn(
           "relative z-[2] flex flex-col transition-all duration-400 ease-out gap-[0.24em]",
-          isMobileView ? "items-start" : "items-center",
+          "items-start",
+          "tablet-p:items-center",
           isInteractionActive ? "translate-y-[10px] invisible opacity-0" : "translate-y-0 visible opacity-100"
         )}
       >
@@ -107,7 +118,8 @@ export default function HeroOnPhraseLayer({
               color: circleColor, 
               pointerEvents: isOn ? 'auto' : 'none',
               cursor: sequenceStep >= 4 ? 'pointer' : 'default',
-              padding: isMobileView ? '0 4px' : '0'
+              padding: '0 4px',
+              paddingInline: interactionMode === 'touch' ? '0 4px' : '0'
             }}
           >
               감성
@@ -126,7 +138,8 @@ export default function HeroOnPhraseLayer({
               color: triColor, 
               pointerEvents: isOn ? 'auto' : 'none',
               cursor: sequenceStep >= 4 ? 'pointer' : 'default',
-              padding: isMobileView ? '0 4px' : '0'
+              padding: '0 4px',
+              paddingInline: interactionMode === 'touch' ? '0 4px' : '0'
             }}
           >
               구조
@@ -156,10 +169,8 @@ export default function HeroOnPhraseLayer({
               flexShrink: 0,
               position: 'relative',
               overflow: 'hidden',
-              transition: 'background 0.3s ease, color 0.3s ease',
-              cursor: sequenceStep >= 4 ? 'pointer' : 'default',
-              pointerEvents: isOn ? 'auto' : 'none',
-              margin: isMobileView ? '0 4px' : '0'
+              margin: '0 4px',
+              marginInline: interactionMode === 'touch' ? '0 4px' : '0'
             }}
           >
             <span
@@ -189,8 +200,12 @@ export default function HeroOnPhraseLayer({
       >
         <span
           className={cn(
-            "font-[family-name:var(--font-suit)] font-medium text-[#1a1a1a] whitespace-nowrap -tracking-[0.02em] block",
-            isMobileView ? "text-[1.8rem]" : "text-[clamp(1.8rem,4vh,2.6rem)]"
+            "font-[family-name:var(--font-suit)] font-medium text-[#1a1a1a] whitespace-nowrap -tracking-[0.02em] block transition-all duration-500",
+            "text-[1.8rem]",
+            "tablet-p:text-[2rem]",
+            "tablet:text-[2.2rem]",
+            "desktop-wide:text-[2.6rem]",
+            "desktop-cap:text-[3rem]"
           )}
         >
             브랜드의 결을 켭니다

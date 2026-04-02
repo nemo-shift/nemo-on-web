@@ -54,7 +54,7 @@ export default function HeroOffMobileView({
         id="hero-mobile-central-action-group"
         className="absolute flex flex-col items-center gap-[6vh] pointer-events-auto opacity-0"
         style={{ 
-          top: '55%',
+          top: '58%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '100%',
@@ -66,7 +66,7 @@ export default function HeroOffMobileView({
         
         <div 
           className="relative z-50 flex flex-col items-center gap-4"
-          style={{ marginTop: '2vh' }}
+          style={{ marginTop: '-7vh' }}
         >
           <HeroToggle
             isOn={isOn}
@@ -81,7 +81,7 @@ export default function HeroOffMobileView({
         id="hero-mobile-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '12vh', 
+          bottom: '-28vh', 
           left: '50%', 
           transform: 'translateX(-50%)'
         }}

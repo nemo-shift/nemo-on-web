@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { COLORS } from '@/constants/colors';
+import { cn } from '@/lib/utils';
 
 export const MessageSection = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -19,9 +20,24 @@ export const MessageSection = () => {
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
         style={{ zIndex: 20 }}
       >
-        <h2 className="text-4xl md:text-6xl font-bold text-black/12 uppercase tracking-[0.2em]">
-          Core Message
-        </h2>
+        <div 
+          /* [V11.33] 전역 표준 5축 패딩 적용 */
+          className="container mx-auto px-6 tablet-p:px-8 tablet:px-10 desktop-wide:px-12 desktop-cap:px-16 flex flex-col items-center"
+        >
+          <h2 
+            /* [V11.33] 섹션 상징 문구 5단계 정문화 표준 프리셋 적용 */
+            className={cn(
+              "font-bold text-black/12 uppercase tracking-[0.2em] transition-all duration-500",
+              "text-4xl",                         // Mobile
+              "tablet-p:text-5xl",                 // 744px
+              "tablet:text-6xl",                   // 992px
+              "desktop-wide:text-7xl",             // 1440px
+              "desktop-cap:text-8xl"               // 1920px
+            )}
+          >
+            Core Message
+          </h2>
+        </div>
       </div>
     </section>
   );

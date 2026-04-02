@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useHeroContext } from '@/context';
+import { cn } from '@/lib/utils';
 
 interface SubPageLayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,21 @@ export default function SubPageLayout({
     <main className="relative z-[1] w-full">
       {/* 1. 실제 서브 페이지 컨텐츠 (배경색 격리 레이어 + 컨텐츠 스타일 적용) */}
       <div 
-        className={`w-full min-h-screen ${bg} ${className}`}
+        /* 
+         * [V11.33] 서브페이지 전역 패딩 정규화
+         * - 모든 상세 페이지(About, Contact 등)의 상단 여백 및 좌우 여백을 5축 시스템에 통합
+         * - Header 높이와 비례하여 상단 여백(pt)을 기기별로 차등 배분
+         */
+        className={cn(
+          "w-full min-h-screen transition-all duration-500",
+          "pt-20 px-6",                          // Mobile
+          "tablet-p:pt-24 tablet-p:px-8",        // 744px
+          "tablet:pt-28 tablet:px-10",           // 992px
+          "desktop-wide:pt-32 desktop-wide:px-12", // 1440px
+          "desktop-cap:pt-40 desktop-cap:px-16",  // 1920px
+          bg, 
+          className
+        )}
         style={{ 
           backgroundColor: bg === "bg-surface-cream" ? "var(--bg)" : undefined 
         }}

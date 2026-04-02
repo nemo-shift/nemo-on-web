@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { useHeroContext } from '@/context';
 import { usePathname } from 'next/navigation';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import { cn } from '@/lib/utils';
 
 // ─────────────────────────────────────────────
 // 상수: SVG 앵커 포인트 (viewBox 0 0 24 24 기준)
@@ -156,11 +157,20 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onToggle}
-      className="fixed flex items-center justify-center bg-transparent border-none cursor-pointer p-0"
+      /* 
+       * [V11.33] MenuToggle 위치 정규화
+       * - Header.tsx의 패딩(px, py) 수치와 1:1로 동기화하여 시각적 통일성 확보
+       * - 기기가 커질수록 우측 상단 모서리로부터의 간격이 비례적으로 증가
+       */
+      className={cn(
+        "fixed flex items-center justify-center bg-transparent border-none cursor-pointer p-0 transition-all duration-500",
+        "top-5 right-6",                        // Mobile
+        "tablet-p:top-6 tablet-p:right-8",      // 744px
+        "tablet:top-7 tablet:right-10",         // 992px
+        "desktop-wide:top-8 desktop-wide:right-12", // 1440px
+        "desktop-cap:top-10 desktop-cap:right-16"   // 1920px
+      )}
       style={{
-        // 헤더의 px-6 py-5 md:px-12 md:py-8 에 맞춰 위치 동기화
-        top: 'clamp(16px, 2vw, 32px)',
-        right: 'clamp(24px, 3vw, 48px)',
         width: 40,
         height: 40,
         zIndex: INTERACTION_Z_INDEX.MENU_TOGGLE,

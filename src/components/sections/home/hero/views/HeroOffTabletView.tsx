@@ -17,7 +17,7 @@ type HeroOffTabletViewProps = {
 
 /**
  * [V11.31] HeroOffTabletView
- * 태블릿 전용 오프모드 UI 레이어
+ * 태블릿세로모드 전용 오프모드 UI 레이어
  */
 export default function HeroOffTabletView({
   isOn,
@@ -72,7 +72,7 @@ export default function HeroOffTabletView({
         
         <div 
           className="relative z-50"
-          style={{ marginTop: '4vh' }}
+          style={{ marginTop: '-1vh' }}
         >
           <HeroToggle
             isOn={isOn}

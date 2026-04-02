@@ -80,8 +80,8 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
             <span 
               className={cn(
                 "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
-                "text-[2.4rem] tablet:text-[5.2rem] desktop-wide:text-[6rem]",
-                "tracking-[0.2em] tablet:tracking-[0.15em] desktop-wide:tracking-normal"
+                "text-[2.2rem] tablet-p:text-[4rem] tablet:text-[4.5rem] desktop-wide:text-[5.5rem] desktop-cap:text-[6rem]",
+                "tracking-[0.2em] tablet-p:tracking-[0.15em] tablet:tracking-[0.12em] desktop-wide:tracking-normal"
               )}
               style={{ 
                 transform: isMobile ? 'translateX(-12vw) scaleX(0.8)' : (isMobileView ? 'translateX(-10vw) scaleX(0.75)' : 'translateX(-8vw) scaleX(0.7)'),
@@ -100,8 +100,8 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
             <span 
               className={cn(
                 "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
-                "text-[3.0rem] tablet:text-[6rem] desktop-wide:text-[7.5rem]",
-                "mt-[-0.2vh] tablet:mt-[-0.1vh] desktop-wide:mt-[-1vh]"
+                "text-[2.8rem] tablet-p:text-[5rem] tablet:text-[5.5rem] desktop-wide:text-[7rem] desktop-cap:text-[8rem]",
+                "mt-[-0.2vh] tablet-p:mt-[-0.1vh] tablet:mt-[-0.5vh] desktop-wide:mt-[-1vh]"
               )}
               style={{ 
                 transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : (isMobileView ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)'),

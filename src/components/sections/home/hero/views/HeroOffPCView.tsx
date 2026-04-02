@@ -79,12 +79,12 @@ export default function HeroOffPCView({
 
       {/* [V11.4 3-Tier Layering] - 3단계 독립 레이어링 */}
       <>
-        {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) - 화면 정중앙 45% 정박 */}
+        {/* 1. 중앙 액션 그룹 (로테이팅 슬로건 + 토글) - 화면 정중앙 45% 정박 */}
         <div 
           id="hero-central-action-group"
-          className="absolute flex flex-col items-center gap-[4vh] pointer-events-auto opacity-0"
+          className="absolute flex flex-col items-center gap-[1vh] pointer-events-auto opacity-0"
           style={{ 
-            top: '45%',
+            top: '56%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             marginTop: '0vh' 
@@ -92,7 +92,7 @@ export default function HeroOffPCView({
           onMouseEnter={() => setIsToggleHovered(true)}
           onMouseLeave={() => setIsToggleHovered(false)}
         >
-          {/* [다크모드 로테이팅 프레이즈] */}
+          {/* [다크모드 로테이팅 슬로건] */}
           <HeroSloganOff />
           
           {/* [토글 버튼] */}
@@ -105,7 +105,7 @@ export default function HeroOffPCView({
           </div>
         </div>
 
-        {/* 2. 하단 베이스라인 레이어 (영어 슬로건) - 화면 하단 -20vh 정박 */}
+        {/* 2. 하단 베이스라인 레이어 (CTA) - 화면 하단 -20vh 정박 */}
         <div 
           id="hero-bottom-message-layer"
           className="absolute flex flex-col items-center pointer-events-auto opacity-0"
