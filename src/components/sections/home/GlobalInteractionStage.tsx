@@ -41,7 +41,12 @@ export const GlobalInteractionStage = ({
   const fallingRef   = useRef<FallingKeywordsHandle>(null);
   const masterTl     = useRef<gsap.core.Timeline | null>(null);
   const rafId        = useRef<number | null>(null);
-  const keywordsTrigger = useRef<ScrollTrigger | null>(null); // [V16.41] 독립형 트리거
+  const keywordsTrigger = useRef<ScrollTrigger | null>(null);
+
+  // [V11.34] 유동성 시스템 정밀 동기화: 리사이즈 시 진행률 및 픽셀 위치 보존용 Ref
+  const currProgressRef = useRef<number>(0);
+  const rawScrollYRef   = useRef<number>(0);
+  const isRestoringRef  = useRef<boolean>(false); // [V11.34] 복원 모드 플래그 추가
 
   // [V5.4] 브라우저의 강제 스크롤 복구 방지 (영점 동기화 하드닝)
   useEffect(() => {
@@ -55,10 +60,7 @@ export const GlobalInteractionStage = ({
 
   /**
    * [V11.31 Knowledge Transfer] GlobalInteractionStage
-   * 이 컴포넌트는 전체 서비스의 '마스터 타임라인'을 관리하며, 다음과 같은 엄격한 인터랙션을 보장함:
-   * 1. 영점 동기화 (Zero-Point Sync): rAF와 ScrollTrigger.refresh()를 조합하여 브라우저 레이아웃 확정 후 좌표를 계산.
-   * 2. 좀비 인스턴스 방지 (Zombie Instance Kill): 명시적인 클린업 순서를 통해 이전 타임라인의 잔재를 제거.
-   * 3. 마스터 시트(Interaction Journey) 기반의 선형적 시퀀스 제어.
+   * (중략)
    */
   useGSAP(() => {
     const logo = logoHandle.current;
@@ -68,8 +70,8 @@ export const GlobalInteractionStage = ({
     if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
 
     const ctx = gsap.context(() => {
-      // [V4.1 Strategy] 초기화 시점의 스타일 강제 주입 (레이아웃 시프트 방지)
-      initGlobalStyles(isOn);
+      // [V4.1 Strategy] 초기화 시점의 스타일 강제 주입
+      initGlobalStyles(isOn, isMobileView);
       
       if (!masterTl.current) {
         initLogoState(logo, isOn, isMobileView);
@@ -77,54 +79,63 @@ export const GlobalInteractionStage = ({
       initNemoState(nemo);
 
       if (isScrollable) {
-        // [V5.4 Zombie Kill] 새 엔진이 가동되기 직전, 모든 이전 잔재(ScrollTrigger 인스턴스) 소거
-        // 리액트 스트릭트 모드 또는 빠른 리프레시 상황에서 인스턴스가 겹치는 것을 원천 차단.
+        // [V5.4 Zombie Kill] 새 엔진이 가동되기 직전, 모든 이전 잔재 소거
         ScrollTrigger.getAll().forEach((t) => t.kill());
 
-        // [V5.3 Priority] 푸터 높이가 측정되기 전에는 타임라인 빌드를 보류하여 '데드 스크롤' 영역 발생 방지.
         if (footerHeight === 0) return;
 
-        // [V4.2 Timing] 중요: 브라우저가 스크롤바 생성 등 레이아웃을 확정할 때까지 한 틱(Next Tick) 대기 필수.
-        // 이를 누락하면 모바일/태블릿에서 핀(Pin) 좌표가 억 단위(28,815px 등)로 튀는 버그 발생 가능.
+        // [V4.2 Timing] 레이아웃 확정 대기 (Next Tick)
         rafId.current = requestAnimationFrame(() => {
-          masterTl.current = gsap.timeline();
           const { offsets: L, totalWeight } = calculateLabels();
-          
-          // [V5.3 Fix] 섹션별 고정 VH 높이를 픽셀로 환산하여 ScrollTrigger end 값과 1:1 동기화.
           const H = SECTION_SCROLL_HEIGHT;
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
           const finalY = vhToPx(H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA) + footerHeight;
 
-          // 마스터 타임라인 생성 및 핀(Pin) 설정
+          // [V11.34] 마스터 타임라인 생성 및 캡처 로직 (onUpdate)
           masterTl.current = gsap.timeline({
             scrollTrigger: {
               trigger: '#home-stage',
               start: 'top top',
-              // [V5.3 Fix] 이동 거리 == 스크롤 거리 관계를 유지하여 '무한 스크롤' 또는 '조기 종료' 현상 차단.
               end: () => `+=${finalY}`,
               scrub: TIMING_CFG.SCRUB,
               pin: true,
               pinSpacing: true, 
             },
             defaults: { ease: 'none' },
+            // 상시 스냅샷: 리사이즈 0 리셋이 일어나기 전의 마지막 절대 위치를 박제함
+            onUpdate: function() {
+              const currentProgress = this.progress();
+              const currentScrollY = window.scrollY;
+              
+              if (currentProgress > 0) {
+                currProgressRef.current = currentProgress;
+              }
+              // [V11.34-P2] 리사이즈 리셋 0을 회피하기 위해 0보다 클 때만 스냅샷 갱신
+              if (currentScrollY > 0) {
+                rawScrollYRef.current = currentScrollY;
+              }
+            }
           });
           
           const tl = masterTl.current;
 
-          // 마스터 시트에서 계산된 오프셋 라벨 주입
+          // 마스터 시트 라벨 주입
           Object.entries(L).forEach(([key, time]) => {
             tl.addLabel(key, time);
           });
 
-          // 개별 섹션 빌더 호출 (로고, 네모, 섹션 스크롤 등)
-          buildLogoTimeline(tl, logo, isMobileView, L);
-          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L);
-          buildSectionScrollTimeline(tl, L, finalY);
+          // [V11.34-P5] 동기화 가드: 타임라인 빌드 직전에 정답 색상을 :root에 강제 주입
+          // GSAP이 브라우저의 불안정한 스타일을 캡처하기 전에 먼저 선수 칩니다.
+          initGlobalStyles(isOn, isMobileView);
 
+          // 개별 섹션 빌더 호출
+          buildLogoTimeline(tl, logo, isMobileView, L);
+          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L, isRestoringRef);
+          buildSectionScrollTimeline(tl, L, finalY);
           buildMessageTimeline(tl, nemo, L);
           buildHeroSwapSequence(tl, nemo);
 
-          // [V16.41] 독립형 물리 엔진 제어 트리거: 뷰포트 내(OnEnter)에서만 물리 시뮬레이션 가동하여 GPU 부하 절감.
+          // [V16.41] 독립형 물리 엔진 제어 트리거
           keywordsTrigger.current = ScrollTrigger.create({
             trigger: '#section-pain', 
             start: 'top bottom',      
@@ -135,10 +146,30 @@ export const GlobalInteractionStage = ({
             onLeaveBack: () => fallingRef.current?.pauseSimulation(),
           });
 
-          // 핀(Pin) 계산 후 좌표 무결성 강제 갱신 (Double-Lock 기법)
+          // [V11.34 Step 1 최종 보정] 픽셀 스냅샷 기반 강제 복원 (리사이즈 리셋 대응)
+          const targetProgress = currProgressRef.current;
+          const targetScrollY = rawScrollYRef.current;
+
+          // 1. [좌표 확정] 새 해상도에 맞게 모든 핀 좌표 재계산 (사용자 제안 반영: 복원 전 수행)
           ScrollTrigger.refresh();
-          
-          // [V5.4 Stability] 모든 레이아웃 준비 완료 후 푸터 마스킹 해제 신호 전송
+
+          // 2. [강제 복원] 픽셀 좌표를 진행률보다 "먼저" 믿으며, Lenis 엔진을 직접 제어합니다.
+          if (targetScrollY > 0 || targetProgress > 0.001) {
+            // [V11.34-Step 3] 성벽 강화: 복원 시퀀스 시작 (Double-Lock 가동)
+            isRestoringRef.current = true;
+            
+            if (targetScrollY > 0) {
+              window.scrollTo(0, targetScrollY);
+              window.lenis?.scrollTo(targetScrollY, { immediate: true });
+            } else {
+              tl.progress(targetProgress);
+            }
+
+            // [V11.34-Step 3] 사용자 지시: refresh() 완료 후에만 성벽 해제 (안성성 확보)
+            ScrollTrigger.refresh();
+            isRestoringRef.current = false;
+          }
+
           setTimeout(() => {
             setIsTimelineReady(true);
             ScrollTrigger.refresh();
@@ -148,10 +179,14 @@ export const GlobalInteractionStage = ({
     });
 
     return () => {
-      // [V4.2 Cleanup] 마운트 해제 시 비동기 작업(rAF) 및 GSAP 컨텍스트 강제 초기화
+      // [V11.34] 클린업 브릿지: 타임라인 파괴 직전 최종 위치 박제
+      if (masterTl.current) {
+        const lastProgress = masterTl.current.progress();
+        if (lastProgress > 0) currProgressRef.current = lastProgress;
+      }
+
       if (rafId.current) cancelAnimationFrame(rafId.current);
 
-      // [V5.4 Finalizer] ctx.revert() 전에 스타일을 먼저 초기화하여 레이아웃 붕괴 방지.
       const wrapper = document.getElementById('sections-content-wrapper');
       if (wrapper) {
         wrapper.style.position = '';
@@ -162,11 +197,8 @@ export const GlobalInteractionStage = ({
       }
 
       ctx.revert();
-
-      // [V5.4 Finalizer] GSAP 표준 방식으로 스타일 초기화 (revert 후에 최종 정리)
       gsap.set('#home-stage', { clearProps: 'transform,position' });
 
-      // [V5.4 Zombie Defense] rAF 내부에서 생성된 인스턴스는 명시적으로 제거해야 함.
       if (masterTl.current) {
         masterTl.current.scrollTrigger?.kill();
         masterTl.current.kill();
@@ -176,6 +208,11 @@ export const GlobalInteractionStage = ({
       if (keywordsTrigger.current) {
         keywordsTrigger.current.kill();
         keywordsTrigger.current = null;
+      }
+
+      // [V11.34 Step 2] 물리 엔진 세이프 리셋: 리사이즈 시 히어로 섹션의 키워드 잔상 즉시 소거
+      if (fallingRef.current) {
+        fallingRef.current.reset();
       }
 
       setIsTimelineReady(false);

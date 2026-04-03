@@ -22,7 +22,8 @@ export function buildNemoTimeline(
   nemo: SharedNemoHandle, 
   device: { isMobile: boolean; isTabletPortrait: boolean }, 
   falling: FallingKeywordsHandle, 
-  L: Record<string, number>
+  L: Record<string, number>,
+  isRestoringRef: { current: boolean } // [V11.34-P5] 리액트 의존성 없는 순수 타입으로 개선
 ) {
   const el = nemo.nemoEl!;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
@@ -98,8 +99,14 @@ export function buildNemoTimeline(
     point.keywords.forEach((kw, kwIdx) => {
       tl.to({}, { 
         duration: 0.001, 
-        onStart: () => falling.addKeyword(kw), 
-        onReverseComplete: () => falling.popKeyword(kw) 
+        onStart: () => {
+          if (isRestoringRef.current) return;
+          falling.addKeyword(kw);
+        }, 
+        onReverseComplete: () => {
+          if (isRestoringRef.current) return;
+          falling.popKeyword(kw);
+        }
       }, startTime + 0.2 + (kwIdx * 0.02));
     });
 
@@ -126,9 +133,11 @@ export function buildNemoTimeline(
   tl.to({}, { 
     duration: 0.1, 
     onStart: () => {
+      if (isRestoringRef.current) return;
       falling.dropAll();
     },
     onReverseComplete: () => {
+      if (isRestoringRef.current) return;
       falling.magneticReset();
     }
   }, L[STAGES.PAIN_SHIFT]);

@@ -47,6 +47,10 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
   
   const sections = LOGO_JOURNEY_SECTIONS;
+  
+  // [V11.34-P5] 데이터 체이닝(Data Chaining): 이전 섹션의 환경 데이터를 기억하여 fromTo의 시작값으로 사용
+  // 브라우저의 현재 computedStyle을 묻지 않고, 명시적 데이터를 주입하여 rgba(0,0,0,0) 오류를 원천 차단합니다.
+  let lastEnv = JOURNEY_MASTER_CONFIG[STAGES.HERO].env;
 
   sections.forEach(({ label, stage }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
@@ -54,12 +58,26 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
     const cfg = isMobile && raw.mobile ? { ...raw, ...raw.mobile } : raw;
     const time = L[label];
 
-    // [전역 색상 전이] 배경 및 텍스트 색상을 스테이지 설정에 맞춰 부드럽게 변경
-    tl.to(document.documentElement, {
-      '--header-fg': cfg.env.fg,
-      '--bg': cfg.env.bg,
-      duration: t * r
-    }, time);
+    // [전역 색상 전이] fromTo를 사용하여 시작과 끝을 데이터로 강제 고정
+    tl.fromTo(document.documentElement, 
+      {
+        '--header-fg': lastEnv.fg,
+        '--bg': lastEnv.bg
+      },
+      {
+        '--header-fg': cfg.env.fg!,
+        '--bg': cfg.env.bg!,
+        duration: t * r,
+        ease: 'none',
+        immediateRender: false // [V11.34-P5] 빌드 시점의 시각적 오염 방지
+      }, 
+      time
+    );
+
+    // 다음 섹션을 위해 현재 환경 데이터를 업데이트 (타입 보증을 위해 Non-null 처리)
+    if (cfg.env.fg && cfg.env.bg) {
+      lastEnv = { fg: cfg.env.fg, bg: cfg.env.bg };
+    }
 
     // 로고 세부 요소(한글 텍스트, 상태 바 등) 변환
     tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: 0.2 }, time);

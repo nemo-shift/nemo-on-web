@@ -88,12 +88,8 @@ export function calculateLabels() {
   return { offsets, totalWeight };
 }
 
-/**
- * [V4.1] initGlobalStyles
- * 모드(ON/OFF) 및 기기에 따른 전역 CSS 변수(Color Tokens)를 즉시 주입.
- * 타임라인이 동작하기 전, 초기 배경색과 텍스트색을 확정하여 '레이아웃 시프트'와 '화면 깜빡임'을 방지함.
- */
-export function initGlobalStyles(isOn: boolean) {
+// [V11.34-P5] 모드(ON/OFF) 및 기기(isMobile)에 따른 전역 CSS 변수를 '동기적으로' 즉시 주입.
+export function initGlobalStyles(isOn: boolean, isMobile: boolean) {
   const cfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
   let env = { ...cfg.env };
   
@@ -101,7 +97,7 @@ export function initGlobalStyles(isOn: boolean) {
     env = { ...env, ...cfg.on.env };
   }
   
-  if (cfg.mobile?.env) {
+  if (isMobile && cfg.mobile?.env) {
     env = { ...env, ...cfg.mobile.env };
   }
   

@@ -18,6 +18,13 @@
 
 ---
 
+### [x] [4A] V11.34 리사이즈 무결성 엔진 및 색상 동기화 가드 (2026-04-04 완료)
+
+- **대상**: `GlobalInteractionStage.tsx`, `builders/hero.ts`, `builders/pain.ts`, `Footer.tsx`
+- **내능**: 리사이즈 0-reset 대응 스냅샷 복원, 물리 엔진 이중 잠금(Double-Lock), 데이터 체이닝 기반 색상 무결성 확보.
+- **성과**: 리사이즈 시 스크롤 튕김, 키워드 중복, 로고 투명화(`rgba(0,0,0,0)`) 현상 완전 진압.
+- **아키텍처**: `invalidateOnRefresh`를 제거하고 '데이터 무결성' 중심으로 엔진 체질 개선.
+
 ### [x] [3B] V11.21 히어로 컴포넌트 JIT 격리 패턴 표준화 (2026-03-29 완료)
 
 - **대상**: `HeroPCView.tsx`, `HeroTabletView.tsx`, `HeroMobileView.tsx`, `HeroSection.tsx`
@@ -52,7 +59,19 @@
 
 본 문서는 현재 구조적 안정성 확보 이후, 콘텐츠 작업 및 최종 품질 강화 단계에서 수행해야 할 기술적 개선 사항을 기록합니다.
 
-## 1. 콘텐츠 작업 단계 (Phase: Content Implementation)
+## 1. 콘텐츠 작업 및 시스템 고도화 단계 (Phase: Optimization & Content)
+
+### [Next] [3E] 3단계 초정밀 미세 리사이즈 보간 (Micro-sync)
+
+- **대상**: `GlobalInteractionStage.tsx`의 리사이즈 복원 시퀀스
+- **내용**: `invalidateOnRefresh: true` 제거 이후 발생하는 브라우저 상단 바 이동 등 1~10px의 미세 오차를 수학적으로 보간.
+- **핵심**: 리사이즈 완료 시점의 수동 갱신(`ScrollTrigger.refresh()`)과 부드러운 위치 재조정(`gsap.to(window, ...)`) 로직 구현.
+
+### [Next] [2B] Pure TS 아키텍처 확산 (React Decoupling)
+
+- **대상**: `src/components/sections/home/builders/*.ts` 전역
+- **내용**: `builders/pain.ts`에서 검증된 `{ current: boolean }` 순수 타입 방식을 전체 애니메이션 빌더로 확산.
+- **목적**: 애니메이션 로직에서 리액트 의존성을 제거하여 테스트 용이성 및 엔진 순수성 확보.
 
 ### [2A] 애니메이션 타이밍 및 수치 상수화 (Magic Number Refactoring)
 

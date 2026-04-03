@@ -20,25 +20,33 @@ export default function Footer(): React.ReactElement {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
-  // [V5.3] ResizeObserver를 통한 실제 푸터 높이 감지 및 전역 상태 동기화
+  // [V11.34] ResizeObserver에 200ms 디바운스를 적용하여 리사이즈 중 부하 임계점 제어
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     const element = footerRef.current;
     if (!element) return;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const height = entry.contentRect.height;
-        // Padding/Border를 포함한 실제 높이(offsetHeight)가 필요하므로 
-        // 렌더링된 요소의 실제 크기를 취득
         const actualHeight = element.offsetHeight;
         if (actualHeight > 0) {
-          setFooterHeight(actualHeight);
+          // [V11.34] 기존 타이머가 있다면 취소하고 마지막 1회만 실행
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          
+          debounceRef.current = setTimeout(() => {
+            setFooterHeight(actualHeight);
+            debounceRef.current = null;
+          }, 200); 
         }
       }
     });
 
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [setFooterHeight]);
 
   return (
