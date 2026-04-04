@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { 
-  LOGO_SIZE, TIMING_CFG, STAGES, EASE 
+  LOGO_SIZE, TIMING_CFG, STAGES, EASE, ANIMS_CFG 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { LOGO_JOURNEY_SECTIONS } from '../interaction-journey';
@@ -22,9 +22,9 @@ export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHa
   if (!originEl) return;
 
   tl.set([originEl, originText, nemo.nemoEl], { transition: 'none' }, 0);
-  tl.to(originEl, { backgroundColor: 'transparent', borderColor: 'transparent', boxShadow: 'none', duration: 0.1 }, 0);
-  tl.to(nemo.nemoEl, { opacity: 1, duration: 0.01 }, 0);
-  if (originText) tl.to(originText, { opacity: 0, y: -15, duration: 0.1 }, 0);
+  tl.to(originEl, { backgroundColor: 'transparent', borderColor: 'transparent', boxShadow: 'none', duration: ANIMS_CFG.SWAP_FADE }, 0);
+  tl.to(nemo.nemoEl, { opacity: 1, duration: ANIMS_CFG.SWAP_APPEAR }, 0);
+  if (originText) tl.to(originText, { opacity: 0, y: -15, duration: ANIMS_CFG.SWAP_TEXT_EXIT }, 0);
 }
 
 /**
@@ -81,22 +81,22 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
     }
 
     // 로고 세부 요소(한글 텍스트, 상태 바 등) 변환
-    tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: 0.2 }, time);
+    tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: ANIMS_CFG.LOGO_MORPH }, time);
     tl.to([logo.shapesEl, logo.statusEl], { 
       opacity: cfg.logo.status ? 1 : 0, 
       visibility: cfg.logo.status ? 'visible' : 'hidden', 
-      duration: 0.2 
+      duration: ANIMS_CFG.LOGO_MORPH 
     }, time);
     tl.to(logo.rectangleEl, { 
       opacity: cfg.logo.rectangle ? 1 : 0, 
       visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
-      duration: 0.2 
+      duration: ANIMS_CFG.LOGO_MORPH 
     }, time);
 
     // [+] <-> [-] 형태적 모핑(Morphing)
     if (logo.tLines.h && logo.tLines.v) {
       const isPlus = cfg.logo.morph === '+';
-      tl.to(logo.tLines.h, { top: isPlus ? '60px' : '20px', duration: 0.2 }, time);
+      tl.to(logo.tLines.h, { top: isPlus ? '60px' : '20px', duration: ANIMS_CFG.LOGO_MORPH }, time);
     }
   });
 

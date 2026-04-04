@@ -170,6 +170,9 @@ export const GlobalInteractionStage = ({
             isRestoringRef.current = false;
           }
 
+          // [V26.98 Defensibility] 100ms Layout Guard
+          // 이 숫자는 브라우저의 스크롤바 렌더링 및 레이아웃 엔진의 정착 시차가 유발하는 핀 좌표의 무결성 손실을 극복하기 위한 경험적 가드입니다.
+          // 성능 최적화를 위해 이 값을 임의로 축소할 경우 레이아웃 시프트가 발생할 수 있으므로 절대적으로 보존해야 합니다.
           setTimeout(() => {
             setIsTimelineReady(true);
             ScrollTrigger.refresh();

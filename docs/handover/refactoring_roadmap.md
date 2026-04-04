@@ -1,3 +1,6 @@
+> [!NOTE]
+> **문서 목적**: 네모:ON의 **'기술적 진화 및 결정 기록'**. 과거의 수많은 리팩토링 여정과 아키텍처적 선언들을 추적하여, 왜 지금의 구조가 탄생했는지에 대한 '이유'를 보존함.
+
 <!-- 실행 로드맵-->
 
 # [IMPORTANT] Antigravity 전역 소통 및 실행 프로토콜 (v14.11)
@@ -18,7 +21,13 @@
 
 ---
 
-### [x] [4A] V11.34 리사이즈 무결성 엔진 및 색상 동기화 가드 (2026-04-04 완료)
+### [x] [4B] V11.33 전역 반응형 규격화 및 인터랙션 정규화 (2026-04-04 완료) - v11.33-interaction-normalization.md
+
+- **대상**: `src/app` 전역, `hero.ts`, `MenuToggle.tsx`, `SideMenu.tsx`
+- **내용**: 레거시 `md:(768px)` 전수 소탕 및 `744px` 단일화, `MenuToggle` 4단계 상태 머신 고도화, 빌더 `lastEnv` 무결성 가드 이식.
+- **성과**: 아키텍처 결집력(Cohesion) 강화 및 데이터 시발점 정합성 확보.
+
+### [x] [4A] V11.34 리사이즈 무결성 엔진 및 색상 동기화 가드 (2026-04-03 완료) - v11.34-resize-sync.md
 
 - **대상**: `GlobalInteractionStage.tsx`, `builders/hero.ts`, `builders/pain.ts`, `Footer.tsx`
 - **내능**: 리사이즈 0-reset 대응 스냅샷 복원, 물리 엔진 이중 잠금(Double-Lock), 데이터 체이닝 기반 색상 무결성 확보.

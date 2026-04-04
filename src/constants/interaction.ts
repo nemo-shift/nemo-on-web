@@ -208,3 +208,29 @@ export const LOGO_COLOR_CFG = {
     GLOW: 'transparent',
   }
 };
+
+// ─────────────────────────────────────────────
+// 9. 맥락 중심 애니메이션 타이밍 (Contextual Durations)
+// ─────────────────────────────────────────────
+export const ANIMS_CFG = {
+  // 로고 형태 및 요소 변이
+  LOGO_MORPH: 0.2,           // 로고 내부 쉐이프(Status, Lines) 변이
+  
+  // 히어로 <-> 공유 네모 전이 (Visual Trick)
+  SWAP_FADE: 0.1,            // 기존 요소의 소멸
+  SWAP_APPEAR: 0.01,         // 공유 요소의 즉시 발현
+  SWAP_TEXT_EXIT: 0.1,       // 텍스트 상승 유실
+  
+  // 콘텐츠 및 UI 전환
+  UI_FADE: 0.2,              // 일반적인 UI 요소(힌트, 포인트 등) 페이드
+  CONTENT_SOFT: 0.5,         // 주요 텍스트 등장 및 안착
+  
+  // 물리 시뮬레이션 및 엔진 제어
+  PHYSICS_TRIGGER: 0.001,    // 물리 입자 주입 시점 (찰나)
+  PHYSICS_GAP: 0.02,         // 입자 간 연속 생성 간격
+  PHYSICS_RESET: 0.1,        // 엔진 리셋 및 드랍 대기
+  
+  // 섹션 대전환 (Transition)
+  RESONANCE_BG: 0.6,         // 배경색 대규모 전이
+  MESSAGE_MOVE: 0.4,         // 메시지 섹션 위치 안착
+};

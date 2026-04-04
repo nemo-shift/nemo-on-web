@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { 
-  COLORS, STAGES, TIMING_CFG, EASE 
+  COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { PAIN_POINTS, RESONANCE_MESSAGE } from '@/data/home/pain';
@@ -59,7 +59,7 @@ export function buildNemoTimeline(
       left: cfg.left,
       top: cfg.top,
       opacity: cfg.opacity,
-      duration: (label === STAGES.TO_PAIN) ? 0.4 * r : t * r,
+      duration: (label === STAGES.TO_PAIN) ? ANIMS_CFG.MESSAGE_MOVE * r : t * r,
       ease: ease
     }, time);
   });
@@ -72,7 +72,7 @@ export function buildNemoTimeline(
   const itemGap = painDuration / PAIN_POINTS.length;
 
   // 스크롤 유도 힌트 노출
-  tl.to('#pain-scroll-hint', { opacity: 1, duration: 0.2 }, L[STAGES.TO_PAIN] + waitOffset);
+  tl.to('#pain-scroll-hint', { opacity: 1, duration: ANIMS_CFG.UI_FADE }, L[STAGES.TO_PAIN] + waitOffset);
 
   // 각 페인 포인트(Step)별 애니메이션 구축
   PAIN_POINTS.forEach((point, i) => {
@@ -80,25 +80,25 @@ export function buildNemoTimeline(
     
     // 이전 콘텐츠 숨김
     if (i > 0) {
-      tl.to([step, content], { opacity: 0, x: -20, duration: 0.2 }, startTime - 0.2);
+      tl.to([step, content], { opacity: 0, x: -20, duration: ANIMS_CFG.UI_FADE }, startTime - ANIMS_CFG.UI_FADE);
     }
 
     // 새로운 콘텐츠 데이터 주입 및 노출
     tl.set(step, { textContent: `STEP 0${point.id}`, opacity: 0, x: 100 }, startTime);
     tl.set(content, { textContent: point.text, opacity: 0, x: 100 }, startTime);
     
-    tl.to([step, content], { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' }, startTime);
+    tl.to([step, content], { opacity: 1, x: 0, duration: ANIMS_CFG.CONTENT_SOFT, ease: 'power2.out' }, startTime);
     
     tl.fromTo(line, 
       { scaleX: 0, opacity: 0, x: 100 }, 
-      { scaleX: 1, opacity: 0.9, x: 0, duration: 0.5, ease: 'power2.out' }, 
+      { scaleX: 1, opacity: 0.9, x: 0, duration: ANIMS_CFG.CONTENT_SOFT, ease: 'power2.out' }, 
       startTime
     );
     
     // [V11.31 Strategy] 물리 엔진 연동: 타임라인 위치에 맞춰 물리 입자(Keywords) 생성/제거
     point.keywords.forEach((kw, kwIdx) => {
       tl.to({}, { 
-        duration: 0.001, 
+        duration: ANIMS_CFG.PHYSICS_TRIGGER, 
         onStart: () => {
           if (isRestoringRef.current) return;
           falling.addKeyword(kw);
@@ -107,7 +107,7 @@ export function buildNemoTimeline(
           if (isRestoringRef.current) return;
           falling.popKeyword(kw);
         }
-      }, startTime + 0.2 + (kwIdx * 0.02));
+      }, startTime + ANIMS_CFG.UI_FADE + (kwIdx * ANIMS_CFG.PHYSICS_GAP));
     });
 
     if (i < PAIN_POINTS.length - 1) {
@@ -131,7 +131,7 @@ export function buildNemoTimeline(
 
   // [V16.41 Physics Reset] 페인 섹션 종료 시 모든 키워드를 낙하시키고 물리 시뮬레이션 정리
   tl.to({}, { 
-    duration: 0.1, 
+    duration: ANIMS_CFG.PHYSICS_RESET, 
     onStart: () => {
       if (isRestoringRef.current) return;
       falling.dropAll();
@@ -147,15 +147,15 @@ export function buildNemoTimeline(
     left: '50%',
     backgroundColor: '#F7F4F0',
     border: 'none',
-    duration: 0.6,
+    duration: ANIMS_CFG.RESONANCE_BG,
     ease: EASE.TRANSITION
-  }, L[STAGES.PAIN_SHIFT] + 0.1);
+  }, L[STAGES.PAIN_SHIFT] + ANIMS_CFG.PHYSICS_RESET);
 
   // 메인 메시지 노출
   tl.set(content, { textContent: RESONANCE_MESSAGE.main, color: COLORS.TEXT.DARK, fontWeight: '700', opacity: 0, y: 20 }, L[STAGES.RESONANCE]);
-  tl.to(content, { opacity: 1, y: 0, duration: 0.4 }, L[STAGES.RESONANCE]);
+  tl.to(content, { opacity: 1, y: 0, duration: ANIMS_CFG.MESSAGE_MOVE }, L[STAGES.RESONANCE]);
 
-  tl.to(content, { opacity: 0, duration: 0.2 }, L[STAGES.RESONANCE] + TIMING_CFG.SECTION_WEIGHT.RESONANCE_STILL - 0.2);
+  tl.to(content, { opacity: 0, duration: ANIMS_CFG.UI_FADE }, L[STAGES.RESONANCE] + TIMING_CFG.SECTION_WEIGHT.RESONANCE_STILL - ANIMS_CFG.UI_FADE);
 
   // 다음 섹션(For Who) 이미지 준비
   if (nemo.imageEl) tl.to(nemo.imageEl, { opacity: 1, duration: 0.5 }, L[STAGES.TO_FORWHO] + 0.2);

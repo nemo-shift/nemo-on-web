@@ -1,15 +1,33 @@
+> [!NOTE]
+> **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
+> **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-04: V11.34 리사이즈 무결성 엔진 및 색상 동기화 가드 정복
+## [최신] ✅ 2026-04-04: V11.33 인터랙션 정규화 및 아키텍처 정화 성료 (참조: v11.33-interaction-normalization.md)
+
+네모:ON의 인터랙션 위계를 4단계로 정밀화하고, 전역 브레이크포인트를 `744px(tablet-p)`로 단일화하여 아키텍처적 무결성을 최종 확보했습니다. 또한 `hero.ts`의 데이터 시발점을 '진실(isOn)'에 기반하도록 재건했습니다.
+
+### 💎 주요 달성 성과 (V11.33 - Normalization & Integrity)
+
+- **MenuToggle 4-Step Interaction**: ☰ ▷ X ◁ 시퀀스 확립 및 모바일 사이즈(40px) 최적화로 조작성 개선.
+- **Breakpoint SSOT (744px)**: 레거시 `md:(768px)`를 전수 소탕하고 모든 반응형 로직을 `tablet-p` 규격으로 통일(23개 파일 동기화).
+- **Initial Data Integrity**: `hero.ts`의 `lastEnv` 초기화 시 `isOn` 상태를 선제 인식(Optional Chaining 적용)하여 데이터 시발점 불일치 해결.
+- **System Restoration**: 인코딩 장애(UTF-8 파편) 극복 및 훼손된 모든 한국어 메타데이터/주석 정교한 수동 복원 완료.
+
+---
+
+## [최신] ✅ 2026-04-03: V11.34 리사이즈 무결성 엔진 및 색상 동기화 가드 정복 (참조: v11.34-resize-sync.md)
 
 GSAP의 리사이즈 스크롤 튕김 현상과 로고 색상 유실(`rgba(0,0,0,0)`) 문제를 엔진 차원에서 해결하고, 어떤 환경에서도 시각적/기능적 무결성을 유지하는 **[V11.34 동기화 아키텍처]**를 완성했습니다.
 
 ### 💎 주요 달성 성과 (V11.34 - Resilience Engineering)
+
 - **Pixel-Perfect Restoration**: `rawScrollYRef` 픽셀 스냅샷과 `window.scrollTo` 강제 주입을 통해 리사이즈 즉시 원래 위치로 찰나의 복구 성공.
 - **Double-Lock Physics Guard**: `isRestoringRef` 플래그로 복원 중 물리 엔진 콜백을 잠궈 좀비 키워드 중복 생성 현상 100% 진압.
 - **Triple-Layer Color Integrity**: `fromTo` 체이닝, `initGlobalStyles` 동기 가드, `invalidateOnRefresh` 제거를 통해 로고 색상 유실 원천 차단.
 - **Engine Stability**: `Footer` 리사이즈 디바운스(200ms) 및 `builders/pain.ts` Pure TS 리팩토링으로 시스템 부하 경감 및 유지보수성 향상.
 
 ### 🧩 V11.34 차기 정밀 고도화 과제 (Active)
+
 - [ ] **[Step 3: 초정밀 미세 좌표 보간]**: 브라우저 상단 바 이동 등 미세 리사이즈 시 발생하는 1~10px의 좌표 오차를 수동 갱신(`refresh`) 및 이징(`gsap.to`)으로 부드럽게 보정.
 - [ ] **[System Cleanup]**: 성능 확인을 위해 심어둔 수많은 디버깅 로그(`before buildLogo` 등) 및 임시 주석 전수 제거.
 - [ ] **[Pure TS Expansion]**: `hero.ts`, `message.ts` 등 타 섹션 빌더들로 `{ current: boolean }` 순수 타입 아키텍처 확산 적용.
@@ -19,145 +37,79 @@ GSAP의 리사이즈 스크롤 튕김 현상과 로고 색상 유실(`rgba(0,0,0
 기존의 모호한 브레이크포인트 대응 방식에서 탈피하여, **Tailwind(공간), JS(레이아웃), interactionMode(동작)**라는 3개의 독립적인 축으로 반응형 시스템을 전면 재편했습니다.
 
 ### 💎 주요 달성 성과 (V11.32 - Responsive Revolution Finalized)
+
 - **Legacy Purge Complete**: `isMidRange`, `isPC` 등 기획적/기술적 혼선을 주던 너비 기반 변수를 모든 UI 컴포넌트에서 전수 제거.
-- **3-Axis Normalization**: 
-    - 시각적 수치: Tailwind 전담 (인라인 스타일 제거).
-    - 컴포넌트 분기: `isMobileView`, `isTabletPortrait` 전담.
-    - 동작 로직: `interactionMode === 'touch'` 전담.
+- **3-Axis Normalization**:
+  - 시각적 수치: Tailwind 전담 (인라인 스타일 제거).
+  - 컴포넌트 분기: `isMobileView`, `isTabletPortrait` 전담.
+  - 동작 로직: `interactionMode === 'touch'` 전담.
 - **Zero-Error Integrity**: 18개 핵심 파일 수술 후 `TSC 0 Errors` 달성으로 기술적 부채 완전 청산.
 
 ### 🧩 V11.32 향후 고도화 과제
+
 - [x] **[표준 레이아웃 비례 고정]**: 3축 체계 기반의 황금 비례 검증 완료.
 - [x] **[Ultra-Flat Viewport 한계 테스트]**: `min(vw, vh)`와 Tailwind의 조합으로 글자 겹침 방지 무결성 확보.
 - [ ] **[Edge-Case Device Optimization]**: iPad Pro 등 특정 고사양 태블릿에서의 시각적 미세 조정.
 - [ ] **[Pointer Mode Transition Polish]**: 모바일 환경에서 블루투스 마우스 연결 시 `interactionMode`의 실시간 전환 매끄러움 테스트.
-
 
 ## 🚀 2026-03-29 (3): V11.21 히어로 컴포넌트 JIT 격리 및 자원 최적화
 
 히어로 섹션의 OFF/ON 컴포넌트를 물리적으로 완전 분리하고, 오프모드에서 불필요한 DOM 노드를 원천 제거하여 터치 간섭 0% 및 성능 최적화를 달성했습니다.
 
 ### 💎 주요 달성 성과 (V11.21 - JIT Isolation)
+
 - **Slogan Physical Separation**: `HeroSlogan.tsx`(하이브리드)를 `HeroSloganOff.tsx`(OFF 전용)와 `HeroSloganOn.tsx`(ON 전용)으로 완전 분리하여 레이어 간섭 원천 차단.
 - **JIT(Just-in-Time) Mount Strategy**: `HeroPhraseLayer`와 `ShapesStage`를 `{(isOn || isTransitioning) && ...}` 조건으로 감싸 오프모드에서는 DOM에서 완전 제거(Unmounted). 토글 클릭 직후에만 찰나의 차이로 마운트되어 `#hero-nemo-origin` 기준점 제공.
 - **Canvas Cleanup**: 파티클 캔버스를 `{!isOn && <canvas />}` 조건으로 온모드 진입 시 DOM에서 완전 제거하여 GPU 부하 해소.
 - **Legacy Identification**: `HeroOffSlogan.tsx`가 프로젝트 어디에서도 사용되지 않는 고아 파일(Orphan)임을 확인 — 삭제 대상.
 
 ### 🧩 V11.21 향후 정리 과제
+
 - [ ] **레거시 파일 삭제**: `HeroOffSlogan.tsx`, `HeroSlogan.tsx` 제거 검토
 - [ ] **ShapesStage 내부 방어 코드 제거**: JIT 마운트에 의해 오프모드 가드(`if (!isOn) return` 등)가 불필요해짐
-
 
 ## 🚀 2026-03-29 (2): ON 모드 슬로건 무결성 복구 및 히어로 레이어 위계(z-index) 정밀 튜닝
 
 모드 전환 시 발생하던 슬로건 유실 문제를 근본적으로 해결하고, 다크모드의 시각적 깊이감을 완성했습니다.
 
 ### 💎 주요 달성 성과 (V11.3 - Visual Integrity Fix)
+
 - **ON-Mode Phrase Restoration**: `!isOn` 가드 조건에 의해 유실되었던 '트루 포커스' 슬로건("불안을 끄고, 기준을 켭니다")을 독립 레이어로 분리하여 완벽히 복구.
 - **Toggle Stack Refinement**: 토글 스위치가 배경 슬로건의 앞(z-20)으로 오도록 레이어 순서 조정 및 OFF 모드 전용 렌더링 가드 재설정.
 - **Architectural Stabilization**: 각 모드별 슬로건이 서로의 코드를 간섭하거나 삭제하지 않도록 `HeroPCView.tsx`의 렌더링 구조를 모드별 독립 상주 방식으로 최적화.
 - **Visual Depth (z-index)**: 토글 스위치(z-20)와 거대 영문 슬로건(z-10) 간의 전후 관계를 명확히 하여 한층 깊어진 입체감 구현.
-
 
 ## [최신] 🚀 2026-03-29: 이중축 제동(Dual-Axis Braking) 시스템 기반의 지능형 반응형 구조 확립
 
 단순한 너비(vw) 대응을 넘어, 기기 종횡비(Aspect Ratio)를 스스로 인지하고 대응하는 **'납작한 화면(Short/Flat Viewport)' 대응 기술**을 완성했습니다. 이를 통해 어떤 PC 해상도에서도 컨텐츠의 무결성을 보장합니다.
 
 ### 💎 주요 달성 성과 (V11.2 - Responsive Revolution)
+
 - **Dual-Axis Braking Engine**: 모든 핵심 요소(로고, 슬로건, 토글)에 `min(vw, vh)` 수식을 적용하여, 브라우저 창이 상하로 납작해질 때 컨텐츠가 함께 수축되는 이중 제동 기법 도입.
 - **Flat-Viewport Integrity**: 윈도우 창을 극단적으로 낮게 조절하더라도 'Vertical Spine' 스택이 서로 겹치거나 잘리지 않고, 뷰포트 내 세이프 존(Safe Zone)에 정갈하게 안착됨을 보장.
 - **Advanced Stretch Integration**: 사용자님이 정교하게 맞춘 `scaleX(0.6)`, `scaleY(2)` 등의 확장 타이포그래피가 `vh` 단위의 압축 상황에서도 시각적 균형을 잃지 않도록 동기화.
 - **Structural Separation Strategy**: PC와 Mobile의 서사를 기술적으로 분리하면서도, 공통의 '지능형 스케일링 엔진'을 공유하여 유지보수성과 예술성을 동시에 확보.
-
 
 ## [최신] 🚀 2026-03-29: PC 히어로 섹션 '스위치 피벗(Switch Pivot)' 레이아웃 및 시네마틱 타이포그래피 정립
 
 PC 환경의 히어로 섹션을 브랜드의 권위와 예술성이 공존하는 **'버티컬 스파인(Vertical Spine)'** 구조로 재편하고, 파격적인 타이포그래피 스케일링을 통해 독보적인 시네마틱 무드를 완성했습니다.
 
 ### 💎 주요 달성 성과 (V11.2)
+
 - **Vertical Spine Architecture**: 중앙 로고 → 토글 스위치 → 이중 슬로건으로 이어지는 수직축을 확립하여 시각적 안정감과 권위 부여.
 - **Switch Pivot Typography**: 'Turn on the Switch,'와 'Switch on the Brand.'를 지그재그로 배치하고 `EB Garamond Regular` 서체를 적용하여 지적이고 정갈한 에디토리얼 감성 구현.
 - **Extreme Scaling & Depth**: `scaleX(0.6)`, `scaleY(2)`의 파격적인 장평 조절과 음수 마진(-5vh), 낮은 투명도(0.32~0.5)를 결합하여 슬로건을 거대한 '시각적 지층(Backdrop)'으로 격상.
 - **Responsive Integrity**: PC 환경의 고도화된 연출을 구현하면서도, 모바일의 기존 '브랜드를 켜다' 레이아웃을 무결하게 보존하는 분기 로직(isMobile) 강화.
 
-### 7. 향후 연출 고도화 아이디어 (v11.3 - v11.5 Proposed)
-- [ ] **[슬로건 엔트리 애니메이션]**: 이중 슬로건이 중앙의 'Switch' 축을 기점으로 좌우에서 미끄러지듯 등장하는 시네마틱 오프닝 연출. (v11.3 제안)
-- [ ] **[다이내믹 타이포 상호작용]**: 토글 스위치 호버 시 슬로건의 투명도나 블러(Blur) 값이 실시간으로 반응하여 물리적 깊이감 강조. (v11.5 제안)
-
-### 🧩 Phase 11.2: 이중축 제동 표준화 및 무결성 검증 과제 (Active)
-- [ ] **[표준 레이아웃 비례 고정]**: 16:9, 4:3 등 주요 해상도에서 'Vertical Spine' 스택의 수직 위계 및 황금 비례(로고-버튼-슬로건) 검증 및 고정.
-- [ ] **[Ultra-Flat Viewport 한계 테스트]**: 브라우저 높이를 극단적으로 줄였을 때, `min(vw, vh)` 엔진에 의한 수축 임계값(Threshold)을 조정하여 글자 겹침 현상 최종 방지.
-- [ ] **[다이내믹 종횡비 리듬 보정]**: 창 크기를 실시간으로 조정할 때 발생하는 레이아웃의 유동적 움직임을 GSAP 리사이즈 핸들러와 연동하여 부드럽게 마감.
-
-### 🧩 Phase 11.2: 이중축 제동 표준화 및 무결성 검증 과제 (Active)
-- [ ] **[표준 레이아웃 비례 고정]**: 16:9, 4:3 등 주요 해상도에서 'Vertical Spine' 스택의 수직 위계 및 황금 비례(로고-버튼-슬로건) 검증 및 고정.
-- [ ] **[Ultra-Flat Viewport 한계 테스트]**: 브라우저 높이를 극단적으로 줄였을 때, `min(vw, vh)` 엔진에 의한 수축 임계값(Threshold)을 조정하여 글자 겹침 현상 최종 방지.
-- [ ] **[다이내믹 종횡비 리듬 보정]**: 창 크기를 실시간으로 조정할 때 발생하는 레이아웃의 유동적 움직임을 GSAP 리사이즈 핸들러와 연동하여 부드럽게 마감.
-
-### 🧩 Phase 11.2: 이중축 제동 표준화 및 무결성 검증 과제 (Active)
-- [ ] **[표준 레이아웃 비례 고정]**: 16:9, 4:3 등 주요 해상도에서 'Vertical Spine' 스택의 수직 위계 및 황금 비례(로고-버튼-슬로건) 검증 및 고정.
-- [ ] **[Ultra-Flat Viewport 한계 테스트]**: 브라우저 높이를 극단적으로 줄였을 때, `min(vw, vh)` 엔진에 의한 수축 임계값(Threshold)을 조정하여 글자 겹침 현상 최종 방지.
-- [ ] **[다이내믹 종횡비 리듬 보정]**: 창 크기를 실시간으로 조정할 때 발생하는 레이아웃의 유동적 움직임을 GSAP 리사이즈 핸들러와 연동하여 부드럽게 마감.
-
-
-## [최신] 🚀 2026-03-24: 페인 섹션 물리 엔진 안정화 및 콘텐츠 연출 고도화 완결
-
-FallingKeywordsStage의 물리 엔진 불안정성(NaN 폭주)을 해결하고, 사용자 피드백을 반영한 정교한 디자인 시스템을 구축했습니다.
-
-### 7. 향후 연출 고도화 아이디어 (v16.43 - v16.45 Proposed)
-- [ ] **[브랜드 프리로더(Brand Preloader)]**: 사이트 진입 시 네모 박스가 중앙에서 확장되며 시작되는 서사적 인트로를 구현하여 로딩 시간을 '브랜드 경험'으로 승화. (v16.45 제안)
-- [ ] **[시각적 햅틱(Visual Haptics)]**: 키워드 투하 시 바닥 충격에 따른 미세한 화면 진동(Shake) 연출을 추가하여 객체의 물리적 무게감과 실재감 부여. (v16.45 제안)
-- [ ] **[저사양 대응(Graceful Degradation)]**: 기기 성능 및 저전력 모드를 감지하여, 환경에 따라 물리 엔진을 자동 비활성화하고 정적 레이아웃으로 전환하는 방어적 UX 설계. (v16.45 제안)
-- [ ] **[키워드 페이드 아웃 인터폴레이션]**: Pain 섹션 종료 시 배경색 변화와 동기화된 캔버스 투명도 애니메이션으로 시각적 연속성 확보. (v16.43 제안)
-
----
-### [x] 1. 페인 섹션 물리 엔진 근본 해결 (V16.33)
-- **Constraint(Pin) 패턴**: setStatic 토글을 폐기하고 핀 고정 방식으로 전환하여 물리적 무결성 확보.
-- **Canvas 직접 렌더링**: Matter.js의 내부 렌더러를 제거하고 rAF 기반 직접 드로잉으로 최적화.
-- **트러블슈팅 완료**: 상세한 해결 과정을 지식 베이스(KIs) 및 문서로 기록 완료.
-
-### [x] 2. 콘텐츠 연출 및 디자인 고도화 (V16.33)
-- **안착 후 등장**: 네모 박스 이동 완료 후 문장이 시작되도록 타임라인 오프셋 정밀 조절.
-- **슬라이드 인**: 문장과 구분선의 우측 슬라이드 인(x: 100 -> 0) 연출 적용.
-- **기기별 최적화**: PC(35~85%, 24px), Tablet(46px, 24px), Mobile(40px, 20px) 수치 정립.
-- **가독성 우선 중첩**: 캡슐 배경의 중첩은 허용하되 텍스트 가시성을 보존하는 배치 로직 적용.
-
 ### [/] 3. 브랜드 스토리 및 진단 섹션 데이터 주입 (진행 중)
-- **Visual Rhythm**: 전이 구간의 이징(Easing) 및 리듬감 튜닝 지속.
 
-> **작업 시작 프롬프트 (V16.37)**: 
-> "V11 프로토콜과 GSAP 단일 엔진 원칙을 사수하라. 특히 오류 수정 시 **'추측 금지, 증거(Log) 우선'** 원칙을 절대 준수하여 데이터 기반으로 디버깅하라. `.agent/rules`와 홈 스크롤 가드 로직을 존중하라."
+- **Visual Rhythm**: 전이 구간의 이징(Easing) 및 리듬감 튜닝 지속.
+- **Data Sync**: Home Completion (브랜드 스토리, 브랜드 진단 섹션 데이터 추가 중).
+
+> [!TIP]
+> 먼 미래의 연출 고도화 아이디어나 보류된 계획들은 [V11-Backlog-Ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/strategy/V11-Backlog-Ideas.md)에서 안전하게 관리되고 있습니다.
 
 ---
 
-## 🚀 2026-03-23: 독립형 메뉴 시스템 안착 및 콘텐츠 주입 단계 진입
-
-V14.8 메뉴 인터랙션 고도화가 완료되었습니다. 이제 견고해진 레이아웃 위에 실제 기획 콘텐츠를 주입합니다.
-
-### [x] 1. 사이드바 메뉴 (Side Menu) 고도화 (V14.8)
-- **Independent Toggle**: 3단계 SVG 모핑(☰ ↔ ◀ ↔ ▶) 버튼 구현.
-- **Race Condition Fix**: 연타 시 애니메이션 꼬임 방지 로직 적용.
-- **All-at-once Close**: 닫기 애니메이션 간소화로 반응성 개선.
-- **Scoped Style**: 전역 `:root` 변수 제거 및 스타일 캡슐화.
-
-### [/] 2. 데이터 시트 동기화 (Data Sync)
-- **Home Completion**: 브랜드 스토리, 브랜드 진단 섹션 데이터 추가 중.
-- **Sub-pages Seed**: About, Offerings, Diagnosis 페이지용 데이터 시트 구축 완료.
-
-### [ ] 3. 섹션별 콘텐츠 '빌딩' (Building via Builders)
-- **Story & Diagnosis**: 신규 구축된 데이터를 기반으로 타임라인 시퀀스 조립.
-- **Visual Rhythm**: 전이 구간의 이징(Easing) 및 리듬감 튜닝.
-
-## 🚀 2026-03-20: 마스터 데이터 시트 기반의 콘텐츠 주입 및 영점 조절
-
-V4.6 데이터 기반 단일 엔진 체계가 구축되었습니다. 이제 복잡한 코드를 건드리지 않고 `journey.ts`와 `interaction.ts`의 수치를 보정합니다.
-
-### [ ] 1. 푸터 리빌 '영점 조절' (Fine-tuning)
-- **Scroll Sync**: `interaction.ts` 수치 보정으로 스크롤바와 푸터 노출 시점 일치.
-- **Visual Threshold**: CTA 섹션 25vh 유동성 확보 확인.
-
-### [ ] 2. 사이드바 메뉴 (Side Menu) 구현
-- **Push Layout**: 메뉴 오픈 시 메인 콘텐츠가 밀려나는 애니메이션.
-
-### [ ] 3. 실 서비스 콘텐츠 주입 및 전이 리듬 튜닝
-- 모든 섹션 내 애니메이션은 **GSAP(`useGSAP`)** 단일 엔진 원칙 고수.
+> **작업 시작 프롬프트 (V11.40)**:
+> "V11 프로토콜과 GSAP 단일 엔진 원칙을 사수하라. 특히 오류 수정 시 **'추측 금지, 증거(Log) 우선'** 원칙을 절대 준수하여 데이터 기반으로 디버깅하라. `.agent/rules`와 홈 스크롤 가드 로직을 존중하라."
