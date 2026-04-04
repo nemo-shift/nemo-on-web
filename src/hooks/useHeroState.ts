@@ -83,11 +83,6 @@ export function useHeroState(
   }, [isOn, setIsTransitioning]);
 
   return {
-    isMobile,
-    isMobileView,
-    isTabletPortrait,
-    interactionMode,
-    isInitialized,
     sequenceStep,
     setSequenceStep,
     isGathering,

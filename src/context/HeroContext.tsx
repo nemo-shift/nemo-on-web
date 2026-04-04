@@ -13,7 +13,6 @@ type HeroContextType = {
   setIsScrollable: (val: boolean) => void;
   isTimelineReady: boolean;
   setIsTimelineReady: (val: boolean) => void;
-  isMobile: boolean;
   footerHeight: number;
   setFooterHeight: (val: number) => void;
 };
@@ -27,13 +26,11 @@ const HeroContext = createContext<HeroContextType>({
   setIsScrollable: () => {},
   isTimelineReady: false,
   setIsTimelineReady: () => {},
-  isMobile: false,
   footerHeight: 0,
   setFooterHeight: () => {},
 });
 
 export function HeroProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const { isMobile } = useDevice();
   const [isOn, setIsOn] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -111,7 +108,6 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
       setIsScrollable,
       isTimelineReady,
       setIsTimelineReady,
-      isMobile,
       footerHeight,
       setFooterHeight
     }}>

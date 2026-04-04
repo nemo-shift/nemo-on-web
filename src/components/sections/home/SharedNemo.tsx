@@ -21,7 +21,6 @@ export interface SharedNemoHandle {
 
 interface SharedNemoProps {
   progress?: number;
-  isMobile: boolean;
 }
 
 /**

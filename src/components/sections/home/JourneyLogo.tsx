@@ -144,7 +144,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         >
           <span>REC</span>
           {/* T Morphing Point (Using CSS Lines for Practicality) */}
-          <div className="relative w-[90px] h-[120px] mx-1 md:mx-2"> // [v26.98 UI Detail] 고해상도 모핑 포인트 확장
+          <div className="relative w-[90px] h-[120px] mx-1 tablet-p:mx-2"> // [v26.98 UI Detail] 고해상도 모핑 포인트 확장
             {/* 가로 선 (Horizontal Bar) */}
             <div 
               ref={tLineHRef}

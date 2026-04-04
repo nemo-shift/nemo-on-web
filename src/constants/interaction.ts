@@ -159,8 +159,9 @@ export const NEMO_SIZE = {
 // ─────────────────────────────────────────────
 export const MENU_WIDTH = {
   MOBILE: '100vw',
-  TABLET: '55vw',
-  PC: '35vw',
+  TABLET_PORTRAIT: '75vw',   // [v14.4] 태블릿 세로: 3/4 덮기
+  TABLET_LANDSCAPE: '55vw',  // [v14.4] 태블릿 가로 / 일반 PC
+  PC: '35vw',               // [v14.4] 와이드 PC
 };
 
 // ─────────────────────────────────────────────

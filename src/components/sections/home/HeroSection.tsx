@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { useHeroContext } from '@/context';
+import { useHeroContext, useDevice } from '@/context';
 import { useHeroState, useParticles } from '@/hooks';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
@@ -42,6 +42,7 @@ export default function HeroSection({
 }: HeroSectionProps): React.ReactElement {
   const [mounted, setMounted] = useState(false);
   const { isTransitioning, setIsTransitioning, isScrollable, setIsScrollable } = useHeroContext();
+  const { isMobile, isMobileView, isTabletPortrait, isInitialized } = useDevice();
   const isFirstMount = useRef(true);
 
   useEffect(() => {
@@ -49,10 +50,6 @@ export default function HeroSection({
   }, []);
 
   const {
-    isMobile,
-    isMobileView,
-    isTabletPortrait,
-    isInitialized,
     sequenceStep,
     isGathering,
     shapesOnRevealed,

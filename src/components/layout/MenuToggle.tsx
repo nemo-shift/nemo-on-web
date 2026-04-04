@@ -2,38 +2,40 @@
 
 import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-import { useHeroContext } from '@/context';
+import { useHeroContext, useDevice } from '@/context';
 import { usePathname } from 'next/navigation';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { cn } from '@/lib/utils';
 
 // ─────────────────────────────────────────────
-// 상수: SVG 앵커 포인트 (viewBox 0 0 24 24 기준)
+// 상수: SVG 앵커 포인트 (viewBox 0 0 30 30 기준 - 스케일업 버전)
 // ─────────────────────────────────────────────
-// 기본 3선(☰) 상태
-const LINES_DEFAULT = {
-  // 위 선: (3, 6) → (21, 6)
-  top:    { x1: 3,  y1: 6,  x2: 21, y2: 6 },
-  // 중간 선: (3, 12) → (21, 12)
-  mid:    { x1: 3,  y1: 12, x2: 21, y2: 12 },
-  // 아래 선: (3, 18) → (21, 18)
-  bot:    { x1: 3,  y1: 18, x2: 21, y2: 18 },
+// 기본 3선(☰): HAMBURGER
+const LINES_HAMBURGER = {
+  top:    { x1: 4,  y1: 8,  x2: 26, y2: 8 },
+  mid:    { x1: 4,  y1: 15, x2: 26, y2: 15 },
+  bot:    { x1: 4,  y1: 22, x2: 26, y2: 22 },
 };
 
-// 호버 상태: ◀ (왼쪽 삼각형 윤곽선 — 안쪽 투명)
-// 삼각형 꼭짓점: 왼쪽(4, 12) / 오른쪽 상단(20, 4) / 오른쪽 하단(20, 20)
-const LINES_HOVER = {
-  top:    { x1: 20, y1: 4,  x2: 4,  y2: 12 }, // 오른쪽 상단 → 왼쪽 꼭짓점
-  mid:    { x1: 4,  y1: 12, x2: 20, y2: 20 }, // 왼쪽 꼭짓점 → 오른쪽 하단
-  bot:    { x1: 20, y1: 20, x2: 20, y2: 4  }, // 오른쪽 하단 → 오른쪽 상단 (닫힘 변)
+// 닫힘 호버/열림 예고(▷): ARROW_RIGHT
+const LINES_ARROW_RIGHT = {
+  top:    { x1: 5,  y1: 5,  x2: 25, y2: 15 },
+  mid:    { x1: 25, y1: 15, x2: 5,  y2: 25 },
+  bot:    { x1: 5,  y1: 25, x2: 5,  y2: 5  },
 };
 
-// 열림 상태: ▶ (오른쪽 삼각형 윤곽선)
-// 삼각형 꼭짓점: 오른쪽(20, 12) / 왼쪽 상단(4, 4) / 왼쪽 하단(4, 20)
-const LINES_OPEN = {
-  top:    { x1: 4,  y1: 4,  x2: 20, y2: 12 }, // 왼쪽 상단 → 오른쪽 꼭짓점
-  mid:    { x1: 20, y1: 12, x2: 4,  y2: 20 }, // 오른쪽 꼭짓점 → 왼쪽 하단
-  bot:    { x1: 4,  y1: 20, x2: 4,  y2: 4  }, // 왼쪽 하단 → 왼쪽 상단 (닫힘 변)
+// 열림 기본(X): CLOSE_X
+const LINES_CLOSE_X = {
+  top:    { x1: 7,  y1: 7,  x2: 23, y2: 23 },
+  mid:    { x1: 15, y1: 15, x2: 15, y2: 15 }, // 중앙으로 수축
+  bot:    { x1: 23, y1: 7,  x2: 7,  y2: 23 },
+};
+
+// 열림 호버/닫힘 예고(◁): ARROW_LEFT
+const LINES_ARROW_LEFT = {
+  top:    { x1: 25, y1: 5,  x2: 5,  y2: 15 },
+  mid:    { x1: 5,  y1: 15, x2: 25, y2: 25 },
+  bot:    { x1: 25, y1: 25, x2: 25, y2: 5  },
 };
 
 const MORPH_DURATION = 0.35;
@@ -48,20 +50,17 @@ interface MenuToggleProps {
 }
 
 /**
- * MenuToggle 컴포넌트 (v13.0)
+ * MenuToggle 컴포넌트 (v14.5)
  *
- * - 항상 화면 우측 상단 고정(position: fixed)
- * - z-index: MENU_TOGGLE (10003) — SideMenu 패널(10002) 위
- * - 3단계 SVG 선 모핑 (GSAP):
- *   - 기본: 3선(☰)
- *   - 호버 (Closed): 왼쪽 삼각형(◀)
- *   - 열림: 오른쪽 삼각형(▶)
- * - 노출 조건:
- *   - 홈(/): isOn && isScrollable 둘 다 true일 때만 노출
- *   - 서브페이지: 항상 노출
+ * - 4단계 인터랙션:
+ *   1. 닫힘 기본: ☰ (HAMBURGER)
+ *   2. 닫힘 호버: ▷ (ARROW_RIGHT)
+ *   3. 열림 기본: X (CLOSE_X)
+ *   4. 열림 호버: ◁ (ARROW_LEFT)
  */
 export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React.ReactElement | null {
   const { isOn, isScrollable } = useHeroContext();
+  const { isMobile, isTabletPortrait } = useDevice();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
@@ -80,7 +79,7 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
   // SVG 선 한 번에 모핑하는 유틸
   // ─────────────────────────────────────────
   const morphTo = useCallback((
-    target: typeof LINES_DEFAULT,
+    target: typeof LINES_HAMBURGER,
     duration = MORPH_DURATION,
     ease = MORPH_EASE,
   ) => {
@@ -89,6 +88,14 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
 
     lines.forEach((line, i) => {
       if (!line) return;
+      
+      // X 상태로 모핑할 때 중간 선의 opacity 조절 (병렬 처리)
+      if (target === LINES_CLOSE_X && keys[i] === 'mid') {
+        gsap.to(line, { opacity: 0, duration: 0.2 });
+      } else {
+        gsap.to(line, { opacity: 1, duration: 0.2 });
+      }
+
       gsap.to(line, {
         attr: target[keys[i]],
         duration,
@@ -98,13 +105,28 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
   }, []);
 
   // ─────────────────────────────────────────
+  // 현재 상태에 따른 아이콘 형태 결정 및 적용
+  // ─────────────────────────────────────────
+  const updateIconForm = useCallback((duration?: number) => {
+    const isHover = isHoveringRef.current;
+    
+    if (isOpen) {
+      // 열림 상태: 호버 시 ◁, 기본 시 X
+      morphTo(isHover ? LINES_ARROW_LEFT : LINES_CLOSE_X, duration);
+    } else {
+      // 닫힘 상태: 호버 시 ▷, 기본 시 ☰
+      morphTo(isHover ? LINES_ARROW_RIGHT : LINES_HAMBURGER, duration);
+    }
+  }, [isOpen, morphTo]);
+
+  // ─────────────────────────────────────────
   // 초기 상태 세팅 (GSAP 독점 제어)
   // ─────────────────────────────────────────
   useEffect(() => {
     ([lineTopRef, lineMidRef, lineBotRef]).forEach((ref, i) => {
-      const key = ['top', 'mid', 'bot'][i] as keyof typeof LINES_DEFAULT;
+      const key = ['top', 'mid', 'bot'][i] as keyof typeof LINES_HAMBURGER;
       if (ref.current) {
-        gsap.set(ref.current, { attr: LINES_DEFAULT[key] });
+        gsap.set(ref.current, { attr: LINES_HAMBURGER[key] });
       }
     });
   }, []);
@@ -113,31 +135,21 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
   // isOpen 변화 → 열림/닫힘 모핑
   // ─────────────────────────────────────────
   useEffect(() => {
-    if (isOpen) {
-      // 열림: ▶
-      morphTo(LINES_OPEN);
-    } else {
-      // 닫힘: 이미 호버 중이면 ◀, 아니면 ☰
-      morphTo(isHoveringRef.current ? LINES_HOVER : LINES_DEFAULT);
-    }
-  }, [isOpen, morphTo]);
+    updateIconForm();
+  }, [isOpen, updateIconForm]);
 
   // ─────────────────────────────────────────
-  // 호버 핸들러 (닫힌 상태에서만 반응)
+  // 호버 핸들러
   // ─────────────────────────────────────────
   const handleMouseEnter = useCallback(() => {
     isHoveringRef.current = true;
-    if (!isOpen) {
-      morphTo(LINES_HOVER, 0.25);
-    }
-  }, [isOpen, morphTo]);
+    updateIconForm(0.25);
+  }, [updateIconForm]);
 
   const handleMouseLeave = useCallback(() => {
     isHoveringRef.current = false;
-    if (!isOpen) {
-      morphTo(LINES_DEFAULT, 0.25);
-    }
-  }, [isOpen, morphTo]);
+    updateIconForm(0.25);
+  }, [updateIconForm]);
 
   // ─────────────────────────────────────────
   // 버튼 컬러 — 홈/서브페이지 분기 및 열림 상태 고속
@@ -148,6 +160,21 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
 
   if (!isVisible) return null;
 
+  // 기기별 크기 3단 정기 분기 (v14.3)
+  // 1. Mobile (Pure): 24px / 40px
+  // 2. Tablet (Portrait): 30px / 48px
+  // 3. PC (Desktop): 36px / 56px
+  let iconSize = 36;
+  let containerSize = 56;
+
+  if (isMobile) {
+    iconSize = 28;
+    containerSize = 40;
+  } else if (isTabletPortrait) {
+    iconSize = 34;
+    containerSize = 48;
+  }
+
   return (
     <button
       ref={containerRef}
@@ -157,11 +184,6 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onToggle}
-      /* 
-       * [V11.33] MenuToggle 위치 정규화
-       * - Header.tsx의 패딩(px, py) 수치와 1:1로 동기화하여 시각적 통일성 확보
-       * - 기기가 커질수록 우측 상단 모서리로부터의 간격이 비례적으로 증가
-       */
       className={cn(
         "fixed flex items-center justify-center bg-transparent border-none cursor-pointer p-0 transition-all duration-500",
         "top-5 right-6",                        // Mobile
@@ -171,15 +193,15 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
         "desktop-cap:top-10 desktop-cap:right-16"   // 1920px
       )}
       style={{
-        width: 40,
-        height: 40,
+        width: containerSize,
+        height: containerSize,
         zIndex: INTERACTION_Z_INDEX.MENU_TOGGLE,
       }}
     >
       <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 30 30"
         fill="none"
         overflow="visible"
         aria-hidden="true"
@@ -187,36 +209,36 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
         {/* ── 위 선 (Top) ── */}
         <line
           ref={lineTopRef}
-          x1={LINES_DEFAULT.top.x1}
-          y1={LINES_DEFAULT.top.y1}
-          x2={LINES_DEFAULT.top.x2}
-          y2={LINES_DEFAULT.top.y2}
+          x1={LINES_HAMBURGER.top.x1}
+          y1={LINES_HAMBURGER.top.y1}
+          x2={LINES_HAMBURGER.top.x2}
+          y2={LINES_HAMBURGER.top.y2}
           stroke={strokeColor}
-          strokeWidth="1.5"
+          strokeWidth="2.0"
           strokeLinecap="round"
           style={{ transition: 'stroke 0.3s ease' }}
         />
         {/* ── 중간 선 (Mid) ── */}
         <line
           ref={lineMidRef}
-          x1={LINES_DEFAULT.mid.x1}
-          y1={LINES_DEFAULT.mid.y1}
-          x2={LINES_DEFAULT.mid.x2}
-          y2={LINES_DEFAULT.mid.y2}
+          x1={LINES_HAMBURGER.mid.x1}
+          y1={LINES_HAMBURGER.mid.y1}
+          x2={LINES_HAMBURGER.mid.x2}
+          y2={LINES_HAMBURGER.mid.y2}
           stroke={strokeColor}
-          strokeWidth="1.5"
+          strokeWidth="2.0"
           strokeLinecap="round"
           style={{ transition: 'stroke 0.3s ease' }}
         />
         {/* ── 아래 선 (Bot) ── */}
         <line
           ref={lineBotRef}
-          x1={LINES_DEFAULT.bot.x1}
-          y1={LINES_DEFAULT.bot.y1}
-          x2={LINES_DEFAULT.bot.x2}
-          y2={LINES_DEFAULT.bot.y2}
+          x1={LINES_HAMBURGER.bot.x1}
+          y1={LINES_HAMBURGER.bot.y1}
+          x2={LINES_HAMBURGER.bot.x2}
+          y2={LINES_HAMBURGER.bot.y2}
           stroke={strokeColor}
-          strokeWidth="1.5"
+          strokeWidth="2.0"
           strokeLinecap="round"
           style={{ transition: 'stroke 0.3s ease' }}
         />

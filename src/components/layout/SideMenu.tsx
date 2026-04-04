@@ -62,7 +62,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const pathname = usePathname();
   const isHome = pathname === '/';
 
-  const { isMobileView } = useDevice();
+  // [v11.33 Refactoring] 기기 판별 조건(if) 제거에 따른 isMobileView 신호 완전 소멸
   
   // ── Refs ──
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,16 +124,14 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       ease: 'power2.out',
     }, 0);
 
-    // 3) fixed 요소 딤 처리 (PC/태블릿만, 경로별 분기 적용)
-    if (!isMobileView) {
-      const dimTargets = getDimTargets();
-      if (dimTargets.length > 0) {
-        tl.to(dimTargets, {
-          opacity: 0.3,
-          duration: TIMING.DIM_DURATION,
-          ease: 'power2.out',
-        }, 0);
-      }
+    // 3) fixed 요소 딤 처리 (전 기기 공통 적용)
+    const dimTargets = getDimTargets();
+    if (dimTargets.length > 0) {
+      tl.to(dimTargets, {
+        opacity: 0.3,
+        duration: TIMING.DIM_DURATION,
+        ease: 'power2.out',
+      }, 0);
     }
 
     // 4) 3중 레이어 슬라이드인 (오른쪽 → 왼쪽)
@@ -229,16 +227,14 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       ease: 'power2.in',
     }, '-=0.3');
 
-    // 5) fixed 요소 opacity 원복 (PC/태블릿만, 경로별 분기 적용)
-    if (!isMobileView) {
-      const dimTargets = getDimTargets();
-      if (dimTargets.length > 0) {
-        tl.to(dimTargets, {
-          opacity: 1,
-          duration: TIMING.DIM_DURATION,
-          ease: 'power2.out',
-        }, '-=0.3');
-      }
+    // 5) fixed 요소 opacity 원복 (전 기기 공통 적용)
+    const dimTargets = getDimTargets();
+    if (dimTargets.length > 0) {
+      tl.to(dimTargets, {
+        opacity: 1,
+        duration: TIMING.DIM_DURATION,
+        ease: 'power2.out',
+      }, '-=0.3');
     }
   }, [getDimTargets, onClose, router]);
 
@@ -332,7 +328,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       {/* ── 딤 오버레이 (PC/태블릿만 — 모바일에서는 숨김) ── */}
       <div
         ref={dimRef}
-        className="absolute inset-0 pointer-events-auto hidden md:block"
+        className="absolute inset-0 pointer-events-auto hidden tablet-p:block"
         style={{ backgroundColor: '#000', opacity: 0 }}
         onClick={handleCloseClick}
       />
@@ -367,10 +363,10 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
           backgroundColor: LAYER_COLORS.MAIN,
         }}
       >
-        <div className="flex flex-col h-full px-8 py-6 md:px-12 md:py-8">
+        <div className="flex flex-col h-full px-8 py-6 tablet-p:px-12 tablet-p:py-8">
 
           {/* ── 메뉴 항목 (Stagger 등장 대상) ── */}
-          <nav className="flex-1 flex flex-col justify-center gap-8 md:gap-10">
+          <nav className="flex-1 flex flex-col justify-center gap-8 tablet-p:gap-10">
             {MENU_ITEMS.map((link, i) => (
               <div
                 key={link.label}
@@ -409,9 +405,14 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         .side-menu-container {
           --menu-width: ${MENU_WIDTH.MOBILE};
         }
+        @media (min-width: 744px) {
+          .side-menu-container {
+            --menu-width: ${MENU_WIDTH.TABLET_PORTRAIT};
+          }
+        }
         @media (min-width: 992px) {
           .side-menu-container {
-            --menu-width: ${MENU_WIDTH.TABLET};
+            --menu-width: ${MENU_WIDTH.TABLET_LANDSCAPE};
           }
         }
         @media (min-width: 1280px) {

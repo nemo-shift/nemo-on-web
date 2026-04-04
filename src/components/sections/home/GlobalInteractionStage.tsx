@@ -129,7 +129,7 @@ export const GlobalInteractionStage = ({
           initGlobalStyles(isOn, isMobileView);
 
           // 개별 섹션 빌더 호출
-          buildLogoTimeline(tl, logo, isMobileView, L);
+          buildLogoTimeline(tl, logo, isMobileView, isOn, L);
           buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L, isRestoringRef);
           buildSectionScrollTimeline(tl, L, finalY);
           buildMessageTimeline(tl, nemo, L);
@@ -235,7 +235,7 @@ export const GlobalInteractionStage = ({
     <div ref={containerRef} className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
       {/* 1. Shared Nemo */}
       <div style={{ zIndex: INTERACTION_Z_INDEX.SHARED_NEMO }}>
-        <SharedNemo ref={nemoHandle} isMobile={isMobileView} />
+        <SharedNemo ref={nemoHandle} />
       </div>
 
       {/* 2. Journey Logo */}

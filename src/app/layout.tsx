@@ -17,6 +17,7 @@ const ebGaramond = EB_Garamond({
   style: ['normal', 'italic'],
   variable: '--font-eb-garamond',
 });
+
 import {
   Header,
   Footer,
@@ -28,12 +29,6 @@ import {
 } from '@/components/layout';
 import { PointRingCursor } from '@/components/ui';
 import { HeroProvider, DeviceProvider } from '@/context';
-
-const notoSansKR = Noto_Sans_KR({
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400'],
-  variable: '--font-noto-sans-kr',
-});
 
 const ibmPlex = IBM_Plex_Sans_KR({
   subsets: ['latin'],
@@ -65,8 +60,8 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: '네모ON',
-  description: '불안을 끄고, 기준을 켭니다 — 네모:ON 공식 웹사이트',
+  title: '네모:ON',
+  description: '불안한 안녕, 기준은 언제나 당신 : 네모:ON 공식 웹사이트',
 };
 
 export default function RootLayout({
@@ -77,7 +72,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${notoSansKR.variable} ${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
+      className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col font-sans">
         <LenisScrollRestoration />

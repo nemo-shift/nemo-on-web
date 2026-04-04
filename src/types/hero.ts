@@ -10,7 +10,6 @@ export type HeroSectionProps = {
 
 export type HeroBigTypoProps = {
   isOn: boolean;
-  isMobile?: boolean;
   tcRef: React.RefObject<HTMLDivElement | null>;
   shapesStageRef?: React.RefObject<HTMLDivElement | null>;
   onFlash?: (text: string) => void;

@@ -8,16 +8,11 @@ const config: Config = {
   ],
   theme: {
     screens: {
-      'tablet-p': '744px',  // 태블릿 세로 (Level 2)
-      'tablet': '992px',    // 태블릿 가로/데스크탑 (Level 3-A: Mid)
-      'desktop-wide': '1440px', // [v4.7] PC Wide (Level 3-B)
-      'desktop-cap': '1920px',  // [v4.7] PC Max Cap (Level 3-C)
-      'desktop': '1280px',
-      'sm': '640px',
-      'md': '768px',
-      'lg': '1024px',
-      'xl': '1280px',
-      '2xl': '1536px',
+      'tablet-p': '744px',      // Level 2: 태블릿 세로 (사이드메뉴 3/4 덮기 개시)
+      'tablet': '992px',        // Level 3-A: 태블릿 가로 / 데스크탑 진입
+      'desktop': '1280px',       // Level 3-B: 표준 PC
+      'desktop-wide': '1440px',  // Level 3-C: 와이드 데스크탑
+      'desktop-cap': '1920px',   // Level 3-D: 맥스 리미트
     },
     extend: {
       colors: {

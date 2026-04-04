@@ -6,10 +6,10 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
  */
 export default function LabPage() {
   return (
-    <SubPageLayout className="pt-24 px-6 md:px-12 text-text-dark">
+    <SubPageLayout className="pt-24 px-6 tablet-p:px-12 text-text-dark">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold mb-8">Lab.</h1>
-        <p className="text-xl md:text-2xl leading-relaxed opacity-80">
+        <h1 className="text-4xl tablet-p:text-6xl font-bold mb-8">Lab.</h1>
+        <p className="text-xl tablet-p:text-2xl leading-relaxed opacity-80">
           브랜드를 작동하게 만드는 실험실입니다. <br />
           네모:ON의 가능성을 직접 증명하고 확장합니다.
         </p>

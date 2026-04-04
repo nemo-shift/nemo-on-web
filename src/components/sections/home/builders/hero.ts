@@ -36,7 +36,7 @@ export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHa
  * 2. 로고의 내부 형태(Shapes, Status, Rectangle)를 각 스테이지의 정의에 맞춰 노출/숨김 처리.
  * 3. 마스터 타임라인의 시간 라벨(L)과 동기화되어 스크롤 위치에 따라 정확히 변이함.
  */
-export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandle, isMobile: boolean, L: Record<string, number>) {
+export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandle, isMobile: boolean, isOn: boolean, L: Record<string, number>) {
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
   
   // 초기 스케일 설정 (빅 타이포 상태)
@@ -49,8 +49,9 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
   const sections = LOGO_JOURNEY_SECTIONS;
   
   // [V11.34-P5] 데이터 체이닝(Data Chaining): 이전 섹션의 환경 데이터를 기억하여 fromTo의 시작값으로 사용
-  // 브라우저의 현재 computedStyle을 묻지 않고, 명시적 데이터를 주입하여 rgba(0,0,0,0) 오류를 원천 차단합니다.
-  let lastEnv = JOURNEY_MASTER_CONFIG[STAGES.HERO].env;
+  // [V14.7 Refinement] 현재의 진실(isOn)을 인지하여 데이터 무결성을 확보합니다.
+  const heroStage = JOURNEY_MASTER_CONFIG[STAGES.HERO];
+  let lastEnv = (isOn && heroStage.on?.env) ? heroStage.on.env : heroStage.env;
 
   sections.forEach(({ label, stage }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];

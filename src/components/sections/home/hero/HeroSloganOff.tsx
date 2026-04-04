@@ -17,7 +17,7 @@ const HeroSloganOff: React.FC<HeroSloganOffProps> = () => {
   return (
     <div className="relative w-fit tablet-p:w-full mx-auto min-h-[120px] flex flex-col justify-start overflow-hidden">
       <div
-        className="flex flex-col items-start tablet-p:items-center gap-1 md:gap-2 pointer-events-auto"
+        className="flex flex-col items-start tablet-p:items-center gap-1 tablet-p:gap-2 pointer-events-auto"
         style={{
           fontFamily: 'var(--font-suit), sans-serif',
           color: COLORS.TEXT.LIGHT,
