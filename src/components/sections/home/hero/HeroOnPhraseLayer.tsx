@@ -37,8 +37,8 @@ const PhraseLine = ({
     className={cn(
       "font-[family-name:var(--font-suit)] leading-none -tracking-[0.01em] transition-all duration-1000 ease-out whitespace-nowrap flex items-center gap-[0.1em]",
       "text-[28px]",                          // Mobile
-      "tablet-p:text-[32px]",                  // 744px
-      "tablet:text-[36px]",                    // 992px
+      "tablet-p:text-[40px]",                  // 744px
+      "tablet:text-[42px]",                    // 992px
       "desktop-wide:text-[44px]",              // 1440px
       "desktop-cap:text-[48px]",               // 1920px
       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-7"
@@ -96,7 +96,7 @@ export default function HeroOnPhraseLayer({
         "absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-all duration-500",
         "items-start gap-[0.24em] translate-x-[8%] -translate-y-[5%]",
         "tablet-p:items-center tablet-p:gap-[min(1vw,1.5vh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5vh]",
-        isOn && visible ? "visible opacity-100" : "hidden opacity-0"
+        "visible opacity-100"
       )}
     >
       <div 
@@ -104,7 +104,7 @@ export default function HeroOnPhraseLayer({
           "relative z-[2] flex flex-col transition-all duration-400 ease-out gap-[0.24em]",
           "items-start",
           "tablet-p:items-center",
-          isInteractionActive ? "translate-y-[10px] invisible opacity-0" : "translate-y-0 visible opacity-100"
+          "translate-y-0 visible opacity-100"
         )}
       >
         <PhraseLine isOn={isOn} visible={lineVisible[0]} baseColor={baseColor}>

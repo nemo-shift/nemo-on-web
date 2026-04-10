@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { 
-  COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG 
+  COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { PAIN_POINTS, RESONANCE_MESSAGE } from '@/data/home/pain';
@@ -29,10 +29,7 @@ export function buildNemoTimeline(
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
 
-  // 히어로 오프모드 UI를 자연스럽게 숨김 처리
-  tl.to(['.hero-content-layer', '.hero-bottom-bar', '#hero-nemo-origin'], {
-    opacity: 0, visibility: 'hidden', duration: t * 0.5, ease: EASE.FADE
-  }, L[STAGES.START_TO_PAIN]);
+
 
   const sections = NEMO_JOURNEY_SECTIONS;
 
@@ -124,7 +121,7 @@ export function buildNemoTimeline(
 
   bridgeItems.forEach((text, i) => {
     const startTime = L[STAGES.PAIN_CONTENT] + (i * bridgeGap);
-    tl.set(content, { textContent: text, opacity: 0 }, startTime);
+    tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, opacity: 0 }, startTime);
     tl.to(content, { opacity: 1, duration: 0.2 }, startTime);
     tl.to(content, { opacity: 0, duration: 0.1 }, startTime + bridgeGap - 0.1);
   });
@@ -142,14 +139,25 @@ export function buildNemoTimeline(
     }
   }, L[STAGES.PAIN_SHIFT]);
 
-  // 공명(Resonance) 섹션으로의 전환 및 배경색 변경
+  // 공명(Resonance) 1단계: 브릿지 메시지 구간으로 전환 (흰색 수축)
   tl.to(el, {
     left: '50%',
-    backgroundColor: '#F7F4F0',
+    width: NEMO_SIZE.RESONANCE_BRIDGE_W,
+    height: NEMO_SIZE.RESONANCE_BRIDGE_H,
+    backgroundColor: '#F7F4F0', // 상아색/흰색
     border: 'none',
     duration: ANIMS_CFG.RESONANCE_BG,
     ease: EASE.TRANSITION
-  }, L[STAGES.PAIN_SHIFT] + ANIMS_CFG.PHYSICS_RESET);
+  }, L[STAGES.PAIN_CONTENT]);
+
+  // 공명(Resonance) 2단계: 메인 메시지 및 키워드 안착 (크림색 확장)
+  tl.to(el, {
+    width: NEMO_SIZE.RESONANCE_MAIN_W,
+    height: NEMO_SIZE.RESONANCE_MAIN_H,
+    backgroundColor: '#f0ebe3', // 더 깊어진 크림색(기획 의도 반영)
+    duration: ANIMS_CFG.RESONANCE_BG,
+    ease: EASE.TRANSITION
+  }, L[STAGES.RESONANCE]);
 
   // 메인 메시지 노출
   tl.set(content, { textContent: RESONANCE_MESSAGE.main, color: COLORS.TEXT.DARK, fontWeight: '700', opacity: 0, y: 20 }, L[STAGES.RESONANCE]);

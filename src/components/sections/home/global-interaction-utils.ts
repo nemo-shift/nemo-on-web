@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { 
-  COLORS, STAGES, TIMING_CFG, LOGO_SIZE, HEADER_POS 
+  COLORS, STAGES, TIMING_CFG, LOGO_SIZE, HEADER_POS, INTERACTION_Z_INDEX 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { JourneyLogoHandle } from './JourneyLogo';
@@ -25,9 +25,25 @@ export function calculateLabels() {
   let curr = 0;
   const offsets: Record<string, number> = {};
 
-  // 히어로 섹션 정지 구간
+  // 히어로 섹션 정지 구간 및 시퀀스 세분화 (Total: w.HERO_STILL)
   offsets[STAGES.HERO] = curr;
-  curr += w.HERO_STILL;
+  offsets[STAGES.HERO_STILL_START] = curr;
+
+  // 1. 로고 부속품 퇴장 시작 (0.0 ~ 0.8)
+  curr += w.HERO_STILL * 0.4; 
+  offsets[STAGES.HERO_STILL_LOGO_EJECT] = curr;
+
+  // 2. 히어로 콘텐츠 패러랙스 상승 시작 (0.8 ~ 1.5)
+  curr += w.HERO_STILL * 0.35; 
+  offsets[STAGES.HERO_STILL_CONTENT_RISE] = curr;
+
+  // 3. SharedNemo 등장 타이밍 (1.5 ~ 1.9)
+  curr += w.HERO_STILL * 0.2; 
+  offsets[STAGES.HERO_STILL_NEMO_REVEAL] = curr;
+
+  // 4. 구간 종료 및 대기 (1.9 ~ 2.0)
+  curr += w.HERO_STILL * 0.05;
+  offsets[STAGES.HERO_STILL_END] = curr;
 
   // 히어로 -> 페인 포인트 전환 구간
   offsets[STAGES.START_TO_PAIN] = curr;
@@ -177,5 +193,6 @@ export function initNemoState(nemo: SharedNemoHandle): void {
     boxShadow: style.boxShadow, 
     opacity: 0, // 초기에는 숨김 처리 후 히어로 스왑 시퀀스에서 노출
     position: 'fixed',
+    zIndex: INTERACTION_Z_INDEX.SHARED_NEMO,
   });
 }

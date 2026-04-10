@@ -23,7 +23,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
     },
     ref,
   ) => {
-    const { isMobileView } = useDevice();
+    const { isMobile, isTabletPortrait } = useDevice();
     // 0: OFF, 1: 원, 2: 세모, 3: 네모, 4: 전체합체, 5: 고정
     const isStep1 = sequenceStep === 1;
     const isStep2 = sequenceStep === 2;
@@ -124,17 +124,17 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
         style={{
           position: 'absolute',
           left: isCentered ? '50%' : 'auto',
-          right: isCentered ? 'auto' : (isMobileView ? '8%' : '12%'),
-          top: isCentered ? '50%' : (isMobileView ? '35%' : '45%'),
+          right: isCentered ? 'auto' : (isMobile ? '8%' : '12%'),
+          top: isCentered ? '50%' : (isMobile ? '52%' : (isTabletPortrait ? '52%' : '45%')),
           transform: isCentered 
             ? 'translate(-50%, -50%) scale(1.1)' 
             : 'translateY(-50%)',
-          width: isMobileView
-            ? 'clamp(120px, 35vw, 180px)'
-            : 'clamp(260px, 32vw, 500px)',
-          height: isMobileView
-            ? 'clamp(120px, 35vw, 180px)'
-            : 'clamp(260px, 32vw, 500px)',
+          width: isMobile
+            ? 'clamp(200px, 55vw, 320px)'
+            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(260px, 32vw, 500px)'),
+          height: isMobile
+            ? 'clamp(200px, 55vw, 320px)'
+            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(260px, 32vw, 500px)'),
           visibility: isOn ? 'visible' : 'hidden',
           opacity: isOn ? (isStepAll ? (onModeRevealed || isCentered ? 0.75 : 1) : 0.95) : 0,
           pointerEvents: isOn && (onModeRevealed || isCentered || sequenceStep > 0) ? 'auto' : 'none',
@@ -158,7 +158,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
           <defs>
             <path
               id="shapeOrbitPathLight"
-              d="M250,235 m-168,0 a168,168 0 1,1 336,0 a168,168 0 1,1 -336,0"
+              d="M250,235 m-150,0 a150,150 0 1,1 300,0 a150,150 0 1,1 -300,0"
               fill="none"
             />
           </defs>
@@ -168,9 +168,9 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             <circle
               cx="250"
               cy="235"
-              r="168"
-              fill={activeShape === 'circle' ? '#0891b2' : 'none'}
-              fillOpacity={activeShape === 'circle' ? 0.08 : 0}
+              r="150"
+              fill={isMobile ? 'none' : (activeShape === 'circle' ? 'rgba(8, 145, 178, 0.12)' : 'rgba(8, 145, 178, 0.04)')}
+              //fill={activeShape === 'circle' ? 'rgba(8, 145, 178, 0.22)' : 'rgba(8, 145, 178, 0.04)'}
               stroke="#0891b2"
               strokeWidth="1.2"
               strokeDasharray="5 8"
@@ -180,7 +180,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             <circle
               cx="250"
               cy="235"
-              r="120"
+              r="110"
               fill="none"
               stroke="#0891b2"
               strokeWidth=".5"
@@ -205,9 +205,9 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
           <g ref={triangleRef} style={{ opacity: 0, transformOrigin: '250px 203px' }}>
             <polygon
               points="250,72 422,334 78,334"
-              fill={activeShape === 'triangle' ? '#0891b2' : 'none'}
-              fillOpacity={activeShape === 'triangle' ? 0.08 : 0}
-              stroke="#0891b2"
+              fill={isMobile ? 'none' : (activeShape === 'triangle' ? 'rgba(14, 116, 144, 0.12)' : 'rgba(14, 116, 144, 0.03)')}
+              //fill={activeShape === 'triangle' ? 'rgba(14, 116, 144, 0.12)' : 'rgba(14, 116, 144, 0.03)'}
+              stroke="#0e7490"
               strokeWidth="1.2"
               strokeOpacity=".45"
               style={{ transition: 'fill 0.4s ease, fill-opacity 0.4s ease', filter: 'drop-shadow(0 0 12px rgba(8,145,178,0.2))' }}
@@ -215,7 +215,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             <polygon
               points="250,112 396,334 104,334"
               fill="none"
-              stroke="#0891b2"
+              stroke="#0e7490"
               strokeWidth=".5"
               strokeDasharray="3 10"
               strokeOpacity=".18"
@@ -225,7 +225,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
               y="362"
               fontFamily="DM Mono, monospace"
               fontSize="10"
-              fill="#0891b2"
+              fill="#0e7490"
               fillOpacity=".5"
               letterSpacing="2"
             >
@@ -238,12 +238,12 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
             <rect
               x="110"
               y="110"
-              width="280"
-              height="280"
+              width="250"
+              height="250"
               rx="4"
-              fill={activeShape === 'square' ? '#0891b2' : 'none'}
-              fillOpacity={activeShape === 'square' ? 0.08 : 0}
-              stroke="#0891b2"
+              fill={isMobile ? 'none' : (activeShape === 'square' ? 'rgba(13, 26, 31, 0.15)' : 'rgba(13, 26, 31, 0.025)')}
+              //fill={activeShape === 'square' ? 'rgba(13, 26, 31, 0.15)' : 'rgba(53, 166, 211, 0.03)'}
+              stroke="#0d1a1f"
               strokeWidth="1.2"
               strokeDasharray="8 4"
               strokeOpacity=".45"
@@ -255,7 +255,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
               textAnchor="end"
               fontFamily="DM Mono, monospace"
               fontSize="10"
-              fill="#0891b2"
+              fill="#0d1a1f"
               fillOpacity=".38"
               letterSpacing="2"
             >

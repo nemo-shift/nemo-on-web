@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { FOR_WHO_LIST } from '@/data/home/forwho';
 import { cn } from '@/lib/utils';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 export const ForWhoSection = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -19,7 +20,7 @@ export const ForWhoSection = () => {
       </div>
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
-        style={{ zIndex: 20 }}
+        style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
       >
         <div 
           /* [V11.33] 전역 표준 5축 패딩 적용 */

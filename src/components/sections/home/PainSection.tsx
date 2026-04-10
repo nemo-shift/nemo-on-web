@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 import { PAIN_POINTS, RESONANCE_SENTENCES, CORE_MESSAGE_SENTENCES } from '@/data/home/pain';
 
@@ -21,7 +22,7 @@ export const PainSection = () => {
       </div>
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
-        style={{ zIndex: 20 }}
+        style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
       >
         <div 
           /* [V11.33] 전역 표준 5축 패딩 적용 — 컨테이너 너비와 독립적인 일관된 좌우 여백 */

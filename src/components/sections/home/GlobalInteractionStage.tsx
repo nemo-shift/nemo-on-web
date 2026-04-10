@@ -133,7 +133,7 @@ export const GlobalInteractionStage = ({
           buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L, isRestoringRef);
           buildSectionScrollTimeline(tl, L, finalY);
           buildMessageTimeline(tl, nemo, L);
-          buildHeroSwapSequence(tl, nemo);
+          buildHeroSwapSequence(tl, nemo, L);
 
           // [V16.41] 독립형 물리 엔진 제어 트리거
           keywordsTrigger.current = ScrollTrigger.create({

@@ -12,12 +12,15 @@ import { useHeroContext, useDevice } from '@/context';
 import { useHeroState, useParticles } from '@/hooks';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import Header from '@/components/layout/Header';
 import HeroBottomBar from './hero/HeroBottomBar';
 import HeroPCView from './hero/views/HeroPCView';
 import HeroTabletView from './hero/views/HeroTabletView';
 import HeroMobileView from './hero/views/HeroMobileView';
+
 import { COLORS } from '@/constants/colors';
+import { cn } from '@/lib/utils';
 
 /**
  * HeroSection 컴포넌트
@@ -182,7 +185,7 @@ export default function HeroSection({
   return (
     <div 
       className="relative flex flex-col w-full min-h-screen overflow-hidden transition-colors duration-1000"
-      style={{ ...cssVars, zIndex: 1 }} // 다른 섹션들보다 아래에 위치하도록 명시
+      style={{ ...cssVars, zIndex: INTERACTION_Z_INDEX.HERO_SECTION }} // 전역 스테이지(10)보다 높고 타 섹션(20)보다 낮게 조정
     >
       
       {mounted && typeof document !== 'undefined' && createPortal(
@@ -283,15 +286,21 @@ export default function HeroSection({
         />
 
         {/* [v26.98 UI Detail] 초기화 보호 가드: 기기 판정(isInitialized)이 완료된 후에만 정확한 뷰를 노출하여 새로고침 시 위치 튐 방지 */}
+        {/* [V11.51] 뷰 컨테이너 래퍼: 뷰 영역을 화면 전체(100svh)로 강제 확장하여 슬로건이 부모 flex에 쪼그라들지 않도록 함 */}
         {!isInitialized ? (
           <div className="flex-1 w-full bg-[var(--bg)]" />
-        ) : isMobile ? (
-          <HeroMobileView {...viewProps} />
-        ) : isTabletPortrait ? (
-          <HeroTabletView {...viewProps} />
         ) : (
-          <HeroPCView {...viewProps} />
+          <div className="absolute inset-0 pointer-events-none z-10">
+            {isMobile ? (
+              <HeroMobileView {...viewProps} />
+            ) : isTabletPortrait ? (
+              <HeroTabletView {...viewProps} />
+            ) : (
+              <HeroPCView {...viewProps} />
+            )}
+          </div>
         )}
+
         
       </section>
     </div>

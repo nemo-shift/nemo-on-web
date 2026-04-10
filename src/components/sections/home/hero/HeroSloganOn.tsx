@@ -79,7 +79,7 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   }, { dependencies: [currentIndex], scope: containerRef });
 
   return (
-    <div ref={containerRef} className="relative w-full h-full min-h-[120px] flex flex-col justify-start overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-auto flex flex-col justify-start overflow-hidden">
       <div className="flex items-center relative">
         <div className="flex items-center relative">
           {/* 공통 포커스 박스 (하나의 엘리먼트가 이동) */}
@@ -114,9 +114,10 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                    * - 모바일(2.2rem)부터 데스크탑 캡(4.8rem)까지 계단식 성장 적용
                    * - 특히 tablet-p(744px) 구간의 3.0rem 수치를 추가하여 중형 태블릿의 가독성 확보
                    */
+                  //슬로건 크기
                   className={cn(
                     "font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none transition-all duration-500",
-                    "text-[2.2rem]",                  // Mobile
+                    "text-[1.8rem]",                  // Mobile
                     "tablet-p:text-[3.0rem]",          // 744px
                     "tablet:text-[3.6rem]",            // 992px
                     "desktop-wide:text-[4.2rem]",      // 1440px
@@ -132,8 +133,18 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
               </div>
               {index < segments.length - 1 && (
                 <span 
-                  className="text-lg opacity-20 select-none mx-0.5"
-                  style={{ color: COLORS.TEXT.DARK }}
+                  className={cn(
+                    "select-none mx-1 transition-all duration-500 font-bold",
+                    "text-[1.8rem]",
+                    "tablet-p:text-[3.0rem]",
+                    "tablet:text-[3.6rem]",
+                    "desktop-wide:text-[4.2rem]",
+                    "desktop-cap:text-[4.8rem]"
+                  )}
+                  style={{ 
+                    fontFamily: 'var(--font-suit), sans-serif',
+                    color: COLORS.TEXT.DARK,
+                  }}
                 >
                   ,
                 </span>

@@ -16,15 +16,30 @@ import { SharedNemoHandle } from '../SharedNemo';
  * 2. Origin Nemo는 배경과 테두리를 투명화하여 사라진 것처럼 보이게 하고,
  * 3. 동시에 Shared Nemo의 opacity를 1로 올려 인터랙션을 이어받음.
  */
-export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHandle) {
+export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHandle, L: Record<string, number>) {
   const originEl = document.getElementById('hero-nemo-origin');
   const originText = originEl?.querySelector('span');
   if (!originEl) return;
 
+  // [V11.34-P5] 타임라인 영점 고정: 소환되기 전까지는 '결' 박스 위치에서 투명하게 대기
   tl.set([originEl, originText, nemo.nemoEl], { transition: 'none' }, 0);
-  tl.to(originEl, { backgroundColor: 'transparent', borderColor: 'transparent', boxShadow: 'none', duration: ANIMS_CFG.SWAP_FADE }, 0);
-  tl.to(nemo.nemoEl, { opacity: 1, duration: ANIMS_CFG.SWAP_APPEAR }, 0);
-  if (originText) tl.to(originText, { opacity: 0, y: -15, duration: ANIMS_CFG.SWAP_TEXT_EXIT }, 0);
+  tl.set(nemo.nemoEl, { opacity: 0 }, 0); 
+  
+  // [V11.41 Sync] 네모 교체(Swap): 텍스트가 상승을 시작하는 시점에 맞춰 정적 박스는 사라지고 공유 네모가 나타남
+  tl.to(originEl, { 
+    backgroundColor: 'transparent', 
+    borderColor: 'transparent', 
+    boxShadow: 'none', 
+    duration: ANIMS_CFG.SWAP_FADE 
+  }, L[STAGES.HERO_STILL_CONTENT_RISE]);
+  
+  tl.to(nemo.nemoEl, { 
+    opacity: 1, 
+    duration: ANIMS_CFG.SWAP_APPEAR 
+  }, L[STAGES.HERO_STILL_CONTENT_RISE]);
+
+  // [V11.41] originText(결 텍스트) 소멸Tween 삭제: 
+  // 다른 히어로 콘텐츠와 함께 패러랙스 래퍼(#hero-on-center-stage)를 타고 자연스럽게 상승하도록 보존함.
 }
 
 /**
@@ -41,6 +56,14 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
   
   // 초기 스케일 설정 (빅 타이포 상태)
   tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
+
+  // [V11.41 シ퀀스] Phase 1: 로고 부속품(△/○, ON) 상승 퇴장
+  tl.to([logo.shapesEl, logo.statusEl], { 
+    y: -150, 
+    opacity: 0, 
+    duration: TIMING_CFG.TRANSITION_WEIGHT,
+    ease: EASE.FADE
+  }, L[STAGES.HERO_STILL_START]);
 
   const headerScale = LOGO_SIZE.HEADER_SCALE;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
@@ -82,11 +105,14 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
 
     // 로고 세부 요소(한글 텍스트, 상태 바 등) 변환
     tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: ANIMS_CFG.LOGO_MORPH }, time);
-    tl.to([logo.shapesEl, logo.statusEl], { 
-      opacity: cfg.logo.status ? 1 : 0, 
-      visibility: cfg.logo.status ? 'visible' : 'hidden', 
-      duration: ANIMS_CFG.LOGO_MORPH 
-    }, time);
+    // 로고 부속품(도형 등) — 히어로 특수 연출 구간(START_TO_PAIN)은 중복 방지를 위해 제외
+    if (label !== STAGES.START_TO_PAIN) {
+      tl.to([logo.shapesEl, logo.statusEl], { 
+        opacity: cfg.logo.status ? 1 : 0, 
+        visibility: cfg.logo.status ? 'visible' : 'hidden', 
+        duration: ANIMS_CFG.LOGO_MORPH 
+      }, time);
+    }
     tl.to(logo.rectangleEl, { 
       opacity: cfg.logo.rectangle ? 1 : 0, 
       visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
@@ -100,8 +126,8 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
     }
   });
 
-  // 최종적으로 헤더 사이즈로 축소되는 구간 (START_TO_PAIN 시점)
+  // 최종적으로 헤더 사이즈로 축소되는 구간 (CONTENT_RISE 시점으로 앞당김)
   tl.to(logo.containerEl, {
     scale: headerScale, x: 0, y: 0, duration: t * r, ease: EASE.TRANSITION
-  }, L[STAGES.START_TO_PAIN]);
+  }, L[STAGES.HERO_STILL_CONTENT_RISE]);
 }

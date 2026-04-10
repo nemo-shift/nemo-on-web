@@ -23,11 +23,14 @@ export const INTERACTION_Z_INDEX = {
   // [계층 최상위] 햄버거 모핑 토글 버튼 — 항상 SideMenu 패널(10002) 위에 위치
   MENU_TOGGLE: 10003,
   
+  // [계층 4] 히어로 섹션 전용 기초 레이어 (전역 스테이지 10보다 높게 설정하여 네모 위로 노출)
+  HERO_SECTION: 11,
+
   // [계층 3] 스크롤 가이드
   SCROLL_HINT: 1000, 
   
   // [계층 2] 주요 애니메이션 객체 (공유 네모)
-  SHARED_NEMO: 20, 
+  SHARED_NEMO: 5, 
   
   // [계층 1] 배경 물리 시뮬레이션 (감정 키워드)
   KEYWORDS: 10,
@@ -49,6 +52,11 @@ export { COLORS };
 // ─────────────────────────────────────────────
 export const STAGES = {
   HERO: 'hero',
+  HERO_STILL_START: 'hero_still_start',
+  HERO_STILL_LOGO_EJECT: 'hero_still_logo_eject',
+  HERO_STILL_CONTENT_RISE: 'hero_still_content_rise',
+  HERO_STILL_NEMO_REVEAL: 'hero_still_nemo_reveal',
+  HERO_STILL_END: 'hero_still_end',
   START_TO_PAIN: 'start_to_pain',
   TO_PAIN: 'to_pain',
   PAIN_CONTENT: 'pain_content',
@@ -86,7 +94,7 @@ export const EASE = {
 
 // 섹션 스크롤 높이 (buildSectionScrollTimeline 전용)
 export const SECTION_SCROLL_HEIGHT = {
-  HERO:    100,   // vh
+  HERO:    100,   // vh (물리적 높이와 동기화하여 가이드라인 정밀도 확보)
   PAIN:    1000,
   MESSAGE: 800,
   FORWHO:  1000,
@@ -152,6 +160,14 @@ export const NEMO_SIZE = {
   // 포후 가로 이미지 프레임
   IMAGE_W: '72vw',
   IMAGE_H: '52vh',
+
+  // [Pain] 공명 브릿지 구간 (응축 및 질문)
+  RESONANCE_BRIDGE_W: '18vw',
+  RESONANCE_BRIDGE_H: '40vh',
+
+  // [Pain] 공명 메인 메시지 구간 (확장 및 안착)
+  RESONANCE_MAIN_W: '22vw',
+  RESONANCE_MAIN_H: '55vh',
 };
 
 // ─────────────────────────────────────────────

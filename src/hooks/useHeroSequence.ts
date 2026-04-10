@@ -31,9 +31,7 @@ export function useHeroSequence(isOn: boolean) {
     if (!isOn || sequenceStep === 0 || sequenceStep >= 5) return;
 
     // 단계별 지연 시간 결정
-    const interval = sequenceStep === 1 
-      ? HERO_TIMING.SEQUENCE_STEP_1_DELAY 
-      : HERO_TIMING.SEQUENCE_STEP_DEFAULT_DELAY;
+    const interval = HERO_TIMING.SEQUENCE_STEP_DEFAULT_DELAY;
 
     const timer = setTimeout(() => {
       setSequenceStep((prev) => prev + 1);

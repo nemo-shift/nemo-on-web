@@ -37,44 +37,48 @@ export default function HeroOnPCView({
 }: HeroOnPCViewProps) {
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-      {/* 1. 온모드 전용 슬로건 - 트루 포커스 프레이즈 */}
-      {isOn && (
-        <div 
-          id="hero-on-center-phrase"
-          className="absolute z-50 pointer-events-auto"
-          style={{ 
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <HeroSloganOn
-            sentence="불안을 끄고, 기준을 켭니다"
+    <>
+      {/* [V11.41 Separation] 레이어 1: 슬로건 독립 레이어 (중앙 박스 flex 간섭 완전 차단) */}
+      <div className="absolute inset-0 pointer-events-none z-[100]">
+        {isOn && sequenceStep === 5 && (
+          <div 
+            id="hero-on-center-phrase"
+            className="absolute z-50 pointer-events-auto"
+            style={{ 
+              top: 'auto',
+              bottom: '13vh',
+              left: '50%',
+              transform: 'translateX(-50%)'
+            }}
+          >
+            <HeroSloganOn />
+          </div>
+        )}
+      </div>
+
+      {/* [V11.41 Separation] 레이어 2: 중앙 컨텐츠 레이어 (프레이즈, 도형) */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        {/* [V11.51 Fix] 프레이즈 단독 상향 및 미세 우측 이동 조절 핸들 (기본값) */}
+        <div id="hero-on-center-stage" style={{ transform: 'translate(0px, 0vh)', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <HeroOnPhraseLayer
+            isOn={isOn}
+            visible={!showCenteredShapes}
+            sequenceStep={sequenceStep}
+            onActiveShapeChange={handleActiveShapeChange}
+            onCopyVisible={() => setShapesOnRevealed(true)}
+            isInteractionActive={isInteractionActive}
           />
         </div>
-      )}
 
-      {/* 2. 배경 인터랙션 레이어 (프레이즈, 도형) */}
-      {/* 프레이즈 레이어: 감성위에 구조를 더해 당신의 결로 */}
-      <HeroOnPhraseLayer
-        isOn={isOn}
-        visible={!showCenteredShapes}
-        sequenceStep={sequenceStep}
-        onActiveShapeChange={handleActiveShapeChange}
-        onCopyVisible={() => setShapesOnRevealed(true)}
-        isInteractionActive={isInteractionActive}
-      />
-
-      {/* 도형 스테이지: 실제 애니메이션되는 SVG 도형들 */}
-      <HeroOnShapesStage
-        ref={shapesStageRef}
-        isOn={isOn} 
-        onModeRevealed={shapesOnRevealed}
-        isCentered={showCenteredShapes}
-        sequenceStep={sequenceStep}
-        activeShape={activeShape}
-      />
-    </div>
+        <HeroOnShapesStage
+          ref={shapesStageRef}
+          isOn={isOn} 
+          onModeRevealed={shapesOnRevealed}
+          isCentered={showCenteredShapes}
+          sequenceStep={sequenceStep}
+          activeShape={activeShape}
+        />
+      </div>
+    </>
   );
 }
