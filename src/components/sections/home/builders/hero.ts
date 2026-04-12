@@ -3,7 +3,7 @@ import {
   LOGO_SIZE, TIMING_CFG, STAGES, EASE, ANIMS_CFG 
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
-import { LOGO_JOURNEY_SECTIONS } from '../interaction-journey';
+import { LOGO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { JourneyLogoHandle } from '../JourneyLogo';
 import { SharedNemoHandle } from '../SharedNemo';
 

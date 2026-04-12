@@ -117,7 +117,7 @@ export const TIMING_CFG = {
   SECTION_WEIGHT: {
     HERO_STILL: 2.0,      // 초기 진입 시 로고 위용 감상 구간
     PAIN_STILL: 6.0,      // 5개 포인트 순차 노출 (길게)
-    RESONANCE_STILL: 2.0, // 공명 문장 집중
+    RESONANCE_STILL: 24.0, // 공명 마퀴 시퀀스 (극도로 여유로운 흐름을 위해 가중폭 확대)
     MESSAGE_STILL: 4.0,   // 핵심 카운트 관통
     FOR_WHO_STILL: 4.0,   // 타겟 리스트
     STORY_STILL: 3.0,     // 브랜드 스토리
@@ -149,7 +149,7 @@ export const NEMO_SIZE = {
   INITIAL_H: 56,
   INITIAL_BORDER_RADIUS: 6,
   
-  // 페인 섹션 테두리 박스
+  // 페인 섹션 테두리 박스 (레거시 호환용 - 기본값)
   BORDER_BOX_W: '18vw',
   BORDER_BOX_H: '48vh',
   
@@ -160,14 +160,73 @@ export const NEMO_SIZE = {
   // 포후 가로 이미지 프레임
   IMAGE_W: '72vw',
   IMAGE_H: '52vh',
+};
 
-  // [Pain] 공명 브릿지 구간 (응축 및 질문)
-  RESONANCE_BRIDGE_W: '18vw',
-  RESONANCE_BRIDGE_H: '40vh',
+// [V11.45] 페인 섹션 기기별 최적 레이아웃 매트릭스 (w, h, left, top)
+// 70vw 모바일 기준점 반영 및 기기별 유동적 비례 확립
+export const NEMO_RESPONSIVE_LAYOUT = {
+  // 0. 히어로 초기 상태 (Hero Mode Baseline)
+  HERO: {
+    PC:       { w: 56, h: 56, left: '50%', top: '50%' },
+    TABLET_P: { w: 48, h: 48, left: '50%', top: '50%' },
+    MOBILE:   { w: 42, h: 42, left: '50%', top: '50%' }
+  },
 
-  // [Pain] 공명 메인 메시지 구간 (확장 및 안착)
-  RESONANCE_MAIN_W: '22vw',
-  RESONANCE_MAIN_H: '55vh',
+  // 1. 페인 진입 (Transition from Hero)
+  START_TO_PAIN: {
+    PC:       { w: '100vw', h: '100vh', left: '50%', top: '60%' },
+    TABLET_P: { w: '100vw', h: '100vh', left: '50%', top: '60%' },
+    MOBILE:   { w: '100vw', h: '100vh', left: '50%', top: '60%' }
+  },
+
+  // 2. 페인 포인트 루프 (Left-aligned)
+  PAIN_POINTS: {
+    PC:       { w: '18vw', h: '48vh', left: '25%', top: '50%' },
+    TABLET_P: { w: '50vw', h: '35vh', left: '45%', top: '50%' },
+    MOBILE:   { w: '60vw', h: '35vh', left: '40%', top: '50%' }
+  },
+
+  // 3. 브릿지 메시지 (Center-aligned, Compressed)
+  BRIDGE: {
+    PC:       { w: '20vw', h: '20vh', left: '50%', top: '50%' },
+    TABLET_P: { w: '60vw', h: '30vh', left: '50%', top: '50%' },
+    MOBILE:   { w: '80vw', h: '20vh', left: '50%', top: '50%' }
+  },
+
+  // 4. 메인 공명 문장 (Horizon Line / Marquee Stage)
+  RESONANCE: {
+    PC:       { w: '100vw', h: '2px', left: '50%', top: '50%' },
+    TABLET_P: { w: '100vw', h: '2px', left: '50%', top: '50%' },
+    MOBILE:   { w: '100vw', h: '2px', left: '50%', top: '50%' }
+  },
+
+  // 5. 메시지 섹션 (Vertical Teal Box)
+  MESSAGE: {
+    PC:       { w: '16vw', h: '62vh', left: '50%', top: '50%' },
+    TABLET_P: { w: '35vw', h: '45vh', left: '50%', top: '50%' },
+    MOBILE:   { w: '50vw', h: '45vh', left: '50%', top: '50%' }
+  },
+
+  // 6. 포후 섹션 (Wide Image Frame)
+  FORWHO: {
+    PC:       { w: '72vw', h: '52vh', left: '50%', top: '50%' },
+    TABLET_P: { w: '88vw', h: '45vh', left: '50%', top: '50%' },
+    MOBILE:   { w: '92vw', h: '40vh', left: '50%', top: '50%' }
+  },
+
+  // 7. 브랜드 스토리 (Stable Nemo:ON State)
+  STORY: {
+    PC:       { w: '72vw', h: '52vh', left: '50%', top: '50%' },
+    TABLET_P: { w: '88vw', h: '45vh', left: '50%', top: '50%' },
+    MOBILE:   { w: '92vw', h: '40vh', left: '50%', top: '50%' }
+  },
+
+  // 8. CTA (Final Transition)
+  CTA: {
+    PC:       { w: '100vw', h: '100vh', left: '50%', top: '50%' },
+    TABLET_P: { w: '100vw', h: '100vh', left: '50%', top: '50%' },
+    MOBILE:   { w: '100vw', h: '100vh', left: '50%', top: '50%' }
+  }
 };
 
 // ─────────────────────────────────────────────

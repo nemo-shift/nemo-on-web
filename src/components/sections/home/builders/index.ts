@@ -1,4 +1,4 @@
 export * from './hero';
-export * from './pain';
+export * from './nemo';
 export * from './scroll';
 export * from './message';

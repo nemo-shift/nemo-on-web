@@ -21,6 +21,21 @@
 
 ---
 
+### [x] [4C] V11.40 Z-Index 정규화 및 안전 디버그 인프라 (2026-04-10 완료)
+
+- **대상**: `src/constants/interaction.ts`, `GlobalInteractionStage.tsx`, `PainSection.tsx` 등 다수
+- **내능**: 하드코딩된 `zIndex: 20` 등을 전수 소탕하여 `INTERACTION_Z_INDEX` 상수로 통합. 히어로 콘텐츠(11)와 전역 상호작용 레이어(10) 간의 위계 정립.
+- **성과**: 레이어 간섭 문제 해결 및 시네마틱 레이어링의 기술적 무결성 확보.
+- **디버그**: `debug.ts` 도입 및 `FORCE_ON` 하이재킹으로 개발 편의성 극대화 (Safe Guard 적용).
+
+### [ ] [4D] 공명 시퀀스 전용 반응형 상수 체계 포팅
+
+- **대상**: `src/constants/interaction.ts`, `builders/pain.ts`
+- **내용**: 현재 하드코딩된 공명 구간의 크기(`vw`, `vh`) 및 색상 값을 기기별(PC/Mobile) 객체 구조로 분리하여 상수화.
+- **목적**: 기기별 최적의 '브리딩 이펙트' 비율을 비즈니스 로직 수정 없이 조정 가능한 구조 확보.
+
+---
+
 ### [x] [4B] V11.33 전역 반응형 규격화 및 인터랙션 정규화 (2026-04-04 완료) - v11.33-interaction-normalization.md
 
 - **대상**: `src/app` 전역, `hero.ts`, `MenuToggle.tsx`, `SideMenu.tsx`

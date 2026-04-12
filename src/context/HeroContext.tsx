@@ -3,6 +3,11 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useDevice } from './DeviceContext';
+import { DEBUG_CONFIG } from '@/constants/debug';
+
+// 🔥 [DEBUG-DELETE] : 배포 전 반드시 삭제 (디버그 점프 가드)
+const IS_DEV = process.env.NODE_ENV === 'development';
+const SHOULD_DEBUG = IS_DEV && DEBUG_CONFIG.USE_DEBUG;
 
 type HeroContextType = {
   isOn: boolean;
@@ -31,9 +36,9 @@ const HeroContext = createContext<HeroContextType>({
 });
 
 export function HeroProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const [isOn, setIsOn] = useState(false);
+  const [isOn, setIsOn] = useState(SHOULD_DEBUG && DEBUG_CONFIG.FORCE_ON ? true : false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isScrollable, setIsScrollable] = useState(false);
+  const [isScrollable, setIsScrollable] = useState(SHOULD_DEBUG && DEBUG_CONFIG.FORCE_ON ? true : false);
   const [isTimelineReady, setIsTimelineReady] = useState(false);
   const [footerHeight, setFooterHeight] = useState(0);
   const pathname = usePathname();

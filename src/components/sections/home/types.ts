@@ -1,18 +1,14 @@
-/**
- * Home Section 전용 타입 정의 [Step 4-1]
- */
+import { PainSectionHandle } from './pain/PainSection';
 
+/**
+ * Home Section 전역 인터랙션 레이어용 Props [V11.55 확장]
+ */
 export interface GlobalInteractionStageProps {
   isMobile: boolean;
   interactionMode: 'mouse' | 'touch';
   isMobileView: boolean;
-  isTabletPortrait: boolean; // [v1.6] 태블릿 세로 판단용
+  isTabletPortrait: boolean;
   isOn: boolean;
   isTransitioning: boolean;
-}
-
-export interface JourneySectionConfig {
-  label: string;
-  stage: string;
-  ease?: string;
+  painRef: React.RefObject<PainSectionHandle | null>;
 }

@@ -2,12 +2,12 @@
 
 import React, { useRef } from 'react';
 import { useHeroContext, useDevice } from '@/context';
-import HeroSection from './HeroSection';
-import { PainSection } from './PainSection';
-import { MessageSection } from './MessageSection';
-import { ForWhoSection } from './ForWhoSection';
-import { BrandStorySection } from './BrandStorySection';
-import { CTASection } from './CTASection';
+import HeroSection from './hero/HeroSection';
+import { PainSection, PainSectionHandle } from './pain/PainSection';
+import { MessageSection } from './message/MessageSection';
+import { ForWhoSection } from './forwho/ForWhoSection';
+import { BrandStorySection } from './story/BrandStorySection';
+import { CTASection } from './cta/CTASection';
 import GlobalInteractionStage from './GlobalInteractionStage';
 
 /**
@@ -18,6 +18,9 @@ export default function HomeStage(): React.ReactElement {
   const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
   const { isMobile, interactionMode, isMobileView, isTabletPortrait } = useDevice();
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // [V11.55] 각 섹션 내부 엘리먼트 제어를 위한 Ref 핸들
+  const painRef = useRef<PainSectionHandle>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
   // Phase 5 아키텍처 전환에 따라 GlobalInteractionStage의 GSAP 타임라인으로 이관됩니다.
@@ -33,6 +36,7 @@ export default function HomeStage(): React.ReactElement {
         isTabletPortrait={isTabletPortrait}
         isOn={isOn} 
         isTransitioning={isTransitioning} 
+        painRef={painRef}
       />
       
       {/* 콘텐츠 영역: 내부 래퍼에 배경색을 주어 푸터를 가림 */}
@@ -48,7 +52,7 @@ export default function HomeStage(): React.ReactElement {
   
           {/* 2-5. Journey Sections (Always in DOM for ScrollTrigger Stability) */}
           <div className={isOn ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none transition-all duration-700'}>
-            <PainSection />
+            <PainSection ref={painRef} interactionMode={interactionMode} />
             <MessageSection />
             <ForWhoSection />
             <BrandStorySection />

@@ -415,6 +415,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     return (
       <canvas
         ref={canvasRef}
+        id="falling-keywords-canvas"
         style={{
           position: 'fixed',
           inset: 0,

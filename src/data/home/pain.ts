@@ -34,7 +34,18 @@ export const PAIN_POINTS: PainPoint[] = [
 
 export const RESONANCE_MESSAGE = {
   bridge: ['나는,', '당신은,', '우리는 지금 설명 가능한가요?'],
-  main: '의미를 부여하면 의미가 됩니다.\n의미가 있으면 선명해집니다.\n선명해지면 설명이 가능해지고,\n설명이 가능해지면 연결됩니다.',
+  // PC 전용 (긴 마퀴)
+  marquee: {
+    line1: '의미를 부여하면 의미가 되고, 의미가 있으면 선명해집니다.',
+    line2: '선명해지면 설명이 가능해지고, 설명이 가능해지면 연결됩니다.'
+  },
+  // 터치 전용 (4단계 원-스크롤 원-센텐스 내러티브)
+  slides: [
+    { text: '의미를 부여하면 의미가 되고,' },
+    { text: '의미가 있으면 선명해집니다.' },
+    { text: '선명해지면 설명이 가능해지고,' },
+    { text: '설명이 가능해지면 연결됩니다.' }
+  ]
 };
 
 export const RESONANCE_SENTENCES = RESONANCE_MESSAGE.bridge;

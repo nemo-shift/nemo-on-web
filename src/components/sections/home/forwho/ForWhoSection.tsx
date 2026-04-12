@@ -1,41 +1,36 @@
 import React, { useRef } from 'react';
-import { COLORS } from '@/constants/colors';
+import Image from 'next/image';
+import { FOR_WHO_LIST } from '@/data/home/forwho';
 import { cn } from '@/lib/utils';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
-import { PAIN_POINTS, RESONANCE_SENTENCES, CORE_MESSAGE_SENTENCES } from '@/data/home/pain';
-
-
-export const PainSection = () => {
+export const ForWhoSection = () => {
   const containerRef = useRef<HTMLElement>(null);
   
   return (
     <section 
       ref={containerRef} 
-      id="section-pain" 
+      id="section-forwho" 
       className="relative w-full h-[1000vh]"
       style={{ backgroundColor: 'transparent' }}
     >
       {/* [임시] 섹션 시작 가이드라인 */}
       <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
-        <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Pain Section</span>
+        {/* 🔥 [DEBUG-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
+        <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: ForWho Section</span>
       </div>
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
       >
         <div 
-          /* [V11.33] 전역 표준 5축 패딩 적용 — 컨테이너 너비와 독립적인 일관된 좌우 여백 */
+          /* [V11.33] 전역 표준 5축 패딩 적용 */
           className="container mx-auto px-6 tablet-p:px-8 tablet:px-10 desktop-wide:px-12 desktop-cap:px-16 flex flex-col items-center"
         >
           <h2 
-            /* 
-             * [V11.33] 섹션 상징 문구 5단계 정규화
-             * - 모든 홈 세션의 '상징 텍스트'는 아래 5단계 프리셋을 공통 사용
-             * - 4xl(모바일) ~ 8xl(FHD)까지 기하급수적 성장을 통해 박력 있는 비주얼 구현
-             */
+            /* [V11.33] 섹션 상징 문구 5단계 정문화 표준 프리셋 적용 */
             className={cn(
-              "font-bold text-white/12 uppercase tracking-[0.2em] transition-all duration-500",
+              "font-bold text-black/12 uppercase tracking-[0.2em] transition-all duration-500",
               "text-4xl",                         // Mobile
               "tablet-p:text-5xl",                 // 744px
               "tablet:text-6xl",                   // 992px
@@ -43,7 +38,7 @@ export const PainSection = () => {
               "desktop-cap:text-8xl"               // 1920px
             )}
           >
-            Pain points
+            For Whom
           </h2>
         </div>
       </div>

@@ -22,7 +22,8 @@ export const LOGO_JOURNEY_SECTIONS = [
 export const NEMO_JOURNEY_SECTIONS: JourneySectionConfig[] = [
   { label: STAGES.START_TO_PAIN, stage: STAGES.START_TO_PAIN, ease: EASE.TRANSITION },
   { label: STAGES.TO_PAIN, stage: STAGES.TO_PAIN, ease: EASE.BOUNCE },
-  { label: STAGES.PAIN_CONTENT, stage: STAGES.RESONANCE, ease: EASE.SETTLE },
+  { label: STAGES.PAIN_CONTENT, stage: STAGES.TO_PAIN, ease: EASE.SETTLE }, // 브릿지 구간까지 박스 유지
+  { label: STAGES.RESONANCE, stage: STAGES.RESONANCE, ease: EASE.TRANSITION }, // 여기서 선으로 완성
   { label: STAGES.PAIN_TO_MSG, stage: STAGES.PAIN_TO_MSG, ease: EASE.TRANSITION },
   { label: STAGES.TO_MESSAGE, stage: STAGES.TO_MESSAGE, ease: TIMING_CFG.EASE_TRANS },
   { label: STAGES.MSG_TO_FW, stage: STAGES.MSG_TO_FW, ease: EASE.TRANSITION },

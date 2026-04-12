@@ -14,10 +14,10 @@ import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import Header from '@/components/layout/Header';
-import HeroBottomBar from './hero/HeroBottomBar';
-import HeroPCView from './hero/views/HeroPCView';
-import HeroTabletView from './hero/views/HeroTabletView';
-import HeroMobileView from './hero/views/HeroMobileView';
+import HeroBottomBar from './HeroBottomBar';
+import HeroPCView from './views/HeroPCView';
+import HeroTabletView from './views/HeroTabletView';
+import HeroMobileView from './views/HeroMobileView';
 
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';

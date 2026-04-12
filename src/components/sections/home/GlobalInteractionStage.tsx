@@ -18,9 +18,10 @@ import {
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { GlobalInteractionStageProps } from './types';
-import { LOGO_JOURNEY_SECTIONS, NEMO_JOURNEY_SECTIONS } from './interaction-journey';
+import { LOGO_JOURNEY_SECTIONS, NEMO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState } from './global-interaction-utils';
 import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline } from './builders';
+import { DEBUG_CONFIG } from '@/constants/debug';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,6 +33,7 @@ export const GlobalInteractionStage = ({
   isTabletPortrait,
   isOn,
   isTransitioning,
+  painRef,
 }: GlobalInteractionStageProps) => {
   const { isScrollable, isTimelineReady, footerHeight, setIsTimelineReady } = useHeroContext();
 
@@ -86,7 +88,7 @@ export const GlobalInteractionStage = ({
 
         // [V4.2 Timing] 레이아웃 확정 대기 (Next Tick)
         rafId.current = requestAnimationFrame(() => {
-          const { offsets: L, totalWeight } = calculateLabels();
+          const { offsets: L, totalWeight } = calculateLabels(interactionMode === 'touch');
           const H = SECTION_SCROLL_HEIGHT;
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
           const finalY = vhToPx(H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA) + footerHeight;
@@ -129,10 +131,10 @@ export const GlobalInteractionStage = ({
           initGlobalStyles(isOn, isMobileView);
 
           // 개별 섹션 빌더 호출
-          buildLogoTimeline(tl, logo, isMobileView, isOn, L);
-          buildNemoTimeline(tl, nemo, { isMobile: isMobileView, isTabletPortrait }, falling, L, isRestoringRef);
+          buildLogoTimeline(tl, logo, isMobile, isOn, L);
+          buildNemoTimeline(tl, nemo, { isMobile, isTabletPortrait, interactionMode }, falling, painRef, L, isRestoringRef);
           buildSectionScrollTimeline(tl, L, finalY);
-          buildMessageTimeline(tl, nemo, L);
+          buildMessageTimeline(tl, nemo, { isMobile, isTabletPortrait }, L);
           buildHeroSwapSequence(tl, nemo, L);
 
           // [V16.41] 독립형 물리 엔진 제어 트리거
@@ -176,6 +178,16 @@ export const GlobalInteractionStage = ({
           setTimeout(() => {
             setIsTimelineReady(true);
             ScrollTrigger.refresh();
+
+            // 🔥 [DEBUG-DELETE] : 배포 전 반드시 삭제 (디버그 점프 로직)
+            if (process.env.NODE_ENV === 'development' && DEBUG_CONFIG.USE_DEBUG && DEBUG_CONFIG.START_STAGE) {
+              const targetTime = L[DEBUG_CONFIG.START_STAGE];
+              if (targetTime !== undefined) {
+                const scrollPos = (targetTime / totalWeight) * (finalY - footerHeight);
+                window.scrollTo(0, scrollPos);
+                if (window.lenis) window.lenis.scrollTo(scrollPos, { immediate: true });
+              }
+            }
           }, 100);
         });
       }

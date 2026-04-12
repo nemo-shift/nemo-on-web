@@ -18,54 +18,43 @@ import { SharedNemoHandle } from './SharedNemo';
  * @returns {Record<string, number>} offsets - 각 스테이지 라벨별 시작 지점(Timeline Time)
  * @returns {number} totalWeight - 전체 타임라인의 총 길이 (ScrollTrigger end 값과 동기화됨)
  */
-export function calculateLabels() {
+export function calculateLabels(isTouch: boolean = false) {
   const w = TIMING_CFG.SECTION_WEIGHT;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
 
   let curr = 0;
   const offsets: Record<string, number> = {};
 
-  // 히어로 섹션 정지 구간 및 시퀀스 세분화 (Total: w.HERO_STILL)
+  // ... (상단 히어로 및 페인 로직 유지)
   offsets[STAGES.HERO] = curr;
   offsets[STAGES.HERO_STILL_START] = curr;
+  curr += w.HERO_STILL * 0.4; offsets[STAGES.HERO_STILL_LOGO_EJECT] = curr;
+  curr += w.HERO_STILL * 0.35; offsets[STAGES.HERO_STILL_CONTENT_RISE] = curr;
+  curr += w.HERO_STILL * 0.2; offsets[STAGES.HERO_STILL_NEMO_REVEAL] = curr;
+  curr += w.HERO_STILL * 0.05; offsets[STAGES.HERO_STILL_END] = curr;
 
-  // 1. 로고 부속품 퇴장 시작 (0.0 ~ 0.8)
-  curr += w.HERO_STILL * 0.4; 
-  offsets[STAGES.HERO_STILL_LOGO_EJECT] = curr;
-
-  // 2. 히어로 콘텐츠 패러랙스 상승 시작 (0.8 ~ 1.5)
-  curr += w.HERO_STILL * 0.35; 
-  offsets[STAGES.HERO_STILL_CONTENT_RISE] = curr;
-
-  // 3. SharedNemo 등장 타이밍 (1.5 ~ 1.9)
-  curr += w.HERO_STILL * 0.2; 
-  offsets[STAGES.HERO_STILL_NEMO_REVEAL] = curr;
-
-  // 4. 구간 종료 및 대기 (1.9 ~ 2.0)
-  curr += w.HERO_STILL * 0.05;
-  offsets[STAGES.HERO_STILL_END] = curr;
-
-  // 히어로 -> 페인 포인트 전환 구간
   offsets[STAGES.START_TO_PAIN] = curr;
   curr += t;
   offsets[STAGES.TO_PAIN] = curr; 
 
-  // 페인 포인트 내부 시퀀스 (고정 높이 구간 내에서 7:3 비율로 콘텐츠/전환 분배)
-  curr += w.PAIN_STILL * 0.7; 
-  offsets[STAGES.PAIN_CONTENT] = curr;
+  curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_CONTENT] = curr;
+  curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_SHIFT] = curr;
 
-  curr += w.PAIN_STILL * 0.3; 
-  offsets[STAGES.PAIN_SHIFT] = curr;
-
-  // 공명 메시지구간
-  curr += w.RESONANCE_STILL;
+  // 공명 지평선 모핑 구간 (터치 기기는 호흡을 짧게 가져감)
+  const morphGap = isTouch ? 0.4 : 1.5;
+  curr += morphGap;
   offsets[STAGES.RESONANCE] = curr;
 
-  // 페인 -> 메시지 브릿지
-  curr += t;
+  // 공명 마퀴 스튜디오 구간 (초스피드 반응 대응: 5.0 -> 4.0 추가 하향)
+  const resonanceStill = isTouch ? 2.0 : w.RESONANCE_STILL;
+  curr += resonanceStill;
+
+  // 페인 -> 메시지 브릿지 (전이 호흡 최적화)
+  const transGap = isTouch ? 0.8 : 1.5;
+  curr += transGap;
   offsets[STAGES.PAIN_TO_MSG] = curr;
 
-  curr += t;
+  curr += transGap;
   offsets[STAGES.TO_MESSAGE] = curr;
 
   // 이하 각 섹션별 동일 패턴 반복

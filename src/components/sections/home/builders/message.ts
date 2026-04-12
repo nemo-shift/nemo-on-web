@@ -1,35 +1,39 @@
 import { gsap } from 'gsap';
 import { 
-  COLORS, STAGES, TIMING_CFG, EASE, NEMO_SIZE 
+  COLORS, STAGES, NEMO_RESPONSIVE_LAYOUT 
 } from '@/constants/interaction';
-import { MESSAGE_GROUPS } from '@/data/home/message';
 import { SharedNemoHandle } from '../SharedNemo';
 
 /**
  * 메시지 섹션 타임라인 빌더 (Rail Skeleton)
- * 기워서: 네모 박스는 틸 색상 세로형으로 고정, 텍스트가 위를 통과함.
+ * 네모 박스는 틸 색상 세로형으로 고정, 텍스트가 위를 통과함.
  */
 export function buildMessageTimeline(
   tl: gsap.core.Timeline,
   nemo: SharedNemoHandle,
+  device: { isMobile: boolean; isTabletPortrait: boolean },
   L: Record<string, number>
 ) {
-  const content = nemo.contentEl;
-  if (!content) return;
+  const nemoEl = nemo.nemoEl;
+  if (!nemoEl) return;
 
-  // [V26.90 Rail] 박스 내 텍스트 주입 로직은 삭제 (향후 별도 레이어로 텍스트 연출 예정)
-  // 현재는 박스의 상태 유지 및 스테이지 레이아웃만 정의
+  const mode: keyof typeof NEMO_RESPONSIVE_LAYOUT.MESSAGE = 
+    device.isMobile ? 'MOBILE' : 
+    device.isTabletPortrait ? 'TABLET_P' : 'PC';
   
-  // 메시지 세로 틸 박스 고정 상태 (이미 builders/pain.ts에서 모핑되어 넘어옴)
-  tl.set(nemo.nemoEl, {
-    width: NEMO_SIZE.TEAL_BOX_W,
-    height: NEMO_SIZE.TEAL_BOX_H,
-    backgroundColor: COLORS.BRAND,
+  const layout = NEMO_RESPONSIVE_LAYOUT.MESSAGE[mode];
+  
+  // 메시지 세로 틸 박스 고정 상태 (이미 builders/pain.ts에서 모칭되어 넘어옴)
+  // [V11.55 Normalize] 상수 시스템 기반 레이아웃 주입
+  tl.set(nemoEl, {
+    width: layout.w,
+    height: layout.h,
+    left: layout.left,
+    top: layout.top,
     xPercent: -50,
-    left: '50%',
-    top: '19vh',
-    yPercent: 0,
-    borderRadius: 0,
+    yPercent: -50,
+    backgroundColor: COLORS.BRAND,
+    borderRadius: 12,
     opacity: 1,
     border: 'none',
   }, L[STAGES.TO_MESSAGE]);
