@@ -60,7 +60,7 @@ interface MenuToggleProps {
  */
 export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React.ReactElement | null {
   const { isOn, isScrollable } = useHeroContext();
-  const { isMobile, isTabletPortrait } = useDevice();
+  const { isMobile, isTabletPortrait, interactionMode } = useDevice();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
@@ -108,7 +108,8 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
   // 현재 상태에 따른 아이콘 형태 결정 및 적용
   // ─────────────────────────────────────────
   const updateIconForm = useCallback((duration?: number) => {
-    const isHover = isHoveringRef.current;
+    // [Bug Fix] 터치 기기에서는 호버 상태(삼각형 모핑)를 강제로 무시
+    const isHover = interactionMode === 'mouse' ? isHoveringRef.current : false;
     
     if (isOpen) {
       // 열림 상태: 호버 시 ◁, 기본 시 X
@@ -117,7 +118,7 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
       // 닫힘 상태: 호버 시 ▷, 기본 시 ☰
       morphTo(isHover ? LINES_ARROW_RIGHT : LINES_HAMBURGER, duration);
     }
-  }, [isOpen, morphTo]);
+  }, [isOpen, morphTo, interactionMode]);
 
   // ─────────────────────────────────────────
   // 초기 상태 세팅 (GSAP 독점 제어)
