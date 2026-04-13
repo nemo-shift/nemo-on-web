@@ -69,6 +69,14 @@ export function buildNemoTimeline(
     
     const time = L[label];
 
+    // [V11.56 Sync] 메세지 섹션 전이 타이밍 최적화
+    // PAIN_TO_MSG 브릿지 구간에서 이미 TO_MESSAGE의 형태와 색상을 지향하게 하여
+    // 실제 메세지 섹션 도착 시점에 변신이 완료되어 있도록 함.
+    if (label === STAGES.PAIN_TO_MSG) {
+      const targetCfg = JOURNEY_MASTER_CONFIG[STAGES.TO_MESSAGE].nemo;
+      cfg = { ...cfg, ...targetCfg };
+    }
+
     tl.to(el, {
       width: cfg.width,
       height: cfg.height,

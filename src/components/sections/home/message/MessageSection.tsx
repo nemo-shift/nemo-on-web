@@ -1,11 +1,57 @@
-import React, { useRef } from 'react';
-import { COLORS } from '@/constants/colors';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import { MESSAGE_CONTENT, MESSAGE_COLORS } from '@/data/home/message';
 
-export const MessageSection = () => {
+export interface MessageSectionHandle {
+  getStandardGroups: () => (HTMLDivElement | null)[];
+  getInvertedGroups: () => (HTMLDivElement | null)[];
+}
+
+/**
+ * [V11.61 Refactor] 메세지 그룹 내의 텍스트 라인 렌더링 헬퍼 (중복 제거)
+ */
+const MessageGroupLines = ({ group, charClassName }: { group: typeof MESSAGE_CONTENT[0]; charClassName: string }) => (
+  <>
+    {group.lines.map((line, lIdx) => (
+      line.text === "" ? <div key={lIdx} className="h-4 tablet:h-8" /> : (
+        <p 
+          key={lIdx}
+          aria-label={line.text}
+          className={cn(
+            "message-line mb-2 tablet-p:mb-4 font-bold flex flex-wrap justify-center",
+            "text-xl tablet-p:text-[28px] tablet:text-3xl desktop-wide:text-4xl"
+          )}
+        >
+          {line.text.split('').map((char, cIdx) => (
+            <span 
+              key={cIdx} 
+              className={cn("message-char inline-block", charClassName)}
+              style={{ whiteSpace: 'pre' }}
+            >
+              {char === " " ? "\u00A0" : char}
+            </span>
+          ))}
+        </p>
+      )
+    ))}
+  </>
+);
+
+/**
+ * [V11.60 Evolution] 메세지 섹션 (공간 반전 & 시간 리빌 하이브리드)
+ * 클립패스 고정 정렬을 위해 Static Container + Moving Content 구조 적용
+ */
+export const MessageSection = forwardRef<MessageSectionHandle>((_, ref) => {
   const containerRef = useRef<HTMLElement>(null);
-  
+  const standardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const invertedRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useImperativeHandle(ref, () => ({
+    getStandardGroups: () => standardRefs.current,
+    getInvertedGroups: () => invertedRefs.current
+  }));
+
   return (
     <section 
       ref={containerRef} 
@@ -13,34 +59,47 @@ export const MessageSection = () => {
       className="relative w-full h-[800vh]"
       style={{ backgroundColor: 'transparent' }}
     >
-      {/* [임시] 섹션 시작 가이드라인 */}
-      <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
-        {/* 🔥 [DEBUG-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
-        <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Message Section</span>
-      </div>
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
       >
-        <div 
-          /* [V11.33] 전역 표준 5축 패딩 적용 */
-          className="container mx-auto px-6 tablet-p:px-8 tablet:px-10 desktop-wide:px-12 desktop-cap:px-16 flex flex-col items-center"
-        >
-          <h2 
-            /* [V11.33] 섹션 상징 문구 5단계 정문화 표준 프리셋 적용 */
-            className={cn(
-              "font-bold text-black/12 uppercase tracking-[0.2em] transition-all duration-500",
-              "text-4xl",                         // Mobile
-              "tablet-p:text-5xl",                 // 744px
-              "tablet:text-6xl",                   // 992px
-              "desktop-wide:text-7xl",             // 1440px
-              "desktop-cap:text-8xl"               // 1920px
-            )}
+        {MESSAGE_CONTENT.map((group, idx) => (
+          <div 
+            key={group.id}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
-            Core Message
-          </h2>
-        </div>
+            {/* 1. 배경용 레이어 (Standard) */}
+            <div className="message-layer-standard absolute inset-0 flex items-center justify-center text-center select-none">
+              <div 
+                ref={el => { standardRefs.current[idx] = el; }}
+                className="relative translate-y-[120vh]"
+                style={{ color: MESSAGE_COLORS.BEFORE.STANDARD }}
+              >
+                <MessageGroupLines group={group} charClassName="standard-char" />
+              </div>
+            </div>
+
+            {/* 2. 네모 영역용 레이어 (Inverted / Clip-path) */}
+            <div 
+              className="message-layer-inverted absolute inset-0 flex items-center justify-center text-center select-none" 
+              style={{ 
+                /* [V11.58 Evolution] Edge 기반 정밀 클립패스 고정 공식 */
+                clipPath: 'inset(var(--nemo-t) var(--nemo-r) var(--nemo-b) var(--nemo-l))'
+              }}
+            >
+              <div 
+                ref={el => { invertedRefs.current[idx] = el; }}
+                className="relative translate-y-[120vh]"
+                style={{ color: MESSAGE_COLORS.BEFORE.INVERTED }}
+              >
+                <MessageGroupLines group={group} charClassName="inverted-char" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
-};
+});
+
+MessageSection.displayName = 'MessageSection';

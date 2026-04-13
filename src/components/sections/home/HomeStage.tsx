@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { useHeroContext, useDevice } from '@/context';
 import HeroSection from './hero/HeroSection';
 import { PainSection, PainSectionHandle } from './pain/PainSection';
-import { MessageSection } from './message/MessageSection';
+import { MessageSection, MessageSectionHandle } from './message/MessageSection';
 import { ForWhoSection } from './forwho/ForWhoSection';
 import { BrandStorySection } from './story/BrandStorySection';
 import { CTASection } from './cta/CTASection';
@@ -21,13 +21,14 @@ export default function HomeStage(): React.ReactElement {
   
   // [V11.55] 각 섹션 내부 엘리먼트 제어를 위한 Ref 핸들
   const painRef = useRef<PainSectionHandle>(null);
+  const messageRef = useRef<MessageSectionHandle>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
   // Phase 5 아키텍처 전환에 따라 GlobalInteractionStage의 GSAP 타임라인으로 이관됩니다.
   // [v16.3] 'isScrollable'은 HeroContext에서 전역 관리됩니다.
 
   return (
-    <main className="relative w-full overflow-x-hidden">
+    <main className="relative w-full overflow-x-hidden" style={{ backgroundColor: 'var(--bg)' }}>
       {/* 0. Global Interaction Layer (Outside pinned area for stable fixed positioning) */}
       <GlobalInteractionStage 
         isMobile={isMobile} 
@@ -37,15 +38,15 @@ export default function HomeStage(): React.ReactElement {
         isOn={isOn} 
         isTransitioning={isTransitioning} 
         painRef={painRef}
+        messageRef={messageRef}
       />
       
-      {/* 콘텐츠 영역: 내부 래퍼에 배경색을 주어 푸터를 가림 */}
-      <div id="home-stage" ref={containerRef} className="relative w-full">
-        {/* 모든 섹션을 포함하는 래퍼: 사용자 제안에 따라 var(--bg)로 '불투명 벽' 형성 */}
+      {/* 콘텐츠 영역: z-[15]로 GlobalInteractionStage(z:10)보다 상위 쌓임 맥락 확보 */}
+      <div id="home-stage" ref={containerRef} className="relative z-[15] w-full">
+        {/* 모든 섹션을 포함하는 래퍼: 사용자 제안에 따라 메세지 섹션 반전 구현을 위해 z-index 상향 및 배경 제거 */}
         <div 
           id="sections-content-wrapper" 
-          className="relative z-[1] w-full"
-          style={{ backgroundColor: 'var(--bg)' }}
+          className="relative z-[20] w-full"
         >
           {/* 1. Hero Section */}
           <HeroSection id="section-hero" isOn={isOn} onToggle={toggle} />
@@ -53,7 +54,7 @@ export default function HomeStage(): React.ReactElement {
           {/* 2-5. Journey Sections (Always in DOM for ScrollTrigger Stability) */}
           <div className={isOn ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none transition-all duration-700'}>
             <PainSection ref={painRef} interactionMode={interactionMode} />
-            <MessageSection />
+            <MessageSection ref={messageRef} />
             <ForWhoSection />
             <BrandStorySection />
             <CTASection />

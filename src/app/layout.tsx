@@ -74,7 +74,7 @@ export default function RootLayout({
       lang="ko"
       className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
-      <body className="antialiased min-h-screen flex flex-col font-sans">
+      <body className="antialiased min-h-screen flex flex-col font-suit">
         <LenisScrollRestoration />
         <GlobalScrollTriggerCleanup />
         <SmoothScroll

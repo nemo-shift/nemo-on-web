@@ -88,7 +88,7 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
   [STAGES.TO_MESSAGE]: {
     env: { bg: COLORS.BG.CREAM, fg: COLORS.TEXT.DARK },
     logo: { nemoKr: false, shapes: false, status: false, rectangle: true, morph: 'T', logoMode: 'rectangle' },
-    nemo: { borderRadius: 12, backgroundColor: COLORS.BRAND, border: 'none', opacity: 1 }
+    nemo: { borderRadius: 0, backgroundColor: COLORS.BRAND, border: 'none', opacity: 1 }
   },
 
   // [5] 메시지 → 포후 (T → + 모핑 트리거 구간)

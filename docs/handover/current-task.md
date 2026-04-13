@@ -2,6 +2,31 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
+## [최신] ✅ 2026-04-13: V11.62 메세지 섹션 '공간 반전 스캐너' 및 '시간적 리빌' 입체적 통합 성료
+
+메세지 섹션에서 네모 박스가 글자를 물리적으로 통과하며 실시간으로 색을 바꾸는 '공간적 반전'과, 제자리에 안착한 뒤 서서히 선명해지는 '시간적 리빌'을 기술적으로 완벽히 통합했습니다.
+
+### 💎 주요 달성 성과 (V11.62)
+
+- **Spatial Inversion Masking (Scanner Effect)**:
+  - 텍스트 바구니와 함께 움직이던 마스크를 뷰포트 좌표(`--nemo-t` 등)에 고정하여, 네모 박스 영역을 통과할 때만 파란색으로 변하는 정밀한 '스캐너' 효과 구현.
+- **Dual-Layer Sync Architecture**:
+  - `MessageSection.tsx`를 '고정 마스크' + '이중 이동 래퍼' 구조로 전면 재편하여 고난도 마스킹의 시각적 무결성 확보.
+- **4-Stage State Matrix Implementation**:
+  - **부상(Rising)**: 흐린 상태 유지(Faint) + 네모 통과 시에만 '흐린 반전색' 노출.
+  - **리빌(Reveal)**: 안착 후 스크롤 진행도에 따라 흐림 → 선명(Sharp Black/Navy)으로 한 자씩 변이.
+  - **퇴장(Exit)**: 선명한 상태 유지 + 부드러운 페이드 아웃(0.65 duration, 0.1 delay) 적용하여 시네마틱한 전환 완성.
+- **Markup Normalization & Cleanup**:
+  - 표준/반전 레이어의 중복 마크업을 `MessageGroupLines` 로컬 컴포넌트로 통합하여 유지보수성 극대화.
+  - 불필요한 디버그 로그 및 미사용 인자(`nemo` 등)를 제거하여 코드 베이스 최적화.
+- **Coordinate Engine Coordination**:
+  - `GlobalInteractionStage.tsx`의 네모 좌표 추적 범위를 히어로 이후 전 구간으로 확장하여 마스킹 누락 방지.
+
+### 🧩 V11.62 차기 핵심 고도화 과제 (Active)
+
+- [ ] **[Transition Logic Fine-tuning]**: 메세지 섹션 종료 후 다음 섹션(For Who)으로의 전이 시 네모 박스의 상태 변화와 텍스트 유실 여부 재검증.
+- [ ] **[Scanner Ease Optimization]**: 퇴장 시의 페이드 아웃과 이동 곡선의 조화를 디바이스별(PC/Mobile)로 최종 실측 및 조정.
+
 ## [최신] ✅ 2026-04-12: V11.41 공명 및 페인 내러티브 정밀 고도화 성료
 
 페인 섹션의 읽기 호흡을 '머무름(Hold)' 중심으로 재편하고, 공명 섹션의 하이브리드 내러티브(PC 마퀴/터치 슬라이드)를 하이엔드 수준으로 끌어올려 섹션 간 전이 무결성을 완성했습니다.
@@ -9,17 +34,17 @@
 ### 💎 주요 달성 성과 (V11.41 - Narrative Precision)
 
 - **Hybrid Resonance Narrative**:
-    - **Touch**: 4단계 글자별 부상(Float-up) 시퀀스 완비 및 '1스크롤 1문장' 쾌속 리듬 확보.
-    - **PC**: 뷰포트(`vw`) 기반 오프스크린 진입 로직 도입으로 문장 시작 지점 무결성 해결.
-- **Pain Narrative 'Ani-Hold' Ratio (30:70)**: 
-    - 입차 애니메이션 기간을 30%로 압축하고 머무름(Hold) 구간을 70%로 확보하여 쾌적한 읽기 경험 선사.
+  - **Touch**: 4단계 글자별 부상(Float-up) 시퀀스 완비 및 '1스크롤 1문장' 쾌속 리듬 확보.
+  - **PC**: 뷰포트(`vw`) 기반 오프스크린 진입 로직 도입으로 문장 시작 지점 무결성 해결.
+- **Pain Narrative 'Ani-Hold' Ratio (30:70)**:
+  - 입차 애니메이션 기간을 30%로 압축하고 머무름(Hold) 구간을 70%로 확보하여 쾌적한 읽기 경험 선사.
 - **Visual Transition Polish**:
-    - **Morphing Continuity**: 네모 모핑 시작 시 5번 페인포인트 텍스트 및 스크롤 힌트 자동 소거 적용.
-    - **Keyword Fade-out**: 메세지 섹션 진입 시 바닥의 감정 키워드들이 자연스럽게 페이드 아웃되는 전이 연출 구현.
+  - **Morphing Continuity**: 네모 모핑 시작 시 5번 페인포인트 텍스트 및 스크롤 힌트 자동 소거 적용.
+  - **Keyword Fade-out**: 메세지 섹션 진입 시 바닥의 감정 키워드들이 자연스럽게 페이드 아웃되는 전이 연출 구현.
 - **MenuToggle Touch Integrity Guard**:
-    - 터치 기기(`interactionMode: touch`)에서 마우스 기반 호버 이벤트(`mouseenter`)로 인해 아이콘이 삼각형으로 고착되는 버그 근본 해결.
+  - 터치 기기(`interactionMode: touch`)에서 마우스 기반 호버 이벤트(`mouseenter`)로 인해 아이콘이 삼각형으로 고착되는 버그 근본 해결.
 - **System Stability**:
-    - `SplitText` 컴포넌트의 Ref 타입 에러(Null 처리) 해결 및 역방향 스크롤 시 시각적 일관성 검증 완료.
+  - `SplitText` 컴포넌트의 Ref 타입 에러(Null 처리) 해결 및 역방향 스크롤 시 시각적 일관성 검증 완료.
 
 ### 🧩 V11.41 차기 핵심 고도화 과제 (Active)
 
@@ -31,21 +56,21 @@
 
 ### 🧩 V11.40 차기 핵심 고도화 과제 (CRITICAL)
 
-- [ ] **[Step 4: 기기별(PC/Mobile) 공명 시퀀스 디테일 튜닝]**: 
-    - **미완료 상태**: 현재 `18vw`, `70vw` 등의 수치가 혼재되어 있어 PC와 모바일 각각에서 최적의 비율을 찾는 정밀 조정이 필요함.
-    - **핵심 작업**: `debug.ts`와 `constants/interaction.ts`를 활용하여 기기별 최적 크기 및 색상 변이 임계값을 확정할 것.
+- [ ] **[Step 4: 기기별(PC/Mobile) 공명 시퀀스 디테일 튜닝]**:
+  - **미완료 상태**: 현재 `18vw`, `70vw` 등의 수치가 혼재되어 있어 PC와 모바일 각각에서 최적의 비율을 찾는 정밀 조정이 필요함.
+  - **핵심 작업**: `debug.ts`와 `constants/interaction.ts`를 활용하여 기기별 최적 크기 및 색상 변이 임계값을 확정할 것.
 - [ ] **[Resonance Easing Tuning]**: 흰색(수축)에서 크림색(확장)으로 변하는 2단계 전이의 이징과 타이밍을 시네마틱하게 보정.
 
 ### 💎 주요 달성 성과 (V11.40 - Infrastructure & Resonance Foundation)
 
 - **Layer Architecture Normalization**:
-    - `INTERACTION_Z_INDEX` 중앙 집중화로 히어로 콘텐츠(11)가 전역 스테이지(10) 및 네모(5) 위에 오도록 위계 정립.
-    - 하드코딩된 `zIndex: 20` 등을 전수 소탕하여 상수 시스템으로 통합.
+  - `INTERACTION_Z_INDEX` 중앙 집중화로 히어로 콘텐츠(11)가 전역 스테이지(10) 및 네모(5) 위에 오도록 위계 정립.
+  - 하드코딩된 `zIndex: 20` 등을 전수 소탕하여 상수 시스템으로 통합.
 - **2-Stage Resonance Flow**:
-    - 브릿지 메시지(상아색 수축) → 메인 메시지(크림색 확장)로 이어지는 2단계 배경 변이 및 동적 텍스트 색상 전환 로직 구현.
+  - 브릿지 메시지(상아색 수축) → 메인 메시지(크림색 확장)로 이어지는 2단계 배경 변이 및 동적 텍스트 색상 전환 로직 구현.
 - **Safe Debug Infrastructure**:
-    - `src/constants/debug.ts` 및 `HeroContext` 하이재킹 가드를 통해 버튼 조작 없이 특정 섹션으로 즉시 점프하는 개발 환경 구축.
-    - 배포 전 삭제가 필요한 모든 위치에 `// 🔥 [DEBUG-DELETE]` 확성기 주석 인덱싱 완료.
+  - `src/constants/debug.ts` 및 `HeroContext` 하이재킹 가드를 통해 버튼 조작 없이 특정 섹션으로 즉시 점프하는 개발 환경 구축.
+  - 배포 전 삭제가 필요한 모든 위치에 `// 🔥 [DEBUG-DELETE]` 확성기 주석 인덱싱 완료.
 
 ## [최신] ✅ 2026-04-04: V11.33 인터랙션 정규화 및 아키텍처 정화 성료 (참조: v11.33-interaction-normalization.md)
 

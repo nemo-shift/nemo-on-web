@@ -57,8 +57,9 @@ export function calculateLabels(isTouch: boolean = false) {
   curr += transGap;
   offsets[STAGES.TO_MESSAGE] = curr;
 
-  // 이하 각 섹션별 동일 패턴 반복
-  curr += w.MESSAGE_STILL;
+  // 메시지 섹션 정지 가중치 (마우스 환경에서 리빌 디테일 감상을 위해 상향: 12.0 -> 18.0)
+  const messageStill = isTouch ? w.MESSAGE_STILL : 30.0;
+  curr += messageStill;
   offsets[STAGES.MSG_CONTENT] = curr;
 
   curr += t;

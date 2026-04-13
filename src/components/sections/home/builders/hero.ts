@@ -82,6 +82,13 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
     const cfg = isMobile && raw.mobile ? { ...raw, ...raw.mobile } : raw;
     const time = L[label];
 
+    // [V11.56 Sync] 배경색 및 로고 전이 타이밍 동기화
+    // PAIN_TO_MSG 브릿지 구간에서 이미 TO_MESSAGE의 환경(배경색 등)을 지향하게 함.
+    let transitionCfg = cfg;
+    if (label === STAGES.PAIN_TO_MSG) {
+      transitionCfg = JOURNEY_MASTER_CONFIG[STAGES.TO_MESSAGE];
+    }
+
     // [전역 색상 전이] fromTo를 사용하여 시작과 끝을 데이터로 강제 고정
     tl.fromTo(document.documentElement, 
       {
@@ -89,18 +96,18 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
         '--bg': lastEnv.bg
       },
       {
-        '--header-fg': cfg.env.fg!,
-        '--bg': cfg.env.bg!,
-        duration: t * r,
+        '--header-fg': transitionCfg.env.fg!,
+        '--bg': transitionCfg.env.bg!,
+        duration: (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r,
         ease: 'none',
         immediateRender: false // [V11.34-P5] 빌드 시점의 시각적 오염 방지
       }, 
       time
     );
 
-    // 다음 섹션을 위해 현재 환경 데이터를 업데이트 (타입 보증을 위해 Non-null 처리)
-    if (cfg.env.fg && cfg.env.bg) {
-      lastEnv = { fg: cfg.env.fg, bg: cfg.env.bg };
+    // 다음 섹션을 위해 현재 환경 데이터를 업데이트
+    if (transitionCfg.env.fg && transitionCfg.env.bg) {
+      lastEnv = { fg: transitionCfg.env.fg, bg: transitionCfg.env.bg };
     }
 
     // 로고 세부 요소(한글 텍스트, 상태 바 등) 변환

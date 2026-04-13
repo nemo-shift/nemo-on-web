@@ -4,6 +4,6 @@
  */
 export const DEBUG_CONFIG = {
   USE_DEBUG: true,             // 디버그 모드 활성화 여부
-  START_STAGE: 'to_pain',      // 새로고침 시 점프할 섹션 라벨 (interaction.ts의 STAGES 키값)
+  START_STAGE: 'to_msg',      // 새로고침 시 점프할 섹션 라벨 (interaction.ts의 STAGES 키값)
   FORCE_ON: true               // 히어로 섹션을 건너뛰고 즉시 ON 상태로 시작할지 여부
 };

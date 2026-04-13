@@ -34,6 +34,7 @@ export const GlobalInteractionStage = ({
   isOn,
   isTransitioning,
   painRef,
+  messageRef,
 }: GlobalInteractionStageProps) => {
   const { isScrollable, isTimelineReady, footerHeight, setIsTimelineReady } = useHeroContext();
 
@@ -116,6 +117,24 @@ export const GlobalInteractionStage = ({
               if (currentScrollY > 0) {
                 rawScrollYRef.current = currentScrollY;
               }
+
+              const startRange = L[STAGES.START_TO_PAIN] / totalWeight;
+              const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
+
+              if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
+                const el = nemoHandle.current?.nemoEl;
+                if (el) {
+                  // [V11.58] getBoundingClientRect를 통한 정밀 픽셀 추출 (Edge 기반)
+                  const rect = el.getBoundingClientRect();
+                  const root = document.documentElement;
+                  
+                  // inset(top right bottom left) 공식에 맞게 뷰포트 끝단에서의 거리 계산
+                  root.style.setProperty('--nemo-t', `${rect.top}px`);
+                  root.style.setProperty('--nemo-r', `${window.innerWidth - rect.right}px`);
+                  root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
+                  root.style.setProperty('--nemo-l', `${rect.left}px`);
+                }
+              }
             }
           });
           
@@ -134,7 +153,10 @@ export const GlobalInteractionStage = ({
           buildLogoTimeline(tl, logo, isMobile, isOn, L);
           buildNemoTimeline(tl, nemo, { isMobile, isTabletPortrait, interactionMode }, falling, painRef, L, isRestoringRef);
           buildSectionScrollTimeline(tl, L, finalY);
-          buildMessageTimeline(tl, nemo, { isMobile, isTabletPortrait }, L);
+          buildMessageTimeline(tl, L, { 
+            standardGroups: messageRef.current?.getStandardGroups() || [], 
+            invertedGroups: messageRef.current?.getInvertedGroups() || [] 
+          }, { interactionMode });
           buildHeroSwapSequence(tl, nemo, L);
 
           // [V16.41] 독립형 물리 엔진 제어 트리거
@@ -232,7 +254,7 @@ export const GlobalInteractionStage = ({
 
       setIsTimelineReady(false);
     };
-  }, { dependencies: [isScrollable, isOn, isMobileView, isTabletPortrait, footerHeight] });
+  }, { dependencies: [isScrollable, isOn, isMobileView, isTabletPortrait, footerHeight, interactionMode] });
 
   // [V4.2] 레이라우트 무결성 Double-Lock: 
   // 스크롤 해제(overflow hidden 제거) 시 발생하는 레이아웃 시프트를 감지하여 핀 좌표 최종 갱신

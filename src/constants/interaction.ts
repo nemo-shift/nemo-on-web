@@ -118,7 +118,7 @@ export const TIMING_CFG = {
     HERO_STILL: 2.0,      // 초기 진입 시 로고 위용 감상 구간
     PAIN_STILL: 6.0,      // 5개 포인트 순차 노출 (길게)
     RESONANCE_STILL: 24.0, // 공명 마퀴 시퀀스 (극도로 여유로운 흐름을 위해 가중폭 확대)
-    MESSAGE_STILL: 4.0,   // 핵심 카운트 관통
+    MESSAGE_STILL: 12.0,   // 핵심 카운트 관통 (충분한 리빌 감상을 위해 상향)
     FOR_WHO_STILL: 4.0,   // 타겟 리스트
     STORY_STILL: 3.0,     // 브랜드 스토리
     CTA_STILL: 2.0,       // CTA 진입 전 호흡
@@ -202,9 +202,9 @@ export const NEMO_RESPONSIVE_LAYOUT = {
 
   // 5. 메시지 섹션 (Vertical Teal Box)
   MESSAGE: {
-    PC:       { w: '16vw', h: '62vh', left: '50%', top: '50%' },
-    TABLET_P: { w: '35vw', h: '45vh', left: '50%', top: '50%' },
-    MOBILE:   { w: '50vw', h: '45vh', left: '50%', top: '50%' }
+    PC:       { w: '6vw', h: '30vh', left: '50%', top: '60%' },
+    TABLET_P: { w: '14vw', h: '28vh', left: '50%', top: '62%' },
+    MOBILE:   { w: '18vw', h: '28vh', left: '50%', top: '62%' }
   },
 
   // 6. 포후 섹션 (Wide Image Frame)
