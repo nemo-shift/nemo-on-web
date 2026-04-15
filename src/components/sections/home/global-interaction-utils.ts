@@ -18,7 +18,8 @@ import { SharedNemoHandle } from './SharedNemo';
  * @returns {Record<string, number>} offsets - 각 스테이지 라벨별 시작 지점(Timeline Time)
  * @returns {number} totalWeight - 전체 타임라인의 총 길이 (ScrollTrigger end 값과 동기화됨)
  */
-export function calculateLabels(isTouch: boolean = false) {
+export function calculateLabels(mode: 'mouse' | 'touch' = 'mouse') {
+  const isTouch = mode === 'touch';
   const w = TIMING_CFG.SECTION_WEIGHT;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
 

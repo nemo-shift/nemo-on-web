@@ -63,19 +63,21 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
       className="relative w-full h-[1000vh]"
       style={{ backgroundColor: 'transparent' }}
     >
-      <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
+      {/* [임시:DEBUG-DELETE] 섹션 시작 가이드라인/라벨 */}
+      {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Pain Section</span>
-      </div>
+      </div>*/}
 
       <div 
         className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
       >
-        <div className="container mx-auto px-6 flex flex-col items-center">
+        {/* [섹션명 표시]  */}
+        {/*<div className="container mx-auto px-6 flex flex-col items-center">
           <h2 className="font-bold text-white/12 uppercase tracking-[0.2em] text-4xl tablet-p:text-5xl tablet:text-6xl desktop-wide:text-7xl desktop-cap:text-8xl">
             Pain points
           </h2>
-        </div>
+        </div>*/}
 
         {!isTouch ? (
           <div className="absolute inset-x-0 w-full flex flex-col items-center justify-center gap-12 pointer-events-none">

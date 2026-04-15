@@ -43,17 +43,21 @@ export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHa
 }
 
 /**
- * [V11.31 Knowledge Transfer] buildLogoTimeline
- * 마스터 시트(JOURNEY_MASTER_CONFIG)를 기반으로 로고의 형태와 색상을 변환하는 타임라인을 빌드.
- * 
- * 주요 로직:
- * 1. 섹션별 환경 설정(env)에 따라 헤더의 전역 색상 값(--header-fg, --bg)을 동적으로 변경.
- * 2. 로고의 내부 형태(Shapes, Status, Rectangle)를 각 스테이지의 정의에 맞춰 노출/숨김 처리.
- * 3. 마스터 타임라인의 시간 라벨(L)과 동기화되어 스크롤 위치에 따라 정확히 변이함.
+ * @param {Record<string, number>} L - 마스터 타임라인의 시간 라벨 맵
  */
-export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandle, isMobile: boolean, isOn: boolean, L: Record<string, number>) {
+export function buildLogoTimeline(
+  tl: gsap.core.Timeline, 
+  logo: JourneyLogoHandle, 
+  { isMobile, isTabletPortrait, isOn }: { isMobile: boolean, isTabletPortrait: boolean, isOn: boolean }, 
+  L: Record<string, number>
+) {
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
   
+  // 기기별 헤더 스케일 선정
+  const headerScale = isMobile 
+    ? LOGO_SIZE.HEADER_SCALE_MOBILE 
+    : (isTabletPortrait ? LOGO_SIZE.HEADER_SCALE_TABLET : LOGO_SIZE.HEADER_SCALE);
+
   // 초기 스케일 설정 (빅 타이포 상태)
   tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
 
@@ -65,7 +69,6 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
     ease: EASE.FADE
   }, L[STAGES.HERO_STILL_START]);
 
-  const headerScale = LOGO_SIZE.HEADER_SCALE;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
   
@@ -110,9 +113,48 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
       lastEnv = { fg: transitionCfg.env.fg, bg: transitionCfg.env.bg };
     }
 
-    // 로고 세부 요소(한글 텍스트, 상태 바 등) 변환
-    tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: ANIMS_CFG.LOGO_MORPH }, time);
-    // 로고 부속품(도형 등) — 히어로 특수 연출 구간(START_TO_PAIN)은 중복 방지를 위해 제외
+    // [로고 세부 요소 변환]
+    if (label === STAGES.PAIN_TO_MSG) {
+      // [V11.65 Cinematic Morph] Nemo -> RECTANGLE 정밀 오버랩 시퀀스
+      // 한글 로고가 완전히 사라지기 전 영문 로고가 투영되도록 타이밍 설계
+      tl.to(logo.nemoKrEl, { 
+        opacity: 0, 
+        scale: 1.15, 
+        filter: 'blur(15px)',
+        duration: ANIMS_CFG.LOGO_MORPH * 2.5,
+        ease: 'power2.inOut'
+      }, time);
+
+      tl.fromTo(logo.rectangleEl, 
+        { 
+          opacity: 0, 
+          letterSpacing: '1.2em',
+          visibility: 'visible',
+          filter: 'blur(6px)',
+          scale: 0.95
+        },
+        { 
+          opacity: 1, 
+          letterSpacing: '0.02em', // JourneyLogo의 gap과 조화를 위해 좁게 설정
+          filter: 'blur(0px)',
+          scale: 1,
+          duration: ANIMS_CFG.LOGO_MORPH * 3,
+          ease: 'power3.out',
+          immediateRender: false
+        }, 
+        time
+      );
+    } else {
+      // 일반적인 상태 전이
+      tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: ANIMS_CFG.LOGO_MORPH }, time);
+      tl.to(logo.rectangleEl, { 
+        opacity: cfg.logo.rectangle ? 1 : 0, 
+        visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
+        duration: ANIMS_CFG.LOGO_MORPH 
+      }, time);
+    }
+
+    // [로고 부속품 제어] - 히어로 특수 연출(START_TO_PAIN) 제외 모든 구간
     if (label !== STAGES.START_TO_PAIN) {
       tl.to([logo.shapesEl, logo.statusEl], { 
         opacity: cfg.logo.status ? 1 : 0, 
@@ -120,16 +162,11 @@ export function buildLogoTimeline(tl: gsap.core.Timeline, logo: JourneyLogoHandl
         duration: ANIMS_CFG.LOGO_MORPH 
       }, time);
     }
-    tl.to(logo.rectangleEl, { 
-      opacity: cfg.logo.rectangle ? 1 : 0, 
-      visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
-      duration: ANIMS_CFG.LOGO_MORPH 
-    }, time);
 
     // [+] <-> [-] 형태적 모핑(Morphing)
     if (logo.tLines.h && logo.tLines.v) {
       const isPlus = cfg.logo.morph === '+';
-      tl.to(logo.tLines.h, { top: isPlus ? '60px' : '20px', duration: ANIMS_CFG.LOGO_MORPH }, time);
+      tl.to(logo.tLines.h, { top: isPlus ? '0.32em' : '0', duration: ANIMS_CFG.LOGO_MORPH }, time);
     }
   });
 

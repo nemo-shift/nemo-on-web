@@ -12,7 +12,6 @@ import { useHeroContext, useDevice } from '@/context';
 import { useHeroState, useParticles } from '@/hooks';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
-import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import Header from '@/components/layout/Header';
 import HeroBottomBar from './HeroBottomBar';
 import HeroPCView from './views/HeroPCView';
@@ -185,7 +184,7 @@ export default function HeroSection({
   return (
     <div 
       className="relative flex flex-col w-full min-h-screen overflow-hidden transition-colors duration-1000"
-      style={{ ...cssVars, zIndex: INTERACTION_Z_INDEX.HERO_SECTION }} // 전역 스테이지(10)보다 높고 타 섹션(20)보다 낮게 조정
+      style={cssVars}
     >
       
       {mounted && typeof document !== 'undefined' && createPortal(

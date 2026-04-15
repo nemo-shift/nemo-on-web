@@ -8,6 +8,7 @@ import { MessageSection, MessageSectionHandle } from './message/MessageSection';
 import { ForWhoSection } from './forwho/ForWhoSection';
 import { BrandStorySection } from './story/BrandStorySection';
 import { CTASection } from './cta/CTASection';
+import { Footer } from '@/components/layout';
 import GlobalInteractionStage from './GlobalInteractionStage';
 
 /**
@@ -58,6 +59,7 @@ export default function HomeStage(): React.ReactElement {
             <ForWhoSection />
             <BrandStorySection />
             <CTASection />
+            <Footer isHomeStage={true} />
           </div>
         </div>
 

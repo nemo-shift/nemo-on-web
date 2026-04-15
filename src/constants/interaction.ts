@@ -12,32 +12,29 @@
 // 1. Z-index 레이어 계층 (V4.0 Integrity Standard)
 // ─────────────────────────────────────────────
 export const INTERACTION_Z_INDEX = {
-  // [계층 4] 브랜드 로고: 헤더(HEADER: 10000)보다 위에 위치.
-  // GlobalInteractionStage가 position: fixed라 부모 z-index 제약 없이
-  // 뷰포트 기준 독립적 stacking context를 형성함.
-  // 로고의 실제 전역 순위는 자식값(10001)이 아닌 이 값 자체로 결정됨.
+  // [계층 4] 브랜드 로고 스테이지 (Brand Layer)
+  // GlobalInteractionStage 내에서 createPortal을 통해 document.body로 탈출.
+  // 이로 인해 히어로 배경(11) 및 콘텐츠 레이어(20)를 관통하는 전역 최상위 위상을 가짐.
   JOURNEY_LOGO: 10001, 
 
   HEADER: 10000,
   MENU: 10002,
-  // [계층 최상위] 햄버거 모핑 토글 버튼 — 항상 SideMenu 패널(10002) 위에 위치
   MENU_TOGGLE: 10003,
   
-  // [계층 4] 히어로 섹션 전용 기초 레이어 (전역 스테이지 10보다 높게 설정하여 네모 위로 노출)
-  HERO_SECTION: 11,
-
+  
   // [계층 3] 스크롤 가이드
   SCROLL_HINT: 1000, 
   
-  // [계층 2] 주요 애니메이션 객체 (공유 네모)
+  // [계층 2] 배경 인터랙션 레이어 (Under Layer)
+  // GlobalInteractionStage(zIndex: 10) 부모 제약 없이 각자의 고도를 가짐.
+  // 텍스트 및 링크 콘텐츠(20)보다 아래에 위치하여 '배경' 역할을 수행함.
   SHARED_NEMO: 5, 
-  
-  // [계층 1] 배경 물리 시뮬레이션 (감정 키워드)
   KEYWORDS: 10,
   
-  // [향후] 섹션 콘텐츠 레이어용 (콘텐츠 작업 시 활성화)
+  // [계층 2.5] 섹션 콘텐츠 레이어 (중심 텍스트 및 링크)
   CONTENT_LAYER: 20,
-  // [향후] 배경 레이어용
+  
+  // [계층 1] 최하단 배경 레이어용
   BACKGROUND: 0,
 };
 
@@ -140,8 +137,9 @@ export const LOGO_SIZE = {
   // 히어로 중앙이 원본(1.0)으로 보여야 가장 선명함
   BIG_SCALE: 1.0,           
   BIG_SCALE_MOBILE: 1.0,    
-  HEADER_SCALE: 0.2,        // PC (150px -> 30px)
-  HEADER_SCALE_MOBILE: 0.35, // Mobile (approx 70px -> 24px)
+  HEADER_SCALE: 0.3,        // PC (150px -> 30px)
+  HEADER_SCALE_TABLET: 0.4,
+  HEADER_SCALE_MOBILE: 0.5, // Mobile (approx 70px -> 24px)
 };
 
 export const NEMO_SIZE = {

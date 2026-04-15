@@ -139,26 +139,32 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         {/* 4. RECTANGLE (Layer B - Hidden initially) */}
         <div 
           ref={rectangleRef} 
-          className="absolute inset-0 flex items-baseline font-bebas text-[28px] tracking-widest opacity-0 pointer-events-none"
+          className={cn(
+            "absolute inset-0 flex items-baseline font-gmarket opacity-0 pointer-events-none gap-[0.02em]",
+            "text-[clamp(56px,calc(60px+1.5vw),80px)]",
+            "tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)]",
+            "tablet:text-[clamp(150px,calc(75px+7.5vw),185px)]",
+            "desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)]",
+            "desktop-cap:text-[220px]"
+          )}
           style={colorStyle}
         >
-          <span>REC</span>
+          <span className="font-bold">REC</span>
           {/* T Morphing Point (Using CSS Lines for Practicality) */}
-          <div className="relative w-[90px] h-[120px] mx-1 tablet-p:mx-2"> // [v26.98 UI Detail] 고해상도 모핑 포인트 확장
+          <div className="relative inline-flex items-start justify-center flex-shrink-0 w-[0.65em] h-[0.76em] translate-y-[0.06em]">
             {/* 가로 선 (Horizontal Bar) */}
             <div 
               ref={tLineHRef}
-              className="absolute left-0 top-[20px] w-full h-[18px] bg-current rounded-sm"
+              className="absolute left-0 top-0 w-full h-[0.14em] bg-current rounded-sm"
               style={{ transition: 'top 0.3s ease' }}
             />
             {/* 세로 선 (Vertical Bar) */}
             <div 
               ref={tLineVRef}
-              className="absolute left-1/2 -translateX-1/2 top-[20px] w-[18px] h-[85%] bg-current rounded-sm"
-              style={{ transform: 'translateX(-50%)' }}
+              className="w-[0.14em] h-[1.5em] bg-current rounded-sm"
             />
           </div>
-          <span>ANGLE</span>
+          <span className="font-bold">ANGLE</span>
         </div>
       </div>
     );

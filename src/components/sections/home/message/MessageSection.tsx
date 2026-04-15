@@ -59,6 +59,10 @@ export const MessageSection = forwardRef<MessageSectionHandle>((_, ref) => {
       className="relative w-full h-[800vh]"
       style={{ backgroundColor: 'transparent' }}
     >
+      {/* [DEBUG-DELETE] : 섹션 가이드 라벨 (배포 전 삭제) */}
+      {/*<span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50 z-[9999]">
+        Start: Message Section
+      </span>*/}
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}

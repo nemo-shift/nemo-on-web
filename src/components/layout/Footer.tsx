@@ -4,7 +4,6 @@ import React, { useRef, useEffect } from 'react';
 import { useHeroContext } from '@/context';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { COLORS } from '@/constants/colors';
 import { NemoIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -13,13 +12,12 @@ import { cn } from '@/lib/utils';
  * - 기획서 3단 레이아웃 구현
  * - Fixed 하단 고정 (z-index: -1)
  */
-export default function Footer(): React.ReactElement {
+export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean }): React.ReactElement {
   const { setFooterHeight, isTimelineReady } = useHeroContext();
   const footerRef = useRef<HTMLElement>(null);
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
   const isHome = pathname === '/';
-
   // [V11.34] ResizeObserver에 200ms 디바운스를 적용하여 리사이즈 중 부하 임계점 제어
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -49,6 +47,12 @@ export default function Footer(): React.ReactElement {
     };
   }, [setFooterHeight]);
 
+  // [V11.Separation] 전역 레이아웃에서 호출된 푸터가 홈 페이지(/)일 경우 렌더링 제외 (이중 렌더링 방지)
+  // [Hooks 규칙 준수] 모든 Hook 호출 이후에 리턴하도록 위치 조정
+  if (isHome && !isHomeStage) {
+    return <></>; 
+  }
+
   return (
     <footer 
       ref={footerRef}
@@ -59,7 +63,8 @@ export default function Footer(): React.ReactElement {
        * - leading-none을 활용해 폰트 고유 여백을 제거하고 정석적인 gap/pt 수치로 밀착감 재현
        */
       className={cn(
-        "fixed bottom-0 left-0 w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden",
+        isHomeStage ? "relative" : "fixed bottom-0 left-0",
+        "w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden",
         "h-[450px] px-6 py-12",                          // Mobile
         "tablet-p:h-[500px] tablet-p:px-8 tablet-p:py-14",   // 744px
         "tablet:h-[550px] tablet:px-10 tablet:py-16",        // 992px
@@ -68,7 +73,7 @@ export default function Footer(): React.ReactElement {
       )}
       style={{ 
         backgroundColor: '#0a0a0a', 
-        zIndex: -1,
+        zIndex: isHomeStage ? 0 : -1,
         pointerEvents: 'auto',
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,

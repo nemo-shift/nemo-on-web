@@ -26,9 +26,10 @@ export const MESSAGE_CONTENT: MessageGroup[] = [
   {
     id: 2,
     lines: [
-      { text: "단지 있어야 하니까 만드는 브랜드엔" },
       { text: "관심이 없습니다." },
-      { text: "단순히 예쁜 웹사이트를 만들지 않습니다." }
+      { text: "단지 있어야 하니까 만드는 브랜드엔" },
+      { text: "만들지 않습니다." },
+      { text: "단순히 좋아보이고 예쁜 웹사이트는" }
     ]
   },
   {
