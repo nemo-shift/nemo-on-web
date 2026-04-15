@@ -38,7 +38,7 @@ interface JourneyLogoProps {
  */
 const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
   (_props, ref) => {
-    const { progress = 0, isOn, isTransitioning } = _props;
+    const { isOn, isTransitioning } = _props;
     const containerRef = useRef<HTMLDivElement>(null);
     const nemoKrRef = useRef<HTMLDivElement>(null);
     const shapesRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     const tLineHRef = useRef<HTMLDivElement>(null);
     const tLineVRef = useRef<HTMLDivElement>(null);
 
-    const { scrambledText, startScramble, setScrambledText } = useScramble();
+    const { scrambledText, startScramble } = useScramble();
     // [V5.4 Fix] 초기 상태를 현재 isOn에 맞게 설정하여 마운트 시 불필요한 스크램블 방지
     const prevTargetRef = useRef<string>((_props.isOn || _props.isTransitioning) ? 'ON' : 'OFF');
 
@@ -77,7 +77,8 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     }));
 
     const activeLogoColors = isOn ? LOGO_COLOR_CFG.ON : LOGO_COLOR_CFG.OFF;
-    const colorStyle = { color: 'var(--header-fg)' };
+    // [V11.10 Fix] Portal 브리지로부터 실시간 var(--header-fg)를 상속받습니다.
+    const colorStyle = { color: 'inherit' };
     const statusColorStyle = {
       color: activeLogoColors.TEXT,
       transition: 'color 0.7s ease'
@@ -109,7 +110,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         >
           <NemoIcon 
             className={cn(
-              "opacity-80 nemo-logo-engine"
+              'opacity-80 nemo-logo-engine'
             )}
             triangleColor={activeLogoColors.TRIANGLE}
             circleColor={activeLogoColors.CIRCLE}
@@ -118,11 +119,11 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
             triangleClassName="border-l-[0.35em] border-r-[0.35em] border-b-[0.55em] transform -translate-y-[0.05em]"
             circleClassName="w-[0.55em] h-[0.55em] border-[0.12em]"
             gapClassName={cn(
-              "gap-[0.15em]",
-              "tablet-p:gap-[0.25em]",
-              "tablet:gap-[0.4em]",
-              "desktop-wide:gap-[0.35em]",
-              "desktop-cap:gap-[0.65em]"
+              'gap-[0.15em]',
+              'tablet-p:gap-[0.25em]',
+              'tablet:gap-[0.4em]',
+              'desktop-wide:gap-[0.35em]',
+              'desktop-cap:gap-[0.65em]'
             )}
           />
         </div>
@@ -140,12 +141,12 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         <div 
           ref={rectangleRef} 
           className={cn(
-            "absolute inset-0 flex items-baseline font-gmarket opacity-0 pointer-events-none gap-[0.02em]",
-            "text-[clamp(56px,calc(60px+1.5vw),80px)]",
-            "tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)]",
-            "tablet:text-[clamp(150px,calc(75px+7.5vw),185px)]",
-            "desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)]",
-            "desktop-cap:text-[220px]"
+            'absolute inset-0 flex items-baseline font-gmarket opacity-0 pointer-events-none gap-[0.02em]',
+            'text-[clamp(56px,calc(60px+1.5vw),80px)]',
+            'tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)]',
+            'tablet:text-[clamp(150px,calc(75px+7.5vw),185px)]',
+            'desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)]',
+            'desktop-cap:text-[220px]'
           )}
           style={colorStyle}
         >
@@ -170,5 +171,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     );
   },
 );
+
+JourneyLogo.displayName = 'JourneyLogo';
 
 export default JourneyLogo;

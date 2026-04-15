@@ -163,8 +163,10 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     );
 
     // 7) Lenis 스크롤 정지 (overflow: hidden 추가하지 않음)
-    if (typeof window !== 'undefined' && window.lenis) {
-      window.lenis.stop();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof window !== 'undefined' && (window as any).lenis) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).lenis.stop();
     }
   }, [getDimTargets]);
 
@@ -186,8 +188,10 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none' });
 
         // Lenis 스크롤 복원
-        if (typeof window !== 'undefined' && window.lenis) {
-          window.lenis.start();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof window !== 'undefined' && (window as any).lenis) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).lenis.start();
         }
 
         // ScrollTrigger 좌표 갱신 (Lenis 멈춤 중 레이아웃 틀어짐 방지)
@@ -289,8 +293,10 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       }
 
       // Lenis 원복
-      if (typeof window !== 'undefined' && window.lenis) {
-        window.lenis.start();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof window !== 'undefined' && (window as any).lenis) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).lenis.start();
       }
 
       onClose();

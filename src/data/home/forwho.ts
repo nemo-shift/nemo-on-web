@@ -11,7 +11,7 @@ export interface ForWhoItem {
   };
 }
 
-export const FOR_WHO_TOP_SENTENCE = "이런 전환의 순간에 함께합니다.";
+export const FOR_WHO_TOP_SENTENCE = '이런 전환의 순간에 함께합니다.';
 
 export const FOR_WHO_LIST: ForWhoItem[] = [
   {

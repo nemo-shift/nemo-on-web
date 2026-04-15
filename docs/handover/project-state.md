@@ -1,6 +1,48 @@
 > [!NOTE]
 > **문서 목적**: 네모:ON의 **'전체 시스템 현황'** 요약본. 현재 아키텍처의 핵심 구조, 데이터 시트 명세, 주요 컴포넌트 가동 유무를 부감하여 시스템의 무결성을 증명함.
 
+## [최신] 🚀 2026-04-16: V11.18 Interaction Integrity & Environmental Centralization
+
+브랜드 섹션 전환(Wipe)과 환경 제어(Color/Header) 로직의 무결성을 확보하고, 레이어 서열(Z-Index) 체계를 전면 재정립했습니다. 특히 리사이즈 시 색상 유실 등 고질적인 환경 오류를 차단하는 '진행도 기반 가드'를 아키텍처적 표준으로 안착시켰습니다.
+
+### 💎 주요 달성 성과 (V11.18)
+
+- **Global Layer Hierarchy (V11.18 Standard)**:
+  - `SYSTEM_WIPE(11000)` 급의 시스템 장막 레이어를 신설하여 포탈(Portal)로 탈출한 로고(`10001`)를 완벽히 마스킹함.
+  - 전역 레이어 서열을 `INTERACTION_Z_INDEX` 상수로 100% 통합 관리 시작.
+- **Environmental SSOT (Single Source of Truth)**:
+  - 배경색(`--bg`) 및 헤더색(`--header-fg`) 제어권을 섹션 스크롤 엔진(`scroll.ts`)으로 일원화하여 로직 파편화 해소.
+  - 타임라인 전 구간 상태 잠금(State Locking)을 통해 리사이즈 후 상태 복구 무결성 확보.
+- **Progress-Aware Guard System**:
+  - `window._masterTlProgress`를 활용해 인터랙션 진행 중 외부 함수(init...)의 파괴적 리셋을 차단하는 방어막 구축.
+
+### 🔄 다음 작업 방향: "Step 7 - Macro Initialization Refactoring"
+로고 및 네모의 초기화 로직 전반에 '진행도 인지 가드'를 투입하고, 코드 내 모든 매직 넘버를 소탕하여 시스템의 거시적 순도를 완성하는 단계 지속.
+
+## [최신] 🚀 2026-04-15: V11.7 Global Engine Stabilization & Architecture Pruning
+
+
+인터랙션 엔진의 영속성(Persistence)을 위협하던 '홈 복귀 무음 마운트' 현상을 해결하고, 리사이즈 시의 비동기 좀비 트리거 노이즈를 완벽히 제거하여 시스템의 무결성을 최종 안착시켰습니다. 또한 중복된 Z-index 위계를 정리하여 아키텍처의 순도를 높였습니다.
+
+### 💎 주요 달성 성과 (V11.7)
+
+- **Engine Persistence Engine (Pinpoint Trigger)**:
+  - `revision` 상태와 전용 `useEffect` 감시자를 통해, 포털 마운트 직후 엔진이 침묵하는 찰나의 순간을 포착하여 비상 기동하는 매커니즘 안착.
+  - 서브 페이지 방문 후 복귀 시에도 지연 없는 인터랙션 기동 보장.
+- **Async-Guard Resize Integrity**:
+  - **`revertOnUpdate: true`** 강제를 통한 리사이즈 시 이전 엔진의 완전한 파괴 사이클 확보.
+  - `ctx.add()`로 비동기(rAF/setTimeout) 작업을 Context 내부에 가두어 좀비 트리거의 탈출 및 누적을 원천 차단.
+  - `layoutTimerRef` 도입으로 레이아웃 시프트 보정용 좀비 타이머 해제 로직 완성.
+- **Architecture Pruning & Normalization**:
+  - **Z-Index Layer Consolidation**: `#sections-content-wrapper`의 고도(20) 안착에 따라 불필요해진 `HERO_SECTION: 11` 위계를 숙청하고 2계층 단순 아키텍처로 회귀.
+  - **Utility Parameter Purity**: `calculateLabels`의 파라미터를 불리언에서 `interactionMode` 문자열 자체로 리팩토링하여 전체 빌더 시그니처와 통일.
+- **Responsive Logo Scaling Refinement**:
+  - `buildLogoTimeline` 내 기기별 분기 로직(PC/Tablet/Mobile)을 독립시켜 헤더 축소 시의 시각적 밸런스 최적화.
+
+### 🔄 다음 작업 방향: "Step 6 - Holistic Polish & Bridge Logic Finalization"
+
+안정화된 엔진 위에서 각 섹션 간의 감성적인 전이(Transition)와 배경색 변이의 임계값을 최종 튜닝하고, 전체 UX의 부드러움을 극대화하는 폴리싱 단계 지속.
+
 ## [최신] ✅ 2026-04-13: V11.62 메세지 섹션 아키텍처 정규화 및 공간 리빌 안착
 
 물리적 위치 기반의 '공간 반전'과 스크롤 진행 기반의 '시간 리빌'이 공존하는 복합 인터랙션 시스템을 완성하고, 듀얼 레이어 동기화 구조를 통해 아키텍처적 무결성을 확보했습니다.

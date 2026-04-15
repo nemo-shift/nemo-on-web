@@ -77,29 +77,73 @@ rafId.current = requestAnimationFrame(() => {
 
 **건드리면 안 되는 이유**: rAF를 제거하거나 타이밍을 바꾸면 pin 좌표가 틀어져서 모바일에서 섹션이 `28,815px` 아래로 밀리는 버그가 재현된다.
 
-### 3-2. 클린업 순서가 엄격하게 고정된 이유
+### 3-2. 전역 포인터의 위험성과 로컬 캡처 (Local Capture)
+
+기존에는 `masterTl.current.kill()`을 호출했으나, 이는 리사이즈나 페이지 이동 시 **"과거의 클린업"이 "미래의 엔진"을 죽이는 레이스 컨디션**을 유발했습니다.
+
+**해결 (V11.7)**:
+- 렌더링 세션마다 `let localTl = null;` 변수를 선언하고 `ctx.add()` 내부에서 할당.
+- 클린업 함수는 오직 이 **로컬 변수**만 참조하여 자신이 만든 인스턴스만 정확히 제거.
+
+### 3-3. 비동기 테두리 탈출 방지 (Async Guard)
+
+`requestAnimationFrame`이나 `setTimeout`은 GSAP Context 바깥으로 '탈출'하여 클린업 이후에도 좀비 트리거를 생성할 수 있습니다.
+
+**해결 (V11.7)**:
+- 모든 비동기 로직을 **`ctx.add(() => { ... })`**로 감싸서 GSAP의 관리 영역에 강제 귀속.
+- `layoutTimerRef` 등을 통해 타이머 ID를 관리하고 클린업 시 명시적으로 `clearTimeout`.
+
+### 3-4. 홈 복귀 시 무음 마운트 해결 (Pinpoint Trigger)
+
+포탈(`createPortal`)이 마운트되는 시점과 `useGSAP`이 실행되는 시점의 미세한 어긋남으로 인해, 복귀 시 엔진이 기동하지 않는 문제가 있었습니다.
+
+**해결 (V11.7)**:
+- `revision` 상태값을 도입하여 포탈 마운트 직후 엔진이 침묵할 경우 이를 강제로 재기동(Double-Lock useEffect)하는 메커니즘 구축.
+
+---
+
+## 4. 클린업(Cleanup) 시퀀스 명세 (V11.7 정규화)
+
+클린업은 다음 순서를 엄격히 준수해야 시각적 유령(Ghost) 및 좀비 트리거가 남지 않는다.
 
 ```typescript
 return () => {
-  // 1. cancelAnimationFrame
+  // 1. 비동기 타이머 및 rAF 즉시 중단 (중요: 가장 먼저 수행)
   if (rafId.current) cancelAnimationFrame(rafId.current);
+  if (layoutTimerRef.current) clearTimeout(layoutTimerRef.current);
 
-  // 2. wrapper 스타일 초기화
+  // 2. 섹션 래퍼 스타일 강제 초기화
   const wrapper = document.getElementById('sections-content-wrapper');
-  if (wrapper) { wrapper.style.position = ''; ... }
+  if (wrapper) {
+    wrapper.style.position = '';
+    wrapper.style.top = '';
+    wrapper.style.transform = '';
+  }
 
-  // 3. ctx.revert()
+  // 3. 로컬 캡처 인스턴스 정밀 제거
+  // 전역 Ref가 아닌 이 스코프의 localTl만 소거하여 레이스 컨디션 방지
+  if (localTl) {
+    localTl.scrollTrigger?.kill();
+    localTl.kill();
+  }
+
+  // 4. GSAP Context 전체 리셋
   ctx.revert();
 
-  // 4. clearProps
+  // 5. 핀 스테이지 잔여 스타일 소거
   gsap.set('#home-stage', { clearProps: 'transform,position' });
+};
+```
 
-  // 5. masterTl kill
-  if (masterTl.current) {
-    masterTl.current.scrollTrigger?.kill();
-    masterTl.current.kill();
-    masterTl.current = null;
-  }
+---
+
+## 5. 아키텍처 정규화 가이드 (V11.7)
+
+시스템의 복잡도를 낮추기 위해 다음 원칙을 준수한다.
+
+1. **Z-Index Layer**: `#sections-content-wrapper`가 `z-index: 20`을 소유하므로, 내부 섹션은 별도의 zIndex를 가지지 않는 것을 원칙으로 한다.
+2. **Parameter Purity**: `calculateLabels` 등 전역 유틸리티는 `isTouch` 등의 불리언 대신 `interactionMode` 문자열 자체를 넘겨받아 내부에서 분기한다.
+3. **Responsive Logo**: 헤더 로고 스케일은 빌더(`buildLogoTimeline`) 내부에서 기기별 상수를 참조하여 결정한다.
 
   // 6. keywordsTrigger kill (독립형 트리거 — v2 추가)
   if (keywordsTrigger.current) {

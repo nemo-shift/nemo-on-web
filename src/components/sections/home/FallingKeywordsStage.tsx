@@ -16,10 +16,20 @@ export interface FallingKeywordsHandle {
   magneticReset: () => void;
   /** 초기화 */
   reset: () => void;
-  /** [V16.41] 물리 엔진 및 렌더링 루프 일시 정지 */
+  /** [V16.41] 물리 엔진 및 렌더링 루프 정지 */
   pauseSimulation: () => void;
   /** [V16.41] 물리 엔진 및 렌더링 루프 가동 재개 */
   resumeSimulation: () => void;
+}
+
+/**
+ * [V11.8 Normalization] 물리 엔진 바디에 추가된 커스텀 속성 명세
+ */
+interface KeywordBody extends Matter.Body {
+  text: string;
+  initialPos: { x: number; y: number };
+  bodyWidth: number;
+  bodyHeight: number;
 }
 
 interface FallingKeywordsStageProps {
@@ -36,7 +46,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<Matter.Engine | null>(null);
     const runnerRef = useRef<Matter.Runner | null>(null);
-    const bodiesRef = useRef<Matter.Body[]>([]);
+    const bodiesRef = useRef<KeywordBody[]>([]);
     const groundRef = useRef<Matter.Body | null>(null);
     const rafIdRef = useRef<number | null>(null);
     const isRunningRef = useRef(true); // [V16.41] 가동 상태 추적
@@ -53,7 +63,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     }, [isMobile, isTabletPortrait]);
 
     // [V16.25] 핀(Constraint) ↔ 바디 매핑
-    const pinsRef = useRef<Map<Matter.Body, Matter.Constraint>>(new Map());
+    const pinsRef = useRef<Map<KeywordBody, Matter.Constraint>>(new Map());
 
     // [V26.80] 렌더 루프 함수 Ref (전역 오염 제거)
     const renderLoopRef = useRef<(() => void) | null>(null);
@@ -123,24 +133,25 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         },
       });
 
-      // 커스텀 속성
-      body.text = text;
-      (body as any).initialPos = { x, y };
-      (body as any).bodyWidth = width;
-      (body as any).bodyHeight = height;
+      // 커스텀 속성 주입 (V11.8 정규화)
+      const keywordBody = body as KeywordBody;
+      keywordBody.text = text;
+      keywordBody.initialPos = { x, y };
+      keywordBody.bodyWidth = width;
+      keywordBody.bodyHeight = height;
 
       // [V16.25] 핀(Constraint)으로 고정 — 동적이지만 떨어지지 않음
       const pin = Matter.Constraint.create({
         pointA: { x, y },       // 월드 고정점
-        bodyB: body,             // 고정 대상
+        bodyB: keywordBody as Matter.Body, // 고정 대상 (타입 안전성 확보)
         pointB: { x: 0, y: 0 }, // 바디 중심
         stiffness: 1,            // 완전 강체 연결
         length: 0,               // 거리 0 = 제자리 고정
       });
 
-      bodiesRef.current.push(body);
-      pinsRef.current.set(body, pin);
-      Matter.World.add(engineRef.current.world, [body, pin]);
+      bodiesRef.current.push(keywordBody);
+      pinsRef.current.set(keywordBody, pin);
+      Matter.World.add(engineRef.current.world, [keywordBody as Matter.Body, pin]);
     }, [getViewport, getDesignSpec]);
 
     // ─── Handle 인터페이스 (builders.ts와의 계약 — 시그니처 변경 없음) ───
@@ -192,7 +203,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         if (!engineRef.current) return;
 
         bodiesRef.current.forEach(body => {
-          const initial = (body as any).initialPos;
+          const initial = body.initialPos;
           if (!initial || (initial.x === 0 && initial.y === 0)) return;
 
           Matter.Body.setVelocity(body, { x: 0, y: 0 });
@@ -247,12 +258,12 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         bodiesRef.current.forEach(body => {
           const pin = pinsRef.current.get(body);
           if (pin) Matter.World.remove(engineRef.current!.world, pin);
-          Matter.World.remove(engineRef.current!.world, body);
+          Matter.World.remove(engineRef.current!.world, body as Matter.Body);
         });
         bodiesRef.current = [];
         pinsRef.current.clear();
 
-        // 2. [V26.98 Fix] 렌더 루프가 중단되더라도 잔상이 남지 않도록 캔버스를 즉시 박박 닦아냄
+        // 2. [V26.98 Fix] 잔상 제거를 위한 캔버스 즉시 소거
         const ctx = canvasRef.current.getContext('2d');
         if (ctx) {
           const dpr = window.devicePixelRatio || 1;
@@ -261,27 +272,21 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       },
 
       pauseSimulation: () => {
-        if (!isRunningRef.current) return;
-        if (runnerRef.current) Matter.Runner.stop(runnerRef.current);
+        isRunningRef.current = false;
         if (rafIdRef.current) {
           cancelAnimationFrame(rafIdRef.current);
           rafIdRef.current = null;
         }
-        isRunningRef.current = false;
       },
 
       resumeSimulation: () => {
         if (isRunningRef.current) return;
-        if (runnerRef.current && engineRef.current) {
-          Matter.Runner.run(runnerRef.current, engineRef.current);
-        }
-        // [V26.80] 내부 Ref를 통한 루프 즉시 재개
+        isRunningRef.current = true;
         if (renderLoopRef.current) {
           rafIdRef.current = requestAnimationFrame(renderLoopRef.current);
         }
-        isRunningRef.current = true;
       },
-    }));
+    }), [createKeywordBody]);
 
     // ─── 물리 엔진 초기화 ───
     useEffect(() => {
@@ -348,8 +353,8 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       };
     }, [containerRef, getViewport]);
 
-    // ─── rAF 렌더링 루프 (기기별 사이즈 적용) ───
-    const renderLoop = useCallback(() => {
+    // ─── rAF 렌더링 루프 (V11.8 정규화: Hoisting을 위해 함수 선언문 사용) ───
+    function renderLoop() {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
 
@@ -370,8 +375,8 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           const text = body.text;
           if (!text) return;
 
-          const bw = (body as any).bodyWidth || spec.minW;
-          const bh = (body as any).bodyHeight || spec.bh;
+          const bw = body.bodyWidth || spec.minW;
+          const bh = body.bodyHeight || spec.bh;
 
           ctx.save();
           ctx.translate(x, y);
@@ -400,7 +405,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       }
 
       rafIdRef.current = requestAnimationFrame(renderLoop);
-    }, [getDesignSpec]);
+    }
 
     // [V26.80] 렌더 루프 Ref 동기화 및 시작
     useEffect(() => {

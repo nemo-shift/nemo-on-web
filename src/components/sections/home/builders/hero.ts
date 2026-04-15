@@ -6,6 +6,7 @@ import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { LOGO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { JourneyLogoHandle } from '../JourneyLogo';
 import { SharedNemoHandle } from '../SharedNemo';
+import { GlobalBuilderOptions } from '../types';
 
 /**
  * [V11.31 Knowledge Transfer] buildHeroSwapSequence
@@ -48,9 +49,12 @@ export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHa
 export function buildLogoTimeline(
   tl: gsap.core.Timeline, 
   logo: JourneyLogoHandle, 
-  { isMobile, isTabletPortrait, isOn }: { isMobile: boolean, isTabletPortrait: boolean, isOn: boolean }, 
+  options: GlobalBuilderOptions, 
   L: Record<string, number>
 ) {
+  const { isMobile, isTabletPortrait, isOn } = options;
+  if (!logo.containerEl) return;
+  
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
   
   // 기기별 헤더 스케일 선정
@@ -58,7 +62,12 @@ export function buildLogoTimeline(
     ? LOGO_SIZE.HEADER_SCALE_MOBILE 
     : (isTabletPortrait ? LOGO_SIZE.HEADER_SCALE_TABLET : LOGO_SIZE.HEADER_SCALE);
 
-  // 초기 스케일 설정 (빅 타이포 상태)
+  // [V11.34-P5] 데이터 체이닝(Data Chaining): 이전 섹션의 환경 데이터를 기억하여 fromTo의 시작값으로 사용
+  // [V14.7 Refinement] 현재의 진실(isOn)을 인지하여 데이터 무결성을 확보합니다.
+  const heroStage = JOURNEY_MASTER_CONFIG[STAGES.HERO];
+  let lastEnv = (isOn && heroStage.on?.env) ? heroStage.on.env : heroStage.env;
+
+  // 초기 스케일 영점 고정 (빅 타이포 상태)
   tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
 
   // [V11.41 シ퀀스] Phase 1: 로고 부속품(△/○, ON) 상승 퇴장
@@ -74,11 +83,6 @@ export function buildLogoTimeline(
   
   const sections = LOGO_JOURNEY_SECTIONS;
   
-  // [V11.34-P5] 데이터 체이닝(Data Chaining): 이전 섹션의 환경 데이터를 기억하여 fromTo의 시작값으로 사용
-  // [V14.7 Refinement] 현재의 진실(isOn)을 인지하여 데이터 무결성을 확보합니다.
-  const heroStage = JOURNEY_MASTER_CONFIG[STAGES.HERO];
-  let lastEnv = (isOn && heroStage.on?.env) ? heroStage.on.env : heroStage.env;
-
   sections.forEach(({ label, stage }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
     if (!raw) return;
@@ -92,21 +96,8 @@ export function buildLogoTimeline(
       transitionCfg = JOURNEY_MASTER_CONFIG[STAGES.TO_MESSAGE];
     }
 
-    // [전역 색상 전이] fromTo를 사용하여 시작과 끝을 데이터로 강제 고정
-    tl.fromTo(document.documentElement, 
-      {
-        '--header-fg': lastEnv.fg,
-        '--bg': lastEnv.bg
-      },
-      {
-        '--header-fg': transitionCfg.env.fg!,
-        '--bg': transitionCfg.env.bg!,
-        duration: (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r,
-        ease: 'none',
-        immediateRender: false // [V11.34-P5] 빌드 시점의 시각적 오염 방지
-      }, 
-      time
-    );
+    // [V11.18 이전] 배경색 및 로고 전용 CSS 변수 전이 로직은 
+    // 더욱 거시적인 관리를 위해 buildSectionScrollTimeline(scroll.ts)으로 통합 이전되었습니다.
 
     // 다음 섹션을 위해 현재 환경 데이터를 업데이트
     if (transitionCfg.env.fg && transitionCfg.env.bg) {

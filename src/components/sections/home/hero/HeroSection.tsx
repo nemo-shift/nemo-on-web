@@ -101,6 +101,8 @@ export default function HeroSection({
 
   // 스크램블 완료 핸들러 (와이프 효과 시작)
   const handleScrambleComplete = useCallback(() => {
+    // [V11.16 교훈] 여기서 명시적으로 넘기는 색상이 wipeTransition의 기본값(red 등)보다 우선함. 
+    // 색상 수정 시 반드시 이곳의 wipeColor를 함께 확인해야 함.
     const wipeColor = '#0891b2';
     finalizeTransition((callback: () => void) => runWipeTransition(wipeRef.current, callback, wipeColor));
   }, [finalizeTransition]);
@@ -155,7 +157,7 @@ export default function HeroSection({
           height: 0,
           opacity: 0,
           background: !isMobileView ? COLORS.HERO.OFF.ACCENT : '#0891b2',
-          zIndex: 500,
+          zIndex: 11000, 
           pointerEvents: 'none',
           borderRadius: 0,
         }}

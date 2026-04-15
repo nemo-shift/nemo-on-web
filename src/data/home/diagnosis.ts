@@ -5,31 +5,31 @@
 
 export const DIAGNOSIS_SECTION_CONTENT = {
   intro: [
-    "> 브랜드 켜는 중...",
-    "> 브랜드 켜는 중......",
-    "> 브랜드 진단을 시작하시겠습니까?"
+    '> 브랜드 켜는 중...',
+    '> 브랜드 켜는 중......',
+    '> 브랜드 진단을 시작하시겠습니까?'
   ],
   options: {
     yes: {
-      label: "YES",
+      label: 'YES',
       logs: [
-        "> initializing brand_diagnosis...",
-        "> loading user_profile...",
-        "> connecting to NEMO:ON...",
-        "> ████████████████ 100%",
-        "> COMPLETE ✓"
+        '> initializing brand_diagnosis...',
+        '> loading user_profile...',
+        '> connecting to NEMO:ON...',
+        '> ████████████████ 100%',
+        '> COMPLETE ✓'
       ],
-      targetPath: "/diagnosis"
+      targetPath: '/diagnosis'
     },
     no: {
-      label: "NO",
+      label: 'NO',
       logs: [
-        "> ████████████████ 40%",
-        "> ERROR 404: brand_clarity not found",
-        "> 브랜드 진단이 필요합니다.",
-        "> redirecting..."
+        '> ████████████████ 40%',
+        '> ERROR 404: brand_clarity not found',
+        '> 브랜드 진단이 필요합니다.',
+        '> redirecting...'
       ],
-      targetPath: "/diagnosis"
+      targetPath: '/diagnosis'
     }
   }
 };

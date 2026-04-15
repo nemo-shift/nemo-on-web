@@ -186,12 +186,12 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
       onMouseLeave={handleMouseLeave}
       onClick={onToggle}
       className={cn(
-        "fixed flex items-center justify-center bg-transparent border-none cursor-pointer p-0 transition-all duration-500",
-        "top-5 right-6",                        // Mobile
-        "tablet-p:top-6 tablet-p:right-8",      // 744px
-        "tablet:top-7 tablet:right-10",         // 992px
-        "desktop-wide:top-8 desktop-wide:right-12", // 1440px
-        "desktop-cap:top-10 desktop-cap:right-16"   // 1920px
+        'fixed flex items-center justify-center bg-transparent border-none cursor-pointer p-0 transition-all duration-500',
+        'top-5 right-6',                        // Mobile
+        'tablet-p:top-6 tablet-p:right-8',      // 744px
+        'tablet:top-7 tablet:right-10',         // 992px
+        'desktop-wide:top-8 desktop-wide:right-12', // 1440px
+        'desktop-cap:top-10 desktop-cap:right-16'   // 1920px
       )}
       style={{
         width: containerSize,

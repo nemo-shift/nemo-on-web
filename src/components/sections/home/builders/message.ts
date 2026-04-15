@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 import { STAGES } from '@/constants/interaction';
 import { MESSAGE_COLORS } from '@/data/home/message';
+import { GlobalBuilderOptions } from '../types';
 export interface MessageBuilderRefs {
   standardGroups: (HTMLDivElement | null)[];
   invertedGroups: (HTMLDivElement | null)[];
@@ -18,7 +19,7 @@ export function buildMessageTimeline(
   tl: gsap.core.Timeline,
   L: Record<string, number>,
   refs: MessageBuilderRefs,
-  device: { interactionMode: 'mouse' | 'touch' }
+  options: GlobalBuilderOptions
 ) {
   const startTime = L[STAGES.TO_MESSAGE];
   const endTime   = L[STAGES.MSG_TO_FW];
@@ -32,7 +33,7 @@ export function buildMessageTimeline(
     if (!standardGroup || !invertedGroup) return;
 
     const groupStart = startTime + (index * groupDuration);
-    const isTouch = device.interactionMode === 'touch';
+    const isTouch = options.interactionMode === 'touch';
     
     // 각 그룹 내의 호흡 배분 (총합이 1.0)
     const riseTime   = groupDuration * (isTouch ? 0.20 : 0.30); 

@@ -17,18 +17,22 @@ interface DeviceContextValue {
 const DeviceContext = createContext<DeviceContextValue | null>(null);
 
 export function DeviceProvider({ children }: { children: React.ReactNode }) {
-  const device = useDeviceDetection();
+  const { isMobile, isMobileView, isTabletPortrait, interactionMode, isInitialized } = useDeviceDetection();
 
   // [v26.98 Performance] 
   // 기기 정보가 실제로 변했을 때만 하위 컴포넌트들을 재렌더링하도록 메모이제이션 적용
   const value = useMemo(() => ({
-    ...device
+    isMobile, 
+    isMobileView, 
+    isTabletPortrait, 
+    interactionMode, 
+    isInitialized
   }), [
-    device.isMobile, 
-    device.isTabletPortrait,
-    device.interactionMode, 
-    device.isMobileView, 
-    device.isInitialized
+    isMobile, 
+    isMobileView, 
+    isTabletPortrait, 
+    interactionMode, 
+    isInitialized
   ]);
 
   return (

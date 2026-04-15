@@ -116,12 +116,12 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                    */
                   //슬로건 크기
                   className={cn(
-                    "font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none transition-all duration-500",
-                    "text-[1.8rem]",                  // Mobile
-                    "tablet-p:text-[3.0rem]",          // 744px
-                    "tablet:text-[3.6rem]",            // 992px
-                    "desktop-wide:text-[4.2rem]",      // 1440px
-                    "desktop-cap:text-[4.8rem]"        // 1920px
+                    'font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none transition-all duration-500',
+                    'text-[1.8rem]',                  // Mobile
+                    'tablet-p:text-[3.0rem]',          // 744px
+                    'tablet:text-[3.6rem]',            // 992px
+                    'desktop-wide:text-[4.2rem]',      // 1440px
+                    'desktop-cap:text-[4.8rem]'        // 1920px
                   )}
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
@@ -134,12 +134,12 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
               {index < segments.length - 1 && (
                 <span 
                   className={cn(
-                    "select-none mx-1 transition-all duration-500 font-bold",
-                    "text-[1.8rem]",
-                    "tablet-p:text-[3.0rem]",
-                    "tablet:text-[3.6rem]",
-                    "desktop-wide:text-[4.2rem]",
-                    "desktop-cap:text-[4.8rem]"
+                    'select-none mx-1 transition-all duration-500 font-bold',
+                    'text-[1.8rem]',
+                    'tablet-p:text-[3.0rem]',
+                    'tablet:text-[3.6rem]',
+                    'desktop-wide:text-[4.2rem]',
+                    'desktop-cap:text-[4.8rem]'
                   )}
                   style={{ 
                     fontFamily: 'var(--font-suit), sans-serif',

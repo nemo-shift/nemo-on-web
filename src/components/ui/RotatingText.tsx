@@ -178,7 +178,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
           ease: 'power3.out',
           stagger: {
             each: staggerDuration,
-            from: staggerFrom as any
+            from: staggerFrom === 'first' ? 'start' : (staggerFrom === 'last' ? 'end' : staggerFrom)
           }
         }
       );

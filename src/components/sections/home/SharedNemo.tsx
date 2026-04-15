@@ -67,7 +67,7 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
             ref={imageRef}
             className="nemo-image-content absolute inset-0 w-full h-full opacity-0"
             style={{
-              backgroundImage: "url('/images/home/forwho/bus-journey.jpg')",
+              backgroundImage: 'url(\'/images/home/forwho/bus-journey.jpg\')',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: 1,

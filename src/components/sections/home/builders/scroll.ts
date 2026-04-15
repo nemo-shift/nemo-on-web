@@ -2,12 +2,21 @@ import { gsap } from 'gsap';
 import { 
   TIMING_CFG, EASE, SECTION_SCROLL_HEIGHT, STAGES 
 } from '@/constants/interaction';
+import { GlobalBuilderOptions } from '../types';
+import { LOGO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
+import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 
 /**
  * 섹션 스크롤링 타임라인 빌더
  */
-export function buildSectionScrollTimeline(tl: gsap.core.Timeline, L: Record<string, number>, finalY: number) {
+export function buildSectionScrollTimeline(
+  tl: gsap.core.Timeline, 
+  L: Record<string, number>, 
+  finalY: number,
+  options: GlobalBuilderOptions
+) {
   const target = '#sections-content-wrapper';
+  if (typeof document !== 'undefined' && !document.querySelector(target)) return;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const H = SECTION_SCROLL_HEIGHT;
 
@@ -63,4 +72,43 @@ export function buildSectionScrollTimeline(tl: gsap.core.Timeline, L: Record<str
     duration: t,
     ease: EASE.TRANSITION
   }, L[STAGES.TO_FOOTER]);
+
+  // [V11.18 통합] 전역 배경색 및 헤더색 전이 엔진
+  // 로고 빌더에서 분리하여 섹션 인터랙션과 동기화된 중앙 집중 제어 체계를 확립합니다.
+  let lastEnv = JOURNEY_MASTER_CONFIG[STAGES.HERO].on?.env || JOURNEY_MASTER_CONFIG[STAGES.HERO].env;
+  const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
+
+  LOGO_JOURNEY_SECTIONS.forEach(({ label, stage }) => {
+    const raw = JOURNEY_MASTER_CONFIG[stage];
+    if (!raw) return;
+    const cfg = options.isMobileView && raw.mobile ? { ...raw, ...raw.mobile } : raw;
+    const time = L[label];
+
+    // [V11.56 Sync] 배경색 및 로고 전이 타이밍 동기화 (PAIN_TO_MSG 브릿지 대응)
+    let transitionCfg = cfg;
+    if (label === STAGES.PAIN_TO_MSG) {
+      transitionCfg = JOURNEY_MASTER_CONFIG[STAGES.TO_MESSAGE];
+    }
+
+    // [전역 색상 전이] fromTo를 사용하여 현재 위치에 맞는 색상을 강제 고정
+    // 이를 통해 리사이즈 후 타임라인 복구 시 해당 위치의 배경색이 즉시 복원됨.
+    tl.fromTo(document.documentElement, 
+      {
+        '--header-fg': lastEnv.fg,
+        '--bg': lastEnv.bg
+      },
+      {
+        '--header-fg': transitionCfg.env.fg!,
+        '--bg': transitionCfg.env.bg!,
+        duration: (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r,
+        ease: 'none',
+        immediateRender: false
+      }, 
+      time
+    );
+
+    if (transitionCfg.env.fg && transitionCfg.env.bg) {
+      lastEnv = { fg: transitionCfg.env.fg, bg: transitionCfg.env.bg };
+    }
+  });
 }

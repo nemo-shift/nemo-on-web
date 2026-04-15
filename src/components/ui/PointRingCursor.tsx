@@ -66,7 +66,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
 
     const onEnter = (e: Event) => {
       const target = e.currentTarget as HTMLElement;
-      const type = target.getAttribute('data-cursor') as any;
+      const type = target.getAttribute('data-cursor');
       if (type === 'contact') {
         setCursorType('contact');
       } else {

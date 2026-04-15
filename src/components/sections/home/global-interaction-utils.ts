@@ -96,7 +96,17 @@ export function calculateLabels(mode: 'mouse' | 'touch' = 'mouse') {
 }
 
 // [V11.34-P5] 모드(ON/OFF) 및 기기(isMobile)에 따른 전역 CSS 변수를 '동기적으로' 즉시 주입.
+// [V11.18 Fix] 리사이즈 시 현재 진행도를 무시하고 히어로 색상으로 초기화되는 현상을 방지하기 위해 가드 추가.
 export function initGlobalStyles(isOn: boolean, isMobile: boolean) {
+  // [V11.18 교훈] 타임라인이 이미 구축되어 진행 중이라면, 외부 함수가 배경색을 함부로 건드리지 못하게 함.
+  // 이 가드가 없으면 리사이즈 시 다크 배경이 찰나의 순간에 크림색으로 튀는 현상이 발생함.
+  if (typeof window !== 'undefined') {
+    const stageContainer = document.getElementById('home-stage');
+    // 타임라인이 이미 빌드되어 특정 위치에 있다면 초기화 생략 (타임라인의 권한 존중)
+    // 0.001은 아주 미미한 스크롤이라도 진행된 상태를 의미함.
+    if ((window as any)._masterTlProgress > 0.001) return;
+  }
+
   const cfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
   let env = { ...cfg.env };
   
@@ -117,7 +127,11 @@ export function initGlobalStyles(isOn: boolean, isMobile: boolean) {
  * 여정 로고(Journey Logo)의 초기 기하학적 형태와 모핑 포인트를 설정.
  * 고해상도 SVG 소스에 맞춰 모핑 좌표를 정밀하게 스케일링함.
  */
-export function initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: boolean): void {
+export function initLogoState(
+  logo: JourneyLogoHandle, 
+  options: { isOn: boolean; isMobile: boolean; isTabletPortrait?: boolean }
+): void {
+  const { isOn, isMobile } = options;
   const container = logo.containerEl;
   if (!container) return;
 
@@ -164,7 +178,10 @@ export function initLogoState(logo: JourneyLogoHandle, isOn: boolean, isMobile: 
  * 2. Shared Nemo를 그 위치로 고정(Fixed)시켜, 스크롤 시작 전 두 요소가 완벽히 하나로 겹쳐 보이게 함.
  * 3. 이 과정이 어긋나면 온모드 전환 시 네모가 튀거나 잔상이 남는 '고스트 현상'이 발생함.
  */
-export function initNemoState(nemo: SharedNemoHandle): void {
+export function initNemoState(
+  nemo: SharedNemoHandle, 
+  options?: { isOn: boolean; isMobileView: boolean; isTabletPortrait?: boolean }
+): void {
   const originEl = document.getElementById('hero-nemo-origin');
   if (!nemo.nemoEl || !originEl) return;
   

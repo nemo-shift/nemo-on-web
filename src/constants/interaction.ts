@@ -12,6 +12,10 @@
 // 1. Z-index 레이어 계층 (V4.0 Integrity Standard)
 // ─────────────────────────────────────────────
 export const INTERACTION_Z_INDEX = {
+  // [계층 4.5] 시스템 대전환 와이프 (System Wipe Layer)
+  // [V11.16 교훈] JOURNEY_LOGO(10001)를 완전히 덮기 위해 최소 11000 이상 권장. 
+  SYSTEM_WIPE: 11000, 
+
   // [계층 4] 브랜드 로고 스테이지 (Brand Layer)
   // GlobalInteractionStage 내에서 createPortal을 통해 document.body로 탈출.
   // 이로 인해 히어로 배경(11) 및 콘텐츠 레이어(20)를 관통하는 전역 최상위 위상을 가짐.

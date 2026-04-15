@@ -8,6 +8,7 @@ import { NEMO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { SharedNemoHandle } from '../SharedNemo';
 import { FallingKeywordsHandle } from '../FallingKeywordsStage';
 import { PainSectionHandle } from '../pain/PainSection';
+import { GlobalBuilderOptions } from '../types';
 
 /**
  * [V11.55] buildNemoTimeline (Nemo Master Engine)
@@ -16,21 +17,23 @@ import { PainSectionHandle } from '../pain/PainSection';
 export function buildNemoTimeline(
   tl: gsap.core.Timeline, 
   nemo: SharedNemoHandle, 
-  device: { isMobile: boolean; isTabletPortrait: boolean; interactionMode: 'mouse' | 'touch' }, 
+  options: GlobalBuilderOptions, 
   falling: FallingKeywordsHandle, 
   pain: React.RefObject<PainSectionHandle | null>,
   L: Record<string, number>,
   isRestoringRef: { current: boolean }
 ) {
-  const el = nemo.nemoEl!;
+  if (!nemo.nemoEl) return;
+  const el = nemo.nemoEl;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
 
   // 현재 기기 모드 판단 (상수 키와 동기화)
   const mode: keyof typeof NEMO_RESPONSIVE_LAYOUT.PAIN_POINTS = 
-    device.isMobile ? 'MOBILE' : 
-    device.isTabletPortrait ? 'TABLET_P' : 'PC';
+    options.isMobileView ? 'MOBILE' : 
+      options.isTabletPortrait ? 'TABLET_P' : 'PC';
 
+  const isTouch = options.interactionMode === 'touch';
   const sections = NEMO_JOURNEY_SECTIONS;
 
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
@@ -88,8 +91,8 @@ export function buildNemoTimeline(
       opacity: cfg.opacity,
       rotation: 0,
       duration: (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) 
-                ? 1.5 * r 
-                : (label === STAGES.TO_PAIN) ? ANIMS_CFG.MESSAGE_MOVE * r : t * r,
+        ? 1.5 * r 
+        : (label === STAGES.TO_PAIN) ? ANIMS_CFG.MESSAGE_MOVE * r : t * r,
       ease: ease
     }, time);
   });
@@ -182,7 +185,7 @@ export function buildNemoTimeline(
   const resonanceEnd = L[STAGES.PAIN_TO_MSG];
   const resonanceDuration = resonanceEnd - resonanceStart;
 
-  if (device.interactionMode === 'mouse') {
+  if (!isTouch) {
     // [PC Mode] 기존 무한 마퀴 로직 유지 (범위를 120%로 확장하여 화면 밖에서 진입하도록 교정)
     const m1 = pain.current?.marqueeLine1;
     const m2 = pain.current?.marqueeLine2;
@@ -194,15 +197,15 @@ export function buildNemoTimeline(
       
       // Line 1: 오른쪽 밖(70vw + 50%w) -> 왼쪽 밖(-70vw - 50%w)
       tl.fromTo(m1, 
-        { x: "70vw", xPercent: 50 }, 
-        { x: "-70vw", xPercent: -50, ease: 'none', duration: resonanceDuration }, 
+        { x: '70vw', xPercent: 50 }, 
+        { x: '-70vw', xPercent: -50, ease: 'none', duration: resonanceDuration }, 
         resonanceStart
       );
       
       // Line 2: 왼쪽 밖(-70vw - 50%w) -> 오른쪽 밖(70vw + 50%w)
       tl.fromTo(m2, 
-        { x: "-70vw", xPercent: -50 }, 
-        { x: "70vw", xPercent: 50, ease: 'none', duration: resonanceDuration }, 
+        { x: '-70vw', xPercent: -50 }, 
+        { x: '70vw', xPercent: 50, ease: 'none', duration: resonanceDuration }, 
         resonanceStart
       );
       
@@ -241,8 +244,8 @@ export function buildNemoTimeline(
   }
 
   // 감정 키워드 페이드 아웃 (메세지 섹션 전이 대응)
-  tl.set("#falling-keywords-canvas", { opacity: 1 }, L[STAGES.TO_PAIN]);
-  tl.to("#falling-keywords-canvas", { opacity: 0, duration: 0.8 * r }, L[STAGES.PAIN_TO_MSG]);
+  tl.set('#falling-keywords-canvas', { opacity: 1 }, L[STAGES.TO_PAIN]);
+  tl.to('#falling-keywords-canvas', { opacity: 0, duration: 0.8 * r }, L[STAGES.PAIN_TO_MSG]);
 
   // 다음 섹션(For Who) 이미지 준비
   if (nemo.imageEl) tl.to(nemo.imageEl, { opacity: 1, duration: 0.5 }, L[STAGES.TO_FORWHO] + 0.2);

@@ -13,7 +13,7 @@ export function useDeviceDetection(): {
   isTabletPortrait: boolean;
   interactionMode: 'mouse' | 'touch';
   isInitialized: boolean;
-} {
+  } {
   const [device, setDevice] = useState<{
     isMobile: boolean;
     isMobileView: boolean;

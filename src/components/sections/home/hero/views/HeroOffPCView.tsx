@@ -36,16 +36,16 @@ export default function HeroOffPCView({
     const tl = gsap.timeline({ delay: 0.5 });
     
     // 1. 배경 아우라 먼저 슬며시 등장
-    tl.to("#hero-central-aura", {
+    tl.to('#hero-central-aura', {
       opacity: 1,
       duration: 1.5,
-      ease: "sine.inOut"
+      ease: 'sine.inOut'
     }, 0);
 
     // 2. 중앙 액션 그룹 -> 하단 메시지 레이어 순차 등장
     tl.fromTo([
-      "#hero-central-action-group",
-      "#hero-bottom-message-layer"
+      '#hero-central-action-group',
+      '#hero-bottom-message-layer'
     ], 
     { 
       opacity: 0, 
@@ -56,7 +56,7 @@ export default function HeroOffPCView({
       y: 0,
       duration: 1.2,
       stagger: 0.3,
-      ease: "power3.out"
+      ease: 'power3.out'
     }, 0.3);
 
   }, { dependencies: [isOn] });
@@ -70,7 +70,7 @@ export default function HeroOffPCView({
         style={{
           width: '100vw',
           height: '80vh',
-          background: `radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)`,
+          background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)',
           transform: 'translateY(15vh)',
           filter: 'blur(60px)',
           zIndex: -1

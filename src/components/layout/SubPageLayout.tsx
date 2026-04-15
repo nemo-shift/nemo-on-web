@@ -18,8 +18,8 @@ interface SubPageLayoutProps {
  */
 export default function SubPageLayout({ 
   children, 
-  className = "", 
-  bg = "bg-surface-cream" 
+  className = '', 
+  bg = 'bg-surface-cream' 
 }: SubPageLayoutProps): React.ReactElement {
   const { footerHeight } = useHeroContext();
 
@@ -33,17 +33,17 @@ export default function SubPageLayout({
          * - Header 높이와 비례하여 상단 여백(pt)을 기기별로 차등 배분
          */
         className={cn(
-          "w-full min-h-screen transition-all duration-500",
-          "pt-20 px-6",                          // Mobile
-          "tablet-p:pt-24 tablet-p:px-8",        // 744px
-          "tablet:pt-28 tablet:px-10",           // 992px
-          "desktop-wide:pt-32 desktop-wide:px-12", // 1440px
-          "desktop-cap:pt-40 desktop-cap:px-16",  // 1920px
+          'w-full min-h-screen transition-all duration-500',
+          'pt-20 px-6',                          // Mobile
+          'tablet-p:pt-24 tablet-p:px-8',        // 744px
+          'tablet:pt-28 tablet:px-10',           // 992px
+          'desktop-wide:pt-32 desktop-wide:px-12', // 1440px
+          'desktop-cap:pt-40 desktop-cap:px-16',  // 1920px
           bg, 
           className
         )}
         style={{ 
-          backgroundColor: bg === "bg-surface-cream" ? "var(--bg)" : undefined 
+          backgroundColor: bg === 'bg-surface-cream' ? 'var(--bg)' : undefined 
         }}
       >
         {children}

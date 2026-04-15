@@ -35,13 +35,13 @@ const PhraseLine = ({
      * - 각 텍스트 요소가 로고 주변에서 고정된 비례를 유지하도록 함
      */
     className={cn(
-      "font-[family-name:var(--font-suit)] leading-none -tracking-[0.01em] transition-all duration-1000 ease-out whitespace-nowrap flex items-center gap-[0.1em]",
-      "text-[28px]",                          // Mobile
-      "tablet-p:text-[40px]",                  // 744px
-      "tablet:text-[42px]",                    // 992px
-      "desktop-wide:text-[44px]",              // 1440px
-      "desktop-cap:text-[48px]",               // 1920px
-      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-7"
+      'font-[family-name:var(--font-suit)] leading-none -tracking-[0.01em] transition-all duration-1000 ease-out whitespace-nowrap flex items-center gap-[0.1em]',
+      'text-[28px]',                          // Mobile
+      'tablet-p:text-[40px]',                  // 744px
+      'tablet:text-[42px]',                    // 992px
+      'desktop-wide:text-[44px]',              // 1440px
+      'desktop-cap:text-[48px]',               // 1920px
+      visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-7'
     )}
     style={{
       color: baseColor,
@@ -93,18 +93,18 @@ export default function HeroOnPhraseLayer({
   return (
     <div 
       className={cn(
-        "absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-all duration-500",
-        "items-start gap-[0.24em] translate-x-[8%] -translate-y-[5%]",
-        "tablet-p:items-center tablet-p:gap-[min(1vw,1.5vh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5vh]",
-        "visible opacity-100"
+        'absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-all duration-500',
+        'items-start gap-[0.24em] translate-x-[8%] -translate-y-[5%]',
+        'tablet-p:items-center tablet-p:gap-[min(1vw,1.5vh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5vh]',
+        'visible opacity-100'
       )}
     >
       <div 
         className={cn(
-          "relative z-[2] flex flex-col transition-all duration-400 ease-out gap-[0.24em]",
-          "items-start",
-          "tablet-p:items-center",
-          "translate-y-0 visible opacity-100"
+          'relative z-[2] flex flex-col transition-all duration-400 ease-out gap-[0.24em]',
+          'items-start',
+          'tablet-p:items-center',
+          'translate-y-0 visible opacity-100'
         )}
       >
         <PhraseLine isOn={isOn} visible={lineVisible[0]} baseColor={baseColor}>
@@ -193,19 +193,19 @@ export default function HeroOnPhraseLayer({
 
       <div
         className={cn(
-          "absolute top-1/2 w-full transition-all duration-600 ease-out pointer-events-none",
-          isMobileView ? "left-0 text-left" : "left-1/2 -translate-x-1/2 text-center",
-          isInteractionActive ? "-translate-y-1/2 opacity-100 visible" : "translate-y-0 opacity-0 invisible"
+          'absolute top-1/2 w-full transition-all duration-600 ease-out pointer-events-none',
+          isMobileView ? 'left-0 text-left' : 'left-1/2 -translate-x-1/2 text-center',
+          isInteractionActive ? '-translate-y-1/2 opacity-100 visible' : 'translate-y-0 opacity-0 invisible'
         )}
       >
         <span
           className={cn(
-            "font-[family-name:var(--font-suit)] font-medium text-[#1a1a1a] whitespace-nowrap -tracking-[0.02em] block transition-all duration-500",
-            "text-[1.8rem]",
-            "tablet-p:text-[2rem]",
-            "tablet:text-[2.2rem]",
-            "desktop-wide:text-[2.6rem]",
-            "desktop-cap:text-[3rem]"
+            'font-[family-name:var(--font-suit)] font-medium text-[#1a1a1a] whitespace-nowrap -tracking-[0.02em] block transition-all duration-500',
+            'text-[1.8rem]',
+            'tablet-p:text-[2rem]',
+            'tablet:text-[2.2rem]',
+            'desktop-wide:text-[2.6rem]',
+            'desktop-cap:text-[3rem]'
           )}
         >
             브랜드의 결을 켭니다

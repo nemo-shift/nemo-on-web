@@ -2,6 +2,50 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
+## [최신] ✅ 2026-04-16: V11.18 인터랙션 무결성 및 전역 배경색 환경 통합 성료
+
+브랜드 로고(Portal)와 와이프 오버레이 간의 레이어 서열 충돌을 해결하고, 리사이즈 시 배경색이 유실되는 고질적인 시각적 불안정성을 '진행도 가드'와 '로직 중앙화'를 통해 완전히 정복했습니다.
+
+### 💎 주요 달성 성과 (V11.18 - Interaction Integrity)
+
+- **Layer Hierarchy Restoration**: 
+  - 브랜드 로고 포탈(`10001`)을 완전히 덮는 시스템 대전환 와이프(`SYSTEM_WIPE: 11000`) 위계 정립.
+  - [ts-hero-wipe-zindex](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-hero-wipe-zindex_2026-04-16.md) 상세 리포트 작성.
+- **Resize Persistence (Progress-Aware Guard)**:
+  - `window._masterTlProgress` 가드 도입으로 리사이즈 시 불필요한 색상 초기화 차단.
+  - [ts-resize-bg-sync](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-resize-bg-sync_2026-04-16.md) 상세 리포트 작성.
+- **Architectural Cleanup (Environmental Centralization)**:
+  - 배경색(`--bg`) 및 헤더색(`--header-fg`) 제어권을 `hero.ts`에서 `scroll.ts`로 수직 통합하여 데이터 흐름 단일화.
+  - [ts-environment-logic-refactoring](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-environment-logic-refactoring_2026-04-16.md) 논리 정비 리포트 작성.
+
+### 🧩 차기 핵심 거시적 정비 과제 (Macro Refactoring)
+
+- [ ] **[Progress-Aware Init Expansion]**: 로고(`initLogoState`) 및 네모(`initNemoState`) 초기화 로직에 리사이즈 가드 확대 적용.
+- [ ] **[Magic Number Cleanup]**: 코드 내 하드코딩된 레이어 수치(`11000`, `10001` 등)를 `INTERACTION_Z_INDEX` 상수로 100% 대체.
+
+## [최신] ✅ 2026-04-15: V11.7 엔진 영속성(Persistence) 확보 및 아키텍처 정화 성료
+
+
+서브 페이지 방문 후 홈 복귀 시 엔진이 멈추는 '무음 마운트' 현상을 해결하고, 리사이즈 시 비동기 작업이 누적되는 '좀비 트리거' 문제를 근본적으로 박멸했습니다. 또한 Z-index 위계 정리와 로고 스케일 최적화를 통해 시스템의 순도를 극대화했습니다.
+
+### 💎 주요 달성 성과 (V11.7 - Engine Hardening)
+
+- **Engine Persistence (Pinpoint Trigger)**:
+  - `revision` 상태 기반의 긴급 기동(Double-Lock useEffect)을 통해 홈 복귀 시의 마운트 레이스 컨디션 해결.
+  - 전역 포인터(`masterTl.current`) 이슈를 로컬 변수 캡처 방식으로 전환하여 클린업 안정성 확보.
+- **Zombie-Free Resize Engine**:
+  - `revertOnUpdate: true` 및 `ctx.add()`를 통한 비동기 작업(rAF, setTimeout)의 완전한 생명주기 관리.
+  - 리사이즈 시 이전 타이머와 엔진이 확실히 파괴되도록 `layoutTimerRef` 및 클린업 로직 보강.
+- **Architecture & UI Pruning**:
+  - **Z-Index Optimization**: 중복된 `HERO_SECTION: 11` 레이어를 제거하고 `#sections-content-wrapper(20)` 중심으로 위계 단순화.
+  - **Type Normalization**: `calculateLabels` 파라미터를 문자열(`interactionMode`)로 통일하여 빌더 간 시그니처 정규화.
+  - **Responsive Logo Scaling**: PC/태블릿/모바일별 헤더 로고 스케일을 독립적으로 계산하여 시각적 무결성 확보.
+
+### 🧩 차기 핵심 고도화 과제 (Active)
+
+- [ ] **[Final Holistic Review]**: 홈 전체 인터랙션의 흐름과 이징(Easing)을 최종 점검하고 미세한 끊김 현상 전수 조사.
+- [ ] **[CTA & Footer Bridge]**: CTA 섹션에서 푸터로 넘어가는 구간의 배경색 변이 및 네모 박스 퇴장 시퀀스 최종 확정.
+
 ## [최신] ✅ 2026-04-13: V11.62 메세지 섹션 '공간 반전 스캐너' 및 '시간적 리빌' 입체적 통합 성료
 
 메세지 섹션에서 네모 박스가 글자를 물리적으로 통과하며 실시간으로 색을 바꾸는 '공간적 반전'과, 제자리에 안착한 뒤 서서히 선명해지는 '시간적 리빌'을 기술적으로 완벽히 통합했습니다.
@@ -24,8 +68,8 @@
 
 ### 🧩 V11.62 차기 핵심 고도화 과제 (Active)
 
-- [ ] **[Transition Logic Fine-tuning]**: 메세지 섹션 종료 후 다음 섹션(For Who)으로의 전이 시 네모 박스의 상태 변화와 텍스트 유실 여부 재검증.
-- [ ] **[Scanner Ease Optimization]**: 퇴장 시의 페이드 아웃과 이동 곡선의 조화를 디바이스별(PC/Mobile)로 최종 실측 및 조정.
+- [x] **[Transition Logic Fine-tuning]**: 메세지 섹션 종료 후 다음 섹션(For Who)으로의 전이 시 네모 박스의 상태 변화와 텍스트 유실 여부 재검증.
+- [x] **[Scanner Ease Optimization]**: 퇴장 시의 페이드 아웃과 이동 곡선의 조화를 디바이스별(PC/Mobile)로 최종 실측 및 조정.
 
 ## [최신] ✅ 2026-04-12: V11.41 공명 및 페인 내러티브 정밀 고도화 성료
 
@@ -98,9 +142,9 @@ GSAP의 리사이즈 스크롤 튕김 현상과 로고 색상 유실(`rgba(0,0,0
 
 ### 🧩 V11.34 차기 정밀 고도화 과제 (Active)
 
-- [ ] **[Step 3: 초정밀 미세 좌표 보간]**: 브라우저 상단 바 이동 등 미세 리사이즈 시 발생하는 1~10px의 좌표 오차를 수동 갱신(`refresh`) 및 이징(`gsap.to`)으로 부드럽게 보정.
-- [ ] **[System Cleanup]**: 성능 확인을 위해 심어둔 수많은 디버깅 로그(`before buildLogo` 등) 및 임시 주석 전수 제거.
-- [ ] **[Pure TS Expansion]**: `hero.ts`, `message.ts` 등 타 섹션 빌더들로 `{ current: boolean }` 순수 타입 아키텍처 확산 적용.
+- [x] **[Step 3: 초정밀 미세 좌표 보간]**: 브라우저 상단 바 이동 등 미세 리사이즈 시 발생하는 1~10px의 좌표 오차를 수동 갱신(`refresh`) 및 이징(`gsap.to`)으로 부드럽게 보정.
+- [x] **[System Cleanup]**: 성능 확인을 위해 심어둔 수많은 디버깅 로그(`before buildLogo` 등) 및 임시 주석 전수 제거.
+- [x] **[Pure TS Expansion]**: `hero.ts`, `message.ts` 등 타 섹션 빌더들로 `{ current: boolean }` 순수 타입 아키텍처 확산 적용.
 
 ## [최신] 🚀 2026-03-31: V11.32 반응형 아키텍처 3축 체계(3-Axis System) 정규화 도약
 

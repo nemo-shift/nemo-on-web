@@ -14,22 +14,22 @@ export interface MessageSectionHandle {
 const MessageGroupLines = ({ group, charClassName }: { group: typeof MESSAGE_CONTENT[0]; charClassName: string }) => (
   <>
     {group.lines.map((line, lIdx) => (
-      line.text === "" ? <div key={lIdx} className="h-4 tablet:h-8" /> : (
+      line.text === '' ? <div key={lIdx} className="h-4 tablet:h-8" /> : (
         <p 
           key={lIdx}
           aria-label={line.text}
           className={cn(
-            "message-line mb-2 tablet-p:mb-4 font-bold flex flex-wrap justify-center",
-            "text-xl tablet-p:text-[28px] tablet:text-3xl desktop-wide:text-4xl"
+            'message-line mb-2 tablet-p:mb-4 font-bold flex flex-wrap justify-center',
+            'text-xl tablet-p:text-[28px] tablet:text-3xl desktop-wide:text-4xl'
           )}
         >
           {line.text.split('').map((char, cIdx) => (
             <span 
               key={cIdx} 
-              className={cn("message-char inline-block", charClassName)}
+              className={cn('message-char inline-block', charClassName)}
               style={{ whiteSpace: 'pre' }}
             >
-              {char === " " ? "\u00A0" : char}
+              {char === ' ' ? '\u00A0' : char}
             </span>
           ))}
         </p>

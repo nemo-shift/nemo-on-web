@@ -21,7 +21,14 @@
 
 ---
 
+### [x] [5A] V11.18 환경 제어 권한 통합 및 리사이즈 무결성 정복 (2026-04-16 완료)
+
+- **대상**: `builders/hero.ts`, `builders/scroll.ts`, `global-interaction-utils.ts`
+- **내용**: 파편화되어 있던 배경색(`--bg`) 및 헤더색(`--header-fg`) 제어권을 섹션 스크롤 엔진(`scroll.ts`)으로 일원화. `window._masterTlProgress`를 활용한 리사이즈 방어 가드 시스템 도입.
+- **성과**: 리사이즈 시 배경색이 유실되거나 튀는 현상을 원천 차단하고, 인터랙션의 환경 SSOT(Single Source of Truth)를 확보함.
+
 ### [x] [4C] V11.40 Z-Index 정규화 및 안전 디버그 인프라 (2026-04-10 완료)
+
 
 - **대상**: `src/constants/interaction.ts`, `GlobalInteractionStage.tsx`, `PainSection.tsx` 등 다수
 - **내능**: 하드코딩된 `zIndex: 20` 등을 전수 소탕하여 `INTERACTION_Z_INDEX` 상수로 통합. 히어로 콘텐츠(11)와 전역 상호작용 레이어(10) 간의 위계 정립.
@@ -85,7 +92,14 @@
 
 ## 1. 콘텐츠 작업 및 시스템 고도화 단계 (Phase: Optimization & Content)
 
+### [Next] [5B] 거시적 초기화 무결성 정비 (Progress-Aware Init)
+
+- **대상**: `global-interaction-utils.ts` (`initLogoState`, `initNemoState`)
+- **내용**: 배경색에서 검증된 `_masterTlProgress > 0.001` 가드 패턴을 로고와 네모의 초기화 로직으로 전방위 확대.
+- **목적**: 리사이즈 시 로고의 위치나 네모의 크기가 히어로 섹션 상태로 '점핑'했다가 돌아오는 잔여 불안정성 완전 제거.
+
 ### [Next] [3E] 3단계 초정밀 미세 리사이즈 보간 (Micro-sync)
+
 
 - **대상**: `GlobalInteractionStage.tsx`의 리사이즈 복원 시퀀스
 - **내용**: `invalidateOnRefresh: true` 제거 이후 발생하는 브라우저 상단 바 이동 등 1~10px의 미세 오차를 수학적으로 보간.

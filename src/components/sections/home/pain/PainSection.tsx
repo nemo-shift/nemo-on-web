@@ -95,9 +95,9 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
               <div key={idx} className="absolute inset-0 flex items-center justify-center">
                 <div 
                   className={cn(
-                    "font-bold text-white tracking-[0.02em] text-center",
-                    "text-[20px] tablet-p:text-[32px] tablet:text-[4.5vw]",
-                    "mb-32 tablet:mb-40"
+                    'font-bold text-white tracking-[0.02em] text-center',
+                    'text-[20px] tablet-p:text-[32px] tablet:text-[4.5vw]',
+                    'mb-32 tablet:mb-40'
                   )}
                 >
                   <SplitText text={slide.text} innerRef={sRefs[idx]} />

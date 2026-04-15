@@ -30,8 +30,8 @@ export default function HeroOffMobileView({
     const tl = gsap.timeline({ delay: 0.3 });
     
     tl.fromTo([
-      "#hero-mobile-central-action-group",
-      "#hero-mobile-bottom-message-layer"
+      '#hero-mobile-central-action-group',
+      '#hero-mobile-bottom-message-layer'
     ], 
     { 
       opacity: 0, 
@@ -42,7 +42,7 @@ export default function HeroOffMobileView({
       y: 0,
       duration: 1.0,
       stagger: 0.2,
-      ease: "power3.out"
+      ease: 'power3.out'
     }, 0.2);
 
   }, { dependencies: [isOn] });

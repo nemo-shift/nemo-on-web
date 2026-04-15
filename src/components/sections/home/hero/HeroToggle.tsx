@@ -57,8 +57,8 @@ export default function HeroToggle({
         {/* Pill */}
         <div
           className={cn(
-            "relative rounded-full border-[1.5px] transition-all duration-500",
-            "w-[50px] h-[26px] tablet-p:w-[60px] tablet-p:h-[32px] tablet:w-[65px] tablet:h-[34px] desktop-wide:w-[70px] desktop-wide:h-[36px] desktop-cap:w-[75px] desktop-cap:h-[38px]"
+            'relative rounded-full border-[1.5px] transition-all duration-500',
+            'w-[50px] h-[26px] tablet-p:w-[60px] tablet-p:h-[32px] tablet:w-[65px] tablet:h-[34px] desktop-wide:w-[70px] desktop-wide:h-[36px] desktop-cap:w-[75px] desktop-cap:h-[38px]'
           )}
           style={{
             borderColor: showAsOn
@@ -73,12 +73,12 @@ export default function HeroToggle({
           {/* Knob */}
           <div
             className={cn(
-              "absolute rounded-full transition-all duration-500",
-              "w-[16px] h-[16px] tablet-p:w-[18px] tablet-p:h-[18px] tablet:w-[20px] tablet:h-[20px] desktop-wide:w-[22px] desktop-wide:h-[22px] desktop-cap:w-[24px] desktop-cap:h-[24px]",
-              "left-[4px] top-[5px] tablet-p:left-[6px] tablet-p:top-[7px] tablet:left-[6px] tablet:top-[7px] desktop-wide:left-[6px] desktop-wide:top-[7px] desktop-cap:left-[6px] desktop-cap:top-[7px]",
+              'absolute rounded-full transition-all duration-500',
+              'w-[16px] h-[16px] tablet-p:w-[18px] tablet-p:h-[18px] tablet:w-[20px] tablet:h-[20px] desktop-wide:w-[22px] desktop-wide:h-[22px] desktop-cap:w-[24px] desktop-cap:h-[24px]',
+              'left-[4px] top-[5px] tablet-p:left-[6px] tablet-p:top-[7px] tablet:left-[6px] tablet:top-[7px] desktop-wide:left-[6px] desktop-wide:top-[7px] desktop-cap:left-[6px] desktop-cap:top-[7px]',
               showAsOn 
-                ? "translate-x-[26px] tablet-p:translate-x-[30px] tablet:translate-x-[33px] desktop-wide:translate-x-[36px] desktop-cap:translate-x-[39px]" 
-                : "translate-x-0"
+                ? 'translate-x-[26px] tablet-p:translate-x-[30px] tablet:translate-x-[33px] desktop-wide:translate-x-[36px] desktop-cap:translate-x-[39px]' 
+                : 'translate-x-0'
             )}
             style={{
               background: showAsOn 

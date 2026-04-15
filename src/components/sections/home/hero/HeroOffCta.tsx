@@ -66,12 +66,12 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
       >
         <div
           className={cn(
-            "text-center transition-all duration-700 leading-[0.8]",
-            "font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center"
+            'text-center transition-all duration-700 leading-[0.8]',
+            'font-[family-name:var(--font-suit)] tracking-normal flex flex-col items-center'
           )}
           style={{
             color: 'inherit',
-            textShadow: `0 0 120px rgba(240, 235, 227, 0.15)`,
+            textShadow: '0 0 120px rgba(240, 235, 227, 0.15)',
             display: 'block'
           }}
         >
@@ -79,9 +79,9 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
             {/* Line 1: Turn on the Switch */}
             <span 
               className={cn(
-                "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
-                "text-[2.2rem] tablet-p:text-[4rem] tablet:text-[4.5rem] desktop-wide:text-[5.5rem] desktop-cap:text-[6rem]",
-                "tracking-[0.2em] tablet-p:tracking-[0.15em] tablet:tracking-[0.12em] desktop-wide:tracking-normal"
+                'whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]',
+                'text-[2.2rem] tablet-p:text-[4rem] tablet:text-[4.5rem] desktop-wide:text-[5.5rem] desktop-cap:text-[6rem]',
+                'tracking-[0.2em] tablet-p:tracking-[0.15em] tablet:tracking-[0.12em] desktop-wide:tracking-normal'
               )}
               style={{ 
                 transform: isMobile ? 'translateX(-12vw) scaleX(0.8)' : (isMobileView ? 'translateX(-10vw) scaleX(0.75)' : 'translateX(-8vw) scaleX(0.7)'),
@@ -89,7 +89,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
                   ? COLORS.TEXT.LIGHT
                   : 'rgba(240, 235, 227, 0.15)',
                 textShadow: (isToggleHovered || isClearing || isTransitioning)
-                  ? `0 0 15px rgba(240, 235, 227, 0.4)`
+                  ? '0 0 15px rgba(240, 235, 227, 0.4)'
                   : 'none',
               }}
             >
@@ -99,9 +99,9 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
             {/* Line 2: Switch on the Brand */}
             <span 
               className={cn(
-                "whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]",
-                "text-[2.8rem] tablet-p:text-[5rem] tablet:text-[5.5rem] desktop-wide:text-[7rem] desktop-cap:text-[8rem]",
-                "mt-[-0.2vh] tablet-p:mt-[-0.1vh] tablet:mt-[-0.5vh] desktop-wide:mt-[-1vh]"
+                'whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]',
+                'text-[2.8rem] tablet-p:text-[5rem] tablet:text-[5.5rem] desktop-wide:text-[7rem] desktop-cap:text-[8rem]',
+                'mt-[-0.2vh] tablet-p:mt-[-0.1vh] tablet:mt-[-0.5vh] desktop-wide:mt-[-1vh]'
               )}
               style={{ 
                 transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : (isMobileView ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)'),

@@ -26,12 +26,12 @@ export default function Header(): React.ReactElement {
        * - transition-all duration-500을 통해 브라우저 리사이징 시 부드러운 여백 전환 제공
        */
       className={cn(
-        "fixed top-0 left-0 right-0 bg-transparent pointer-events-none flex items-center transition-all duration-500",
-        "px-6 py-5",                          // Mobile (default)
-        "tablet-p:px-8 tablet-p:py-6",        // Tablet-Portrait (744px)
-        "tablet:px-10 tablet:py-7",           // Tablet (992px)
-        "desktop-wide:px-12 desktop-wide:py-8", // Desktop-Wide (1440px)
-        "desktop-cap:px-16 desktop-cap:py-10",  // Desktop-Cap (1920px)
+        'fixed top-0 left-0 right-0 bg-transparent pointer-events-none flex items-center transition-all duration-500',
+        'px-6 py-5',                          // Mobile (default)
+        'tablet-p:px-8 tablet-p:py-6',        // Tablet-Portrait (744px)
+        'tablet:px-10 tablet:py-7',           // Tablet (992px)
+        'desktop-wide:px-12 desktop-wide:py-8', // Desktop-Wide (1440px)
+        'desktop-cap:px-16 desktop-cap:py-10',  // Desktop-Cap (1920px)
         isHome ? 'justify-end' : 'justify-between'
       )}
       style={{ zIndex: INTERACTION_Z_INDEX.HEADER }}
@@ -43,8 +43,8 @@ export default function Header(): React.ReactElement {
           className="pointer-events-auto no-underline flex items-baseline group gap-1.5 tablet-p:gap-2 tablet:gap-[0.6vw]"
         >
           <span className={cn(
-            "font-esamanru font-light transition-all duration-500 text-[#0d1a1f] tracking-tight",
-            "text-[20px] tablet-p:text-[24px] tablet:text-[28px] desktop-wide:text-[32px] desktop-cap:text-[36px]"
+            'font-esamanru font-light transition-all duration-500 text-[#0d1a1f] tracking-tight',
+            'text-[20px] tablet-p:text-[24px] tablet:text-[28px] desktop-wide:text-[32px] desktop-cap:text-[36px]'
           )}>
             네모
           </span>
@@ -58,8 +58,8 @@ export default function Header(): React.ReactElement {
             gapClassName="gap-[0.15vw]"
           />
           <span className={cn(
-            "font-gmarket font-medium transition-all duration-500 text-[#0d1a1f] tracking-tighter",
-            "text-[19px] tablet-p:text-[22px] tablet:text-[26px] desktop-wide:text-[30px] desktop-cap:text-[32px]"
+            'font-gmarket font-medium transition-all duration-500 text-[#0d1a1f] tracking-tighter',
+            'text-[19px] tablet-p:text-[22px] tablet:text-[26px] desktop-wide:text-[30px] desktop-cap:text-[32px]'
           )}>
             ON
           </span>

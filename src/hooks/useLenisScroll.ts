@@ -66,8 +66,10 @@ export default function useLenisScroll(
         if (typeof lenisRef.current.destroy === 'function') {
           lenisRef.current.destroy();
         }
-        if (window.lenis === lenisRef.current) {
-          window.lenis = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((window as any).lenis === lenisRef.current) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).lenis = null;
         }
         lenisRef.current = null;
       }
@@ -87,7 +89,8 @@ export default function useLenisScroll(
     const lenis = new Lenis(config);
 
     lenisRef.current = lenis;
-    window.lenis = lenis;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).lenis = lenis;
 
     const raf = (time: number) => {
       if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
@@ -137,8 +140,10 @@ export default function useLenisScroll(
         }
       }
 
-      if (window.lenis === lenisRef.current) {
-        window.lenis = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window as any).lenis === lenisRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).lenis = null;
       }
       if (lenisRef.current && typeof lenisRef.current.destroy === 'function') {
         lenisRef.current.destroy();

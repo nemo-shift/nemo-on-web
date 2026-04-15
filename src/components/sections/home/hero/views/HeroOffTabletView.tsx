@@ -34,8 +34,8 @@ export default function HeroOffTabletView({
     const tl = gsap.timeline({ delay: 0.4 });
     
     tl.fromTo([
-      "#hero-tablet-central-action-group",
-      "#hero-tablet-bottom-message-layer"
+      '#hero-tablet-central-action-group',
+      '#hero-tablet-bottom-message-layer'
     ], 
     { 
       opacity: 0, 
@@ -46,7 +46,7 @@ export default function HeroOffTabletView({
       y: 0,
       duration: 1.2,
       stagger: 0.3,
-      ease: "power3.out"
+      ease: 'power3.out'
     }, 0.2);
 
   }, { dependencies: [isOn] });
