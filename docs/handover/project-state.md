@@ -1,9 +1,17 @@
-> [!NOTE]
-> **문서 목적**: 네모:ON의 **'전체 시스템 현황'** 요약본. 현재 아키텍처의 핵심 구조, 데이터 시트 명세, 주요 컴포넌트 가동 유무를 부감하여 시스템의 무결성을 증명함.
+## ✅ 2026-04-16: V11 Macro Final Refine - Interaction Engine Polished & Integrity Secured
 
-## [최신] 🚀 2026-04-16: V11 Macro Final - Interaction Engine Normalization
+인터랙션 엔진의 거시적 정비를 넘어, 실제 구동 시의 미세한 시각적 결함(Flicker)을 방어하고 파편화된 로직을 통합하는 정밀 고도화를 완료했습니다. 특히 최근 발견된 인라인 스타일 오버라이드 버그를 해결하여 시스템의 무결성을 최종 안착시켰습니다.
 
-거시적 정비 프로젝트가 최종 완결됨에 따라, 인터랙션 엔진은 **100% 정규화된 V11 Macro 아키텍처**로 안착했습니다. 이제 모든 데이터 흐름은 명시적이고(Explicit), 모든 로직은 분산되어 있으며(Distributed), 모든 참조는 안전합니다(Ref-based).
+- **Environment Logic Consolidation**: 
+  - `hero.ts`에 분산되어 있던 배경색/헤더색 제어권을 `scroll.ts`로 100% 통합.
+  - 무대 환경(Environment)의 단일 관제 체계(SSOT) 확립.
+- **Initialization Stability (Flicker Guard)**:
+  - `GlobalInteractionStage` 최상위 래퍼에 `Seed Value` 주입 로직 추가로 엔진 가동 전 깜빡임 방지.
+- **Interaction Integrity Fix (CSS Lock Resolved)**:
+  - 인라인 스타일 오버라이드를 제거하여 전역 CSS 변수 애니메이션이 차단되던 버그 수정.
+  - 초기 `lastEnv` 계산 시 `isOn` 상태를 정확히 반영하도록 정밀 튜닝.
+- **Tech Debt Clearance**:
+  - 빌더 내 잔존 매직 넘버를 `TIMING_CFG` 상수로 완전 이관 및 모든 빌더에 Registry DI 적용.
 
 ### 💎 주요 달성 성과 (V11 Macro Final)
 

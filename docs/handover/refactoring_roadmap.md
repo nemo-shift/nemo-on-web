@@ -104,9 +104,9 @@
 
 ## 1. 콘텐츠 작업 및 시스템 고도화 단계 (Phase: Optimization & Content)
 
-### [x] [5B] 거시적 초기화 무결성 정비 (Progress-Aware Init) (2026-04-17 완료)
+### [x] [5B] 거시적 초기화 무결성 정비 (Progress-Aware Init) (2026-04-16 완료)
 
-### [Next] [3E] 3단계 초정밀 미세 리사이즈 보간 (Micro-sync)
+### [x] [3E] 3단계 초정밀 미세 리사이즈 보간 (Micro-sync) (2026-04-16 완료)
 
 
 - **대상**: `GlobalInteractionStage.tsx`의 리사이즈 복원 시퀀스
@@ -119,7 +119,7 @@
 - **내용**: `builders/pain.ts`에서 검증된 `{ current: boolean }` 및 레지스트리 기반 주입 방식을 로고, 네모, 메인 관제탑 등 전체 엔진으로 확산 적용.
 - **성과**: 엔진 로직과 리액트 컴포넌트 간의 결합도를 낮추고 엔진의 순수성(Purity) 확보.
 
-### [2A] 애니메이션 타이밍 및 수치 상수화 (Magic Number Refactoring)
+### [x] [2A] 애니메이션 타이밍 및 수치 상수화 (Magic Number Refactoring) (2026-04-16 완료)
 
 - **대상**: `src/components/sections/home/builders.ts` 및 관련 애니메이션 빌더
 - **내용**: 코드 내에 산재한 애니메이션 지속 시간(`0.2`, `0.4` 등), 트랜지션 가중치 등을 `src/constants/hero.ts` 등의 중앙 관리 파일로 추출.

@@ -19,8 +19,9 @@ export function buildMessageTimeline(
   refs: MessageBuilderRefs,
   options: GlobalBuilderOptions
 ) {
-  const { STAGES } = options.registry.constants;
-  const { MESSAGE_COLORS } = options.registry.data;
+  const { constants, data } = options.registry;
+  const { STAGES } = constants;
+  const { MESSAGE_COLORS } = data;
   
   const startTime = L[STAGES.TO_MESSAGE];
   const endTime   = L[STAGES.MSG_TO_FW];

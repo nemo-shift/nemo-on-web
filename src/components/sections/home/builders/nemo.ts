@@ -17,12 +17,13 @@ export function buildNemoTimeline(
   L: Record<string, number>,
   isRestoringRef: { current: boolean }
 ) {
+  const { constants, data } = options.registry;
   const { 
     COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE, NEMO_RESPONSIVE_LAYOUT 
-  } = options.registry.constants;
+  } = constants;
   const { 
     JOURNEY_MASTER_CONFIG, PAIN_POINTS, RESONANCE_MESSAGE, NEMO_JOURNEY_SECTIONS 
-  } = options.registry.data;
+  } = data;
 
   if (!nemo.nemoEl) return;
   const el = nemo.nemoEl;

@@ -8,6 +8,18 @@
 
 ---
 
+## 🚀 2026-04-16: Next-Gen Stability & Performance Ideas
+
+### [Stability] CSS-only Flicker Guard (Zero-JS Layer)
+- **배경**: 현재 `GlobalInteractionStage`의 `Seed Value` 주입은 리액트(JS) 기반이므로, 아주 느린 네트워크 환경에서 JS 로드 전 0.1초 미만의 찰나에는 여전히 위험이 존재함.
+- **제안**: `layout.tsx`나 `index.html` 레벨에서 최소한의 인라인 스크립트 혹은 전역 CSS 변수 설정을 선행하여, JS가 로드되기 전부터 배경색을 확보하는 **'Zero-JS' 방어막** 구축 검토.
+
+### [Performance] Web Worker Based Physics calculation
+- **배경**: `FallingKeywordsStage`의 물리 연산이 메인 스레드 점유율을 높일 가능성이 있음.
+- **제안**: Matter.js 연산부만 Web Worker로 분리하여 메인 렌더링 스레드와 물리 연산 스레드를 격리하는 하이엔드 최적화 검토.
+
+---
+
 ## 📋 향후 고도화 백로그 (Future Backlog)
 
 특정 마일스톤(로고 최종 확정, 콘텐츠 주입 완료 등) 이후에 수행할 예정된 과제들입니다.

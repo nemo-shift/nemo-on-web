@@ -277,11 +277,21 @@ export const GlobalInteractionStage = ({
   const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
   const { JOURNEY_MASTER_CONFIG } = INTERACTION_REGISTRY.data;
   const heroCfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
-  const currentEnv = (isOn && heroCfg.on?.env) ? heroCfg.on.env : heroCfg.env;
-  const headerFg = currentEnv.fg || '#f0ebe3';
+  
+  // [V11.Macro_Final] 초기화 Flicker 방어를 위한 Seed Value 계산
+  const seedEnv = (isOn && heroCfg.on?.env) ? heroCfg.on.env : heroCfg.env;
+  const initialBg = seedEnv.bg || '#f0ebe3';
+  const initialFg = seedEnv.fg || '#1a1a1a';
 
   return (
-    <div ref={containerRef} className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: INTERACTION_Z_INDEX.Z_STAGE_WRAPPER }}>
+    <div 
+      ref={containerRef} 
+      className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" 
+      style={{ 
+        zIndex: INTERACTION_Z_INDEX.Z_STAGE_WRAPPER,
+        backgroundColor: 'var(--bg)', // 전역 변수(--bg)를 따름
+      } as React.CSSProperties}
+    >
       <div style={{ zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO }}>
         <SharedNemo ref={nemoHandle} />
       </div>

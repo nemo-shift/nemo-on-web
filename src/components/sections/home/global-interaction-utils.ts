@@ -39,25 +39,25 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_CONTENT] = curr;
   curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_SHIFT] = curr;
 
-  // 공명 지평선 모핑 구간 (터치 기기는 호흡을 짧게 가져감)
-  const morphGap = isTouch ? 0.4 : 1.5;
+  // 공명 지평선 모핑 구간
+  const morphGap = isTouch ? TIMING_CFG.GAPS.RESONANCE_MORPH.TOUCH : TIMING_CFG.GAPS.RESONANCE_MORPH.PC;
   curr += morphGap;
   offsets[STAGES.RESONANCE] = curr;
-
-  // 공명 마퀴 스튜디오 구간 (초스피드 반응 대응: 5.0 -> 4.0 추가 하향)
-  const resonanceStill = isTouch ? 2.0 : w.RESONANCE_STILL;
+  
+  // 공명 마퀴 스튜디오 구간
+  const resonanceStill = isTouch ? TIMING_CFG.SECTION_WEIGHT.RESONANCE_STILL_TOUCH : w.RESONANCE_STILL;
   curr += resonanceStill;
 
-  // 페인 -> 메시지 브릿지 (전이 호흡 최적화)
-  const transGap = isTouch ? 0.8 : 1.5;
+  // 페인 -> 메시지 브릿지
+  const transGap = isTouch ? TIMING_CFG.GAPS.RESONANCE_TRANS.TOUCH : TIMING_CFG.GAPS.RESONANCE_TRANS.PC;
   curr += transGap;
   offsets[STAGES.PAIN_TO_MSG] = curr;
 
   curr += transGap;
   offsets[STAGES.TO_MESSAGE] = curr;
 
-  // 메시지 섹션 정지 가중치 (마우스 환경에서 리빌 디테일 감상을 위해 상향: 12.0 -> 18.0)
-  const messageStill = isTouch ? w.MESSAGE_STILL : 30.0;
+  // 메시지 섹션 정지 가중치
+  const messageStill = isTouch ? w.MESSAGE_STILL : TIMING_CFG.SECTION_WEIGHT.MESSAGE_STILL_PC;
   curr += messageStill;
   offsets[STAGES.MSG_CONTENT] = curr;
 

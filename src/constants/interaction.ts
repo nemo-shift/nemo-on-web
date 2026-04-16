@@ -116,7 +116,7 @@ export const SECTION_SCROLL_HEIGHT = {
 };
 
 // ─────────────────────────────────────────────
-// 4. 감도 및 가중치 설정 (V4.0 Tuning)
+// 4. 감도 및 가중치 설정 (V4.1 Tuning - Logic Refined)
 // ─────────────────────────────────────────────
 export const TIMING_CFG = {
   // 전이 과정의 시각적 호흡 (낮을수록 급격함)
@@ -129,11 +129,19 @@ export const TIMING_CFG = {
   SECTION_WEIGHT: {
     HERO_STILL: 2.0,      // 초기 진입 시 로고 위용 감상 구간
     PAIN_STILL: 6.0,      // 5개 포인트 순차 노출 (길게)
-    RESONANCE_STILL: 24.0, // 공명 마퀴 시퀀스 (극도로 여유로운 흐름을 위해 가중폭 확대)
-    MESSAGE_STILL: 12.0,   // 핵심 카운트 관통 (충분한 리빌 감상을 위해 상향)
-    FOR_WHO_STILL: 4.0,   // 타겟 리스트
-    STORY_STILL: 3.0,     // 브랜드 스토리
-    CTA_STILL: 2.0,       // CTA 진입 전 호흡
+    RESONANCE_STILL: 24.0, // 공명 마퀴 시퀀스
+    RESONANCE_STILL_TOUCH: 2.0, // 터치 기기 전용 (호흡 단축)
+    MESSAGE_STILL: 12.0,   
+    MESSAGE_STILL_PC: 30.0, // 고사양 PC에서의 감상 호흡 상향
+    FOR_WHO_STILL: 4.0,   
+    STORY_STILL: 3.0,     
+    CTA_STILL: 2.0,       
+  },
+
+  // 구간별 전환 간극(Gaps) - 정교한 리듬 설계
+  GAPS: {
+    RESONANCE_MORPH: { PC: 1.5, TOUCH: 0.4 }, // 공명 지평선 생성 호흡
+    RESONANCE_TRANS: { PC: 1.5, TOUCH: 0.8 }, // 전이 브릿지 호흡
   },
 
   SCRUB: 1.0, 
@@ -143,6 +151,7 @@ export const TIMING_CFG = {
   // [V5.3] 스크롤 감도: 가중치 1당 실제 스크롤 픽셀 수
   SCROLL_SENSITIVITY: 1000, 
 };
+
 
 // ─────────────────────────────────────────────
 // 5. 시각 수치 (Visual Units)

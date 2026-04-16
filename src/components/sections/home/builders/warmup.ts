@@ -16,8 +16,9 @@ export function buildWarmupTimeline(
   L: Record<string, number>
 ) {
   const { isMobile, isTabletPortrait, registry } = options;
-  const { STAGES, HEADER_POS } = registry.constants;
-  const { JOURNEY_MASTER_CONFIG } = registry.data;
+  const { constants, data } = options.registry;
+  const { STAGES, HEADER_POS } = constants;
+  const { JOURNEY_MASTER_CONFIG } = data;
 
   // 1. 모바일 환경 로고 Y 오프셋 보정
   if (isMobile && logo.containerEl) {

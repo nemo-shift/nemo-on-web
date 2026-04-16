@@ -2,9 +2,21 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-16: V11 Macro Final - 인터랙션 엔진 거시적 정비 및 정규화 성료
+## ✅ 2026-04-16: V11 Macro Final Refine - 인터랙션 엔진 정밀 고도화 및 정교화 성료
 
-인터랙션 엔진의 '거시적 정비' 대장정을 성공적으로 완결했습니다. 빌더 패턴의 정규화, 레지스트리 기반 의존성 주입, 리액트 순도 100% 확보를 통해 어떤 콘텐츠도 우아하게 수용할 수 있는 견고한 관제탑 아키텍처를 안착시켰습니다.
+인터랙션 엔진의 '거시적 정비'를 넘어, 실제 구동 시의 미세한 시각적 결함(Flicker)을 방어하고 파편화된 로직을 통합하는 정밀 고도화를 완료했습니다. 특히 최근 발견된 인라인 스타일 오버라이드 이슈(CSS Lock)를 신속히 해결하여 무결성을 안착시켰습니다.
+
+### 💎 주요 달성 성과 (V11 Macro Final Refine)
+
+- **Architecture: Environment Control Consolidation**:
+  - `hero.ts`와 `scroll.ts`에 분산되었던 배경색/헤더색 제어 로직을 `scroll.ts`로 100% 통합.
+  - 데이터 시트(`LOGO_JOURNEY_SECTIONS`) 기반의 단일 루프 관제 체계 확립.
+- **Stability: Zero-Flicker & Integrity Fix**:
+  - `GlobalInteractionStage` Seed Value 주입 및 인라인 오버라이드 버그(CSS Lock) 수정.
+  - 페인 섹션 진입 시 배경색이 상아색으로 잠기던 현상을 완벽히 해결하여 하이엔드 UX 수호.
+- **Tech Debt: Magic Number Elimination**:
+  - `calculateLabels` 내 잔존 가중치 상수를 `TIMING_CFG.GAPS`로 공식 규격화.
+  - 모든 빌더(`hero`, `scroll`, `nemo`, `message`, `warmup`)에 `registry` 비구조화 할당 적용.
 
 ### 💎 주요 달성 성과 (V11 Macro Final - Phase 4)
 

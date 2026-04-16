@@ -45,7 +45,9 @@ export function buildHeroSwapSequence(
 }
 
 /**
- * @param {Record<string, number>} L - 마스터 타임라인의 시간 라벨 맵
+ * [V11.Macro_Final_Refine] buildLogoTimeline
+ * 로고 본연의 형태 전이(Morphing) 및 스케일 제어에만 집중합니다.
+ * 배경색 및 환경 제어권은 scroll.ts로 완전 이관되었습니다.
  */
 export function buildLogoTimeline(
   tl: gsap.core.Timeline, 
@@ -53,28 +55,22 @@ export function buildLogoTimeline(
   options: GlobalBuilderOptions, 
   L: Record<string, number>
 ) {
-  const { isMobile, isTabletPortrait, isOn } = options;
-  const { LOGO_SIZE, STAGES, LAYOUT_SPEC, TIMING_CFG, EASE, ANIMS_CFG } = options.registry.constants;
-  const { JOURNEY_MASTER_CONFIG, LOGO_JOURNEY_SECTIONS } = options.registry.data;
+  const { isMobile, isTabletPortrait } = options;
+  const { constants, data } = options.registry;
+  const { LOGO_SIZE, STAGES, LAYOUT_SPEC, TIMING_CFG, EASE, ANIMS_CFG } = constants;
+  const { JOURNEY_MASTER_CONFIG, LOGO_JOURNEY_SECTIONS } = data;
 
   if (!logo.containerEl) return;
   
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
-  
-  // 기기별 헤더 스케일 선정
   const headerScale = isMobile 
     ? LOGO_SIZE.HEADER_SCALE_MOBILE 
     : (isTabletPortrait ? LOGO_SIZE.HEADER_SCALE_TABLET : LOGO_SIZE.HEADER_SCALE);
 
-  // [V11.34-P5] 데이터 체이닝(Data Chaining): 이전 섹션의 환경 데이터를 기억하여 fromTo의 시작값으로 사용
-  // [V14.7 Refinement] 현재의 진실(isOn)을 인지하여 데이터 무결성을 확보합니다.
-  const heroStage = JOURNEY_MASTER_CONFIG[STAGES.HERO];
-  let lastEnv = (isOn && heroStage.on?.env) ? heroStage.on.env : heroStage.env;
-
-  // 초기 스케일 영점 고정 (빅 타이포 상태)
+  // 1. 초기 상태 영점 고정
   tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
 
-  // [V11.41 シ퀀스] Phase 1: 로고 부속품(△/○, ON) 상승 퇴장
+  // 2. 히어로 요소(△/○, ON) 상승 퇴장
   tl.to([logo.shapesEl, logo.statusEl], { 
     y: -LAYOUT_SPEC.LOGO.EJECT_Y, 
     opacity: 0, 
@@ -82,36 +78,15 @@ export function buildLogoTimeline(
     ease: EASE.FADE
   }, L[STAGES.HERO_STILL_START]);
 
-  const t = TIMING_CFG.TRANSITION_WEIGHT;
-  const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
-  
-  const sections = LOGO_JOURNEY_SECTIONS;
-  
-  sections.forEach(({ label, stage, ease }: { label: string, stage: string, ease?: any }) => {
+  // 3. 여정별 로고 형태 변이 (Morphing)
+  LOGO_JOURNEY_SECTIONS.forEach(({ label, stage }: { label: string, stage: string }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
     if (!raw) return;
     const cfg = isMobile && raw.mobile ? { ...raw, ...raw.mobile } : raw;
     const time = L[label];
 
-    // [V11.56 Sync] 배경색 및 로고 전이 타이밍 동기화
-    // PAIN_TO_MSG 브릿지 구간에서 이미 TO_MESSAGE의 환경(배경색 등)을 지향하게 함.
-    let transitionCfg = cfg;
+    // [V11.65 Cinematic Morph] Nemo -> RECTANGLE 정밀 오버랩 시퀀스
     if (label === STAGES.PAIN_TO_MSG) {
-      transitionCfg = JOURNEY_MASTER_CONFIG[STAGES.TO_MESSAGE];
-    }
-
-    // [V11.18 이전] 배경색 및 로고 전용 CSS 변수 전이 로직은 
-    // 더욱 거시적인 관리를 위해 buildSectionScrollTimeline(scroll.ts)으로 통합 이전되었습니다.
-
-    // 다음 섹션을 위해 현재 환경 데이터를 업데이트
-    if (transitionCfg.env.fg && transitionCfg.env.bg) {
-      lastEnv = { fg: transitionCfg.env.fg, bg: transitionCfg.env.bg };
-    }
-
-    // [로고 세부 요소 변환]
-    if (label === STAGES.PAIN_TO_MSG) {
-      // [V11.65 Cinematic Morph] Nemo -> RECTANGLE 정밀 오버랩 시퀀스
-      // 한글 로고가 완전히 사라지기 전 영문 로고가 투영되도록 타이밍 설계
       tl.to(logo.nemoKrEl, { 
         opacity: 0, 
         scale: LAYOUT_SPEC.LOGO.MORPH_SCALE, 
@@ -121,26 +96,12 @@ export function buildLogoTimeline(
       }, time);
 
       tl.fromTo(logo.rectangleEl, 
-        { 
-          opacity: 0, 
-          letterSpacing: `${LAYOUT_SPEC.LOGO.RECT_LETTER_GAP}em`,
-          visibility: 'visible',
-          filter: 'blur(6px)',
-          scale: 0.95
-        },
-        { 
-          opacity: 1, 
-          letterSpacing: '0.02em', // JourneyLogo의 gap과 조화를 위해 좁게 설정
-          filter: 'blur(0px)',
-          scale: 1,
-          duration: ANIMS_CFG.LOGO_MORPH * 3,
-          ease: 'power3.out',
-          immediateRender: false
-        }, 
+        { opacity: 0, letterSpacing: `${LAYOUT_SPEC.LOGO.RECT_LETTER_GAP}em`, visibility: 'visible', filter: 'blur(6px)', scale: 0.95 },
+        { opacity: 1, letterSpacing: '0.02em', filter: 'blur(0px)', scale: 1, duration: ANIMS_CFG.LOGO_MORPH * 3, ease: 'power3.out', immediateRender: false }, 
         time
       );
     } else {
-      // 일반적인 상태 전이: 잔상 방지를 위해 filter 리셋 및 데이터 기반 가시성 제어
+      // 일반 상태 전이
       tl.to(logo.nemoKrEl, { 
         opacity: cfg.logo.nemoKr ? 1 : 0, 
         visibility: cfg.logo.nemoKr ? 'visible' : 'hidden',
@@ -158,12 +119,12 @@ export function buildLogoTimeline(
       }, time);
     }
 
-    // [로고 부속품 제어] - 데이터 기반 가시성 및 위치 리셋 (y: 0)
+    // 로고 부속품(도형/상태) 가시성 제어
     tl.to(logo.shapesEl, { 
       opacity: (cfg.logo as any).shapes ? 0.8 : 0, 
       visibility: (cfg.logo as any).shapes ? 'visible' : 'hidden', 
       pointerEvents: (cfg.logo as any).shapes ? 'auto' : 'none',
-      y: 0, // [V11.19 Fix] 히어로 축소 시 올라갔던 위치 초기화
+      y: 0,
       duration: ANIMS_CFG.LOGO_MORPH 
     }, time);
 
@@ -171,23 +132,24 @@ export function buildLogoTimeline(
       opacity: cfg.logo.status ? 1 : 0, 
       visibility: cfg.logo.status ? 'visible' : 'hidden', 
       pointerEvents: cfg.logo.status ? 'auto' : 'none',
-      y: 0, // [V11.19 Fix] 히어로 축소 시 올라갔던 위치 초기화
+      y: 0,
       duration: ANIMS_CFG.LOGO_MORPH 
     }, time);
 
-    // [+] <-> [-] 형태적 모핑(Morphing)
-    if (logo.tLines.h && logo.tLines.v) {
+    // [+] <-> [-] 형태적 모핑
+    if (logo.tLines.h) {
       const isPlus = cfg.logo.morph === '+';
       tl.to(logo.tLines.h, { top: isPlus ? '0.32em' : '0', duration: ANIMS_CFG.LOGO_MORPH }, time);
     }
   });
 
-  // 최종적으로 헤더 사이즈로 축소되는 구간 (CONTENT_RISE 시점으로 앞당김)
+  // 4. 헤더 사이즈 최종 안착
   tl.to(logo.containerEl, {
     scale: headerScale, 
     x: 0, 
     y: 0, 
-    duration: t * r, 
+    duration: TIMING_CFG.TRANSITION_WEIGHT * TIMING_CFG.TRANSITION_FINISH_RATIO, 
     ease: EASE.TRANSITION
   }, L[STAGES.HERO_STILL_CONTENT_RISE]);
 }
+
