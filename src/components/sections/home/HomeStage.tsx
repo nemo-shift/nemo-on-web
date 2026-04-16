@@ -24,6 +24,7 @@ export default function HomeStage(): React.ReactElement {
   // [V11.55] 각 섹션 내부 엘리먼트 제어를 위한 Ref 핸들
   const painRef = useRef<PainSectionHandle>(null);
   const messageRef = useRef<MessageSectionHandle>(null);
+  const sectionsContentRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
   // Phase 5 아키텍처 전환에 따라 GlobalInteractionStage의 GSAP 타임라인으로 이관됩니다.
@@ -41,6 +42,7 @@ export default function HomeStage(): React.ReactElement {
         isTransitioning={isTransitioning} 
         painRef={painRef}
         messageRef={messageRef}
+        sectionsContentRef={sectionsContentRef}
       />
       
       {/* 콘텐츠 영역: Z_CONTENT(100)로 GlobalInteractionStage(Z_STAGE_WRAPPER:50)보다 상위 쌓임 맥락 확보 */}
@@ -48,6 +50,7 @@ export default function HomeStage(): React.ReactElement {
         {/* 모든 섹션을 포함하는 래퍼: 섹션 이동 및 배경색 전환을 위한 핵심 ID(sections-content-wrapper) 탑재 */}
         <div 
           id="sections-content-wrapper"
+          ref={sectionsContentRef}
           className="relative w-full"
           style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
         >

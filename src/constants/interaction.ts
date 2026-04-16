@@ -17,9 +17,9 @@ export const INTERACTION_Z_INDEX = {
   Z_CURSOR_RING: 99998,
 
   // [계층 5] 시스템 및 메뉴 (System Layer)
-  Z_SYSTEM_WIPE: 1000,
-  Z_MENU_DRAWER: 950,
-  Z_MENU_TRIGGER: 900,
+  Z_SYSTEM_WIPE: 1100,
+  Z_MENU_TRIGGER: 1050, 
+  Z_MENU_DRAWER: 1000, 
 
   // [계층 4] 브랜드 무대 (Brand Stage)
   Z_JOURNEY_LOGO: 850, // Body Portal

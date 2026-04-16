@@ -10,17 +10,12 @@ import JourneyLogo, { JourneyLogoHandle } from './JourneyLogo';
 import SharedNemo, { SharedNemoHandle } from './SharedNemo';
 import FallingKeywordsStage, { FallingKeywordsHandle } from './FallingKeywordsStage';
 import {
-  COLORS,
-  STAGES,
-  TIMING_CFG,
   INTERACTION_Z_INDEX,
-  HEADER_POS,
-  SECTION_SCROLL_HEIGHT,
 } from '@/constants/interaction';
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
-import { calculateLabels, initGlobalStyles, initLogoState, initNemoState } from './global-interaction-utils';
-import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
-import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline } from './builders';
+import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
+import { INTERACTION_REGISTRY } from './interaction-registry';
+import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline } from './builders';
 import { DEBUG_CONFIG } from '@/constants/debug';
 import InteractionDebugger from './InteractionDebugger';
 
@@ -36,6 +31,7 @@ export const GlobalInteractionStage = ({
   isTransitioning,
   painRef,
   messageRef,
+  sectionsContentRef,
 }: GlobalInteractionStageProps) => {
   const { isScrollable, footerHeight, setIsTimelineReady } = useHeroContext();
 
@@ -91,7 +87,7 @@ export const GlobalInteractionStage = ({
   // [V11.13 Fix] 타임라인 빌드 전, 렌더링 단계에서 전역 스타일을 즉시 동기 주입하여 
   // 포탈 내 로고가 찰나의 순간에도 '--header-fg' 변수를 잃지 않도록 보장합니다.
   if (mounted) {
-    initGlobalStyles(isOn, isMobileView);
+    initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
   }
 
   useGSAP(() => {
@@ -106,25 +102,30 @@ export const GlobalInteractionStage = ({
       if (!isScrollable || !mounted) return;
       if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
       
-      initGlobalStyles(isOn, isMobileView);
+      initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
       
       if (!masterTl.current) {
-        initLogoState(logo, { isOn, isMobile: isMobileView });
+        initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile: isMobileView, progress: currProgressRef.current });
       }
-      initNemoState(nemo);
+      initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, progress: currProgressRef.current });
       
       if (isScrollable) {
         if (!isRestoringRef.current) {
-          initLogoState(logo, { isOn, isMobile, isTabletPortrait });
-          initNemoState(nemo, { isOn, isMobileView, isTabletPortrait });
+          initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile, isTabletPortrait, progress: currProgressRef.current });
+          initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, isTabletPortrait, progress: currProgressRef.current });
         }
 
         rafId.current = requestAnimationFrame(() => ctx.add(() => {
           // [V11.9 Fix] 타임라인 빌드 직전 전역 스타일(색상 변수) 선점 주입
-          initGlobalStyles(isOn, isMobileView);
+          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
 
-          const { offsets: L, totalWeight } = calculateLabels(interactionMode);
-          const H = SECTION_SCROLL_HEIGHT;
+          const { offsets: L, totalWeight } = calculateLabels(INTERACTION_REGISTRY, interactionMode);
+          const { 
+            SECTION_SCROLL_HEIGHT: H, 
+            TIMING_CFG, 
+            STAGES, 
+          } = INTERACTION_REGISTRY.constants;
+          
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
           const totalHeight = vhToPx(H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA) + footerHeight;
           const finalY = totalHeight - window.innerHeight;
@@ -141,13 +142,10 @@ export const GlobalInteractionStage = ({
             defaults: { ease: 'none' },
             onUpdate: function() {
               const currentProgress = this.progress();
-              const currentScrollY = window.scrollY;
-              
               if (currentProgress > 0) {
                 currProgressRef.current = currentProgress;
-                // [V11.18 Fix] 리사이즈 가드(initGlobalStyles)가 참조할 수 있도록 전역에 진행도 기록
-                if (typeof window !== 'undefined') (window as any)._masterTlProgress = currentProgress;
               }
+              const currentScrollY = window.scrollY;
               if (currentScrollY > 0) {
                 rawScrollYRef.current = currentScrollY;
               }
@@ -156,16 +154,7 @@ export const GlobalInteractionStage = ({
               const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
 
               if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
-                const el = nemoHandle.current?.nemoEl;
-                if (el) {
-                  const rect = el.getBoundingClientRect();
-                  const root = document.documentElement;
-                  
-                  root.style.setProperty('--nemo-t', `${rect.top}px`);
-                  root.style.setProperty('--nemo-r', `${window.innerWidth - rect.right}px`);
-                  root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
-                  root.style.setProperty('--nemo-l', `${rect.left}px`);
-                }
+                syncNemoCoordinates(nemoHandle.current?.nemoEl || null);
               }
             }
           });
@@ -178,11 +167,18 @@ export const GlobalInteractionStage = ({
           });
 
           const builderOptions: GlobalBuilderOptions = { 
-            isMobile, isMobileView, isTabletPortrait, isOn, interactionMode 
+            isMobile, 
+            isMobileView, 
+            isTabletPortrait, 
+            isOn, 
+            interactionMode,
+            registry: INTERACTION_REGISTRY
           };
 
-          initGlobalStyles(isOn, isMobileView);
+          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
 
+          // [V11.Macro_Final] 정규화된 빌더들의 통합 순차 호출 (지휘소의 명확한 구조 확보)
+          buildWarmupTimeline(tl, logo, nemo, builderOptions, L);
           buildLogoTimeline(tl, logo, builderOptions, L);
           buildNemoTimeline(tl, nemo, builderOptions, falling, painRef, L, isRestoringRef);
           buildSectionScrollTimeline(tl, L, finalY, builderOptions);
@@ -190,7 +186,7 @@ export const GlobalInteractionStage = ({
             standardGroups: messageRef.current?.getStandardGroups() || [], 
             invertedGroups: messageRef.current?.getInvertedGroups() || [] 
           }, builderOptions);
-          buildHeroSwapSequence(tl, nemo, L);
+          buildHeroSwapSequence(tl, nemo, L, builderOptions);
 
           localTrigger = ScrollTrigger.create({
             trigger: '#section-pain', 
@@ -231,7 +227,6 @@ export const GlobalInteractionStage = ({
             if (isRestoringRef.current) {
               isRestoringRef.current = false;
             }
-            // [V11.8 Fix] 타임라인 빌드 및 리프레시 완료 신호 전송
             setIsTimelineReady(true);
           }, 100);
         }));
@@ -239,7 +234,6 @@ export const GlobalInteractionStage = ({
     });
 
     return () => {
-      // [V11.8 Fix] 엔진 클린업 시 타임라인 준비 상태 리셋 (좀비 상태 방지)
       setIsTimelineReady(false);
 
       if (masterTl.current) {
@@ -250,7 +244,7 @@ export const GlobalInteractionStage = ({
       if (rafId.current) cancelAnimationFrame(rafId.current);
       if (layoutTimerRef.current) { clearTimeout(layoutTimerRef.current); layoutTimerRef.current = null; }
 
-      const wrapper = document.getElementById('sections-content-wrapper');
+      const wrapper = sectionsContentRef.current;
       if (wrapper) {
         wrapper.style.position = '';
         wrapper.style.top = '';
@@ -280,6 +274,8 @@ export const GlobalInteractionStage = ({
   }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode, footerHeight], revertOnUpdate: true });
 
   // [V11.11 Fix] 포탈 내 변수 소실을 차단하기 위해 데이터 시트에서 현재 환경의 색상을 직접 추출합니다.
+  const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
+  const { JOURNEY_MASTER_CONFIG } = INTERACTION_REGISTRY.data;
   const heroCfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
   const currentEnv = (isOn && heroCfg.on?.env) ? heroCfg.on.env : heroCfg.env;
   const headerFg = currentEnv.fg || '#f0ebe3';
@@ -295,8 +291,8 @@ export const GlobalInteractionStage = ({
         <div 
           className="fixed origin-top-left cursor-pointer pointer-events-none" 
           style={{ 
-            left: isMobile ? `${HEADER_POS.MOBILE.x}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.x}vw` : `${HEADER_POS.PC.x}vw`), 
-            top: isMobile ? `${HEADER_POS.MOBILE.y}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.y}vw` : `${HEADER_POS.PC.y}vw`), 
+            left: isMobile ? `${INTERACTION_REGISTRY.constants.HEADER_POS.MOBILE.x}px` : (isTabletPortrait ? `${INTERACTION_REGISTRY.constants.HEADER_POS.TABLET.x}vw` : `${INTERACTION_REGISTRY.constants.HEADER_POS.PC.x}vw`), 
+            top: isMobile ? `${INTERACTION_REGISTRY.constants.HEADER_POS.MOBILE.y}px` : (isTabletPortrait ? `${INTERACTION_REGISTRY.constants.HEADER_POS.TABLET.y}vw` : `${INTERACTION_REGISTRY.constants.HEADER_POS.PC.y}vw`), 
             zIndex: INTERACTION_Z_INDEX.Z_JOURNEY_LOGO,
             color: 'var(--header-fg)',
             // '--header-fg' 제거: 상위 documentElement의 애니메이션 값을 차단하지 않도록 함
@@ -340,7 +336,8 @@ export const GlobalInteractionStage = ({
       />
 
       {/* // [DEPLOY-DELETE] : 디버그 전용 점프 엔진 도킹 (배포 시 이 한 줄만 삭제하거나 debug.ts에서 OFF) */}
-      {DEBUG_CONFIG.USE_DEBUG && <InteractionDebugger masterTl={masterTl.current} />}
+      {/* [DEPLOY-DELETE] 디버그 점프 엔진 (인터랙션 준비 완료 시 활성화) */}
+      <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />
     </div>
   );
 };

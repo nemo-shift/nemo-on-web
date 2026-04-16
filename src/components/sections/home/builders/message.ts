@@ -1,6 +1,4 @@
 import { gsap } from 'gsap';
-import { STAGES } from '@/constants/interaction';
-import { MESSAGE_COLORS } from '@/data/home/message';
 import { GlobalBuilderOptions } from '../types';
 export interface MessageBuilderRefs {
   standardGroups: (HTMLDivElement | null)[];
@@ -21,6 +19,9 @@ export function buildMessageTimeline(
   refs: MessageBuilderRefs,
   options: GlobalBuilderOptions
 ) {
+  const { STAGES } = options.registry.constants;
+  const { MESSAGE_COLORS } = options.registry.data;
+  
   const startTime = L[STAGES.TO_MESSAGE];
   const endTime   = L[STAGES.MSG_TO_FW];
   const totalDuration = endTime - startTime;

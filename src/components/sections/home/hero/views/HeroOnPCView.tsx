@@ -40,7 +40,7 @@ export default function HeroOnPCView({
   return (
     <>
       {/* [V11.41 Separation] 레이어 1: 슬로건 독립 레이어 (중앙 박스 flex 간섭 완전 차단) */}
-      <div className="absolute inset-0 pointer-events-none z-[100]">
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
         {isOn && sequenceStep === 5 && (
           <div 
             id="hero-on-center-phrase"

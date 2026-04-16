@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useHeroContext } from '@/context';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroBottomBarProps = {
   isOn: boolean;
@@ -54,7 +55,7 @@ export default function HeroBottomBar({ isOn }: HeroBottomBarProps): React.React
         position: 'fixed',
         bottom: 'clamp(20px, 3vh, 36px)',
         right: 'clamp(20px, 3vw, 48px)',
-        zIndex: 100,
+        zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

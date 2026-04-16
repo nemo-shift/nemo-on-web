@@ -4,9 +4,9 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DEBUG_CONFIG } from '@/constants/debug';
-import { STAGES } from '@/constants/interaction';
 import { useHeroContext } from '@/context';
 import { debugLog } from './debug-utils';
+import { InteractionRegistry } from './types';
 
 /**
  * // [DEPLOY-DELETE] : 배포 전 반드시 삭제 (디버그 점프 엔진)
@@ -14,7 +14,13 @@ import { debugLog } from './debug-utils';
  * 특정 섹션의 인터랙션을 즉시 확인하기 위한 '순간 이동' 컴포넌트입니다.
  * 인터랙션 엔진의 '무결성'을 위해 GlobalInteractionStage 본체에서 분리하여 독자적으로 작동합니다.
  */
-const InteractionDebugger = ({ masterTl }: { masterTl: gsap.core.Timeline | null }) => {
+interface InteractionDebuggerProps {
+  masterTl: gsap.core.Timeline | null;
+  registry: InteractionRegistry;
+}
+
+const InteractionDebugger = ({ masterTl, registry }: InteractionDebuggerProps) => {
+  const { STAGES } = registry.constants;
   const { isTimelineReady } = useHeroContext();
   const hasJumped = useRef(false);
 

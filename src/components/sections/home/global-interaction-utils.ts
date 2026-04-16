@@ -1,8 +1,5 @@
 import { gsap } from 'gsap';
-import { 
-  COLORS, STAGES, TIMING_CFG, LOGO_SIZE, HEADER_POS, INTERACTION_Z_INDEX 
-} from '@/constants/interaction';
-import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
+import { InteractionRegistry } from './types';
 import { JourneyLogoHandle } from './JourneyLogo';
 import { SharedNemoHandle } from './SharedNemo';
 
@@ -18,7 +15,8 @@ import { SharedNemoHandle } from './SharedNemo';
  * @returns {Record<string, number>} offsets - 각 스테이지 라벨별 시작 지점(Timeline Time)
  * @returns {number} totalWeight - 전체 타임라인의 총 길이 (ScrollTrigger end 값과 동기화됨)
  */
-export function calculateLabels(mode: 'mouse' | 'touch' = 'mouse') {
+export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | 'touch' = 'mouse') {
+  const { STAGES, TIMING_CFG } = registry.constants;
   const isTouch = mode === 'touch';
   const w = TIMING_CFG.SECTION_WEIGHT;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
@@ -97,14 +95,14 @@ export function calculateLabels(mode: 'mouse' | 'touch' = 'mouse') {
 
 // [V11.34-P5] 모드(ON/OFF) 및 기기(isMobile)에 따른 전역 CSS 변수를 '동기적으로' 즉시 주입.
 // [V11.18 Fix] 리사이즈 시 현재 진행도를 무시하고 히어로 색상으로 초기화되는 현상을 방지하기 위해 가드 추가.
-export function initGlobalStyles(isOn: boolean, isMobile: boolean) {
-  // [V11.18 교훈] 타임라인이 이미 구축되어 진행 중이라면, 외부 함수가 배경색을 함부로 건드리지 못하게 함.
-  // 이 가드가 없으면 리사이즈 시 다크 배경이 찰나의 순간에 크림색으로 튀는 현상이 발생함.
+export function initGlobalStyles(registry: InteractionRegistry, isOn: boolean, isMobile: boolean, currentProgress: number = 0) {
+  const { STAGES } = registry.constants;
+  const { JOURNEY_MASTER_CONFIG } = registry.data;
+  
+  // [V11.Macro_Final] window._masterTlProgress 제거 및 명시적 인자 주입 방식으로 전환
   if (typeof window !== 'undefined') {
-    const stageContainer = document.getElementById('home-stage');
     // 타임라인이 이미 빌드되어 특정 위치에 있다면 초기화 생략 (타임라인의 권한 존중)
-    // 0.001은 아주 미미한 스크롤이라도 진행된 상태를 의미함.
-    if ((window as any)._masterTlProgress > 0.001) return;
+    if (currentProgress > 0.001) return;
   }
 
   const cfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
@@ -128,10 +126,13 @@ export function initGlobalStyles(isOn: boolean, isMobile: boolean) {
  * 고해상도 SVG 소스에 맞춰 모핑 좌표를 정밀하게 스케일링함.
  */
 export function initLogoState(
+  registry: InteractionRegistry,
   logo: JourneyLogoHandle, 
-  options: { isOn: boolean; isMobile: boolean; isTabletPortrait?: boolean }
+  options: { isOn: boolean; isMobile: boolean; isTabletPortrait?: boolean; progress?: number }
 ): void {
-  const { isOn, isMobile } = options;
+  const { STAGES } = registry.constants;
+  const { JOURNEY_MASTER_CONFIG } = registry.data;
+  const { isOn, isMobile, progress = 0 } = options;
   const container = logo.containerEl;
   if (!container) return;
 
@@ -163,10 +164,8 @@ export function initLogoState(
     gsap.set(logo.tLines.v, { height: '100%', top: isPlus ? '20px' : '20px' });
   }
 
-  // [V11.19 Fix] 시각적 초기화(내부 조각 리셋)만 진행도에 따라 선택적 차단 (깜빡임 방지)
-  if (typeof window !== 'undefined') {
-    if ((window as any)._masterTlProgress > 0.001) return;
-  }
+  // [V11.Macro_Final] 명시적 진행도(progress) 기반 가드로 전환
+  if (progress > 0.001) return;
 
   // 하위 엘리먼트 가시성 설정
   gsap.set(logo.nemoKrEl, { opacity: logoCfg.nemoKr ? 1 : 0, visibility: logoCfg.nemoKr ? 'visible' : 'hidden' });
@@ -185,9 +184,12 @@ export function initLogoState(
  * 3. 이 과정이 어긋나면 온모드 전환 시 네모가 튀거나 잔상이 남는 '고스트 현상'이 발생함.
  */
 export function initNemoState(
+  registry: InteractionRegistry,
   nemo: SharedNemoHandle, 
-  options?: { isOn: boolean; isMobileView: boolean; isTabletPortrait?: boolean }
+  options: { isOn: boolean; isMobileView: boolean; isTabletPortrait?: boolean; progress?: number }
 ): void {
+  const { INTERACTION_Z_INDEX } = registry.constants;
+  const { isOn, isMobileView, progress = 0 } = options;
   const originEl = document.getElementById('hero-nemo-origin');
   if (!nemo.nemoEl || !originEl) return;
   
@@ -209,10 +211,25 @@ export function initNemoState(
     zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO,
   });
 
-  // [V11.19 Fix] 투명도 리셋(0)만 선택적으로 차단하여 깜빡임 방지
-  if (typeof window !== 'undefined') {
-    if ((window as any)._masterTlProgress > 0.001) return;
-  }
+  // [V11.Macro_Final] 명시적 진행도(progress) 기반 가드로 전환
+  if (progress > 0.001) return;
 
   gsap.set(nemo.nemoEl, { opacity: 0 }); // 초기 히어로 스왑 시퀀스에서 노출되도록 0으로 리셋
+}
+
+/**
+ * [V11.Macro_Final] syncNemoCoordinates
+ * 네모의 실시간 위치를 캡처하여 전역 CSS 변수(--nemo-t, --nemo-l 등)로 동기화합니다.
+ * 이 변수들은 섹션 내부의 컷아웃(Cut-out) 효과나 텍스트 마스킹에 사용됩니다.
+ */
+export function syncNemoCoordinates(nemoEl: HTMLElement | null): void {
+  if (!nemoEl) return;
+  
+  const rect = nemoEl.getBoundingClientRect();
+  const root = document.documentElement;
+  
+  root.style.setProperty('--nemo-t', `${rect.top}px`);
+  root.style.setProperty('--nemo-r', `${window.innerWidth - rect.right}px`);
+  root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
+  root.style.setProperty('--nemo-l', `${rect.left}px`);
 }

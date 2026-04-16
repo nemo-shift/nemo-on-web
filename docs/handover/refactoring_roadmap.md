@@ -21,6 +21,12 @@
 
 ---
 
+### [x] [5B] V11 Macro Final - 인터랙션 엔진 정규화 완결 (2026-04-17 완료)
+
+- **대상**: `GlobalInteractionStage.tsx`, `global-interaction-utils.ts`, `interaction-registry.ts`, `builders/*.ts`
+- **내용**: 레거시 전역 변수(`_masterTlProgress`) 숙청, **Registry SSOT** 기반의 의존성 주입(DI) 체계 도입, `#sections-content-wrapper`를 리액트 Ref 브릿지로 제어하는 **Pure-React Controller** 구현.
+- **성과**: 엔진의 배관 공사와 관제탑 아키텍처가 100% 정규화되어 어떤 고밀도 콘텐츠도 즉시 도킹 가능한 무결성 확보. TSC 0 에러 달성.
+
 ### [x] [5A] V11.18 환경 제어 권한 통합 및 리사이즈 무결성 정복 (2026-04-16 완료)
 
 - **대상**: `builders/hero.ts`, `builders/scroll.ts`, `global-interaction-utils.ts`
@@ -107,11 +113,11 @@
 - **내용**: `invalidateOnRefresh: true` 제거 이후 발생하는 브라우저 상단 바 이동 등 1~10px의 미세 오차를 수학적으로 보간.
 - **핵심**: 리사이즈 완료 시점의 수동 갱신(`ScrollTrigger.refresh()`)과 부드러운 위치 재조정(`gsap.to(window, ...)`) 로직 구현.
 
-### [Next] [2B] Pure TS 아키텍처 확산 (React Decoupling)
+### [x] [2B] V11 Macro Final - Pure TS 아키텍처 확산 및 정규화 (2026-04-17 완료)
 
-- **대상**: `src/components/sections/home/builders/*.ts` 전역
-- **내용**: `builders/pain.ts`에서 검증된 `{ current: boolean }` 순수 타입 방식을 전체 애니메이션 빌더로 확산.
-- **목적**: 애니메이션 로직에서 리액트 의존성을 제거하여 테스트 용이성 및 엔진 순수성 확보.
+- **대상**: `builders/*.ts`, `global-interaction-utils.ts`
+- **내용**: `builders/pain.ts`에서 검증된 `{ current: boolean }` 및 레지스트리 기반 주입 방식을 로고, 네모, 메인 관제탑 등 전체 엔진으로 확산 적용.
+- **성과**: 엔진 로직과 리액트 컴포넌트 간의 결합도를 낮추고 엔진의 순수성(Purity) 확보.
 
 ### [2A] 애니메이션 타이밍 및 수치 상수화 (Magic Number Refactoring)
 

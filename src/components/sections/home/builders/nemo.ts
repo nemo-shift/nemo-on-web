@@ -1,10 +1,4 @@
 import { gsap } from 'gsap';
-import { 
-  COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE, NEMO_RESPONSIVE_LAYOUT 
-} from '@/constants/interaction';
-import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
-import { PAIN_POINTS, RESONANCE_MESSAGE } from '@/data/home/pain';
-import { NEMO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { SharedNemoHandle } from '../SharedNemo';
 import { FallingKeywordsHandle } from '../FallingKeywordsStage';
 import { PainSectionHandle } from '../pain/PainSection';
@@ -23,6 +17,13 @@ export function buildNemoTimeline(
   L: Record<string, number>,
   isRestoringRef: { current: boolean }
 ) {
+  const { 
+    COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE, NEMO_RESPONSIVE_LAYOUT 
+  } = options.registry.constants;
+  const { 
+    JOURNEY_MASTER_CONFIG, PAIN_POINTS, RESONANCE_MESSAGE, NEMO_JOURNEY_SECTIONS 
+  } = options.registry.data;
+
   if (!nemo.nemoEl) return;
   const el = nemo.nemoEl;
   const t = TIMING_CFG.TRANSITION_WEIGHT;
@@ -37,7 +38,7 @@ export function buildNemoTimeline(
   const sections = NEMO_JOURNEY_SECTIONS;
 
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
-  sections.forEach(({ label, stage, ease }) => {
+  sections.forEach(({ label, stage, ease }: { label: string, stage: string, ease?: any }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
     if (!raw) return;
     
@@ -108,7 +109,7 @@ export function buildNemoTimeline(
 
   tl.to('#pain-scroll-hint', { opacity: 1, duration: ANIMS_CFG.UI_FADE }, L[STAGES.TO_PAIN] + waitOffset);
 
-  PAIN_POINTS.forEach((point, i) => {
+  PAIN_POINTS.forEach((point: any, i: number) => {
     const startTime = L[STAGES.TO_PAIN] + waitOffset + (i * itemGap);
     // 이전 문구 퇴장: 다음 문구 입차 전에 여유 있게 사라짐
     if (i > 0) tl.to([step, content], { opacity: 0, x: -20, duration: animDuration * 0.5 }, startTime - animDuration * 0.5);
@@ -121,7 +122,7 @@ export function buildNemoTimeline(
     
     tl.fromTo(line, { scaleX: 0, opacity: 0, x: 100 }, { scaleX: 1, opacity: 0.9, x: 0, duration: animDuration, ease: 'power2.out' }, startTime);
     
-    point.keywords.forEach((kw, kwIdx) => {
+    point.keywords.forEach((kw: any, kwIdx: number) => {
       tl.to({}, { 
         duration: ANIMS_CFG.PHYSICS_TRIGGER, 
         onStart: () => { if (!isRestoringRef.current) falling.addKeyword(kw); }, 
@@ -132,14 +133,14 @@ export function buildNemoTimeline(
     if (i < PAIN_POINTS.length - 1) tl.to(line, { opacity: 0, duration: 0.2 }, startTime + itemGap - 0.2);
   });
 
-  const bridgeItems = RESONANCE_MESSAGE.bridge;
+  const bridgeItems = (RESONANCE_MESSAGE as any).bridge;
   const bridgeDelay = 1.2;
   const bridgeDuration = L[STAGES.PAIN_SHIFT] - (L[STAGES.PAIN_CONTENT] + bridgeDelay);
   const bridgeGap = bridgeDuration / bridgeItems.length;
 
   tl.to([step, line, content, '#pain-scroll-hint'], { opacity: 0, duration: 0.2 }, L[STAGES.PAIN_CONTENT]);
 
-  bridgeItems.forEach((text, i) => {
+  bridgeItems.forEach((text: string, i: number) => {
     const startTime = L[STAGES.PAIN_CONTENT] + bridgeDelay + (i * bridgeGap);
     tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, opacity: 0 }, startTime);
     tl.to(content, { opacity: 1, duration: 0.2 }, startTime);

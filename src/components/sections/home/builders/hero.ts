@@ -1,9 +1,4 @@
 import { gsap } from 'gsap';
-import { 
-  LOGO_SIZE, TIMING_CFG, STAGES, EASE, ANIMS_CFG, LAYOUT_SPEC
-} from '@/constants/interaction';
-import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
-import { LOGO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
 import { JourneyLogoHandle } from '../JourneyLogo';
 import { SharedNemoHandle } from '../SharedNemo';
 import { GlobalBuilderOptions } from '../types';
@@ -17,7 +12,13 @@ import { GlobalBuilderOptions } from '../types';
  * 2. Origin Nemo는 배경과 테두리를 투명화하여 사라진 것처럼 보이게 하고,
  * 3. 동시에 Shared Nemo의 opacity를 1로 올려 인터랙션을 이어받음.
  */
-export function buildHeroSwapSequence(tl: gsap.core.Timeline, nemo: SharedNemoHandle, L: Record<string, number>) {
+export function buildHeroSwapSequence(
+  tl: gsap.core.Timeline, 
+  nemo: SharedNemoHandle, 
+  L: Record<string, number>,
+  options: GlobalBuilderOptions
+) {
+  const { ANIMS_CFG, STAGES } = options.registry.constants;
   const originEl = document.getElementById('hero-nemo-origin');
   const originText = originEl?.querySelector('span');
   if (!originEl) return;
@@ -53,6 +54,9 @@ export function buildLogoTimeline(
   L: Record<string, number>
 ) {
   const { isMobile, isTabletPortrait, isOn } = options;
+  const { LOGO_SIZE, STAGES, LAYOUT_SPEC, TIMING_CFG, EASE, ANIMS_CFG } = options.registry.constants;
+  const { JOURNEY_MASTER_CONFIG, LOGO_JOURNEY_SECTIONS } = options.registry.data;
+
   if (!logo.containerEl) return;
   
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
@@ -83,7 +87,7 @@ export function buildLogoTimeline(
   
   const sections = LOGO_JOURNEY_SECTIONS;
   
-  sections.forEach(({ label, stage }) => {
+  sections.forEach(({ label, stage, ease }: { label: string, stage: string, ease?: any }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
     if (!raw) return;
     const cfg = isMobile && raw.mobile ? { ...raw, ...raw.mobile } : raw;

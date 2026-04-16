@@ -78,7 +78,7 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
         </div>
 
         {/* [Pain 전용] 레이어 2: 구분선 기반 분할 레이아웃 컨테이너 */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center" style={{ zIndex: 10 }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center" style={{ zIndex: 2 }}>
           {/* 상단: Step (하나. 둘. ...) */}
           <div 
             ref={stepRef} 

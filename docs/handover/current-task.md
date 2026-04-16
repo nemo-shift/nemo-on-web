@@ -2,7 +2,31 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-17: V11.20 거시적 정비 및 인프라 무결성 확보 성료
+## [최신] ✅ 2026-04-16: V11 Macro Final - 인터랙션 엔진 거시적 정비 및 정규화 성료
+
+인터랙션 엔진의 '거시적 정비' 대장정을 성공적으로 완결했습니다. 빌더 패턴의 정규화, 레지스트리 기반 의존성 주입, 리액트 순도 100% 확보를 통해 어떤 콘텐츠도 우아하게 수용할 수 있는 견고한 관제탑 아키텍처를 안착시켰습니다.
+
+### 💎 주요 달성 성과 (V11 Macro Final - Phase 4)
+
+- **Registry Intelligence & DI (보급 거점화)**:
+  - `INTERACTION_REGISTRY`를 통한 중앙 집중식 상수/데이터 공급 체계 구축.
+  - 모든 유틸리티와 빌더가 인자를 통해 데이터를 주입받는 '순수성' 확보 (전역 오염 제거).
+- **React Purity & Ref Bridge (순도 확보)**:
+  - `HomeStage`와 `GlobalInteractionStage` 간의 `sectionsContentRef` 브릿지 구축.
+  - 클린업 로직 내 `document.getElementById`를 전수 소탕하여 100% 리액트스러운 제어 구조 달성.
+- **Controller Slimming & Decomposition (관제탑 최적화)**:
+  - `useGSAP` 본문의 비대한 로직을 `WarmupBuilder`, `syncNemoCoordinates` 등으로 분산 추출.
+  - 초기 상태 설정 및 실시간 좌표 동기화 로직의 가독성과 성능 최적화.
+- **Global Variable Purge (무결성 하드닝)**:
+  - `window._masterTlProgress` 의존성을 완전히 제거하고, 명시적 `currentProgress` 파라미터 전달 방식으로 전환하여 안정성 극대화.
+- **Type-Safe Interaction**:
+  - `InteractionRegistry` 인터페이스 정밀 재정의 및 `INTERACTION_Z_INDEX` 누락 수정을 통한 TSC 무결성(0 에러) 달성.
+
+### 🧩 차기 핵심 과제: "Phase 5 - Content Infusion & High-Fidelity Polishing"
+
+- [ ] **[섹션 콘텐츠 도킹]**: 정비된 엔진 위에 '포후(ForWho)', 'CTA', '스토리' 섹션의 실제 UI 부품들을 선적 및 연동.
+- [ ] **[Full-Path Easing Polish]**: 로고 저니부터 푸터 리빌까지 이어지는 전체 스크롤 리듬의 미세 이징(Easing) 전수 조정.
+- [ ] **[Mobile/Tablet Logic Audit]**: 정규화된 빌더가 태블릿 가로/세로 모드에서도 오차 없이 작동하는지 전수 실측 검증.
 
 거시적 정비 1~3단계를 통해 확보한 기술적 성취와 인프라 정규화 내용을 상세 스택(Stack) 방식으로 기록하여 시스템의 무결성을 공고히 했습니다.
 
@@ -15,7 +39,7 @@
   - `global-interaction-utils.ts` 내 주요 초기화 함수들에 `_masterTlProgress > 0.001` 진행도 가드 도입.
   - 리사이즈 및 재마운트 시 시각적 '초기값 튐(Flicker)' 현상 원천 차단.
 - **Z-Index Tiering Normalization (Step 2 - 정규화)**:
-  - 하드코딩된 레이어 수치(`11000`, `10001` 등)를 `INTERACTION_Z_INDEX` 상수로 100% 대체. 
+  - 하드코딩된 레이어 수치(`11000`, `10001` 등)를 `INTERACTION_Z_INDEX` 상수로 100% 대체.
   - **V17 Standard Tiering**: 배경(0) < 네모(50) < 본문(100) < UI가이드(500) < 헤더(800) < 로고(850) < 커서(99999).
 - **Debug Engine & Tagging Protocol (Step 3 - 기능 복구)**:
   - 격리된 디버그 컴포넌트 `InteractionDebugger.tsx` 복구 및 `isTimelineReady` 기반의 안전한 섹션 점프(Warp) 구현.
@@ -30,7 +54,7 @@
 
 ### 💎 주요 달성 성과 (V11.18 - Interaction Integrity)
 
-- **Layer Hierarchy Restoration**: 
+- **Layer Hierarchy Restoration**:
   - 브랜드 로고 포탈(`10001`)을 완전히 덮는 시스템 대전환 와이프(`SYSTEM_WIPE: 11000`) 위계 정립.
   - [ts-hero-wipe-zindex](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-hero-wipe-zindex_2026-04-16.md) 상세 리포트 작성.
 - **Resize Persistence (Progress-Aware Guard)**:
@@ -40,9 +64,7 @@
   - 배경색(`--bg`) 및 헤더색(`--header-fg`) 제어권을 `hero.ts`에서 `scroll.ts`로 수직 통합하여 데이터 흐름 단일화.
   - [ts-environment-logic-refactoring](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-environment-logic-refactoring_2026-04-16.md) 논리 정비 리포트 작성.
 
-
 ## [최신] ✅ 2026-04-15: V11.7 엔진 영속성(Persistence) 확보 및 아키텍처 정화 성료
-
 
 서브 페이지 방문 후 홈 복귀 시 엔진이 멈추는 '무음 마운트' 현상을 해결하고, 리사이즈 시 비동기 작업이 누적되는 '좀비 트리거' 문제를 근본적으로 박멸했습니다. 또한 Z-index 위계 정리와 로고 스케일 최적화를 통해 시스템의 순도를 극대화했습니다.
 
