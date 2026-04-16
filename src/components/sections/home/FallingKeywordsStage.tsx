@@ -425,7 +425,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           position: 'fixed',
           inset: 0,
           pointerEvents: 'none',
-          zIndex: INTERACTION_Z_INDEX.KEYWORDS,
+          zIndex: INTERACTION_Z_INDEX.Z_KEYWORDS,
         }}
       />
     );

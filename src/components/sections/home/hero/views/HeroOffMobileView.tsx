@@ -6,6 +6,7 @@ import { useGSAP } from '@gsap/react';
 import HeroSloganOff from '../HeroSloganOff';
 import HeroToggle from '../HeroToggle';
 import HeroOffCta from '../HeroOffCta';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroOffMobileViewProps = {
   isOn: boolean;
@@ -59,14 +60,14 @@ export default function HeroOffMobileView({
           transform: 'translate(-50%, -50%)',
           width: '100%',
           padding: '0 24px',
-          zIndex: 100
+          zIndex: INTERACTION_Z_INDEX.Z_CONTENT
         }}
       >
         <HeroSloganOff />
         
         <div 
-          className="relative z-50 flex flex-col items-center gap-4"
-          style={{ marginTop: '-7vh' }}
+          className="relative flex flex-col items-center gap-4"
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-7vh' }}
         >
           <HeroToggle
             isOn={isOn}

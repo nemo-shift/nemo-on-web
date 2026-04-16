@@ -22,6 +22,7 @@ import { calculateLabels, initGlobalStyles, initLogoState, initNemoState } from 
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline } from './builders';
 import { DEBUG_CONFIG } from '@/constants/debug';
+import InteractionDebugger from './InteractionDebugger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -284,8 +285,8 @@ export const GlobalInteractionStage = ({
   const headerFg = currentEnv.fg || '#f0ebe3';
 
   return (
-    <div ref={containerRef} className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
-      <div style={{ zIndex: INTERACTION_Z_INDEX.SHARED_NEMO }}>
+    <div ref={containerRef} className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: INTERACTION_Z_INDEX.Z_STAGE_WRAPPER }}>
+      <div style={{ zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO }}>
         <SharedNemo ref={nemoHandle} />
       </div>
 
@@ -296,29 +297,35 @@ export const GlobalInteractionStage = ({
           style={{ 
             left: isMobile ? `${HEADER_POS.MOBILE.x}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.x}vw` : `${HEADER_POS.PC.x}vw`), 
             top: isMobile ? `${HEADER_POS.MOBILE.y}px` : (isTabletPortrait ? `${HEADER_POS.TABLET.y}vw` : `${HEADER_POS.PC.y}vw`), 
-            zIndex: INTERACTION_Z_INDEX.JOURNEY_LOGO,
+            zIndex: INTERACTION_Z_INDEX.Z_JOURNEY_LOGO,
             color: 'var(--header-fg)',
             // '--header-fg' 제거: 상위 documentElement의 애니메이션 값을 차단하지 않도록 함
             backgroundColor: 'transparent'
           } as React.CSSProperties}
         >
           <div
-            className="pointer-events-auto"
-            onClick={() => {
-              // [V26.96 Global UX] 물리 엔진 리셋 선행 후 최상단 즉시 이동 (시각적 무결성 확보)
-              fallingRef.current?.reset();
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ((window as any).lenis) (window as any).lenis.scrollTo(0, { immediate: true });
-            }}
+            className="pointer-events-none w-max h-max overflow-visible"
+            style={{ transform: 'translateZ(0)' }} // 레이아웃 격리 유지
           >
-            <JourneyLogo ref={logoHandle} isOn={isOn} progress={0} isTransitioning={isTransitioning} />
+            <JourneyLogo 
+              ref={logoHandle} 
+              isOn={isOn} 
+              progress={0} 
+              isTransitioning={isTransitioning}
+              onLogoClick={() => {
+                // [V26.96 Global UX] 물리 엔진 리셋 선행 후 최상단 즉시 이동 (시각적 무결성 확보)
+                fallingRef.current?.reset();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if ((window as any).lenis) (window as any).lenis.scrollTo(0, { immediate: true });
+              }}
+            />
           </div>
         </div>,
         document.body
       )}
 
       {/* 3. Scroll Hint */}
-      <div id="pain-scroll-hint" className="fixed bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.SCROLL_HINT }}>
+      <div id="pain-scroll-hint" className="fixed bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_UI_GUIDE }}>
         <span className="text-[10px] font-medium tracking-[0.3em] uppercase" style={{ color: `${COLORS.TEXT.LIGHT}99` }}>Scroll</span>
         <div className="w-[1px] h-12 relative overflow-hidden" style={{ background: `linear-gradient(to bottom, ${COLORS.TEXT.LIGHT}CC, transparent)` }}>
           <div className="absolute top-0 left-0 w-full h-1/2 animate-scroll-hint" style={{ backgroundColor: COLORS.TEXT.LIGHT }} />
@@ -331,6 +338,9 @@ export const GlobalInteractionStage = ({
         isMobile={isMobile}
         isTabletPortrait={isTabletPortrait} 
       />
+
+      {/* // [DEPLOY-DELETE] : 디버그 전용 점프 엔진 도킹 (배포 시 이 한 줄만 삭제하거나 debug.ts에서 OFF) */}
+      {DEBUG_CONFIG.USE_DEBUG && <InteractionDebugger masterTl={masterTl.current} />}
     </div>
   );
 };

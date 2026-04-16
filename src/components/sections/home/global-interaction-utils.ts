@@ -144,22 +144,17 @@ export function initLogoState(
     logoCfg = { ...logoCfg, ...cfg.mobile.logo };
   }
 
-  // 로고 컨테이너 초기 정렬: 상단 좌측 고정 (Editorial Layout)
+  // [V11.19 Fix] 레이아웃 기준점(Anchor) 설정은 리사이즈 대응을 위해 항상 실행
   gsap.set(container, {
     x: 0,
     y: 0,
     scale: 1, 
+    height: 'auto', // 초기에는 자동 높이 (히어로 빅 타이포 대응)
     transformOrigin: 'top left',
     visibility: 'visible',
     opacity: 1
   });
 
-  // 하위 엘리먼트 가시성 설정
-  gsap.set(logo.nemoKrEl, { opacity: logoCfg.nemoKr ? 1 : 0, visibility: logoCfg.nemoKr ? 'visible' : 'hidden' });
-  gsap.set(logo.shapesEl, { opacity: logoCfg.shapes ? 0.8 : 0, visibility: logoCfg.shapes ? 'visible' : 'hidden' });
-  gsap.set(logo.statusEl, { opacity: logoCfg.status ? 1 : 0, visibility: logoCfg.status ? 'visible' : 'hidden' });
-  gsap.set(logo.rectangleEl, { opacity: logoCfg.rectangle ? 1 : 0, visibility: logoCfg.rectangle ? 'visible' : 'hidden' });
-  
   // [+] 형태에서 [-] 형태로의 모핑 포인트를 픽셀 단위로 정밀 제어
   if (logo.tLines.h && logo.tLines.v) {
     const isPlus = logoCfg.morph === '+';
@@ -167,6 +162,17 @@ export function initLogoState(
     gsap.set(logo.tLines.h, { width: '100%', top: isPlus ? '60px' : '20px', left: 0 });
     gsap.set(logo.tLines.v, { height: '100%', top: isPlus ? '20px' : '20px' });
   }
+
+  // [V11.19 Fix] 시각적 초기화(내부 조각 리셋)만 진행도에 따라 선택적 차단 (깜빡임 방지)
+  if (typeof window !== 'undefined') {
+    if ((window as any)._masterTlProgress > 0.001) return;
+  }
+
+  // 하위 엘리먼트 가시성 설정
+  gsap.set(logo.nemoKrEl, { opacity: logoCfg.nemoKr ? 1 : 0, visibility: logoCfg.nemoKr ? 'visible' : 'hidden' });
+  gsap.set(logo.shapesEl, { opacity: logoCfg.shapes ? 0.8 : 0, visibility: logoCfg.shapes ? 'visible' : 'hidden' });
+  gsap.set(logo.statusEl, { opacity: logoCfg.status ? 1 : 0, visibility: logoCfg.status ? 'visible' : 'hidden' });
+  gsap.set(logo.rectangleEl, { opacity: logoCfg.rectangle ? 1 : 0, visibility: logoCfg.rectangle ? 'visible' : 'hidden' });
 }
 
 /**
@@ -188,8 +194,8 @@ export function initNemoState(
   // 실제 돔의 위치와 스타일을 캡처 (SSOT: Single Source of Truth)
   const rect = originEl.getBoundingClientRect();
   const style = window.getComputedStyle(originEl);
-  
-  // 인터랙션용 공유 네모를 캡처된 정적 네모 위치로 동기화
+
+  // 인터랙션용 공유 네모를 캡처된 정적 네모 위치로 동기화 (리사이즈 대응을 위해 좌표는 항상 업데이트)
   gsap.set(nemo.nemoEl, {
     width: rect.width, height: rect.height, 
     left: rect.left + rect.width / 2, top: rect.top + rect.height / 2,
@@ -199,8 +205,14 @@ export function initNemoState(
     border: style.border, 
     borderColor: style.borderColor, 
     boxShadow: style.boxShadow, 
-    opacity: 0, // 초기에는 숨김 처리 후 히어로 스왑 시퀀스에서 노출
     position: 'fixed',
-    zIndex: INTERACTION_Z_INDEX.SHARED_NEMO,
+    zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO,
   });
+
+  // [V11.19 Fix] 투명도 리셋(0)만 선택적으로 차단하여 깜빡임 방지
+  if (typeof window !== 'undefined') {
+    if ((window as any)._masterTlProgress > 0.001) return;
+  }
+
+  gsap.set(nemo.nemoEl, { opacity: 0 }); // 초기 히어로 스왑 시퀀스에서 노출되도록 0으로 리셋
 }

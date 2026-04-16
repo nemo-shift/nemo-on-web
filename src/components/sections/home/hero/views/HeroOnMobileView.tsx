@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import HeroSloganOn from '../HeroSloganOn';
 import HeroOnPhraseLayer from '../HeroOnPhraseLayer';
 import HeroOnShapesStage from '../HeroOnShapesStage';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroOnMobileViewProps = {
   isOn: boolean;
@@ -42,8 +43,9 @@ export default function HeroOnMobileView({
         {isOn && !isTransitioning && sequenceStep === 5 && (
           <div 
             id="hero-on-center-phrase"
-            className="absolute z-50 pointer-events-auto"
+            className="absolute pointer-events-auto"
             style={{ 
+              zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
               bottom: '16vh', // [V11.51 Fix] 도화지 확장을 통해 이제 음수값 없이 깨끗한 양수값으로 하단 배치
               left: '50%',

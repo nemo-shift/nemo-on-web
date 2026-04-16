@@ -13,6 +13,7 @@ import { useHeroState, useParticles } from '@/hooks';
 import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
 import Header from '@/components/layout/Header';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import HeroBottomBar from './HeroBottomBar';
 import HeroPCView from './views/HeroPCView';
 import HeroTabletView from './views/HeroTabletView';
@@ -157,7 +158,7 @@ export default function HeroSection({
           height: 0,
           opacity: 0,
           background: !isMobileView ? COLORS.HERO.OFF.ACCENT : '#0891b2',
-          zIndex: 11000, 
+          zIndex: INTERACTION_Z_INDEX.Z_SYSTEM_WIPE, 
           pointerEvents: 'none',
           borderRadius: 0,
         }}
@@ -209,7 +210,7 @@ export default function HeroSection({
         style={{
           ...cssVars,
           position: 'relative',
-          zIndex: 10,
+          zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
           width: '100vw',
           height: '100svh',
           display: 'flex',
@@ -228,7 +229,7 @@ export default function HeroSection({
             style={{
               position: 'absolute',
               inset: 0,
-              zIndex: 0,
+              zIndex: INTERACTION_Z_INDEX.Z_BASE_BG,
               pointerEvents: 'none',
             }}
           />
@@ -244,7 +245,7 @@ export default function HeroSection({
               transform: 'translateX(-50%)',
               width: '100vw',
               height: isMobileView ? '60vh' : '90vh',
-              zIndex: 1,
+              zIndex: INTERACTION_Z_INDEX.Z_BASE_BG + 1,
               pointerEvents: 'none',
               filter: 'blur(60px)',
               display: 'flex',
@@ -277,7 +278,7 @@ export default function HeroSection({
           style={{
             position: 'absolute',
             inset: 0,
-            zIndex: 5,
+            zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO + 1,
             pointerEvents: 'none',
             opacity: isOn ? 0.02 : 0.06, 
             backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
@@ -291,7 +292,7 @@ export default function HeroSection({
         {!isInitialized ? (
           <div className="flex-1 w-full bg-[var(--bg)]" />
         ) : (
-          <div className="absolute inset-0 pointer-events-none z-10">
+          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
             {isMobile ? (
               <HeroMobileView {...viewProps} />
             ) : isTabletPortrait ? (

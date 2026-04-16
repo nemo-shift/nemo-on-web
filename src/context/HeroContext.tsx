@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useDevice } from './DeviceContext';
 import { DEBUG_CONFIG } from '@/constants/debug';
 
-// 🔥 [DEBUG-DELETE] : 배포 전 반드시 삭제 (디버그 점프 가드)
+// [DEPLOY-DELETE] : 배포 전 반드시 삭제 (디버그 점프 가드)
 const IS_DEV = process.env.NODE_ENV === 'development';
 const SHOULD_DEBUG = IS_DEV && DEBUG_CONFIG.USE_DEBUG;
 

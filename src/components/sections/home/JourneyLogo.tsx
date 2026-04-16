@@ -30,6 +30,7 @@ interface JourneyLogoProps {
   isOn: boolean;
   progress?: number;
   isTransitioning?: boolean;
+  onLogoClick?: () => void; // [V11.19] 정밀 히트박스를 위한 클릭 핸들러 추가
 }
 
 /**
@@ -87,14 +88,15 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
     return (
       <div
         ref={containerRef}
-        className="journey-logo flex items-baseline select-none gap-4 tablet-p:gap-6 tablet:gap-[clamp(40px,calc(-4px+4.5vw),60px)] desktop-wide:gap-[clamp(60px,calc(30px+2.1vw),70px)] desktop-cap:gap-[70px] h-[clamp(75px,calc(71px+1.2vw),85px)] tablet-p:h-[clamp(85px,calc(-200px+38.3vw),200px)] tablet:h-[clamp(200px,calc(111px+9vw),240px)] desktop-wide:h-[clamp(240px,calc(120px+8.35vw),280px)] desktop-cap:h-[280px]"
+        className="journey-logo flex items-baseline select-none gap-4 tablet-p:gap-6 tablet:gap-[clamp(40px,calc(-4px+4.5vw),60px)] desktop-wide:gap-[clamp(60px,calc(30px+2.1vw),70px)] desktop-cap:gap-[70px] h-auto"
         style={{ willChange: 'transform' }}
       >
         {/* 1. 한글 네모 (Layer A) */}
         <div 
           ref={nemoKrRef} 
-          className="font-esamanru font-bold tablet:font-light text-[clamp(55px,calc(60px+1.5vw),80px)] tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)] tablet:text-[clamp(150px,calc(75px+7.5vw),185px)] desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)] desktop-cap:text-[220px] tracking-normal"
+          className="font-esamanru font-bold tablet:font-light text-[clamp(55px,calc(60px+1.5vw),80px)] tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)] tablet:text-[clamp(150px,calc(75px+7.5vw),185px)] desktop-wide:text-[clamp(185px,calc(82px+7.2vw),220px)] desktop-cap:text-[220px] tracking-normal cursor-pointer"
           style={colorStyle}
+          onClick={_props.onLogoClick}
         >
           네모
         </div>
@@ -103,10 +105,11 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         {/* 2. 시그니처 도형 (NemoIcon) - [V11 Native CSS Engine] 테일윈드 파서 한계 극복을 위한 CSS 통합 제어 */}
         <div 
           ref={shapesRef}
-          className="flex items-center justify-center child-nemo-logo-engine"
+          className="flex items-center justify-center child-nemo-logo-engine cursor-pointer"
           style={{ 
             willChange: 'transform'
           }}
+          onClick={_props.onLogoClick}
         >
           <NemoIcon 
             className={cn(
@@ -131,8 +134,9 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         {/* 3. ON/OFF (Scramble) */}
         <div 
           ref={statusRef} 
-          className="font-gmarket font-bold tablet:font-light text-[clamp(62px,calc(48px+1.2vw),82px)] tablet-p:text-[clamp(132px,calc(-180px+32vw),250px)] tablet:text-[clamp(140px,calc(68px+7.5vw),175px)] desktop-wide:text-[clamp(175px,calc(75px+7.2vw),210px)] desktop-cap:text-[210px] tracking-tight min-w-[clamp(65px,calc(56px+2.5vw),90px)] tablet-p:min-w-[clamp(90px,calc(-20px+15vw),135px)] tablet:min-w-[clamp(170px,calc(8vw+10vw),250px)] desktop-wide:min-w-[clamp(250px,calc(-25px+19vw),380px)] desktop-cap:min-w-[380px]"
+          className="font-gmarket font-bold tablet:font-light text-[clamp(62px,calc(48px+1.2vw),82px)] tablet-p:text-[clamp(132px,calc(-180px+32vw),250px)] tablet:text-[clamp(140px,calc(68px+7.5vw),175px)] desktop-wide:text-[clamp(175px,calc(75px+7.2vw),210px)] desktop-cap:text-[210px] tracking-tight min-w-[clamp(65px,calc(56px+2.5vw),90px)] tablet-p:min-w-[clamp(90px,calc(-20px+15vw),135px)] tablet:min-w-[clamp(170px,calc(8vw+10vw),250px)] desktop-wide:min-w-[clamp(250px,calc(-25px+19vw),380px)] desktop-cap:min-w-[380px] cursor-pointer"
           style={statusColorStyle}
+          onClick={_props.onLogoClick}
         >
           {scrambledText || (isOn ? 'ON' : 'OFF')}
         </div>
@@ -141,7 +145,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
         <div 
           ref={rectangleRef} 
           className={cn(
-            'absolute inset-0 flex items-baseline font-gmarket opacity-0 pointer-events-none gap-[0.02em]',
+            'absolute inset-0 flex items-baseline font-gmarket opacity-0 pointer-events-none gap-[0.02em] cursor-pointer',
             'text-[clamp(56px,calc(60px+1.5vw),80px)]',
             'tablet-p:text-[clamp(130px,calc(-170px+32vw),250px)]',
             'tablet:text-[clamp(150px,calc(75px+7.5vw),185px)]',
@@ -149,6 +153,7 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
             'desktop-cap:text-[220px]'
           )}
           style={colorStyle}
+          onClick={(_props.onLogoClick)}
         >
           <span className="font-bold">REC</span>
           {/* T Morphing Point (Using CSS Lines for Practicality) */}

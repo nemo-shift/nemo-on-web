@@ -10,6 +10,7 @@ import { BrandStorySection } from './story/BrandStorySection';
 import { CTASection } from './cta/CTASection';
 import { Footer } from '@/components/layout';
 import GlobalInteractionStage from './GlobalInteractionStage';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 /**
  * HomeStage 컴포넌트: 전체 페이지의 섹션 스택 관리
@@ -42,12 +43,13 @@ export default function HomeStage(): React.ReactElement {
         messageRef={messageRef}
       />
       
-      {/* 콘텐츠 영역: z-[15]로 GlobalInteractionStage(z:10)보다 상위 쌓임 맥락 확보 */}
-      <div id="home-stage" ref={containerRef} className="relative z-[15] w-full">
-        {/* 모든 섹션을 포함하는 래퍼: 사용자 제안에 따라 메세지 섹션 반전 구현을 위해 z-index 상향 및 배경 제거 */}
+      {/* 콘텐츠 영역: Z_CONTENT(100)로 GlobalInteractionStage(Z_STAGE_WRAPPER:50)보다 상위 쌓임 맥락 확보 */}
+      <div id="home-stage" ref={containerRef} className="relative w-full" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
+        {/* 모든 섹션을 포함하는 래퍼: 섹션 이동 및 배경색 전환을 위한 핵심 ID(sections-content-wrapper) 탑재 */}
         <div 
-          id="sections-content-wrapper" 
-          className="relative z-[20] w-full"
+          id="sections-content-wrapper"
+          className="relative w-full"
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
         >
           {/* 1. Hero Section */}
           <HeroSection id="section-hero" isOn={isOn} onToggle={toggle} />

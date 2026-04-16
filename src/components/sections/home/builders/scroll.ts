@@ -84,6 +84,16 @@ export function buildSectionScrollTimeline(
     const cfg = options.isMobileView && raw.mobile ? { ...raw, ...raw.mobile } : raw;
     const time = L[label];
 
+    // [V11.19 Fix] 히어로 섹션 역방향 스크롤 무결성 확보 (State Lock)
+    // 타임라인이 시작되는 0 지점에서 히어로의 초기 색상을 강제로 잠금하여, 
+    // 스크롤을 다시 올릴 때 색상이 유실되거나 공백 상태가 되는 현상을 방지합니다.
+    if (label === STAGES.START_TO_PAIN) {
+      tl.set(document.documentElement, {
+        '--bg': lastEnv.bg,
+        '--header-fg': lastEnv.fg
+      }, 0);
+    }
+
     // [V11.56 Sync] 배경색 및 로고 전이 타이밍 동기화 (PAIN_TO_MSG 브릿지 대응)
     let transitionCfg = cfg;
     if (label === STAGES.PAIN_TO_MSG) {

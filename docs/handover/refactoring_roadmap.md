@@ -35,11 +35,17 @@
 - **성과**: 레이어 간섭 문제 해결 및 시네마틱 레이어링의 기술적 무결성 확보.
 - **디버그**: `debug.ts` 도입 및 `FORCE_ON` 하이재킹으로 개발 편의성 극대화 (Safe Guard 적용).
 
-### [ ] [4D] 공명 시퀀스 전용 반응형 상수 체계 포팅
+### [x] [4D] V11.20 거시적 인터랙션 무결성 및 인프라 정규화 (2026-04-17 완료)
 
-- **대상**: `src/constants/interaction.ts`, `builders/pain.ts`
-- **내용**: 현재 하드코딩된 공명 구간의 크기(`vw`, `vh`) 및 색상 값을 기기별(PC/Mobile) 객체 구조로 분리하여 상수화.
-- **목적**: 기기별 최적의 '브리딩 이펙트' 비율을 비즈니스 로직 수정 없이 조정 가능한 구조 확보.
+- **대상**: `global-interaction-utils.ts`, `interaction.ts`, `GlobalInteractionStage.tsx`
+- **내용**: 초기화 무결성 가드(`_masterTlProgress > 0.001`) 전방위 확대, `INTERACTION_Z_INDEX` V17 표준 레이아웃 정립.
+- **성과**: 리사이즈 시 시각적 튐 현상 근절 및 상수를 통한 레이어 위계 중앙 통제 체계 구축.
+
+### [x] [4E] V11.20 디버그 점프 엔진 복구 및 마킹 표준화 (2026-04-17 완료)
+
+- **대상**: `InteractionDebugger.tsx`, 프로젝트 전역 태그 정규화
+- **내용**: `isTimelineReady`와 동기화된 안전한 디버그 점프 엔진 구축. 기존 `[DEBUG-DELETE]` 태그를 `[DEPLOY-DELETE]` 규격으로 일괄 치환.
+- **성과**: 개발 효율 극대화 및 배포 시 임시 코드 정화 가이드라인 확립.
 
 ---
 
@@ -92,11 +98,7 @@
 
 ## 1. 콘텐츠 작업 및 시스템 고도화 단계 (Phase: Optimization & Content)
 
-### [Next] [5B] 거시적 초기화 무결성 정비 (Progress-Aware Init)
-
-- **대상**: `global-interaction-utils.ts` (`initLogoState`, `initNemoState`)
-- **내용**: 배경색에서 검증된 `_masterTlProgress > 0.001` 가드 패턴을 로고와 네모의 초기화 로직으로 전방위 확대.
-- **목적**: 리사이즈 시 로고의 위치나 네모의 크기가 히어로 섹션 상태로 '점핑'했다가 돌아오는 잔여 불안정성 완전 제거.
+### [x] [5B] 거시적 초기화 무결성 정비 (Progress-Aware Init) (2026-04-17 완료)
 
 ### [Next] [3E] 3단계 초정밀 미세 리사이즈 보간 (Micro-sync)
 

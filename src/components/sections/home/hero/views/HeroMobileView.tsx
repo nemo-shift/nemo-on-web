@@ -3,6 +3,7 @@
 import React from 'react';
 import HeroOffMobileView from './HeroOffMobileView';
 import HeroOnMobileView from './HeroOnMobileView';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroViewProps = {
   isOn: boolean;
@@ -68,7 +69,7 @@ export default function HeroMobileView({
           style={{
             order: 3, 
             position: 'relative',
-            zIndex: 20,
+            zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,

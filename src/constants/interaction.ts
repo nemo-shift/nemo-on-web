@@ -9,38 +9,49 @@
 // 1. Z-index 레이어 계층 (Global 스택 준수)
 // ─────────────────────────────────────────────
 // ─────────────────────────────────────────────
-// 1. Z-index 레이어 계층 (V4.0 Integrity Standard)
+// 1. Z-index 레이어 계층 (V17 Standard Tiering)
 // ─────────────────────────────────────────────
 export const INTERACTION_Z_INDEX = {
-  // [계층 4.5] 시스템 대전환 와이프 (System Wipe Layer)
-  // [V11.16 교훈] JOURNEY_LOGO(10001)를 완전히 덮기 위해 최소 11000 이상 권장. 
-  SYSTEM_WIPE: 11000, 
+  // [계층 6] 마우스 커서 (Celestial Layer - Body Portal)
+  Z_CURSOR_POINT: 99999,
+  Z_CURSOR_RING: 99998,
 
-  // [계층 4] 브랜드 로고 스테이지 (Brand Layer)
-  // GlobalInteractionStage 내에서 createPortal을 통해 document.body로 탈출.
-  // 이로 인해 히어로 배경(11) 및 콘텐츠 레이어(20)를 관통하는 전역 최상위 위상을 가짐.
-  JOURNEY_LOGO: 10001, 
+  // [계층 5] 시스템 및 메뉴 (System Layer)
+  Z_SYSTEM_WIPE: 1000,
+  Z_MENU_DRAWER: 950,
+  Z_MENU_TRIGGER: 900,
 
-  HEADER: 10000,
-  MENU: 10002,
-  MENU_TOGGLE: 10003,
-  
-  
-  // [계층 3] 스크롤 가이드
-  SCROLL_HINT: 1000, 
-  
-  // [계층 2] 배경 인터랙션 레이어 (Under Layer)
-  // GlobalInteractionStage(zIndex: 10) 부모 제약 없이 각자의 고도를 가짐.
-  // 텍스트 및 링크 콘텐츠(20)보다 아래에 위치하여 '배경' 역할을 수행함.
-  SHARED_NEMO: 5, 
-  KEYWORDS: 10,
-  
-  // [계층 2.5] 섹션 콘텐츠 레이어 (중심 텍스트 및 링크)
-  CONTENT_LAYER: 20,
-  
-  // [계층 1] 최하단 배경 레이어용
-  BACKGROUND: 0,
-};
+  // [계층 4] 브랜드 무대 (Brand Stage)
+  Z_JOURNEY_LOGO: 850, // Body Portal
+  Z_HEADER: 800,
+
+  // [계층 3] 가이드 및 UI (Guide Layer)
+  Z_UI_GUIDE: 500, // BottomBar, Scroll Hint 등
+
+  // [계층 2] 콘텐츠 및 인터랙션 (Content Layer)
+  Z_CONTENT: 100,      // 메인 섹션 덮개
+  Z_STAGE_WRAPPER: 50,  // GlobalInteractionStage 부모 (네모가 본문 뒤, 배경 위에 위치)
+  Z_SHARED_NEMO: 1,    // Stage 내부 상대 서열
+  Z_KEYWORDS: 0,       // Stage 내부 상대 서열
+  Z_FOOTER_UNDER: 10,  // Reveal Footer (Underneath content)
+
+  // [계층 1] 배경 (Base Layer)
+  Z_BASE_BG: 0,
+  Z_BEHIND_BG: -1,
+} as const;
+
+// ─────────────────────────────────────────────
+// 1.5. 물리 인터랙션 수칙 (V16 Layout Specs)
+// ─────────────────────────────────────────────
+export const LAYOUT_SPEC = {
+  LOGO: {
+    EJECT_Y: 150,         // 상승 퇴장 거리
+    MORPH_BLUR: 15,       // 모핑 블러 px
+    MORPH_SCALE: 1.15,     // 모핑 팽창률
+    RECT_LETTER_GAP: 1.2, // RECT 등장 시 자간
+  }
+} as const;
+
 
 // ─────────────────────────────────────────────
 // 2. 브랜드 컬러 팔레트 (V4.3 Integrity: colors.ts와 동기화)

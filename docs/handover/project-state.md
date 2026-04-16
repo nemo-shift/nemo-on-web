@@ -1,11 +1,20 @@
 > [!NOTE]
 > **문서 목적**: 네모:ON의 **'전체 시스템 현황'** 요약본. 현재 아키텍처의 핵심 구조, 데이터 시트 명세, 주요 컴포넌트 가동 유무를 부감하여 시스템의 무결성을 증명함.
 
-## [최신] 🚀 2026-04-16: V11.18 Interaction Integrity & Environmental Centralization
+## [최신] 🚀 2026-04-17: V11.20 Macro Overhaul Phase 1-3 & Layer Normalization
 
-브랜드 섹션 전환(Wipe)과 환경 제어(Color/Header) 로직의 무결성을 확보하고, 레이어 서열(Z-Index) 체계를 전면 재정립했습니다. 특히 리사이즈 시 색상 유실 등 고질적인 환경 오류를 차단하는 '진행도 기반 가드'를 아키텍처적 표준으로 안착시켰습니다.
+거시적 정비 합의안에 따라 초기화 무결성을 확보하고, 전역 레이어 위계를 V17 표준 상수로 100% 정규화했습니다. 또한 격리된 디버그 엔진을 통해 시스템의 검증 속도와 안전성을 동시에 확보했습니다.
 
-### 💎 주요 달성 성과 (V11.18)
+### 💎 주요 달성 성과 (V11.20)
+
+- **V17 Standard Z-Index Architecture**:
+  - `INTERACTION_Z_INDEX` 상수를 활용하여 모든 시각적 요소의 서열을 규격화함.
+  - **Tiering**: 배경(0) < 네모(50) < 본문(100) < 가이드 UI(500) < 헤더(800) < 로고(850) < 커서(99999).
+- **Initialization Persistence (Safety Guard)**:
+  - `_masterTlProgress > 0.001` 가드 시스템을 로고 및 네모 초기화 로직으로 확장 적용하여 리사이즈 무결성 완성.
+- **Isolated Debug Infrastructure**:
+  - `InteractionDebugger.tsx` 구축으로 메인 로직 오염 없이 섹션 간 즉시 점프 및 데이터 모니터링 환경 조성.
+  - `[DEPLOY-DELETE]` 마킹 표준 수립으로 배포 안정성 강화.
 
 - **Global Layer Hierarchy (V11.18 Standard)**:
   - `SYSTEM_WIPE(11000)` 급의 시스템 장막 레이어를 신설하여 포탈(Portal)로 탈출한 로고(`10001`)를 완벽히 마스킹함.

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NemoIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 /**
  * Footer 컴포넌트 [V5.2 Reveal Pattern]
@@ -73,7 +74,7 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       )}
       style={{ 
         backgroundColor: '#0a0a0a', 
-        zIndex: isHomeStage ? 0 : -1,
+        zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : INTERACTION_Z_INDEX.Z_BEHIND_BG,
         pointerEvents: 'auto',
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,

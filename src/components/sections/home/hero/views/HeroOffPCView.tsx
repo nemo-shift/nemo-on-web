@@ -6,6 +6,7 @@ import { useGSAP } from '@gsap/react';
 import HeroSloganOff from '../HeroSloganOff';
 import HeroToggle from '../HeroToggle';
 import HeroOffCta from '../HeroOffCta';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroOffPCViewProps = {
   isOn: boolean;
@@ -62,7 +63,7 @@ export default function HeroOffPCView({
   }, { dependencies: [isOn] });
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
+    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
       {/* [V11.1 Luminous Aura] - 중앙 스택을 감싸는 신비로운 광배 */}
       <div 
         id="hero-central-aura"
@@ -73,7 +74,7 @@ export default function HeroOffPCView({
           background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)',
           transform: 'translateY(15vh)',
           filter: 'blur(60px)',
-          zIndex: -1
+          zIndex: INTERACTION_Z_INDEX.Z_BEHIND_BG
         }}
       />
 
@@ -96,7 +97,7 @@ export default function HeroOffPCView({
           <HeroSloganOff />
           
           {/* [토글 버튼] */}
-          <div className="relative z-20">
+          <div className="relative" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
             <HeroToggle
               isOn={isOn}
               onToggle={handleToggle}

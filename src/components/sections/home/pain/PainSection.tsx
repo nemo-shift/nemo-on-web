@@ -63,14 +63,14 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
       className="relative w-full h-[1000vh]"
       style={{ backgroundColor: 'transparent' }}
     >
-      {/* [임시:DEBUG-DELETE] 섹션 시작 가이드라인/라벨 */}
+      {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
       {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Pain Section</span>
       </div>*/}
 
       <div 
         className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden"
-        style={{ zIndex: INTERACTION_Z_INDEX.CONTENT_LAYER }}
+        style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
       >
         {/* [섹션명 표시]  */}
         {/*<div className="container mx-auto px-6 flex flex-col items-center">

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useMousePosition } from '@/hooks';
 import { useDevice } from '@/context';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type PointRingCursorProps = {
   isOn: boolean; // ON 상태 여부 — 색상 전환에 사용 [Required]
@@ -159,7 +160,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
           backgroundColor: pointColor,
           borderRadius: '50%',
           pointerEvents: 'none',
-          zIndex: 99999,
+          zIndex: INTERACTION_Z_INDEX.Z_CURSOR_POINT,
           willChange: 'transform',
           transition: 'background-color 0.5s ease',
         }}
@@ -177,7 +178,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
           backgroundColor: cursorType === 'contact' ? '#ffffff' : 'transparent',
           borderRadius: cursorType === 'pointer' ? '4px' : '50%',
           pointerEvents: 'none',
-          zIndex: 99998,
+          zIndex: INTERACTION_Z_INDEX.Z_CURSOR_RING,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

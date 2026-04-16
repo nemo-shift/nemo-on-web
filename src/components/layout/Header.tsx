@@ -34,7 +34,7 @@ export default function Header(): React.ReactElement {
         'desktop-cap:px-16 desktop-cap:py-10',  // Desktop-Cap (1920px)
         isHome ? 'justify-end' : 'justify-between'
       )}
-      style={{ zIndex: INTERACTION_Z_INDEX.HEADER }}
+      style={{ zIndex: INTERACTION_Z_INDEX.Z_HEADER }}
     >
       {/* 좌측: 정적 로고 (홈이 아닐 때만 노출) */}
       {!isHome && (

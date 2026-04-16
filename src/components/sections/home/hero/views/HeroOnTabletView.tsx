@@ -4,6 +4,7 @@ import React from 'react';
 import HeroSloganOn from '../HeroSloganOn';
 import HeroOnPhraseLayer from '../HeroOnPhraseLayer';
 import HeroOnShapesStage from '../HeroOnShapesStage';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroOnTabletViewProps = {
   isOn: boolean;
@@ -42,8 +43,9 @@ export default function HeroOnTabletView({
         {isOn && !isTransitioning && sequenceStep === 5 && (
           <div 
             id="hero-tablet-on-center-phrase"
-            className="absolute z-50 pointer-events-auto"
+            className="absolute pointer-events-auto"
             style={{ 
+              zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
               bottom: '15vh',
               left: '50%',

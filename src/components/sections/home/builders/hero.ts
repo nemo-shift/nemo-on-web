@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { 
-  LOGO_SIZE, TIMING_CFG, STAGES, EASE, ANIMS_CFG 
+  LOGO_SIZE, TIMING_CFG, STAGES, EASE, ANIMS_CFG, LAYOUT_SPEC
 } from '@/constants/interaction';
 import { JOURNEY_MASTER_CONFIG } from '@/data/home/journey';
 import { LOGO_JOURNEY_SECTIONS } from '@/data/home/interaction-journey';
@@ -72,7 +72,7 @@ export function buildLogoTimeline(
 
   // [V11.41 シ퀀스] Phase 1: 로고 부속품(△/○, ON) 상승 퇴장
   tl.to([logo.shapesEl, logo.statusEl], { 
-    y: -150, 
+    y: -LAYOUT_SPEC.LOGO.EJECT_Y, 
     opacity: 0, 
     duration: TIMING_CFG.TRANSITION_WEIGHT,
     ease: EASE.FADE
@@ -110,8 +110,8 @@ export function buildLogoTimeline(
       // 한글 로고가 완전히 사라지기 전 영문 로고가 투영되도록 타이밍 설계
       tl.to(logo.nemoKrEl, { 
         opacity: 0, 
-        scale: 1.15, 
-        filter: 'blur(15px)',
+        scale: LAYOUT_SPEC.LOGO.MORPH_SCALE, 
+        filter: `blur(${LAYOUT_SPEC.LOGO.MORPH_BLUR}px)`,
         duration: ANIMS_CFG.LOGO_MORPH * 2.5,
         ease: 'power2.inOut'
       }, time);
@@ -119,7 +119,7 @@ export function buildLogoTimeline(
       tl.fromTo(logo.rectangleEl, 
         { 
           opacity: 0, 
-          letterSpacing: '1.2em',
+          letterSpacing: `${LAYOUT_SPEC.LOGO.RECT_LETTER_GAP}em`,
           visibility: 'visible',
           filter: 'blur(6px)',
           scale: 0.95
@@ -136,23 +136,40 @@ export function buildLogoTimeline(
         time
       );
     } else {
-      // 일반적인 상태 전이
-      tl.to(logo.nemoKrEl, { opacity: cfg.logo.nemoKr ? 1 : 0, duration: ANIMS_CFG.LOGO_MORPH }, time);
+      // 일반적인 상태 전이: 잔상 방지를 위해 filter 리셋 및 데이터 기반 가시성 제어
+      tl.to(logo.nemoKrEl, { 
+        opacity: cfg.logo.nemoKr ? 1 : 0, 
+        visibility: cfg.logo.nemoKr ? 'visible' : 'hidden',
+        pointerEvents: cfg.logo.nemoKr ? 'auto' : 'none',
+        filter: 'blur(0px)',
+        duration: ANIMS_CFG.LOGO_MORPH 
+      }, time);
+      
       tl.to(logo.rectangleEl, { 
         opacity: cfg.logo.rectangle ? 1 : 0, 
         visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
+        pointerEvents: cfg.logo.rectangle ? 'auto' : 'none',
+        filter: 'blur(0px)',
         duration: ANIMS_CFG.LOGO_MORPH 
       }, time);
     }
 
-    // [로고 부속품 제어] - 히어로 특수 연출(START_TO_PAIN) 제외 모든 구간
-    if (label !== STAGES.START_TO_PAIN) {
-      tl.to([logo.shapesEl, logo.statusEl], { 
-        opacity: cfg.logo.status ? 1 : 0, 
-        visibility: cfg.logo.status ? 'visible' : 'hidden', 
-        duration: ANIMS_CFG.LOGO_MORPH 
-      }, time);
-    }
+    // [로고 부속품 제어] - 데이터 기반 가시성 및 위치 리셋 (y: 0)
+    tl.to(logo.shapesEl, { 
+      opacity: (cfg.logo as any).shapes ? 0.8 : 0, 
+      visibility: (cfg.logo as any).shapes ? 'visible' : 'hidden', 
+      pointerEvents: (cfg.logo as any).shapes ? 'auto' : 'none',
+      y: 0, // [V11.19 Fix] 히어로 축소 시 올라갔던 위치 초기화
+      duration: ANIMS_CFG.LOGO_MORPH 
+    }, time);
+
+    tl.to(logo.statusEl, { 
+      opacity: cfg.logo.status ? 1 : 0, 
+      visibility: cfg.logo.status ? 'visible' : 'hidden', 
+      pointerEvents: cfg.logo.status ? 'auto' : 'none',
+      y: 0, // [V11.19 Fix] 히어로 축소 시 올라갔던 위치 초기화
+      duration: ANIMS_CFG.LOGO_MORPH 
+    }, time);
 
     // [+] <-> [-] 형태적 모핑(Morphing)
     if (logo.tLines.h && logo.tLines.v) {
@@ -163,6 +180,10 @@ export function buildLogoTimeline(
 
   // 최종적으로 헤더 사이즈로 축소되는 구간 (CONTENT_RISE 시점으로 앞당김)
   tl.to(logo.containerEl, {
-    scale: headerScale, x: 0, y: 0, duration: t * r, ease: EASE.TRANSITION
+    scale: headerScale, 
+    x: 0, 
+    y: 0, 
+    duration: t * r, 
+    ease: EASE.TRANSITION
   }, L[STAGES.HERO_STILL_CONTENT_RISE]);
 }

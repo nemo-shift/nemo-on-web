@@ -2,7 +2,29 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-16: V11.18 인터랙션 무결성 및 전역 배경색 환경 통합 성료
+## [최신] ✅ 2026-04-17: V11.20 거시적 정비 및 인프라 무결성 확보 성료
+
+거시적 정비 1~3단계를 통해 확보한 기술적 성취와 인프라 정규화 내용을 상세 스택(Stack) 방식으로 기록하여 시스템의 무결성을 공고히 했습니다.
+
+### 💎 주요 달성 성과 (V11.20 - Macro Overhaul Phase 1-3)
+
+- **Header Logo Interactive Precision (Step 0)**:
+  - `createPortal` 레이아웃과 실제 로고 영역 간의 좌표 동기화(`PC`/`Tablet`/`Mobile`)로 클릭 가독성 및 정확도 100% 확보.
+  - 별도 포탈로 분리된 로고의 레이어 서열을 `Z_JOURNEY_LOGO: 850`으로 승격하여 조작성 독립.
+- **Initialization Shield (Step 1 - 무결성 확보)**:
+  - `global-interaction-utils.ts` 내 주요 초기화 함수들에 `_masterTlProgress > 0.001` 진행도 가드 도입.
+  - 리사이즈 및 재마운트 시 시각적 '초기값 튐(Flicker)' 현상 원천 차단.
+- **Z-Index Tiering Normalization (Step 2 - 정규화)**:
+  - 하드코딩된 레이어 수치(`11000`, `10001` 등)를 `INTERACTION_Z_INDEX` 상수로 100% 대체. 
+  - **V17 Standard Tiering**: 배경(0) < 네모(50) < 본문(100) < UI가이드(500) < 헤더(800) < 로고(850) < 커서(99999).
+- **Debug Engine & Tagging Protocol (Step 3 - 기능 복구)**:
+  - 격리된 디버그 컴포넌트 `InteractionDebugger.tsx` 복구 및 `isTimelineReady` 기반의 안전한 섹션 점프(Warp) 구현.
+  - 전역 `[DEPLOY-DELETE]` 표준 태그 도입으로 배포 전 정화 작업 가이드라인 확립.
+
+### 🧩 차기 핵심 거시적 정비 과제 (Macro Refactoring)
+
+- [ ] **[Step 4: 빌더 로직 순도 향상]**: 빌더 로직(`hero.ts`, `nemo.ts` 등)이 전역 상태를 직접 참조하지 않도록 의존성 주입(Dependency Injection) 정규화.
+- [ ] **[Phase 4 Revision]**: 로직 정규화 완료 후 본 게임인 '네모 모핑 고도화' 진격 준비.
 
 브랜드 로고(Portal)와 와이프 오버레이 간의 레이어 서열 충돌을 해결하고, 리사이즈 시 배경색이 유실되는 고질적인 시각적 불안정성을 '진행도 가드'와 '로직 중앙화'를 통해 완전히 정복했습니다.
 
@@ -18,10 +40,6 @@
   - 배경색(`--bg`) 및 헤더색(`--header-fg`) 제어권을 `hero.ts`에서 `scroll.ts`로 수직 통합하여 데이터 흐름 단일화.
   - [ts-environment-logic-refactoring](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/ts-environment-logic-refactoring_2026-04-16.md) 논리 정비 리포트 작성.
 
-### 🧩 차기 핵심 거시적 정비 과제 (Macro Refactoring)
-
-- [ ] **[Progress-Aware Init Expansion]**: 로고(`initLogoState`) 및 네모(`initNemoState`) 초기화 로직에 리사이즈 가드 확대 적용.
-- [ ] **[Magic Number Cleanup]**: 코드 내 하드코딩된 레이어 수치(`11000`, `10001` 등)를 `INTERACTION_Z_INDEX` 상수로 100% 대체.
 
 ## [최신] ✅ 2026-04-15: V11.7 엔진 영속성(Persistence) 확보 및 아키텍처 정화 성료
 

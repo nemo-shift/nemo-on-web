@@ -196,7 +196,7 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
       style={{
         width: containerSize,
         height: containerSize,
-        zIndex: INTERACTION_Z_INDEX.MENU_TOGGLE,
+        zIndex: INTERACTION_Z_INDEX.Z_MENU_TRIGGER,
       }}
     >
       <svg

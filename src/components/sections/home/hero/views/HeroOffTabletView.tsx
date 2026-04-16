@@ -6,6 +6,7 @@ import { useGSAP } from '@gsap/react';
 import HeroSloganOff from '../HeroSloganOff';
 import HeroToggle from '../HeroToggle';
 import HeroOffCta from '../HeroOffCta';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroOffTabletViewProps = {
   isOn: boolean;
@@ -63,7 +64,7 @@ export default function HeroOffTabletView({
           transform: 'translate(-50%, -50%)',
           width: '100%',
           padding: '0 40px',
-          zIndex: 100
+          zIndex: INTERACTION_Z_INDEX.Z_CONTENT
         }}
         onMouseEnter={() => setIsToggleHovered(true)}
         onMouseLeave={() => setIsToggleHovered(false)}
@@ -71,8 +72,8 @@ export default function HeroOffTabletView({
         <HeroSloganOff />
         
         <div 
-          className="relative z-50"
-          style={{ marginTop: '-1vh' }}
+          className="relative"
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-1vh' }}
         >
           <HeroToggle
             isOn={isOn}

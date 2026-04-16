@@ -3,6 +3,7 @@
 import React from 'react';
 import HeroOffPCView from './HeroOffPCView';
 import HeroOnPCView from './HeroOnPCView';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroViewProps = {
   isOn: boolean;
@@ -73,7 +74,7 @@ export default function HeroPCView({
           style={{
             order: 3, 
             position: 'relative',
-            zIndex: 20,
+            zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,

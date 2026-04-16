@@ -3,6 +3,7 @@
 import React from 'react';
 import HeroOffTabletView from './HeroOffTabletView';
 import HeroOnTabletView from './HeroOnTabletView';
+import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 type HeroViewProps = {
   isOn: boolean;
@@ -71,7 +72,7 @@ export default function HeroTabletView({
           style={{
             order: 3, 
             position: 'relative',
-            zIndex: 20,
+            zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,

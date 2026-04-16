@@ -329,7 +329,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     <div
       ref={containerRef}
       className="side-menu-container fixed inset-0 pointer-events-none"
-      style={{ zIndex: INTERACTION_Z_INDEX.MENU, visibility: 'hidden' }}
+      style={{ zIndex: INTERACTION_Z_INDEX.Z_MENU_DRAWER, visibility: 'hidden' }}
     >
       {/* ── 딤 오버레이 (PC/태블릿만 — 모바일에서는 숨김) ── */}
       <div
