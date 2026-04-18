@@ -64,7 +64,16 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   curr += t;
   offsets[STAGES.MSG_TO_FW] = curr;
 
-  curr += t;
+  // [NEW] 코어 퍼널 브릿지 시퀀스
+  const funnelWeight = isTouch ? w.CORE_FUNNEL_STILL_TOUCH : w.CORE_FUNNEL_STILL;
+  const expandWeight = isTouch ? w.CORE_FUNNEL_EXPAND_TOUCH : w.CORE_FUNNEL_EXPAND_WEIGHT;
+
+  curr += t; offsets[STAGES.CORE_FUNNEL_START] = curr;
+  curr += funnelWeight * 0.5; offsets[STAGES.CORE_FUNNEL_BUILD] = curr;
+  curr += funnelWeight * 0.3; offsets[STAGES.CORE_FUNNEL_SNAP] = curr;
+  curr += funnelWeight * 0.2; offsets[STAGES.CORE_FUNNEL_EXPAND] = curr;
+
+  curr += expandWeight; // [V18.Fix] 터치 전용 가중치 주입
   offsets[STAGES.TO_FORWHO] = curr;
 
   curr += w.FOR_WHO_STILL;

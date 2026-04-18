@@ -91,10 +91,10 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
     nemo: { borderRadius: 0, backgroundColor: COLORS.BRAND, border: 'none', opacity: 1 }
   },
 
-  // [5] 메시지 → 포후 (T → + 모핑 트리거 구간)
+  // [5] 메시지 → 포후 (코어 퍼널 브릿지 유지 구간)
   [STAGES.MSG_TO_FW]: {
     env: { bg: COLORS.BG.CREAM, fg: COLORS.TEXT.DARK },
-    logo: { nemoKr: false, shapes: false, status: false, rectangle: true, morph: '+', logoMode: 'plus' },
+    logo: { nemoKr: false, shapes: false, status: false, rectangle: true, morph: 'T', logoMode: 'rectangle' }, // [V18.Fix] 퍼널 통과 중에는 RECTANGLE 유지
     nemo: { borderRadius: 15, backgroundColor: COLORS.BRAND, border: 'none', opacity: 0.5 }
   },
 

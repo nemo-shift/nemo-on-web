@@ -10,6 +10,7 @@ export const LOGO_JOURNEY_SECTIONS = [
   { label: STAGES.PAIN_TO_MSG, stage: STAGES.PAIN_TO_MSG },
   { label: STAGES.TO_MESSAGE, stage: STAGES.TO_MESSAGE },
   { label: STAGES.MSG_TO_FW, stage: STAGES.MSG_TO_FW },
+  { label: STAGES.CORE_FUNNEL_EXPAND, stage: STAGES.TO_FORWHO }, // [V18.Fix] 팽창 시작 시점에 맞춰 + 모핑 시작
   { label: STAGES.TO_FORWHO, stage: STAGES.TO_FORWHO },
   { label: STAGES.FW_TO_STORY, stage: STAGES.FW_TO_STORY },
   { label: STAGES.TO_STORY, stage: STAGES.TO_STORY },

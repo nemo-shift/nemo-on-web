@@ -250,5 +250,6 @@ export function buildNemoTimeline(
   tl.to('#falling-keywords-canvas', { opacity: 0, duration: 0.8 * r }, L[STAGES.PAIN_TO_MSG]);
 
   // 다음 섹션(For Who) 이미지 준비
-  if (nemo.imageEl) tl.to(nemo.imageEl, { opacity: 1, duration: 0.5 }, L[STAGES.TO_FORWHO] + 0.2);
+  // [V11.58] 메시지 -> 포후 전이 브릿지: 버스 이미지 선제적 노출 로직 제거
+  // (이미지는 퍼널 단계의 결합/팽창 이후에 나타나도록 재설계됨)
 }

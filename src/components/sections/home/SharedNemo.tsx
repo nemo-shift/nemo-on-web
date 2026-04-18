@@ -59,6 +59,7 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
           // [v26.47] 구분선이 박스 밖으로 나가야 하므로 overflow 제거
           overflow: 'visible', 
           opacity: 0,
+          zIndex: 20, // 상수(Z_SHARED_NEMO)와 동기화
         }}
       >
         {/* 레이어 1: 이미지 콘텐츠 (구간 7) - 이미지만 클리핑 */}

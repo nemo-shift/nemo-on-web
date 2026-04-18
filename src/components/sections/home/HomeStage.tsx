@@ -5,7 +5,7 @@ import { useHeroContext, useDevice } from '@/context';
 import HeroSection from './hero/HeroSection';
 import { PainSection, PainSectionHandle } from './pain/PainSection';
 import { MessageSection, MessageSectionHandle } from './message/MessageSection';
-import { ForWhoSection } from './forwho/ForWhoSection';
+import { ForWhoSection, ForWhoSectionHandle } from './forwho/ForWhoSection';
 import { BrandStorySection } from './story/BrandStorySection';
 import { CTASection } from './cta/CTASection';
 import { Footer } from '@/components/layout';
@@ -24,6 +24,7 @@ export default function HomeStage(): React.ReactElement {
   // [V11.55] 각 섹션 내부 엘리먼트 제어를 위한 Ref 핸들
   const painRef = useRef<PainSectionHandle>(null);
   const messageRef = useRef<MessageSectionHandle>(null);
+  const forwhoRef = useRef<ForWhoSectionHandle>(null);
   const sectionsContentRef = useRef<HTMLDivElement>(null);
 
   // Note: 기존의 useLogoJourney 및 Framer Motion 스크롤 감시 로직은 
@@ -42,6 +43,7 @@ export default function HomeStage(): React.ReactElement {
         isTransitioning={isTransitioning} 
         painRef={painRef}
         messageRef={messageRef}
+        forwhoRef={forwhoRef}
         sectionsContentRef={sectionsContentRef}
       />
       
@@ -61,7 +63,7 @@ export default function HomeStage(): React.ReactElement {
           <div className={isOn ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none transition-all duration-700'}>
             <PainSection ref={painRef} interactionMode={interactionMode} />
             <MessageSection ref={messageRef} />
-            <ForWhoSection />
+            <ForWhoSection ref={forwhoRef} />
             <BrandStorySection />
             <CTASection />
             <Footer isHomeStage={true} />

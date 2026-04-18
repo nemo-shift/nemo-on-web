@@ -56,3 +56,15 @@ export const MESSAGE_COLORS = {
     INVERTED: '#0a1685ff'
   }
 };
+
+/**
+ * [V11.88] Core Funnel 데이터
+ */
+export const CORE_FUNNEL_TITLE = "네모:ON Driven Core Funnel";
+
+export const CORE_FUNNEL_DATA = [
+  { id: 1, label: '브랜딩', order: '01' },
+  { id: 2, label: '디자인시스템', order: '02' },
+  { id: 3, label: '로고·웹/앱', order: '03' },
+  { id: 4, label: '자동화', order: '04' }
+];

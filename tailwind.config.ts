@@ -8,11 +8,10 @@ const config: Config = {
   ],
   theme: {
     screens: {
-      'tablet-p': '744px',      // Level 2: 태블릿 세로 (사이드메뉴 3/4 덮기 개시)
-      'tablet': '992px',        // Level 3-A: 태블릿 가로 / 데스크탑 진입
-      'desktop': '1280px',       // Level 3-B: 표준 PC
-      'desktop-wide': '1440px',  // Level 3-C: 와이드 데스크탑
-      'desktop-cap': '1920px',   // Level 3-D: 맥스 리미트
+      'tablet-p': '744px',      // Level 2: 태블릿 세로 (Full-frame 유지)
+      'tablet': '992px',        // Level 3: 태블릿 가로 / 데스크탑 진입 (Peeking 시작)
+      'desktop-wide': '1440px',  // Level 4: 와이드 데스크탑 (에디토리얼 그리드 최적화)
+      'desktop-cap': '1920px',   // Level 5: 맥스 리미트 (콘텐츠 폭 제한)
     },
     extend: {
       colors: {

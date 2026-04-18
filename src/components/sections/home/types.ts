@@ -1,5 +1,6 @@
 import { PainSectionHandle } from './pain/PainSection';
 import { MessageSectionHandle } from './message/MessageSection';
+import { ForWhoSectionHandle } from './forwho/ForWhoSection';
 
 /**
  * 모든 전역 상수를 관제탑으로부터 주입받기 위한 레지스트리 규격 [V11.20 정규화]
@@ -46,5 +47,6 @@ export interface GlobalInteractionStageProps {
   isTransitioning: boolean;
   painRef: React.RefObject<PainSectionHandle | null>;
   messageRef: React.RefObject<MessageSectionHandle | null>;
+  forwhoRef: React.RefObject<ForWhoSectionHandle | null>;
   sectionsContentRef: React.RefObject<HTMLDivElement | null>;
 }

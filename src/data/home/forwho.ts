@@ -11,7 +11,7 @@ export interface ForWhoItem {
   };
 }
 
-export const FOR_WHO_TOP_SENTENCE = '이런 전환의 순간에 함께합니다.';
+export const FOR_WHO_TOP_SENTENCE = '새로운 가능성을 가장 선명한 브랜드로 일구는 당신에게';
 
 export const FOR_WHO_LIST: ForWhoItem[] = [
   {
@@ -33,7 +33,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '기존 브랜드를 디지털 환경에 맞게 전환하고 싶은 대표님',
     philosophy: '기존 가치를 디지털에서 재발견하는 파트너',
     image: {
-      src: '/images/home/forwho/target2.png',
+      src: '/images/home/forwho/target2.jpg',
       alt: '성장모색 대표님 이미지',
       objectPosition: 'left bottom',
     },
@@ -45,7 +45,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '리뉴얼과 자동화로, 더 잘 작동하는 브랜드를 만들고 싶은 대표님',
     philosophy: '브랜드를 확장 가능한 구조로 설계하는 파트너',
     image: {
-      src: '/images/home/forwho/target3.png',
+      src: '/images/home/forwho/target3.jpg',
       alt: '확장을 준비하는 대표님 이미지',
       objectPosition: 'right bottom',
     },
@@ -57,7 +57,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '자신만의 철학과 전문성을 온라인에서 차별화된 존재감으로 만들고 싶은 대표님',
     philosophy: '개인의 철학과 전문성을 세상에 알리는 조력자',
     image: {
-      src: '/images/home/forwho/target4.png',
+      src: '/images/home/forwho/target4.jpg',
       alt: '개인브랜드 전문가 이미지',
       objectPosition: 'center',
     },
@@ -69,7 +69,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '투자자와 고객 모두에게 설명과 확장이 가능한 브랜드 구조가 필요한 팀',
     philosophy: '빠르게 검증하고 단단하게 쌓아가는 빌더',
     image: {
-      src: '/images/home/forwho/target5.png',
+      src: '/images/home/forwho/target5.jpg',
       alt: '스타트업 이미지',
       objectPosition: 'left center',
     },

@@ -15,7 +15,8 @@ import {
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
 import { INTERACTION_REGISTRY } from './interaction-registry';
-import { buildHeroSwapSequence, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline } from './builders';
+import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline } from './builders';
+import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
 import { DEBUG_CONFIG } from '@/constants/debug';
 import InteractionDebugger from './InteractionDebugger';
 
@@ -31,6 +32,7 @@ export const GlobalInteractionStage = ({
   isTransitioning,
   painRef,
   messageRef,
+  forwhoRef,
   sectionsContentRef,
 }: GlobalInteractionStageProps) => {
   const { isScrollable, footerHeight, setIsTimelineReady } = useHeroContext();
@@ -131,14 +133,6 @@ export const GlobalInteractionStage = ({
           const finalY = totalHeight - window.innerHeight;
 
           localTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: '#home-stage',
-              start: 'top top',
-              end: () => `+=${finalY}`,
-              scrub: TIMING_CFG.SCRUB,
-              pin: true,
-              pinSpacing: true, 
-            },
             defaults: { ease: 'none' },
             onUpdate: function() {
               const currentProgress = this.progress();
@@ -177,7 +171,7 @@ export const GlobalInteractionStage = ({
 
           initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
 
-          // [V11.Macro_Final] 정규화된 빌더들의 통합 순차 호출 (지휘소의 명확한 구조 확보)
+          // [V11.Macro_Final] 정규화된 빌더들의 통합 순차 호출
           buildWarmupTimeline(tl, logo, nemo, builderOptions, L);
           buildLogoTimeline(tl, logo, builderOptions, L);
           buildNemoTimeline(tl, nemo, builderOptions, falling, painRef, L, isRestoringRef);
@@ -186,19 +180,46 @@ export const GlobalInteractionStage = ({
             standardGroups: messageRef.current?.getStandardGroups() || [], 
             invertedGroups: messageRef.current?.getInvertedGroups() || [] 
           }, builderOptions);
+          
+          // [V18.Phase3] 퍼널 스냅 지점 데이터 수집
+          const funnelSnapTimes = buildCoreFunnelTimeline(tl, nemo, L, builderOptions);
+          
+          buildForWhoTimeline(tl, L, forwhoRef.current, nemoHandle.current, builderOptions);
           buildHeroSwapSequence(tl, nemo, L, builderOptions);
 
+          // ─────────────────────────────────────────────
+          // [V18.Phase3] Localized Snap Engine Logic
+          // ─────────────────────────────────────────────
+          const totalDuration = tl.duration();
+          const funnelSnapPoints = funnelSnapTimes.map(time => time / totalDuration);
+          
+          const funnelStart = L[STAGES.CORE_FUNNEL_START] / totalWeight;
+          const funnelEnd = L[STAGES.CORE_FUNNEL_SNAP] / totalWeight;
+
+          // 단일 마스터 스크롤트리거 생성 및 스냅 주입
           localTrigger = ScrollTrigger.create({
-            trigger: '#section-pain', 
-            start: 'top bottom',      
-            end: 'bottom+=400% top',
-            onEnter: () => fallingRef.current?.resumeSimulation(),
-            onLeave: () => fallingRef.current?.pauseSimulation(),
-            onEnterBack: () => fallingRef.current?.resumeSimulation(),
-            onLeaveBack: () => {
-              fallingRef.current?.pauseSimulation();
-              fallingRef.current?.reset();
-            },
+            animation: tl,
+            trigger: '#home-stage',
+            start: 'top top',
+            end: () => `+=${finalY}`,
+            scrub: TIMING_CFG.SCRUB,
+            pin: true,
+            pinSpacing: true, 
+            snap: {
+              snapTo: (progress) => {
+                // 퍼널 구간 내부에 있을 때만 스냅 활성화
+                if (progress >= funnelStart && progress <= funnelEnd) {
+                  const closest = funnelSnapPoints.reduce((prev, curr) => 
+                    Math.abs(curr - progress) < Math.abs(prev - progress) ? curr : prev
+                  );
+                  return closest;
+                }
+                return progress; // 그 외 구간은 자유 스크롤
+              },
+              duration: interactionMode === 'touch' ? { min: 0.2, max: 0.8 } : { min: 0.1, max: 0.4 },
+              delay: interactionMode === 'touch' ? 0.15 : 0.05,
+              ease: 'power2.out'
+            }
           });
           keywordsTrigger.current = localTrigger;
 
@@ -289,11 +310,89 @@ export const GlobalInteractionStage = ({
       className="global-interaction-stage fixed inset-0 pointer-events-none overflow-hidden" 
       style={{ 
         zIndex: INTERACTION_Z_INDEX.Z_STAGE_WRAPPER,
-        backgroundColor: 'var(--bg)', // 전역 변수(--bg)를 따름
+        backgroundColor: 'transparent', 
       } as React.CSSProperties}
     >
-      <div style={{ zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO }}>
-        <SharedNemo ref={nemoHandle} />
+      {/* 0. Background Typo Layer (네모 뒤, 키워드 위) */}
+      <div 
+        id="core-funnel-background-typo"
+        className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-0"
+        style={{ 
+          zIndex: INTERACTION_Z_INDEX.Z_BACKGROUND_TYPO,
+          willChange: 'opacity, transform' 
+        }}
+      >
+        <div className="flex flex-col items-start justify-center px-[5vw] w-full">
+          <h2 className={`font-dm font-black ${isMobile ? 'text-[19vw]' : 'text-[18vw]'} leading-[0.8] text-[#EDEDED] tracking-tighter whitespace-nowrap uppercase`}>
+            Driven
+          </h2>
+          <h2 className={`font-dm font-black ${isMobile ? 'text-[19vw]' : 'text-[18vw]'} leading-[0.8] text-[#EDEDED] tracking-tighter whitespace-nowrap uppercase`}>
+            Core
+          </h2>
+          <h2 className={`font-dm font-black ${isMobile ? 'text-[19vw]' : 'text-[18vw]'} leading-[0.8] text-[#EDEDED] tracking-tighter whitespace-nowrap uppercase`}>
+            Funnel
+          </h2>
+        </div>
+      </div>
+
+      <SharedNemo ref={nemoHandle} />
+
+      {/* 4. [NEW] 코어 퍼널 그리드 빌드 레이어 (v18.Phase3) */}
+      <div 
+        id="core-funnel-grid-container" 
+        className="fixed inset-0 pointer-events-none" 
+        style={{ zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO + 1 }}
+      >
+        {/* 보조 네모 박스 (2, 3, 4번 슬롯용) */}
+        {[2, 3, 4].map(idx => (
+          <div 
+            key={idx}
+            id={`sub-nemo-${idx}`}
+            className="absolute bg-brand opacity-0"
+            style={{ pointerEvents: 'none', borderRadius: 0 }}
+          />
+        ))}
+
+        {/* 커넥터 화살표 (>) */}
+        {[1, 2, 3].map(idx => (
+          <div 
+            key={idx}
+            id={`funnel-arrow-${idx}`}
+            className="absolute opacity-0 flex items-center justify-center text-[#BBBBBB] pointer-events-none"
+          >
+            <svg 
+              width={isMobile ? '6vw' : (isTabletPortrait ? '4vw' : '2.5vw')} 
+              height={isMobile ? '6vw' : (isTabletPortrait ? '4vw' : '2.5vw')} 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="overflow-visible"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        ))}
+
+        {/* 프로세스 과정 텍스트 (브랜딩, 디자인 시스템, 로고, 자동화) */}
+        {['브랜딩', '디자인 시스템', '로고 · 웹/앱', '자동화'].map((label, idx) => (
+          <div 
+            key={idx}
+            id={`funnel-label-${idx + 1}`}
+            className="absolute opacity-0 font-suit font-bold text-white text-center flex items-center justify-center select-none"
+            style={{ 
+              pointerEvents: 'none',
+              fontSize: isMobile ? '3.5vw' : (isTabletPortrait ? '2.5vw' : '1.1vw'),
+              textAlign: 'center',
+              wordBreak: 'keep-all',
+              padding: '0 1vw'
+            }}
+          >
+            {label}
+          </div>
+        ))}
       </div>
 
       {/* 2. Journey Logo (Brand Layer: Portal로 최상위 독립) */}

@@ -7,7 +7,7 @@
 ## 🔒 절대 건드리면 안 되는 14가지 성역 (Sacred Gems)
 
 1.  **#home-stage ScrollTrigger 설정**: 
-    - `trigger`, `pin: true`, `pinSpacing: false` 설정은 전체 스크롤 동기화의 근간입니다. 절대 변경하지 않습니다.
+    - `trigger`, `pin: true`, `pinSpacing: true` 설정은 전체 스크롤 동기화의 근간입니다. 절대 변경하지 않습니다. (v5.3 이후 자동 스페이서 방식 채택)
 2.  **masterTl 생성 방식 (V11.7 Async Guard)**:
     - 반드시 `requestAnimationFrame` 내부에서 생성하되, 모든 비동기 로직은 **`ctx.add()`**로 감싸 GSAP 관리 영역에 강제 귀속시켜야 합니다.
 3.  **Double-Lock ScrollTrigger.refresh() 구조**:

@@ -8,11 +8,11 @@ export const CTASection = () => {
       className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
       style={{ backgroundColor: 'var(--bg, #0D1A1F)' }}
     >
-      {/* [임시] 섹션 시작 가이드라인 */}
+      {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
       <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
-        {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: CTA Section</span>
       </div>
+      
       <div 
         /* [V11.33] 전역 표준 5축 패딩 적용 */
         className="container mx-auto px-6 tablet-p:px-8 tablet:px-10 desktop-wide:px-12 desktop-cap:px-16 flex flex-col items-center"

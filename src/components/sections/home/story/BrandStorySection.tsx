@@ -7,9 +7,8 @@ export const BrandStorySection = () => {
       className="relative w-full min-h-screen py-64 flex flex-col items-center justify-center"
       style={{ backgroundColor: 'var(--bg, #faf7f2)' }}
     >
-      {/* [임시] 섹션 시작 가이드라인 */}
+      {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
       <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
-        {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: BrandStory Section</span>
       </div>
       <div 

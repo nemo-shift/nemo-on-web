@@ -12,30 +12,37 @@
 // 1. Z-index 레이어 계층 (V17 Standard Tiering)
 // ─────────────────────────────────────────────
 export const INTERACTION_Z_INDEX = {
-  // [계층 6] 마우스 커서 (Celestial Layer - Body Portal)
+   // [페이지 레벨] ─────────────────────────────
+
+  // 커서
   Z_CURSOR_POINT: 99999,
   Z_CURSOR_RING: 99998,
 
-  // [계층 5] 시스템 및 메뉴 (System Layer)
+  // 시스템 및 메뉴 (System Layer)
   Z_SYSTEM_WIPE: 1100,
   Z_MENU_TRIGGER: 1050, 
   Z_MENU_DRAWER: 1000, 
 
-  // [계층 4] 브랜드 무대 (Brand Stage)
+  // 브랜드 무대 (Brand Stage)
   Z_JOURNEY_LOGO: 850, // Body Portal
   Z_HEADER: 800,
 
-  // [계층 3] 가이드 및 UI (Guide Layer)
+  // 가이드 및 UI (Guide Layer)
   Z_UI_GUIDE: 500, // BottomBar, Scroll Hint 등
 
-  // [계층 2] 콘텐츠 및 인터랙션 (Content Layer)
-  Z_CONTENT: 100,      // 메인 섹션 덮개
+  // 콘텐츠 및 인터랙션 (Content Layer)
+  Z_CONTENT: 100,      // 섹션 본문 / CTA 덮개
   Z_STAGE_WRAPPER: 50,  // GlobalInteractionStage 부모 (네모가 본문 뒤, 배경 위에 위치)
-  Z_SHARED_NEMO: 1,    // Stage 내부 상대 서열
-  Z_KEYWORDS: 0,       // Stage 내부 상대 서열
   Z_FOOTER_UNDER: 10,  // Reveal Footer (Underneath content)
 
-  // [계층 1] 배경 (Base Layer)
+  // [GlobalInteractionStage 내부] ──────────────
+  // 아래 값들은 Z_STAGE_WRAPPER stacking context 안에서만 적용됨
+
+  Z_SHARED_NEMO:20,  // GlobalInteractionStage 내부 상대 서열 (빅타이포보다 위)
+  Z_BACKGROUND_TYPO: 10,  // GlobalInteractionStage 내부 배치될 빅타이포 전용 레이어 (콘텐츠, 네모 뒤 위치)
+  Z_KEYWORDS: 5,       // GlobalInteractionStage 내부 상대 서열
+
+  // 배경 (Base Layer)
   Z_BASE_BG: 0,
   Z_BEHIND_BG: -1,
 } as const;
@@ -78,6 +85,13 @@ export const STAGES = {
   TO_MESSAGE: 'to_msg',
   MSG_CONTENT: 'msg_content',
   MSG_TO_FW: 'msg_to_fw',
+  
+  // [NEW] 코어 퍼널 (Bridge Phase)
+  CORE_FUNNEL_START: 'cf_start',
+  CORE_FUNNEL_BUILD: 'cf_build',
+  CORE_FUNNEL_SNAP: 'cf_snap',
+  CORE_FUNNEL_EXPAND: 'cf_expand',
+
   TO_FORWHO: 'to_fw',
   FW_CONTENT: 'fw_content',
   FW_TO_STORY: 'fw_to_story',
@@ -133,7 +147,11 @@ export const TIMING_CFG = {
     RESONANCE_STILL_TOUCH: 2.0, // 터치 기기 전용 (호흡 단축)
     MESSAGE_STILL: 12.0,   
     MESSAGE_STILL_PC: 30.0, // 고사양 PC에서의 감상 호흡 상향
-    FOR_WHO_STILL: 4.0,   
+    CORE_FUNNEL_STILL: 20.0,
+    CORE_FUNNEL_STILL_TOUCH: 4.0, // [V18.Fix] 터치용 호흡
+    CORE_FUNNEL_EXPAND_WEIGHT: 8.0, 
+    CORE_FUNNEL_EXPAND_TOUCH: 2.0, // [V18.Fix] 터치용 팽창 호흡
+    FOR_WHO_STILL: 15.0,    // [V11.85 Tuning] 캐러셀 탐색 시간 대폭 확장
     STORY_STILL: 3.0,     
     CTA_STILL: 2.0,       
   },
@@ -229,11 +247,40 @@ export const NEMO_RESPONSIVE_LAYOUT = {
     MOBILE:   { w: '18vw', h: '28vh', left: '50%', top: '62%' }
   },
 
-  // 6. 포후 섹션 (Wide Image Frame)
+  // 5.5. [NEW] 코어 퍼널 그리드 상태 (V18.Phase3: PC 1x4, Mobile/Tablet 2x2)
+  CORE_FUNNEL_SLOTS: {
+    PC: [
+      { w: '12vw', h: '12vw', left: '20%', top: '50%' },
+      { w: '12vw', h: '12vw', left: '40%', top: '50%' },
+      { w: '12vw', h: '12vw', left: '60%', top: '50%' },
+      { w: '12vw', h: '12vw', left: '80%', top: '50%' }
+    ],
+    TABLET_P: [
+      { w: '18vw', h: '18vw', left: '15%', top: '70%' },
+      { w: '18vw', h: '18vw', left: '38%', top: '70%' },
+      { w: '18vw', h: '18vw', left: '62%', top: '70%' },
+      { w: '18vw', h: '18vw', left: '85%', top: '70%' }
+    ],
+    MOBILE: [
+      { w: '20vw', h: '20vw', left: '15%', top: '63%' },
+      { w: '20vw', h: '20vw', left: '38%', top: '63%' },
+      { w: '20vw', h: '20vw', left: '62%', top: '63%' },
+      { w: '20vw', h: '20vw', left: '85%', top: '63%' }
+    ]
+  },
+
+  // 6. 포후 섹션 (Arrival: 60vh 가로 풀블리드 진입)
   FORWHO: {
-    PC:       { w: '72vw', h: '52vh', left: '50%', top: '50%' },
-    TABLET_P: { w: '88vw', h: '45vh', left: '50%', top: '50%' },
-    MOBILE:   { w: '92vw', h: '40vh', left: '50%', top: '50%' }
+    PC:       { w: '100vw', h: '60vh', left: '50%', top: '50%', borderRadius: 0, bgPos: 'center' },
+    TABLET_P: { w: '100vw', h: '60vh', left: '50%', top: '50%', borderRadius: 0, bgPos: '23% center' },
+    MOBILE:   { w: '100vw', h: '60vh', left: '50%', top: '50%', borderRadius: 0, bgPos: '8% center' }
+  },
+
+  // 6.5. 포후 캐러셀 프레임 (Internal Step C: 모핑 후 규격 - 직각 디자인)
+  FORWHO_FRAME: {
+    PC:       { w: '72vw', h: '52vh', left: '50%', top: '50%', borderRadius: 0 },
+    TABLET_P: { w: '88vw', h: '45vh', left: '50%', top: '50%', borderRadius: 0 },
+    MOBILE:   { w: '92vw', h: '40vh', left: '50%', top: '50%', borderRadius: 0 }
   },
 
   // 7. 브랜드 스토리 (Stable Nemo:ON State)
