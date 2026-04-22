@@ -19,7 +19,7 @@ export function buildNemoTimeline(
 ) {
   const { constants, data } = options.registry;
   const { 
-    COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE, NEMO_RESPONSIVE_LAYOUT 
+    COLORS, STAGES, TIMING_CFG, EASE, ANIMS_CFG, NEMO_SIZE, NEMO_RESPONSIVE_LAYOUT
   } = constants;
   const { 
     JOURNEY_MASTER_CONFIG, PAIN_POINTS, RESONANCE_MESSAGE, NEMO_JOURNEY_SECTIONS 
@@ -39,19 +39,44 @@ export function buildNemoTimeline(
   const sections = NEMO_JOURNEY_SECTIONS;
 
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
+
   sections.forEach(({ label, stage, ease }: { label: string, stage: string, ease?: any }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];
     if (!raw) return;
     
     let cfg = raw.nemo;
     
+    // [V43] 동적 베이스라인 및 경로 오프셋 주입
+    const initial = options.initialNemoPos;
+    const heroLayout = NEMO_RESPONSIVE_LAYOUT.HERO[mode];
+    
     // [V11.55 Priority Sync] 전 섹션 기기별 레이아웃 상수 우선 참조 로직 (정규화 완성)
     if (label === STAGES.HERO) {
-      const layout = NEMO_RESPONSIVE_LAYOUT.HERO[mode];
-      cfg = { ...cfg, width: layout.w, height: layout.h, left: layout.left, top: layout.top };
+      cfg = { 
+        ...cfg, 
+        width: initial?.width ?? heroLayout.w, 
+        height: initial?.height ?? heroLayout.h, 
+        left: initial?.left ?? heroLayout.left, 
+        top: initial?.top ?? heroLayout.top 
+      };
     } else if (label === STAGES.START_TO_PAIN) {
       const layout = NEMO_RESPONSIVE_LAYOUT.START_TO_PAIN[mode];
-      cfg = { ...cfg, width: layout.w, height: layout.h, left: layout.left, top: layout.top };
+      
+      // [V43.PathFix] 히어로 박스가 50%가 아닌 다른 곳에 있다면, 다음 지점도 그만큼 시프트하여 경로의 일관성을 유지합니다.
+      let adjustedTop = layout.top;
+      if (initial && typeof heroLayout.top === 'string' && heroLayout.top.endsWith('%')) {
+        const vh = window.innerHeight;
+        const heroConstantPx = (parseFloat(heroLayout.top) * vh) / 100;
+        const offsetPx = initial.top - heroConstantPx;
+        
+        // 다음 목적지(layout.top)가 %일 경우 픽셀로 변환하여 오프셋 적용 후 다시 %화
+        if (typeof layout.top === 'string' && layout.top.endsWith('%')) {
+          const nextConstantPx = (parseFloat(layout.top) * vh) / 100;
+          adjustedTop = `${((nextConstantPx + offsetPx) / vh) * 100}%`;
+        }
+      }
+
+      cfg = { ...cfg, width: layout.w, height: layout.h, left: layout.left, top: adjustedTop };
     } else if (label === STAGES.TO_PAIN) {
       const layout = NEMO_RESPONSIVE_LAYOUT.PAIN_POINTS[mode];
       cfg = { ...cfg, width: layout.w, height: layout.h, left: layout.left, top: layout.top };

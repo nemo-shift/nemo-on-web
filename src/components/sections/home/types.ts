@@ -32,6 +32,13 @@ export interface GlobalBuilderOptions {
   isOn: boolean;
   interactionMode: 'mouse' | 'touch';
   registry: InteractionRegistry; // [V11.20] 빌더 전용 보급로
+  // [V43] 리사이즈 복구 시나리오를 위한 실측 영점 좌표
+  initialNemoPos?: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
 }
 
 /**

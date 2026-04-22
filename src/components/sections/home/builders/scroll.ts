@@ -45,7 +45,15 @@ export function buildSectionScrollTimeline(
   // 3. 섹션별 물리적 스크롤 이동 (VHS 기반)
   tl.to(target, { y: `-${H.HERO}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.START_TO_PAIN]);
   tl.to(target, { y: `-${H.HERO + H.PAIN}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_MESSAGE]);
-  tl.to(target, { y: `-${H.HERO + H.PAIN + H.MESSAGE}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_FORWHO]);
+
+  // [V18.Audit] 퍼널 조립 중에는 배경 고정, 팽창 시점에 맞춰 포후 섹션으로 전이
+  const expandDuration = L[STAGES.TO_FORWHO] - L[STAGES.CORE_FUNNEL_EXPAND];
+  tl.to(target, { 
+    y: `-${H.HERO + H.PAIN + H.MESSAGE}vh`, 
+    duration: expandDuration, 
+    ease: EASE.TRANSITION 
+  }, L[STAGES.CORE_FUNNEL_EXPAND]);
+
   tl.to(target, { y: `-${H.HERO + H.PAIN + H.MESSAGE + H.FORWHO}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_STORY]);
   tl.to(target, { y: `-${H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_CTA]);
   tl.to(target, { y: -finalY, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_FOOTER]);

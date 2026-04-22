@@ -36,6 +36,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
       <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: ForWho Section</span>
       </div>
+      
       <div 
         className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}

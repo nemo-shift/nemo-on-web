@@ -1,4 +1,11 @@
-## [최신] 🚀 2026-04-16: V11 Macro Final Refine - Interaction Engine Polished
+## [최신] 🚀 2026-04-18: V18 Core Funnel Master Architecture
+
+- **Multi-Slot Build Engine**: 1개 SharedNemo가 4개 프로세스로 분화되는 동적 슬롯 시스템 안착.
+- **Smart Rotation Engine**: 상위-하위 슬롯 간의 상대 좌표를 계산하여 화살표 각도를 지능적으로 제어.
+- **Magnetic Physics (Merge & Expand)**: 핀(Pin) 구조를 활용하여 각 기기별 맞춤 해상도에서 합체와 팽창이 오차 없이 작동하도록 보장.
+- **Responsive Weight Branching**: 마우스(`20.0`)와 터치(`4.0`) 환경의 스크롤 가중치를 이원화하여 디바이스별 최적의 읽기 호흡 구현.
+
+## 🚀 2026-04-16: V11 Macro Final Refine - Interaction Engine Polished
 
 - **Environment Logic Consolidation**:
   - `hero.ts`에 분산되어 있던 배경색/헤더색 제어권을 `scroll.ts`로 100% 통합.

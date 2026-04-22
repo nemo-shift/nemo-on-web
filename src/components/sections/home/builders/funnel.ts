@@ -32,9 +32,12 @@ export function buildCoreFunnelTimeline(
 
   const el = nemo.nemoEl;
 
-  // 기기별 모드 판별 (v18.Fix: 구체적인 범위부터 체크)
-  const mode = options.isTabletPortrait ? 'TABLET_P' :
-               options.isMobile ? 'MOBILE' : 'PC';
+  // [Architecture] 레이아웃 모드 결정 원칙 (v18.Fix)
+  // - options.isMobileView: 화면 너비 기반 (폰 전용 슬롯 수치 선택용)
+  // - options.isMobile: 터치 기기 여부 기반 (스크롤 가중치 등 엔진 제어용)
+  // 여기서는 슬롯의 '위치'와 '크기'를 결정하므로 너비 기반 변수를 사용합니다.
+  const mode = options.isMobileView ? 'MOBILE' : 
+               options.isTabletPortrait ? 'TABLET_P' : 'PC';
 
   // ── Phase 2: 네모의 1번 자리 하이재킹 및 배경 리빌 ──
   const funnelStart = L[STAGES.CORE_FUNNEL_START];

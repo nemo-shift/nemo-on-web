@@ -22,16 +22,20 @@ export function buildForWhoTimeline(
   const { NEMO_RESPONSIVE_LAYOUT, EASE, TIMING_CFG } = constants;
   const FORWHO_FRAME = NEMO_RESPONSIVE_LAYOUT.FORWHO_FRAME;
   const { JOURNEY_MASTER_CONFIG } = data;
-  
-  const mode = options.isMobileView ? 'MOBILE' : 
-               options.isTabletPortrait ? 'TABLET_P' : 'PC';
-               
-  const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
-  
+
   // 1. 레이블 기반 구간 설정
   const start = L[STAGES.TO_FORWHO];        // 도착 (Full-bleed 상태)
   const content = L[STAGES.FW_CONTENT];      // 내부 전이 구간 시작
   const end = L[STAGES.FW_TO_STORY];         // 다음 섹션 이동 전
+  
+  // [Architecture] 레이아웃 모드 결정 원칙
+  // - options.isMobileView: 화면 너비 기반 (폰 전용 레이아웃 수치 선택용)
+  // - options.isMobile: 터치 기기 여부 기반 (스크롤 감도/무게 조절용)
+  // 여기서는 프레임의 '크기'를 결정하므로 너비 기반(View) 변수를 사용합니다.
+  const mode = options.isMobileView ? 'MOBILE' : 
+               options.isTabletPortrait ? 'TABLET_P' : 'PC';
+               
+  const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
   
   const duration = (end - start);
   const introEnd = start + (duration * 0.4); // 40% 지점까지 인트로(Step B)

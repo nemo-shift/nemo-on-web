@@ -89,7 +89,8 @@ export const GlobalInteractionStage = ({
   // [V11.13 Fix] 타임라인 빌드 전, 렌더링 단계에서 전역 스타일을 즉시 동기 주입하여 
   // 포탈 내 로고가 찰나의 순간에도 '--header-fg' 변수를 잃지 않도록 보장합니다.
   if (mounted) {
-    initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
+    const isRestoring = (currProgressRef.current || 0) > 0.001;
+    initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoring);
   }
 
   useGSAP(() => {
@@ -104,22 +105,17 @@ export const GlobalInteractionStage = ({
       if (!isScrollable || !mounted) return;
       if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
       
-      initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
-      
-      if (!masterTl.current) {
-        initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile: isMobileView, progress: currProgressRef.current });
-      }
-      initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, progress: currProgressRef.current });
-      
-      if (isScrollable) {
-        if (!isRestoringRef.current) {
-          initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile, isTabletPortrait, progress: currProgressRef.current });
-          initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, isTabletPortrait, progress: currProgressRef.current });
-        }
+      rafId.current = requestAnimationFrame(() => ctx.add(() => {
+          // [V43] 측정 전 레이아웃을 강제로 리프레시하여 요동치는 좌표(-795px 등)를 고정시킵니다.
+          ScrollTrigger.refresh();
 
-        rafId.current = requestAnimationFrame(() => ctx.add(() => {
-          // [V11.9 Fix] 타임라인 빌드 직전 전역 스타일(색상 변수) 선점 주입
-          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
+          // [V43] 리사이즈 복구 여부를 전역 플래그(isRestoringRef)로부터 확실히 전달받습니다.
+          const isRestoringNow = isRestoringRef.current;
+          
+          // [V42] 레이아웃이 확정된 RAF 시점에서 단 한 번, 정밀하게 초기 상태를 측정하고 주입합니다.
+          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoringNow);
+          initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile, isTabletPortrait, progress: currProgressRef.current });
+          const measuredPos = initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, isTabletPortrait, progress: currProgressRef.current, isRestoring: isRestoringNow });
 
           const { offsets: L, totalWeight } = calculateLabels(INTERACTION_REGISTRY, interactionMode);
           const { 
@@ -129,7 +125,10 @@ export const GlobalInteractionStage = ({
           } = INTERACTION_REGISTRY.constants;
           
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
-          const totalHeight = vhToPx(H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA) + footerHeight;
+          
+          // [V18.Audit] 전체 섹션의 vh 합산 + 푸터 높이 - 현재 뷰포트 (총 가용 스크롤 범위)
+          const sectionHeights = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA;
+          const totalHeight = vhToPx(sectionHeights) + footerHeight;
           const finalY = totalHeight - window.innerHeight;
 
           localTl = gsap.timeline({
@@ -143,6 +142,7 @@ export const GlobalInteractionStage = ({
               if (currentScrollY > 0) {
                 rawScrollYRef.current = currentScrollY;
               }
+
 
               const startRange = L[STAGES.START_TO_PAIN] / totalWeight;
               const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
@@ -166,10 +166,11 @@ export const GlobalInteractionStage = ({
             isTabletPortrait, 
             isOn, 
             interactionMode,
-            registry: INTERACTION_REGISTRY
+            registry: INTERACTION_REGISTRY,
+            // [V43] 실측된 동적 영점 데이터를 빌더들에게 보급합니다.
+            initialNemoPos: measuredPos || undefined
           };
 
-          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current);
 
           // [V11.Macro_Final] 정규화된 빌더들의 통합 순차 호출
           buildWarmupTimeline(tl, logo, nemo, builderOptions, L);
@@ -196,7 +197,9 @@ export const GlobalInteractionStage = ({
           const funnelStart = L[STAGES.CORE_FUNNEL_START] / totalWeight;
           const funnelEnd = L[STAGES.CORE_FUNNEL_SNAP] / totalWeight;
 
-          // 단일 마스터 스크롤트리거 생성 및 스냅 주입
+          const targetProgress = currProgressRef.current;
+
+          // [V20.Fix] 스크롤트리거를 먼저 생성하여 브라우저와 동기화 시킵니다.
           localTrigger = ScrollTrigger.create({
             animation: tl,
             trigger: '#home-stage',
@@ -207,6 +210,9 @@ export const GlobalInteractionStage = ({
             pinSpacing: true, 
             snap: {
               snapTo: (progress) => {
+                // [V19.Stability] 복구 중이거나 타임라인이 아직 준비되지 않았을 때 스냅 방지
+                if (isRestoringRef.current) return progress;
+
                 // 퍼널 구간 내부에 있을 때만 스냅 활성화
                 if (progress >= funnelStart && progress <= funnelEnd) {
                   const closest = funnelSnapPoints.reduce((prev, curr) => 
@@ -214,7 +220,7 @@ export const GlobalInteractionStage = ({
                   );
                   return closest;
                 }
-                return progress; // 그 외 구간은 자유 스크롤
+                return progress; 
               },
               duration: interactionMode === 'touch' ? { min: 0.2, max: 0.8 } : { min: 0.1, max: 0.4 },
               delay: interactionMode === 'touch' ? 0.15 : 0.05,
@@ -223,44 +229,46 @@ export const GlobalInteractionStage = ({
           });
           keywordsTrigger.current = localTrigger;
 
-          const targetProgress = currProgressRef.current;
-          const targetScrollY = rawScrollYRef.current;
-
+          // [V23.Bulletproof] 물리적 높이 선점 (Height Pre-sync)
           ScrollTrigger.refresh();
 
-          if (targetScrollY > 0 || targetProgress > 0.001) {
+          // [V24.RefinedOrder] 리사이즈 대응 핵심 복구 로직 (사용자 제안 반영)
+          if (targetProgress > 0.001) {
+            tl.progress(targetProgress, false);
             isRestoringRef.current = true;
             
-            if (targetScrollY > 0) {
-              window.scrollTo(0, targetScrollY);
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ((window as any).lenis) (window as any).lenis.scrollTo(targetScrollY, { immediate: true });
-            } else {
-              tl.progress(targetProgress);
-            }
+            const targetY = finalY * targetProgress;
+            
+            // [V33.Minimalist] Lenis 중심의 단일화된 스크롤 복구
+            requestAnimationFrame(() => {
+              const lenis = (window as any).lenis;
+              if (lenis) {
+                lenis.scrollTo(targetY, { immediate: true });
+              } else {
+                window.scrollTo(0, targetY);
+              }
 
-            ScrollTrigger.refresh();
+
+              ScrollTrigger.refresh();
+              isRestoringRef.current = false;
+              console.log('[Interaction/V33] Restoration Success');
+            });
+          } else {
             isRestoringRef.current = false;
           }
 
           layoutTimerRef.current = setTimeout(() => {
+            // [V23.Bulletproof] 모든 레이아웃 렌더링 및 스크롤 복구가 끝난 후 최종 정밀 리프레시
             ScrollTrigger.refresh();
-            if (isRestoringRef.current) {
-              isRestoringRef.current = false;
-            }
             setIsTimelineReady(true);
-          }, 100);
+          }, 200);
         }));
-      }
     });
 
     return () => {
       setIsTimelineReady(false);
 
-      if (masterTl.current) {
-        const lastProgress = masterTl.current.progress();
-        if (lastProgress > 0) currProgressRef.current = lastProgress;
-      }
+      console.log('[Interaction/V33] Cleanup Context');
 
       if (rafId.current) cancelAnimationFrame(rafId.current);
       if (layoutTimerRef.current) { clearTimeout(layoutTimerRef.current); layoutTimerRef.current = null; }
@@ -274,6 +282,7 @@ export const GlobalInteractionStage = ({
         wrapper.style.transform = '';
       }
 
+      console.log('[Interaction/Debug] Cleanup - Triggering ctx.revert()');
       ctx.revert();
       gsap.set('#home-stage', { clearProps: 'transform,position' });
 

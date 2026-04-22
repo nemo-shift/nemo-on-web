@@ -2,7 +2,46 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-16: V11 Macro Final Refine - 인터랙션 엔진 정밀 고도화 및 정교화 성료
+## [최신] ✅ 2026-04-18: V18 Core Funnel Master Architecture - 4단계 빌드 및 시네마틱 팽창 시퀀스 구현 성료
+
+단순한 전이 구간이었던 메시지-포후 사이를 브랜드의 전문성을 시각적으로 증명하는 **'코어 퍼널(Core Funnel)'** 고도화 인터랙션으로 재탄생시켰습니다. GSAP 기반의 정밀한 물리 동기화와 기기별 반응형 레이아웃 엔진을 완벽히 안착시켰습니다.
+
+### 💎 주요 달성 성과 (V18 Core Funnel Master)
+
+- **4-Stage Funnel Build Engine**:
+  - 1개의 SharedNemo가 4개의 고유 프로세스(브랜딩, 디자인 시스템, 로고, 자동화)로 분사되며 시선을 유도하는 계단식 빌드 로직 완성.
+  - 슬롯 좌표에 따라 화살표 각도가 자동으로 계산되는 **지능형 회전 엔진** 도입.
+- **Magnetic Merge & High-Fidelity Expansion**:
+  - 결합(Merge) 시 박스들이 화면 중앙으로 튀지 않고 현재 높이를 유지하며 안착되는 물리 로직 구현.
+  - 팽창(Expand) 시 버스 이미지 리빌 및 기기별 최적 구도(`bgPos`) 동적 반영.
+- **Responsive Layout Architecture**:
+  - PC(1x4), Mobile/Tablet(1x4 Linear) 등 기기별 최적화된 레이아웃 데이터 시트(`CORE_FUNNEL_SLOTS`) 구축.
+  - 사용자 선택에 따른 선형적 흐름(Linear Flow)으로 최종 디자인 확정.
+- **Touch UX Precision Tuning**:
+  - 터치 기기 가중치 분기(20.0 ➔ 4.0) 설정을 통해 스크롤 피로도를 80% 감소시키고 '1스와이프 1스테이지'의 경쾌한 조작성 확보.
+  - 터치 전용 스냅 지연(0.15s) 및 지속 시간(0.8s) 튜닝으로 마그네틱한 안착감 구현.
+- **System Integrity & Holistic Sync (v18.Audit)**:
+  - **Background Scroll Alignment**: 메시지 섹션 배경이 퍼널 조립 중에는 정지해 있다가, 팽창(Expand) 시점에 정확히 포후 섹션으로 전이되도록 `scroll.ts` 로직 선제 보정.
+  - **Footer Handover Precision**: 가중치 기반의 논리적 스크롤과 `vh+px` 기반의 물리적 스크롤 간의 오차를 0px로 맞추는 수식 정규화로 스크롤 끝단 덜컥거림 방지.
+  - **Z-Index Tiering Audit**: 퍼널용 UI 요소(화살표, 라벨)와 전역 메뉴/헤더 간의 레이어 간섭 여부 전수 검사 및 무결성 확인.
+  - **Logo Morphing Sync**: 로고가 미리 `REC+ANGLE`로 변하던 이슈를 해결하고, 버스 이미지 리빌 시점에 맞춰 모핑이 시작되도록 여정 데이터(`LOGO_JOURNEY_SECTIONS`) 정밀 동기화.
+
+### 🧩 현재 진행 중인 과제: "Phase 5 - ForWho Content Infusion & High-Fidelity Transition"
+
+- [ ] **[ForWho: 프레임 모핑]**: 거대하게 팽창한 버스 유리창이 캐러셀 프레임으로 정교하게 축소되며 나타나는 Step C 전이 완성.
+- [ ] **[ForWho: 카드 인터랙션]**: 서비스 카드 클릭 시 글래스모피즘 레이어가 부드럽게 리빌되는 상세 정보 전개 로직 고도화.
+- [ ] **[Mobile: Peeking Layout]**: 모바일 환경에서 다음 카드가 살짝 노출되어 스와이프를 유도하는 피킹 레이아웃 실측 및 UI 폴리싱.
+
+---
+
+### 📥 보류 및 기술 부채 (Backlog / Tech Debt)
+
+- [ ] **[V43: Nemo Engine Resize Stability]**: 
+  - 리사이즈 복구 시 히어로 섹션 전환 구간의 영점 불일치 및 가시성 이슈.
+  - [트러블슈팅 문서](file:///d:/네모ON/네모ON Studio/네모ON/docs/troubleshooting/nemo-resize-stability.md)에 상세 내용 아카이브 완료.
+  - 향후 서비스 전체 폴리싱 기간에 재방문 예정.
+
+## ✅ 2026-04-16: V11 Macro Final Refine - 인터랙션 엔진 정밀 고도화 및 정교화 성료
 
 인터랙션 엔진의 '거시적 정비'를 넘어, 실제 구동 시의 미세한 시각적 결함(Flicker)을 방어하고 파편화된 로직을 통합하는 정밀 고도화를 완료했습니다.
 

@@ -57,6 +57,9 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   offsets[STAGES.TO_MESSAGE] = curr;
 
   // 메시지 섹션 정지 가중치
+  // [Architecture] 스크롤 가중치 결정 원칙
+  // - isTouch (options.isMobile): 사용자의 입력 방식(터치 vs 마우스)에 따라 스크롤 호흡을 결정합니다.
+  // - 여기서는 레이아웃 크기가 아닌 '동작 방식'이 중요하므로 터치 여부 변수를 사용합니다.
   const messageStill = isTouch ? w.MESSAGE_STILL : TIMING_CFG.SECTION_WEIGHT.MESSAGE_STILL_PC;
   curr += messageStill;
   offsets[STAGES.MSG_CONTENT] = curr;
@@ -104,14 +107,20 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
 
 // [V11.34-P5] 모드(ON/OFF) 및 기기(isMobile)에 따른 전역 CSS 변수를 '동기적으로' 즉시 주입.
 // [V11.18 Fix] 리사이즈 시 현재 진행도를 무시하고 히어로 색상으로 초기화되는 현상을 방지하기 위해 가드 추가.
-export function initGlobalStyles(registry: InteractionRegistry, isOn: boolean, isMobile: boolean, currentProgress: number = 0) {
+export function initGlobalStyles(
+  registry: InteractionRegistry, 
+  isOn: boolean, 
+  isMobile: boolean, 
+  currentProgress: number = 0,
+  isRestoring: boolean = false
+) {
   const { STAGES } = registry.constants;
   const { JOURNEY_MASTER_CONFIG } = registry.data;
   
   // [V11.Macro_Final] window._masterTlProgress 제거 및 명시적 인자 주입 방식으로 전환
   if (typeof window !== 'undefined') {
-    // 타임라인이 이미 빌드되어 특정 위치에 있다면 초기화 생략 (타임라인의 권한 존중)
-    if (currentProgress > 0.001) return;
+    // [V40] 리사이즈 복구 상황이 아닐 때만 타임라인의 권한을 보호합니다.
+    if (currentProgress > 0.001 && !isRestoring) return;
   }
 
   const cfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
@@ -195,35 +204,58 @@ export function initLogoState(
 export function initNemoState(
   registry: InteractionRegistry,
   nemo: SharedNemoHandle, 
-  options: { isOn: boolean; isMobileView: boolean; isTabletPortrait?: boolean; progress?: number }
-): void {
+  options: { isOn: boolean; isMobileView: boolean; isTabletPortrait?: boolean; progress?: number; isRestoring?: boolean }
+): { left: number; top: number; width: number; height: number } | null {
   const { INTERACTION_Z_INDEX } = registry.constants;
-  const { isOn, isMobileView, progress = 0 } = options;
+  const { isOn, isMobileView, progress = 0, isRestoring = false } = options;
+
+  // [V28.Refinement] 진행도 가드: 리사이즈 복구 상황을 인지하여 동적 영점 조절을 허용합니다.
+  if (progress > 0.001 && !isRestoring) return null;
+
   const originEl = document.getElementById('hero-nemo-origin');
-  if (!nemo.nemoEl || !originEl) return;
+  if (!nemo.nemoEl || !originEl) return null;
   
   // 실제 돔의 위치와 스타일을 캡처 (SSOT: Single Source of Truth)
   const rect = originEl.getBoundingClientRect();
   const style = window.getComputedStyle(originEl);
 
+  // [V40.SelectiveSync] 진행도에 따른 선택적 동기화
+  // progress < 0.02 (바톤 터치 구간) 일 때만 좌표와 크기를 동기화하여 '순간이동' 현상을 방지합니다.
+  const shouldSyncPosition = progress < 0.02;
+
   // 인터랙션용 공유 네모를 캡처된 정적 네모 위치로 동기화 (리사이즈 대응을 위해 좌표는 항상 업데이트)
   gsap.set(nemo.nemoEl, {
-    width: rect.width, height: rect.height, 
-    left: rect.left + rect.width / 2, top: rect.top + rect.height / 2,
-    xPercent: -50, yPercent: -50, 
-    borderRadius: style.borderRadius, 
     backgroundColor: style.backgroundColor,
+    borderRadius: style.borderRadius, 
     border: style.border, 
     borderColor: style.borderColor, 
     boxShadow: style.boxShadow, 
     position: 'fixed',
     zIndex: INTERACTION_Z_INDEX.Z_SHARED_NEMO,
+    // [V43] 복구 상황(isRestoring)일 때는 여기서 직접 좌표를 set하지 않습니다. (점프 방지)
+    // 좌표 제어권은 전적으로 타임라인 빌더에게 위임합니다.
+    ...(shouldSyncPosition && !isRestoring && {
+      width: rect.width, 
+      height: rect.height, 
+      left: rect.left + rect.width / 2, 
+      top: rect.top + rect.height / 2,
+      xPercent: -50, 
+      yPercent: -50, 
+    })
   });
 
-  // [V11.Macro_Final] 명시적 진행도(progress) 기반 가드로 전환
-  if (progress > 0.001) return;
+  // [V40.FlickerFix] 복구 상황이 아니고 초기 상태(0)일 때만 opacity를 0으로 리셋하여 찰나의 '깜빡임'을 방지합니다.
+  if (!isRestoring && progress < 0.001) {
+    gsap.set(nemo.nemoEl, { opacity: 0 });
+  }
 
-  gsap.set(nemo.nemoEl, { opacity: 0 }); // 초기 히어로 스왑 시퀀스에서 노출되도록 0으로 리셋
+  // [V43] 실측된 픽셀 좌표를 반환하여 빌더가 동적 베이스라인으로 사용할 수 있게 합니다.
+  return {
+    left: rect.left + rect.width / 2,
+    top: rect.top + rect.height / 2,
+    width: rect.width,
+    height: rect.height
+  };
 }
 
 /**
