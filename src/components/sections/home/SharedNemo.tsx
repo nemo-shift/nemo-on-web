@@ -11,7 +11,11 @@ export interface SharedNemoHandle {
   nemoEl: HTMLDivElement | null;
   /** 버스 이미지 컨테이너 (이미지 마스크 단계에서 페이드인) */
   imageEl: HTMLDivElement | null;
+  /** [ForWho 전용] 변신 타겟 카드 이미지 레이어 */
+  targetImageEl: HTMLDivElement | null;
+
   /** [Pain 전용] 상단 순서 텍스트 (하나. 둘. ...) */
+
   stepEl: HTMLDivElement | null;
   /** [Pain 전용] 가로 구분선 */
   lineEl: HTMLDivElement | null;
@@ -30,40 +34,44 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
   function SharedNemo(_props, ref) {
     const nemoRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLDivElement>(null);
+    const targetImageRef = useRef<HTMLDivElement>(null);
     const stepRef = useRef<HTMLDivElement>(null);
     const lineRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
-
     useImperativeHandle(ref, () => ({
       get nemoEl() { return nemoRef.current; },
       get imageEl() { return imageRef.current; },
+      get targetImageEl() { return targetImageRef.current; },
       get stepEl() { return stepRef.current; },
       get lineEl() { return lineRef.current; },
       get contentEl() { return contentRef.current; }
     }));
 
     return (
-      <div
-        ref={nemoRef}
-        className="shared-nemo-object pointer-events-none fixed"
-        style={{
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: `${NEMO_SIZE.INITIAL_W}px`,
-          height: `${NEMO_SIZE.INITIAL_H}px`,
-          borderRadius: `${NEMO_SIZE.INITIAL_BORDER_RADIUS}px`,
-          backgroundColor: 'transparent',
-          border: 'none',
-          willChange: 'transform, width, height, background-color, border-radius, opacity',
-          // [v26.47] 구분선이 박스 밖으로 나가야 하므로 overflow 제거
-          overflow: 'visible', 
-          opacity: 0,
-          zIndex: 20, // 상수(Z_SHARED_NEMO)와 동기화
-        }}
-      >
+
+        <div
+          ref={nemoRef}
+          className="shared-nemo-object pointer-events-none fixed"
+          style={{
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: `${NEMO_SIZE.INITIAL_W}px`,
+            height: `${NEMO_SIZE.INITIAL_H}px`,
+            borderRadius: `${NEMO_SIZE.INITIAL_BORDER_RADIUS}px`,
+            backgroundColor: 'transparent',
+            border: 'none',
+            willChange: 'transform, width, height, background-color, border-radius, opacity',
+            // [v26.47] 구분선이 박스 밖으로 나가야 하므로 overflow 제거
+            overflow: 'visible', 
+            opacity: 0,
+            zIndex: 20, // 상수(Z_SHARED_NEMO)와 동기화
+          }}
+        >
+
         {/* 레이어 1: 이미지 콘텐츠 (구간 7) - 이미지만 클리핑 */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: 'inherit' }}>
+          {/* 1-1: 버스 이미지 (Intro 전용) */}
           <div
             ref={imageRef}
             className="nemo-image-content absolute inset-0 w-full h-full opacity-0"
@@ -72,7 +80,19 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: 1,
-              willChange: 'opacity',
+              willChange: 'opacity, transform',
+            }}
+            aria-hidden="true"
+          />
+          {/* 1-2: 타겟 카드 이미지 (Hand-over 모핑 전용) - 버스 위에 겹침 */}
+          <div
+            ref={targetImageRef}
+            className="nemo-target-image-content absolute inset-0 w-full h-full opacity-0"
+            style={{
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              zIndex: 2,
+              willChange: 'opacity, transform',
             }}
             aria-hidden="true"
           />

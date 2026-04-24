@@ -1,92 +1,182 @@
-import { gsap } from 'gsap';
+﻿import { gsap } from 'gsap';
 import { STAGES } from '@/constants/interaction';
 import { ForWhoSectionHandle } from '../forwho/ForWhoSection';
 import { GlobalBuilderOptions } from '../types';
 
 import { SharedNemoHandle } from '../SharedNemo';
+import { getForWhoTargetRect } from '../global-interaction-utils';
+import { FOR_WHO_LIST } from '@/data/home/forwho';
 
 /**
- * [V11.75] buildForWhoTimeline
- * 포후 섹션의 시네마틱 오프닝(Step B)과 캐러셀 전환(Step C)을 관장합니다.
+ * [V12] buildForWhoTimeline
+ * ForWho Section Builder with Cinematic Finale
  */
 export function buildForWhoTimeline(
   tl: gsap.core.Timeline,
   L: Record<string, number>,
   forwho: ForWhoSectionHandle | null,
-  nemo: SharedNemoHandle | null, // 네모 핸들 추가
-  options: GlobalBuilderOptions
+  nemo: SharedNemoHandle | null,
+  options: GlobalBuilderOptions,
+  toggle?: () => void // Step 3: Logo Toggle 추가
 ) {
   if (!forwho || !nemo?.nemoEl) return;
 
   const { constants, data } = options.registry;
   const { NEMO_RESPONSIVE_LAYOUT, EASE, TIMING_CFG } = constants;
   const FORWHO_FRAME = NEMO_RESPONSIVE_LAYOUT.FORWHO_FRAME;
-  const { JOURNEY_MASTER_CONFIG } = data;
-
-  // 1. 레이블 기반 구간 설정
-  const start = L[STAGES.TO_FORWHO];        // 도착 (Full-bleed 상태)
-  const content = L[STAGES.FW_CONTENT];      // 내부 전이 구간 시작
-  const end = L[STAGES.FW_TO_STORY];         // 다음 섹션 이동 전
   
-  // [Architecture] 레이아웃 모드 결정 원칙
-  // - options.isMobileView: 화면 너비 기반 (폰 전용 레이아웃 수치 선택용)
-  // - options.isMobile: 터치 기기 여부 기반 (스크롤 감도/무게 조절용)
-  // 여기서는 프레임의 '크기'를 결정하므로 너비 기반(View) 변수를 사용합니다.
+  const start = L[STAGES.TO_FORWHO];        
+  const end = L[STAGES.FW_TO_STORY];         
+  
   const mode = options.isMobileView ? 'MOBILE' : 
                options.isTabletPortrait ? 'TABLET_P' : 'PC';
                
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
+  const isTouch = options.interactionMode === 'touch';
   
   const duration = (end - start);
-  const introEnd = start + (duration * 0.4); // 40% 지점까지 인트로(Step B)
-  const frameMorphStart = introEnd;           // 이후 캐러셀 프레임 변환(Step C)
+  const effectiveEnd = start + duration * (isTouch ? 0.35 : 0.6);
+  const effectiveDuration = (effectiveEnd - start);
 
-  // --- STEP B: Intro Reveal ---
+  const introRatio = isTouch ? 0.03 : 0.25;
+  const introEnd = start + (effectiveDuration * introRatio); 
+  const frameMorphStart = introEnd;
+
+  // STEP B: Intro Reveal
+  const t = TIMING_CFG.TRANSITION_WEIGHT;
+  const revealDuration = isTouch ? (0.25 * r) : (0.5 * r);
+  const revealStartOffset = isTouch ? 0 : (t * r * 0.5);
+
   if (forwho.introTextRef.current) {
     tl.to(forwho.introTextRef.current, {
       opacity: 1,
       y: 0,
-      duration: (introEnd - start) * r,
-      ease: EASE.TRANSITION
-    }, start);
+      duration: revealDuration,
+      ease: 'power2.out'
+    }, start + revealStartOffset);
+
+    tl.call(() => {
+      forwho.resetCards();
+    }, [], start);
   }
 
-  // --- STEP C: Carousel Transformation ---
-  
-  // 1) Nemo Morphing (Full-bleed -> Frame)
+  // STEP C: Carousel Transformation
   const frame = FORWHO_FRAME[mode];
+
   tl.to(nemo.nemoEl, {
-    width: frame.w,
-    height: frame.h,
-    left: frame.left,
-    top: frame.top,
+    width: () => (getForWhoTargetRect()?.width ?? frame.w) - 2,
+    height: () => (getForWhoTargetRect()?.height ?? frame.h) - 2,
+    left: () => (getForWhoTargetRect()?.left ?? frame.left) + 1,
+    top: () => (getForWhoTargetRect()?.top ?? frame.top) + 1,
     borderRadius: frame.borderRadius,
-    duration: (end - frameMorphStart) * r,
+    duration: (effectiveEnd - frameMorphStart) * r,
     ease: EASE.TRANSITION
   }, frameMorphStart);
 
-  // 2) Intro Text Migration (Center-Right -> Top-Header)
-  // [Detail] 텍스트가 단순히 사라지는 게 아니라 캐러셀의 타이틀 좌측 상단으로 이동하는 느낌
+  if (nemo.imageEl) {
+    const morphDuration = (effectiveEnd - frameMorphStart) * r;
+    const distortionStart = frameMorphStart + (morphDuration * 0.7); 
+    const distortionDuration = morphDuration * 0.3; 
+
+    tl.to(nemo.imageEl, {
+      skewX: isTouch ? 50 : 60, 
+      scaleX: isTouch ? 2.0 : 2.5, 
+      filter: isTouch ? 'blur(1px)' : 'blur(2px)', 
+      duration: distortionDuration,
+      ease: isTouch ? 'none' : 'power2.in' 
+    }, distortionStart);
+
+    const swapPoint = distortionStart + distortionDuration + 0.03;
+    
+    tl.to([nemo.nemoEl, nemo.imageEl], { 
+      autoAlpha: 0, 
+      duration: 0.3,
+      ease: 'power2.in',
+      immediateRender: false 
+    }, swapPoint);
+
+    if (forwho.contentWrapperRef.current) {
+      tl.set(forwho.contentWrapperRef.current, { autoAlpha: 0, transition: 'none', immediateRender: false }, frameMorphStart);
+      tl.set(forwho.contentWrapperRef.current, { autoAlpha: 1, transition: 'none', immediateRender: false }, swapPoint - 0.2); 
+    }
+  }
+
   if (forwho.introTextRef.current) {
     tl.to(forwho.introTextRef.current, {
       top: '12%', 
       left: mode === 'PC' ? '14%' : '5%',
-      right: 'auto',
       x: 0,
       scale: 0.6,
       opacity: 0.8,
-      duration: (end - frameMorphStart) * r,
+      duration: (effectiveEnd - frameMorphStart) * r,
       ease: EASE.TRANSITION
     }, frameMorphStart);
   }
 
-  // 3) Carousel Frame Reveal
-  if (forwho.contentWrapperRef.current) {
+  // STEP D & E: [V12 Unified] Carousel Lifecycle & Philosophy Reveal + Finale
+  if (forwho.contentWrapperRef.current && forwho.philosophyRef.current) {
+    const totalPhaseDuration = (end - effectiveEnd);
+    
+    // D-1. 카드 등장 (Reveal)
+    const revealPhaseStart = effectiveEnd;
+    const revealPhaseDuration = totalPhaseDuration * 0.15;
+    
     tl.to(forwho.contentWrapperRef.current, {
-      opacity: 1,
+      autoAlpha: 1,
       pointerEvents: 'auto',
-      duration: (end - frameMorphStart) * r,
-      ease: EASE.TRANSITION
-    }, frameMorphStart);
+      yPercent: 0, 
+      duration: revealPhaseDuration,
+      ease: 'power2.out'
+    }, revealPhaseStart);
+
+    // D-2. 카드 퇴장 (Exit) & 문구 노출 (Philosophy Reveal)
+    const exitStart = effectiveEnd + totalPhaseDuration * 0.25;
+    const exitDuration = totalPhaseDuration * 0.45;
+
+    tl.to(forwho.contentWrapperRef.current, {
+      yPercent: -150,
+      force3D: true,
+      duration: exitDuration,
+      ease: 'none' 
+    }, exitStart);
+
+    if (forwho.introTextRef.current) {
+      tl.to(forwho.introTextRef.current, {
+        yPercent: -150,
+        opacity: 0,
+        duration: exitDuration,
+        ease: 'none'
+      }, exitStart);
+    }
+
+    tl.to(forwho.philosophyRef.current, {
+      autoAlpha: 1,
+      duration: exitDuration * 0.5,
+      ease: 'none'
+    }, exitStart);
+
+    // E. 피날레 (Finale): 철학 문구 퇴장 및 로고 전환
+    const finaleStart = exitStart + exitDuration + totalPhaseDuration * 0.1;
+    const finaleDuration = totalPhaseDuration * 0.2;
+
+    // 철학 문구 상단 퇴장
+    tl.to(forwho.philosophyRef.current, {
+      yPercent: -100,
+      autoAlpha: 0,
+      duration: finaleDuration,
+      ease: 'power2.inOut'
+    }, finaleStart);
+
+    // 문구 올라가는 시점에 로고 전격 교체 (REC+ANGLE -> 네모:ON)
+    if (toggle) {
+      tl.call(() => {
+        toggle();
+      }, [], finaleStart);
+    }
+
+    // 섹션 이탈 시 최종 리셋
+    tl.call(() => {
+      forwho.resetCards();
+    }, [], end);
   }
 }

@@ -35,7 +35,8 @@ export const GlobalInteractionStage = ({
   forwhoRef,
   sectionsContentRef,
 }: GlobalInteractionStageProps) => {
-  const { isScrollable, footerHeight, setIsTimelineReady } = useHeroContext();
+  const { isScrollable, footerHeight, setIsTimelineReady, toggle } = useHeroContext();
+
 
   const containerRef = useRef<HTMLDivElement>(null);
   const logoHandle   = useRef<JourneyLogoHandle>(null);
@@ -185,7 +186,8 @@ export const GlobalInteractionStage = ({
           // [V18.Phase3] 퍼널 스냅 지점 데이터 수집
           const funnelSnapTimes = buildCoreFunnelTimeline(tl, nemo, L, builderOptions);
           
-          buildForWhoTimeline(tl, L, forwhoRef.current, nemoHandle.current, builderOptions);
+          buildForWhoTimeline(tl, L, forwhoRef.current, nemoHandle.current, builderOptions, toggle);
+
           buildHeroSwapSequence(tl, nemo, L, builderOptions);
 
           // ─────────────────────────────────────────────

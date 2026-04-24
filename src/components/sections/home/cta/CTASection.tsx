@@ -8,6 +8,8 @@ export const CTASection = () => {
       className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
       style={{ backgroundColor: 'var(--bg, #0D1A1F)' }}
     >
+
+
       {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
       <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: CTA Section</span>

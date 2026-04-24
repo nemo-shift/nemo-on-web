@@ -75,3 +75,9 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     },
   },
 ];
+
+export const FOR_WHO_PHILOSOPHY = {
+  line1: '브랜드로 시작하고, 브랜드로 성장하는',
+  line2: '모든 대표님의 첫 번째 파트너가 되겠습니다.',
+};
+

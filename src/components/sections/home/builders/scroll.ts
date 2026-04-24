@@ -42,7 +42,7 @@ export function buildSectionScrollTimeline(
     }, L[STAGES.HERO_STILL_CONTENT_RISE]);
   }
 
-  // 3. 섹션별 물리적 스크롤 이동 (VHS 기반)
+  // [V11.Macro_Final] 섹션별 물리적 스크롤 이동 (VHS 기반)
   tl.to(target, { y: `-${H.HERO}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.START_TO_PAIN]);
   tl.to(target, { y: `-${H.HERO + H.PAIN}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_MESSAGE]);
 
@@ -59,6 +59,8 @@ export function buildSectionScrollTimeline(
   tl.to(target, { y: -finalY, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_FOOTER]);
 
   // 4. [V11.Macro_Final] 전역 환경(배경색/헤더색) 통합 엔진
+
+
   const heroCfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
   let lastEnv = (options.isOn && heroCfg.on?.env) ? heroCfg.on.env : heroCfg.env;
 
@@ -81,17 +83,23 @@ export function buildSectionScrollTimeline(
     }
 
     // 환경 전이 (CSS 변수)
+    // [V12_Refine] ForWho -> Story 구간은 문구 퇴장 시점에 맞춰 더 부드럽고 길게 전이
+    const isForWhoToStory = label === STAGES.FW_TO_STORY;
+    const transitionDuration = isForWhoToStory ? 1.5 * r : 
+                               (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r;
+    
     tl.fromTo(document.documentElement, 
       { '--header-fg': lastEnv.fg, '--bg': lastEnv.bg },
       {
         '--header-fg': targetEnv.fg!,
         '--bg': targetEnv.bg!,
-        duration: (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r,
-        ease: 'none',
+        duration: transitionDuration,
+        ease: isForWhoToStory ? 'power2.inOut' : 'none',
         immediateRender: false
       }, 
-      time
+      isForWhoToStory ? time - (transitionDuration * 0.5) : time // ForWho 전환은 선제적으로 시작
     );
+
 
     lastEnv = { fg: targetEnv.fg!, bg: targetEnv.bg! };
   });

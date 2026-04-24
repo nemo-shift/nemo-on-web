@@ -32,7 +32,9 @@ export const INTERACTION_Z_INDEX = {
 
   // 콘텐츠 및 인터랙션 (Content Layer)
   Z_CONTENT: 100,      // 섹션 본문 / CTA 덮개
+  Z_CTA_OVERLAY: 200,  // [V12] Brand Story를 덮고 올라올 CTA 전용 위계
   Z_STAGE_WRAPPER: 50,  // GlobalInteractionStage 부모 (네모가 본문 뒤, 배경 위에 위치)
+
   Z_FOOTER_UNDER: 10,  // Reveal Footer (Underneath content)
 
   // [GlobalInteractionStage 내부] ──────────────
@@ -151,7 +153,7 @@ export const TIMING_CFG = {
     CORE_FUNNEL_STILL_TOUCH: 4.0, // [V18.Fix] 터치용 호흡
     CORE_FUNNEL_EXPAND_WEIGHT: 8.0, 
     CORE_FUNNEL_EXPAND_TOUCH: 2.0, // [V18.Fix] 터치용 팽창 호흡
-    FOR_WHO_STILL: 15.0,    // [V11.85 Tuning] 캐러셀 탐색 시간 대폭 확장
+    FOR_WHO_STILL: 15.0,   // [V12] 문구 리빌 및 섹션 전환 구조 재정의를 위한 공간 확보 (기존 8.0)
     STORY_STILL: 3.0,     
     CTA_STILL: 2.0,       
   },

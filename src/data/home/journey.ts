@@ -107,17 +107,18 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
 
   // [7] 포후 → 브랜드스토리 (REC+ANGLE → 네모:ON 복귀 트리거)
   [STAGES.FW_TO_STORY]: {
-    env: { bg: COLORS.BG.CREAM, fg: COLORS.TEXT.DARK },
+    env: { bg: COLORS.BRAND, fg: COLORS.TEXT.LIGHT }, // 틸 색상으로 교정
     logo: { nemoKr: true, shapes: true, status: true, rectangle: false, morph: 'T', logoMode: 'nemo-on' },
     nemo: { borderRadius: 20, backgroundColor: COLORS.TEXT.LIGHT, border: 'none', opacity: 0.5 }
   },
 
   // [8] 브랜드 스토리 (네모:ON 최종 안착 상태)
   [STAGES.TO_STORY]: {
-    env: { bg: COLORS.BG.CREAM, fg: COLORS.TEXT.DARK },
+    env: { bg: COLORS.BRAND, fg: COLORS.TEXT.LIGHT }, // 틸 색상으로 교정
     logo: { nemoKr: true, shapes: true, status: true, rectangle: false, morph: 'T', logoMode: 'nemo-on' },
     nemo: { borderRadius: 18, backgroundColor: COLORS.TEXT.LIGHT, border: 'none', opacity: 1 }
   },
+
 
   // [9] CTA (다크 전환)
   [STAGES.TO_CTA]: {

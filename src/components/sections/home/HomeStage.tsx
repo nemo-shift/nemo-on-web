@@ -67,6 +67,8 @@ export default function HomeStage(): React.ReactElement {
             <BrandStorySection />
             <CTASection />
             <Footer isHomeStage={true} />
+
+
           </div>
         </div>
 

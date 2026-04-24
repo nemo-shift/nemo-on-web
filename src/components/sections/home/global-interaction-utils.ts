@@ -263,6 +263,28 @@ export function initNemoState(
  * 네모의 실시간 위치를 캡처하여 전역 CSS 변수(--nemo-t, --nemo-l 등)로 동기화합니다.
  * 이 변수들은 섹션 내부의 컷아웃(Cut-out) 효과나 텍스트 마스킹에 사용됩니다.
  */
+/**
+ * [V11.Macro_Final] getForWhoTargetRect
+ * ForWho 캐러셀의 0번 슬라이드 이미지(nemo-target-forwho-0)의 실시간 뷰포트 좌표를 측정합니다.
+ * SharedNemo가 카드로 변신하는 'Identity Morphing'의 최종 목적지로 사용됩니다.
+ */
+export function getForWhoTargetRect(): { left: number; top: number; width: number; height: number } | null {
+  const target = document.getElementById('nemo-target-forwho-0');
+  if (!target) return null;
+
+  const rect = target.getBoundingClientRect();
+  
+  // 0번 카드가 뷰포트 밖이거나 아직 렌더링되지 않은 경우(width 0) 방어
+  if (rect.width === 0) return null;
+
+  return {
+    left: rect.left + rect.width / 2,
+    top: rect.top + rect.height / 2,
+    width: rect.width,
+    height: rect.height
+  };
+}
+
 export function syncNemoCoordinates(nemoEl: HTMLElement | null): void {
   if (!nemoEl) return;
   
@@ -274,3 +296,4 @@ export function syncNemoCoordinates(nemoEl: HTMLElement | null): void {
   root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
   root.style.setProperty('--nemo-l', `${rect.left}px`);
 }
+

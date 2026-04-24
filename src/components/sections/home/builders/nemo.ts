@@ -39,6 +39,8 @@ export function buildNemoTimeline(
   const sections = NEMO_JOURNEY_SECTIONS;
 
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
+  // [V11.Macro_Final] ForWho 인트로 이미지는 해당 섹션 전까진 절대 노출되지 않도록 강제 초기화
+  tl.set(nemo.imageEl, { opacity: 0 }, 0);
 
   sections.forEach(({ label, stage, ease }: { label: string, stage: string, ease?: any }) => {
     const raw = JOURNEY_MASTER_CONFIG[stage];

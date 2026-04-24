@@ -15,13 +15,22 @@ import 'swiper/css/effect-coverflow';
 
 /**
  * [V11.80] ForWhoCarousel
- * 기술 스택: Swiper.js + GSAP 연동 준비
- * 핵심 기능: 기기별 Peeking/Full 레이아웃, 클릭 시 이미지 블러 및 정보 리빌
  */
-export default function ForWhoCarousel() {
+export interface ForWhoCarouselHandle {
+  resetCards: () => void;
+}
+
+const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
   const { isMobile, interactionMode, isMobileView, isTabletPortrait } = useDevice();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   
+  // 외부에서 상태를 리셋할 수 있도록 메서드 노출
+  React.useImperativeHandle(ref, () => ({
+    resetCards: () => {
+      setExpandedId(null);
+    }
+  }));
+
   // [Experimental] 마그네틱 커서 상태
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -39,6 +48,7 @@ export default function ForWhoCarousel() {
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id);
   };
+
 
   return (
     <div 
@@ -66,31 +76,44 @@ export default function ForWhoCarousel() {
 
       <Swiper
         modules={[Navigation, Autoplay, EffectCoverflow]}
-        spaceBetween={isMobileView ? 20 : 40}
-        slidesPerView={isMobileView ? 1.1 : (isTabletPortrait ? 1.5 : 2.2)}
+        loop={true}
+        spaceBetween={isMobileView || isTabletPortrait ? 16 : 40}
+        slidesPerView={isMobileView || isTabletPortrait ? 1.08 : 1.5}
         centeredSlides={true}
         grabCursor={true}
         navigation={!isMobileView && interactionMode === 'mouse'}
-        className="forwho-swiper w-full !px-[5%]"
-        onSlideChange={() => setExpandedId(null)}
+        onSlideChange={(swiper) => {
+          setExpandedId(null);
+          if (typeof window !== 'undefined') {
+            (window as any).__forWhoCurrentIndex = swiper.realIndex;
+          }
+        }}
+        onInit={(swiper) => {
+          if (typeof window !== 'undefined') {
+            (window as any).__forWhoCurrentIndex = swiper.realIndex;
+          }
+        }}
       >
         {FOR_WHO_LIST.map((item) => (
           <SwiperSlide key={item.id} className="pb-12">
             <div 
               onClick={() => toggleExpand(item.id)}
               className={cn(
-                "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer shadow-2xl",
-                "h-[50vh] tablet:h-[60vh] tablet-p:h-[55vh]",
+                "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer shadow-2xl mx-auto",
+                "h-[50vh] tablet:h-[55vh] tablet-p:h-[52vh]",
+                // PC에서는 와이드 비율을 위해 너비 제한, 모바일은 여백을 위해 90%
+                "w-[90%] tablet:w-full desktop:max-w-[70vw] desktop-wide:max-w-[65vw]",
                 expandedId === item.id ? "scale-[1.02]" : "hover:scale-[0.98]"
               )}
             >
               {/* 카드 이미지 레이어 */}
               <div className="absolute inset-0 w-full h-full overflow-hidden">
                 <Image
+                  id={item.id === 1 ? "nemo-target-forwho-0" : undefined}
                   src={item.image.src}
                   alt={item.image.alt}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 70vw, 65vw"
                   className={cn(
                     "object-cover transition-all duration-1000 ease-out",
                     expandedId === item.id ? "scale-110 blur-xl opacity-40" : "scale-100 blur-0 opacity-80 group-hover:scale-105"
@@ -189,4 +212,7 @@ export default function ForWhoCarousel() {
       `}</style>
     </div>
   );
-}
+});
+
+export default ForWhoCarousel;
+
