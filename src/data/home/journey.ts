@@ -120,6 +120,13 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
   },
 
 
+  // [8.5] 스토리 삭제 브릿지 (백스페이스 구간)
+  [STAGES.STORY_ERASE]: {
+    env: { bg: COLORS.BG.DARK_SECTION, fg: COLORS.TEXT.LIGHT },
+    logo: { nemoKr: true, shapes: true, status: true, rectangle: false, morph: 'T', logoMode: 'nemo-on' },
+    nemo: { borderRadius: 0, backgroundColor: COLORS.BG.DARK_SECTION, border: 'none', opacity: 0 }
+  },
+
   // [9] CTA (다크 전환)
   [STAGES.TO_CTA]: {
     env: { bg: COLORS.BG.DARK_SECTION, fg: COLORS.TEXT.LIGHT },

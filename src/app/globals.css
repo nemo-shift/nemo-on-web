@@ -165,6 +165,16 @@ html.custom-cursor-active *::after {
   animation: nemo-pulse 2.5s ease-in-out 0.5s infinite;
 }
 
+
+/* [V12.Terminal] 터미널 커서 깜빡임 (Sharp Blink) */
+@keyframes terminal-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-terminal-cursor {
+  animation: terminal-cursor-blink 0.8s step-end infinite;
+}
+
 /* --- Custom Project Animations --- */
 
 @keyframes scrollLine {

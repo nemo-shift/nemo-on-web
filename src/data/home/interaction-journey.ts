@@ -14,6 +14,7 @@ export const LOGO_JOURNEY_SECTIONS = [
   { label: STAGES.TO_FORWHO, stage: STAGES.TO_FORWHO },
   { label: STAGES.FW_TO_STORY, stage: STAGES.FW_TO_STORY },
   { label: STAGES.TO_STORY, stage: STAGES.TO_STORY },
+  { label: STAGES.STORY_ERASE, stage: STAGES.STORY_ERASE }, // [V11.4] 로고 여정에 삭제 구간 추가
   { label: STAGES.TO_CTA, stage: STAGES.TO_CTA }
 ];
 
@@ -31,5 +32,6 @@ export const NEMO_JOURNEY_SECTIONS: JourneySectionConfig[] = [
   { label: STAGES.TO_FORWHO, stage: STAGES.TO_FORWHO, ease: EASE.TRANSITION },
   { label: STAGES.FW_TO_STORY, stage: STAGES.FW_TO_STORY, ease: EASE.SETTLE },
   { label: STAGES.TO_STORY, stage: STAGES.TO_STORY, ease: EASE.SETTLE },
+  { label: STAGES.STORY_ERASE, stage: STAGES.STORY_ERASE, ease: EASE.SETTLE }, // [V11.4] 네모 여정에 삭제 구간 추가
   { label: STAGES.TO_CTA, stage: STAGES.TO_CTA, ease: EASE.SETTLE }
 ];

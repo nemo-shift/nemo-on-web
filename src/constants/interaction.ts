@@ -99,6 +99,7 @@ export const STAGES = {
   FW_TO_STORY: 'fw_to_story',
   TO_STORY: 'to_story',
   STORY_CONTENT: 'story_content',
+  STORY_ERASE: 'story_erase',   // [V11.4] 백스페이스 삭제 구간 추가
   TO_CTA: 'to_cta',
   CTA_CONTENT: 'cta_content',
   TO_FOOTER: 'to_footer',
@@ -126,7 +127,8 @@ export const SECTION_SCROLL_HEIGHT = {
   PAIN:    1000,
   MESSAGE: 800,
   FORWHO:  1000,
-  STORY:   100,
+  STORY:   400,
+  BRIDGE:  100,   // [V11.4] 백스페이스 삭제를 위한 물리적 스크롤 거리
   CTA:     100,
   FOOTER:  75,     // 뷰포트의 75% (3/4) 노출
 };
@@ -154,8 +156,9 @@ export const TIMING_CFG = {
     CORE_FUNNEL_EXPAND_WEIGHT: 8.0, 
     CORE_FUNNEL_EXPAND_TOUCH: 2.0, // [V18.Fix] 터치용 팽창 호흡
     FOR_WHO_STILL: 15.0,   // [V12] 문구 리빌 및 섹션 전환 구조 재정의를 위한 공간 확보 (기존 8.0)
-    STORY_STILL: 3.0,     
-    CTA_STILL: 2.0,       
+    STORY_STILL: 12.0,     
+    STORY_ERASE_STILL: 10.0, // [V11.4] 백스페이스 삭제를 위한 충분한 구간 확보
+    CTA_STILL: 25.0, // [V12] 터미널 타이핑 연출을 위한 충분한 스크롤 공간 확보
   },
 
   // 구간별 전환 간극(Gaps) - 정교한 리듬 설계

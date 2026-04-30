@@ -15,7 +15,7 @@ import {
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
 import { INTERACTION_REGISTRY } from './interaction-registry';
-import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline } from './builders';
+import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
 import { DEBUG_CONFIG } from '@/constants/debug';
 import InteractionDebugger from './InteractionDebugger';
@@ -128,7 +128,7 @@ export const GlobalInteractionStage = ({
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
           
           // [V18.Audit] 전체 섹션의 vh 합산 + 푸터 높이 - 현재 뷰포트 (총 가용 스크롤 범위)
-          const sectionHeights = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.CTA;
+          const sectionHeights = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.BRIDGE + H.CTA;
           const totalHeight = vhToPx(sectionHeights) + footerHeight;
           const finalY = totalHeight - window.innerHeight;
 
@@ -187,6 +187,8 @@ export const GlobalInteractionStage = ({
           const funnelSnapTimes = buildCoreFunnelTimeline(tl, nemo, L, builderOptions);
           
           buildForWhoTimeline(tl, L, forwhoRef.current, nemoHandle.current, builderOptions, toggle);
+          buildStoryTimeline(tl, L, builderOptions);
+          buildCTATimeline(tl, L, builderOptions);
 
           buildHeroSwapSequence(tl, nemo, L, builderOptions);
 

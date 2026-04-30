@@ -92,7 +92,10 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   offsets[STAGES.STORY_CONTENT] = curr;
 
   curr += t;
-  offsets[STAGES.TO_CTA] = curr;
+  offsets[STAGES.STORY_ERASE] = curr; // [V11.4] 삭제 시작 지점
+
+  curr += w.STORY_ERASE_STILL; // 삭제 진행 가중치
+  offsets[STAGES.TO_CTA] = curr; // 삭제 완료 후 CTA로 전환되는 지점
 
   curr += w.CTA_STILL;
   offsets[STAGES.CTA_CONTENT] = curr;
