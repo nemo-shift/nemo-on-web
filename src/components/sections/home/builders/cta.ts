@@ -18,7 +18,8 @@ export const buildCTATimeline = (
     '> 브랜드 진단을 시작하시겠습니까?'
   ];
 
-  const typingSpeed = 0.03; // 글자당 속도
+  // [V12] 가중치 7.0에 최적화된 리듬 설계 (Dead Zone 제거)
+  const typingSpeed = 0.06; // 글자당 속도 (가중치 축소에 맞춰 조정)
 
   // 메시지별 프록시 상태 관리
   const state = { line1: 0, line2: 0, line3: 0 };
@@ -26,7 +27,7 @@ export const buildCTATimeline = (
   // 1. 첫 번째 줄 타이핑
   tl.to(state, {
     line1: messages[0].length,
-    duration: messages[0].length * typingSpeed,
+    duration: 1.0, // 고정 구간 할당
     ease: 'none',
     onUpdate: () => {
       const sliced = messages[0].substring(0, Math.floor(state.line1));
@@ -34,21 +35,21 @@ export const buildCTATimeline = (
     }
   }, start + 0.5);
 
-  // 2. 두 번째 줄 타이핑 (잠시 대기 후 시작)
+  // 2. 두 번째 줄 타이핑
   tl.to(state, {
     line2: messages[1].length,
-    duration: messages[1].length * typingSpeed,
+    duration: 1.5, // 문장이 기므로 더 많은 구간 할당
     ease: 'none',
     onUpdate: () => {
       const sliced = messages[1].substring(0, Math.floor(state.line2));
       gsap.set('#cta-msg-2', { textContent: sliced });
     }
-  }, "> +0.3"); // 이전 애니메이션 종료 후 0.3초 뒤
+  }, "> +0.5");
 
   // 3. 세 번째 줄 타이핑 + 커서 활성화
   tl.to(state, {
     line3: messages[2].length,
-    duration: messages[2].length * typingSpeed,
+    duration: 1.2,
     ease: 'none',
     onStart: () => {
       gsap.set('#cta-terminal-cursor', { display: 'inline-block' });
@@ -57,13 +58,13 @@ export const buildCTATimeline = (
       const sliced = messages[2].substring(0, Math.floor(state.line3));
       gsap.set('#cta-msg-3', { textContent: sliced });
     }
-  }, "> +0.3");
+  }, "> +0.5");
 
-  // 4. 버튼 등장
+  // 4. 버튼 등장 (이 시점이 거의 스크롤의 끝)
   tl.to('#cta-buttons', {
     opacity: 1,
     y: 0,
-    duration: 0.5,
+    duration: 0.8,
     ease: 'power2.out'
   }, "> +0.5");
 

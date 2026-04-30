@@ -17,10 +17,10 @@ export const BrandStorySection = () => {
           style={{ zIndex: 0, backgroundColor: '#faf7f2' }}
         />
 
-        {/* [DEPLOY-DELETE] : 배포 전 반드시 삭제 (섹션 안내 가이드) */}
-        <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
+        {/* 섹션 안내 가이드 : 섹션 별 구분원할때 주석 해제 */}
+        {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
           <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: BrandStory Section</span>
-        </div>
+        </div>*/}
 
         <div 
           /* [V11.33] 전역 표준 5축 패딩 적용 */
