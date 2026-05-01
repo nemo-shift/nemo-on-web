@@ -7,6 +7,7 @@ import { Navigation, Autoplay, EffectCoverflow } from 'swiper/modules';
 import { FOR_WHO_LIST, ForWhoItem } from '@/data/home/forwho';
 import { cn } from '@/lib/utils';
 import { useDevice } from '@/context';
+import ForWhoScrollHint from './ForWhoScrollHint';
 
 // Swiper styles
 import 'swiper/css';
@@ -177,18 +178,8 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
         ))}
       </Swiper>
 
-      {/* 가로 스크롤 힌트 UI */}
-      <div className={cn(
-        "absolute bottom-4 left-1/2 -translate-x-1/2 z-30 transition-opacity duration-500",
-        expandedId ? "opacity-0" : "opacity-100"
-      )}>
-        <div className="flex flex-col items-center gap-2">
-           <div className="w-10 h-[1px] bg-white/20 relative overflow-hidden">
-              <div className="absolute inset-0 bg-white/60 animate-scroll-hint-horizontal" />
-           </div>
-           <span className="text-[9px] text-white/30 font-suit uppercase tracking-[0.4em]">Swipe</span>
-        </div>
-      </div>
+      {/* 가로 스크롤 힌트 UI (Step 4 신규) */}
+      <ForWhoScrollHint visible={expandedId === null} />
 
       <style jsx global>{`
         .forwho-swiper .swiper-button-next,
@@ -200,14 +191,6 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
         .forwho-swiper .swiper-button-next:hover,
         .forwho-swiper .swiper-button-prev:hover {
           opacity: 1;
-        }
-        @keyframes scroll-hint-horizontal {
-          0% { transform: translateX(-100%); }
-          50% { transform: translateX(0); }
-          100% { transform: translateX(100%); }
-        }
-        .animate-scroll-hint-horizontal {
-          animation: scroll-hint-horizontal 2s infinite cubic-bezier(0.65, 0, 0.35, 1);
         }
       `}</style>
     </div>

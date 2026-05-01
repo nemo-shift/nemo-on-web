@@ -14,6 +14,7 @@ import {
 } from '@/constants/interaction';
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
+import GlobalScrollHint from './GlobalScrollHint';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
@@ -441,14 +442,13 @@ export const GlobalInteractionStage = ({
         </div>,
         document.body
       )}
+      
+      {/* 3. Global Scroll Hint (통합 가이드) */}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <GlobalScrollHint />,
+        document.body
+      )}
 
-      {/* 3. Scroll Hint */}
-      <div id="pain-scroll-hint" className="fixed bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_UI_GUIDE }}>
-        <span className="text-[10px] font-medium tracking-[0.3em] uppercase" style={{ color: `${COLORS.TEXT.LIGHT}99` }}>Scroll</span>
-        <div className="w-[1px] h-12 relative overflow-hidden" style={{ background: `linear-gradient(to bottom, ${COLORS.TEXT.LIGHT}CC, transparent)` }}>
-          <div className="absolute top-0 left-0 w-full h-1/2 animate-scroll-hint" style={{ backgroundColor: COLORS.TEXT.LIGHT }} />
-        </div>
-      </div>
 
       <FallingKeywordsStage 
         ref={fallingRef} 

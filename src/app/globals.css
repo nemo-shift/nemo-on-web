@@ -42,6 +42,7 @@
 
   /* 실시간 배경색 인터폴레이션을 위한 변수 */
   --bg: var(--bg-cream);
+  --scroll-hint-fg: rgba(240, 235, 227, 0.6);
 }
 
 /* --- Tailwind v4 @theme --- */

@@ -63,12 +63,14 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
        * - 자식(h2)의 overflow-hidden을 해제하여 텍스트 잘림 현상을 근본적으로 차단
        * - leading-none을 활용해 폰트 고유 여백을 제거하고 정석적인 gap/pt 수치로 밀착감 재현
        */
+
+      //푸터 높이 안에서의 패딩등 조절
       className={cn(
         isHomeStage ? 'relative' : 'fixed bottom-0 left-0',
         'w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
         'h-[450px] px-6 py-12',                          // Mobile
         'tablet-p:h-[500px] tablet-p:px-8 tablet-p:py-14',   // 744px
-        'tablet:h-[550px] tablet:px-10 tablet:py-16',        // 992px
+        'tablet:h-[600px] tablet:px-10 tablet:py-8',        // 992px
         'desktop-wide:h-[600px] desktop-wide:px-12 desktop-wide:py-12', // 1440px (User 기준)
         'desktop-cap:h-[750px] desktop-cap:px-16 desktop-cap:py-16'   // 1920px (User 기준)
       )}

@@ -1,4 +1,4 @@
-﻿import { gsap } from 'gsap';
+import { gsap } from 'gsap';
 import { STAGES } from '@/constants/interaction';
 import { ForWhoSectionHandle } from '../forwho/ForWhoSection';
 import { GlobalBuilderOptions } from '../types';
@@ -86,6 +86,13 @@ export function buildForWhoTimeline(
       ease: isTouch ? 'none' : 'power2.in' 
     }, distortionStart);
 
+    // [Fix] 글로벌 스크롤 힌트 퇴장: 캐러셀 등장 전 이미지 왜곡 시점에 선제적으로 페이드아웃
+    tl.to('#global-scroll-hint', {
+      autoAlpha: 0,
+      duration: distortionDuration,
+      ease: 'power2.inOut'
+    }, distortionStart);
+
     const swapPoint = distortionStart + distortionDuration + 0.03;
     
     tl.to([nemo.nemoEl, nemo.imageEl], { 
@@ -138,6 +145,19 @@ export function buildForWhoTimeline(
       force3D: true,
       duration: exitDuration,
       ease: 'none' 
+    }, exitStart);
+
+    // [Step 4] 글로벌 스크롤 힌트 재등장 (바통 터치 종료) & 가로 힌트 선제적 퇴장
+    tl.to('#forwho-scroll-hint', {
+      autoAlpha: 0,
+      duration: exitDuration * 0.2,
+      ease: 'power2.inOut'
+    }, exitStart - (exitDuration * 0.1)); // 카드 이동 시작 전 선제적으로 숨김
+
+    tl.to('#global-scroll-hint', {
+      autoAlpha: 1,
+      duration: exitDuration * 0.5,
+      ease: 'none'
     }, exitStart);
 
     if (forwho.introTextRef.current) {

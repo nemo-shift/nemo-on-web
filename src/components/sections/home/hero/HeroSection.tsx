@@ -14,7 +14,7 @@ import { runWipeTransition } from '@/lib';
 import type { HeroSectionProps } from '@/types';
 import Header from '@/components/layout/Header';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
-import HeroBottomBar from './HeroBottomBar';
+
 import HeroPCView from './views/HeroPCView';
 import HeroTabletView from './views/HeroTabletView';
 import HeroMobileView from './views/HeroMobileView';
@@ -194,10 +194,6 @@ export default function HeroSection({
         <>
           {wipeOverlay}
           <Header />
-          <div style={cssVars}>
-            {/* HeroBottomBar는 Portal에 유지하되, 내부 스타일링은 각 뷰에서 처리 */}
-            <HeroBottomBar isOn={isOn} />
-          </div>
         </>,
         document.body
       )}

@@ -118,7 +118,8 @@ export function buildSectionScrollTimeline(
     L[STAGES.TO_CTA] + 0.1
   );
 
-  tl.to(target, { y: -finalY, duration: t, ease: EASE.TRANSITION }, L[STAGES.TO_FOOTER]);
+  // [V12] 푸터 안착 시 부드러운 승차감(Easing) 테스트 적용
+  tl.to(target, { y: -finalY, duration: t, ease: 'power2.out' }, L[STAGES.TO_FOOTER]);
 
   // 4. [V11.Macro_Final] 전역 환경(배경색/헤더색) 통합 엔진
 
@@ -129,7 +130,8 @@ export function buildSectionScrollTimeline(
   // 초기 상태 강제 주입
   tl.set(document.documentElement, {
     '--bg': lastEnv.bg,
-    '--header-fg': lastEnv.fg
+    '--header-fg': lastEnv.fg,
+    '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)'
   }, 0);
 
   LOGO_JOURNEY_SECTIONS.forEach(({ label, stage }: { label: string, stage: string }) => {
@@ -151,10 +153,11 @@ export function buildSectionScrollTimeline(
                                (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r;
     
     tl.fromTo(document.documentElement, 
-      { '--header-fg': lastEnv.fg, '--bg': lastEnv.bg },
+      { '--header-fg': lastEnv.fg, '--bg': lastEnv.bg, '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)' },
       {
         '--header-fg': targetEnv.fg!,
         '--bg': targetEnv.bg!,
+        '--scroll-hint-fg': targetEnv.hintFg || 'rgba(240, 235, 227, 0.6)',
         duration: transitionDuration,
         ease: isForWhoToStory ? 'power2.inOut' : 'none',
         immediateRender: false
@@ -163,7 +166,45 @@ export function buildSectionScrollTimeline(
     );
 
 
-    lastEnv = { fg: targetEnv.fg!, bg: targetEnv.bg! };
+    lastEnv = { fg: targetEnv.fg!, bg: targetEnv.bg!, hintFg: targetEnv.hintFg };
   });
+
+  // 5. [V12 Dynamic Scroll Hint Pacing] 다이내믹 스크롤 힌트 노출 제어
+  // 애니메이션이나 글씨에 집중해야 하는 구간에서는 힌트를 끄고, 전환 직전(휴식 구간)에만 켭니다.
+  const hintTarget = '#global-scroll-hint';
+  
+  // 1. Hero -> Pain
+  // 네모가 안착한 뒤, 첫 번째 페인포인트 텍스트가 등장하는 시점(TO_PAIN + r * 0.4)에 숨김
+  tl.to(hintTarget, { autoAlpha: 0, duration: t * 0.5, ease: 'power2.out' }, L[STAGES.TO_PAIN] + (r * 0.4));
+  
+  // 공명(Resonance) 문장 퇴장 시 기기별(PC/Touch) 타이밍 분리
+  const isTouch = options.interactionMode === 'touch';
+  const resonanceDuration = L[STAGES.PAIN_TO_MSG] - L[STAGES.RESONANCE];
+  const resonanceHintInTime = isTouch 
+    ? L[STAGES.PAIN_TO_MSG] - (t * 0.8) 
+    : L[STAGES.PAIN_TO_MSG] - (resonanceDuration * 0.1); // PC는 구간이 길어 20% 지점 앞당겨 일찍 등장시킴
+
+  tl.to(hintTarget, { autoAlpha: 1, duration: t * 0.5, ease: 'power2.in' }, resonanceHintInTime);
+
+  // 2. Pain -> Message -> Core Funnel
+  // 네모가 수직 박스로 완전히 안착한 뒤, 첫 메시지가 밑에서 위로 솟아오르며 뷰포트에 등장할 때 힌트를 숨김
+  tl.to(hintTarget, { autoAlpha: 0, duration: t * 0.5, ease: 'power2.out' }, L[STAGES.TO_MESSAGE] + (t * 0.5));
+  
+  // 4번째 자동화 퍼널 박스가 등장하기 시작하는 시점 즈음 (전체 그리드 빌드 시간의 약 75% 지점)으로 앞당김
+  const gridDuration = L[STAGES.CORE_FUNNEL_SNAP] - L[STAGES.CORE_FUNNEL_BUILD];
+  const fourthFunnelFinishTime = L[STAGES.CORE_FUNNEL_BUILD] + (gridDuration * 0.75);
+  tl.to(hintTarget, { autoAlpha: 1, duration: t * 0.5, ease: 'power2.in' }, fourthFunnelFinishTime);
+
+  // 3. ForWho (가로 스와이프 구간)
+  // * 참고: 포후 캐러셀 릴레이 제어는 forwho.ts 빌더 내부에 선행 구현되어 있음.
+
+  // 4. Story -> CTA
+  // 스토리를 본격적으로 읽기 시작할 때 숨기고, 스토리 백스페이스(삭제) 연출 시 재등장
+  tl.to(hintTarget, { autoAlpha: 0, duration: t * 0.5, ease: 'power2.out' }, L[STAGES.TO_STORY]);
+  tl.to(hintTarget, { autoAlpha: 1, duration: t * 0.5, ease: 'power2.in' }, L[STAGES.STORY_ERASE]);
+
+  // 5. CTA 끝자락 (최종 소멸)
+  // 터미널 타이핑이 끝나고 YES/NO 버튼이 완전히 나타날 때(TO_FOOTER 직전) 스크롤 힌트 완전 소멸
+  tl.to(hintTarget, { autoAlpha: 0, duration: t * 0.5, ease: 'power2.out' }, L[STAGES.TO_FOOTER] - (t * 3));
 }
 

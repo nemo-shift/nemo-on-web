@@ -135,7 +135,7 @@ export function buildNemoTimeline(
   const aniRatio = 0.3; // 입차 애니메이션 비중 (30%)
   const animDuration = itemGap * aniRatio;
 
-  tl.to('#pain-scroll-hint', { opacity: 1, duration: ANIMS_CFG.UI_FADE }, L[STAGES.TO_PAIN] + waitOffset);
+
 
   PAIN_POINTS.forEach((point: any, i: number) => {
     const startTime = L[STAGES.TO_PAIN] + waitOffset + (i * itemGap);
