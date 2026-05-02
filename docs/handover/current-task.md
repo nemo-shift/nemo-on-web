@@ -2,9 +2,29 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-04-18: V18 Core Funnel Master Architecture - 4단계 빌드 및 시네마틱 팽창 시퀀스 구현 성료
+## [최신] ✅ 2026-05-01: V12.55 Cinematic Scroll Hint Engine & System Hardening 성료
 
-단순한 전이 구간이었던 메시지-포후 사이를 브랜드의 전문성을 시각적으로 증명하는 **'코어 퍼널(Core Funnel)'** 고도화 인터랙션으로 재탄생시켰습니다. GSAP 기반의 정밀한 물리 동기화와 기기별 반응형 레이아웃 엔진을 완벽히 안착시켰습니다.
+기존 섹션별로 산재되어 있던 스크롤 가이드를 하나의 지능형 엔진(`GlobalScrollHint`)으로 통합하고, 애니메이션 흐름에 따라 힌트가 스스로 숨고 나타나는 '시네마틱 페이싱'을 완성했습니다. 또한 전역 기기 상태 참조 체계를 표준화하여 시스템 안정성을 확보했습니다.
+
+### 💎 주요 달성 성과 (V12.55 Cinematic Hint & Hardening)
+
+- **Unified Guide & Baton Touch**: `GlobalScrollHint` 단일 포털 시스템 구축 및 포후 가로 힌트의 선제적 퇴장 타이밍(`exitStart - 0.1`) 최적화.
+- **Cinematic Pacing**: 텍스트 타이핑 및 모핑 구간 자동 숨김(`autoAlpha: 0`) 및 휴식 구간 재등장 로직 확립.
+- **Type-Safe Device Detection**: `useDevice` 훅을 통한 기기 상태 참조 표준화로 타입 에러 및 런타임 불안정성 원천 차단.
+- **Responsive 3-Axis Normalization**: PC/Tablet-P(10px)와 Mobile(9px)의 크기 분리를 통한 시각적 밀도 최적화.
+
+## ✅ 2026-04-24: V20 Final Narrative Completion & Footer Docking 성료
+
+브랜드 스토리부터 최종 CTA, 그리고 푸터 도킹으로 이어지는 '네모ON 여정'의 피날레를 완성했습니다. 특히 스크롤과 동기화된 텍스트 삭제 연출과 물리 수식 기반의 푸터 도킹 시스템을 안착시켰습니다.
+
+### 💎 주요 달성 성과 (V20 Narrative & Docking)
+
+- **Cinematic Story Bridge**: 배경 4분할 시퀀스 및 스토리 종료 시점의 '백스페이스(Erase) 삭제' 연출 구현.
+- **Terminal Booting Scenario**: CTA 섹션의 3단계 메시지 타이핑 및 네모 박스의 우아한 퇴장 시퀀스 완성.
+- **Precision Footer Docking**: CTA 섹션이 25vh 지점에서 멈추고 푸터와 결합되는 물리적 수식(`finalY`) 정립 및 Lenis 스크롤 영점 동기화.
+- **Struggling Success**: 푸터 끝단에서의 스크롤 덜컥거림 문제를 정밀 보간 수식으로 해결하여 부드러운 승차감 확보.
+
+## ✅ 2026-04-18: V18 Core Funnel Master Architecture - 4단계 빌드 및 시네마틱 팽창 시퀀스 구현 성료
 
 ### 💎 주요 달성 성과 (V18 Core Funnel Master)
 
@@ -26,11 +46,12 @@
   - **Z-Index Tiering Audit**: 퍼널용 UI 요소(화살표, 라벨)와 전역 메뉴/헤더 간의 레이어 간섭 여부 전수 검사 및 무결성 확인.
   - **Logo Morphing Sync**: 로고가 미리 `REC+ANGLE`로 변하던 이슈를 해결하고, 버스 이미지 리빌 시점에 맞춰 모핑이 시작되도록 여정 데이터(`LOGO_JOURNEY_SECTIONS`) 정밀 동기화.
 
-### 🧩 현재 진행 중인 과제: "Phase 5 - ForWho Content Infusion & High-Fidelity Transition"
+### 🧩 현재 진행 중인 과제: "Phase 6 - System Stability & Global Error Audit"
 
-- [ ] **[ForWho: 프레임 모핑]**: 거대하게 팽창한 버스 유리창이 캐러셀 프레임으로 정교하게 축소되며 나타나는 Step C 전이 완성.
-- [ ] **[ForWho: 카드 인터랙션]**: 서비스 카드 클릭 시 글래스모피즘 레이어가 부드럽게 리빌되는 상세 정보 전개 로직 고도화.
-- [ ] **[Mobile: Peeking Layout]**: 모바일 환경에서 다음 카드가 살짝 노출되어 스와이프를 유도하는 피킹 레이아웃 실측 및 UI 폴리싱.
+- [ ] **[Global: Console Error/Warning 전수 조사]**: 중복 ID(`pain-scroll-hint` 등) 및 리액트 경고 노이즈 제거.
+- [ ] **[Stability: useDevice Hook 표준화]**: 컴포넌트 전반의 기기 정보 참조 방식을 `useDevice` 훅으로 일원화하여 타입 에러 원천 차단.
+- [ ] **[ForWho: Final Polishing]**: 캐러셀 카드 퇴장 시 가로 힌트의 선제적 퇴장 타이밍 최종 실측 및 조정.
+- [ ] **[Documentation: Technical Handover]**: 최근 구현된 시네마틱 수식 및 반응형 규격 문서화 마무리.
 
 ---
 

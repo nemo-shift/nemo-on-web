@@ -1,4 +1,31 @@
-## [최신] 🚀 2026-04-18: V18 Core Funnel Master Architecture
+## [최신] 🚀 2026-05-01: V12.55 Cinematic Scroll Pacing & System Hardening
+
+- **GlobalScrollHint Architecture**: 
+  - 각 섹션에 파편화되어 있던 스크롤 힌트(`HeroBottomBar`, `PainHint` 등)를 `GlobalScrollHint` 단일 컴포넌트로 통합 및 `portal` 관리.
+  - GSAP 마스터 타임라인(`scroll.ts`)과 직접 통신하여 `autoAlpha` 및 좌표를 제어하는 '완전 관제 체계' 구축.
+- **Cinematic Pacing & Baton Touch**:
+  - 애니메이션(모핑, 타이핑 등) 중에는 힌트를 숨기고 '휴식 구간'에서만 노출하는 지능형 타이밍 가이드 확립.
+  - **[Detail]** 포후 섹션 가로 힌트(`ForWhoScrollHint`)가 캐러셀 퇴장 전 선제적으로(`exitStart - 0.1`) 페이드아웃되는 고도의 타이밍 동기화.
+- **Hybrid Responsive & Type Safety**: 
+  - PC/Tablet-P(10px)와 Mobile(9px)의 3단계 반응형 수치 최적화.
+  - `useDevice` 훅을 통한 전역 기기 상태 참조 체계 도입으로 컴포넌트 타입 안정성 확보 및 런타임 에러 차단.
+- **Environmental Theme Sync**:
+  - `journey.ts`의 `hintFg` 데이터와 CSS Variable(`--scroll-hint-fg`)을 연동하여 배경별 자동 색상 반전 안착.
+
+## 🚀 2026-04-24: V20 Final Narrative Completion & Footer Docking
+
+- **Brand Story Cinematic Sequence**:
+  - 4단계 배경 분할(Teal/White/Black) 및 텍스트 위계 전환 시스템 구현.
+  - 스토리 피날레에서의 다크 모드 강제 반전 및 터미널 커서 트리거 로직 안착.
+- **CTA Terminal Booting Scenario**:
+  - 스크롤 진행도와 1:1 동기화된 '백스페이스(Erase) 삭제' 브릿지 연출 구현.
+  - 3단계 메시지 타이핑 및 Yes/No 버튼 노출로 이어지는 터미널 부팅 시퀀스 완성.
+- **Footer Docking & Zero-Point Sync**:
+  - **Physics Formula**: 푸터 리빌 시 CTA 섹션이 1/4(25vh) 지점에서 멈추고 푸터와 결합되는 물리적 수식(`finalY`) 정립.
+  - **Struggling**: Lenis 스크롤러와 GSAP ScrollTrigger 간의 푸터 끝단 '덜컥거림' 및 영점 불일치 문제를 정밀 보정 수식으로 해결.
+- **Nemo Final Exit**: CTA 버튼 노출 시점에 맞춰 네모 박스가 터미널 속으로 녹아들며 사라지는 최종 퇴장 시퀀스 확립.
+
+## 🚀 2026-04-18: V18 Core Funnel Master Architecture
 
 - **Multi-Slot Build Engine**: 1개 SharedNemo가 4개 프로세스로 분화되는 동적 슬롯 시스템 안착.
 - **Smart Rotation Engine**: 상위-하위 슬롯 간의 상대 좌표를 계산하여 화살표 각도를 지능적으로 제어.

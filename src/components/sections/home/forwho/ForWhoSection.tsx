@@ -3,6 +3,7 @@ import { FOR_WHO_TOP_SENTENCE, FOR_WHO_PHILOSOPHY } from '@/data/home/forwho';
 import ForWhoCarousel, { ForWhoCarouselHandle } from './ForWhoCarousel';
 import { cn } from '@/lib/utils';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import { useDevice } from '@/context';
 
 export interface ForWhoSectionHandle {
   containerRef: React.RefObject<HTMLElement | null>;
@@ -21,6 +22,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
   const contentWrapperRef = useRef<HTMLDivElement>(null);
   const philosophyRef = useRef<HTMLDivElement>(null); // 철학 문구용 ref
   const carouselRef = useRef<ForWhoCarouselHandle>(null); // 캐러셀 제어용 ref
+  const { isMobile, isMobileView, isTabletPortrait } = useDevice();
 
   // 전역 필터링 및 엔진 제어를 위한 핸들 노출
   useImperativeHandle(ref, () => ({
@@ -55,23 +57,24 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
           ref={introTextRef}
           className={cn(
             "absolute z-20 opacity-0 pointer-events-none",
-            "right-[10%] tablet:right-[15%] desktop-wide:right-[20%]",
-            "text-right select-none translate-y-8"
+            "text-left select-none",
+            // [V57] 아키텍처 기반 기기별 배타적 출발점 (PC/Tablet/Mobile 모두 우측 하단 출발)
+            !isMobileView && "left-[60%] bottom-[23%]", // PC: 버스 안 우측 하단 (복원)
+            isTabletPortrait && "left-[50%] bottom-[25%]", // Tablet: 우측 하단 (좌측으로 살짝 이동)
+            isMobile && "left-[44%] bottom-[25%]" // Mobile: 우측 하단
           )}
         >
-          <div className="relative px-8 py-6 rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-md" />
-            <h3 className={cn(
-              "relative font-suit leading-tight tracking-tight text-white",
-              "text-2xl tablet-p:text-3xl tablet:text-4xl desktop-wide:text-5xl"
-            )}>
-              {FOR_WHO_TOP_SENTENCE.split(' ').map((word, i) => (
-                <span key={i} className="inline-block mr-[0.3em] last:mr-0">
-                  {word}
-                </span>
-              ))}
-            </h3>
-          </div>
+          <h2 
+            className="text-white font-suit font-bold tracking-tight"
+            style={{ 
+              lineHeight: 1.4,
+              fontSize: !isMobileView ? "3rem" : isTabletPortrait ? "2.5rem" : "1.35rem"
+            }}
+          >
+            {FOR_WHO_TOP_SENTENCE.split('\n').map((line, i) => (
+              <span key={i} className="block">{line}</span>
+            ))}
+          </h2>
         </div>
 
         {/* 2. 브랜드 철학 문구 리빌 레이어 (Underneath Carousel) */}
@@ -85,13 +88,13 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
           <div className="space-y-4 tablet:space-y-6">
             <p className={cn(
               "font-suit font-medium text-zinc-500 tracking-wider", // 다크 그레이
-              "text-lg tablet:text-xl desktop:text-2xl"
+              "text-lg tablet-p:text-xl tablet:text-2xl"
             )}>
               {FOR_WHO_PHILOSOPHY.line1}
             </p>
             <h2 className={cn(
               "font-suit font-bold text-zinc-900 leading-tight tracking-tight", // 딥 다크
-              "text-3xl tablet:text-4xl desktop:text-5xl desktop-wide:text-6xl"
+              "text-3xl tablet-p:text-4xl tablet:text-5xl"
             )}>
               {FOR_WHO_PHILOSOPHY.line2}
             </h2>

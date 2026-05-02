@@ -11,7 +11,7 @@ export interface ForWhoItem {
   };
 }
 
-export const FOR_WHO_TOP_SENTENCE = '새로운 가능성을 가장 선명한 브랜드로 일구는 당신에게';
+export const FOR_WHO_TOP_SENTENCE = '다음을 찾고 있다면,\n지금 어느 지점이신가요?';
 
 export const FOR_WHO_LIST: ForWhoItem[] = [
   {
@@ -21,9 +21,9 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '아이디어는 있지만, 어떻게 해야할지 막막한 분',
     philosophy: '첫 브랜딩 경험을 함께 만들어가는 멘토',
     image: {
-      src: '/images/home/forwho/target1.png',
+      src: '/images/home/forwho/target1.jpg',
       alt: '예비창업가 이미지',
-      objectPosition: 'left top',
+      objectPosition: '75% center',
     },
   },
   {
@@ -35,7 +35,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     image: {
       src: '/images/home/forwho/target2.jpg',
       alt: '성장모색 대표님 이미지',
-      objectPosition: 'left bottom',
+      objectPosition: '41% center',
     },
   },
   {
@@ -45,9 +45,9 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     description: '리뉴얼과 자동화로, 더 잘 작동하는 브랜드를 만들고 싶은 대표님',
     philosophy: '브랜드를 확장 가능한 구조로 설계하는 파트너',
     image: {
-      src: '/images/home/forwho/target3.jpg',
+      src: '/images/home/forwho/target3_fixed.jpg',
       alt: '확장을 준비하는 대표님 이미지',
-      objectPosition: 'right bottom',
+      objectPosition: 'center 70%',
     },
   },
   {

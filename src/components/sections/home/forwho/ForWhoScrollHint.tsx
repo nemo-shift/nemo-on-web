@@ -48,9 +48,10 @@ export default function ForWhoScrollHint({ visible }: ForWhoScrollHintProps): Re
     <div 
       id="forwho-scroll-hint"
       className={cn(
-        "absolute bottom-[10vh] md:bottom-[15vh] right-[5%] md:right-[10%] lg:right-[15%] z-30 transition-opacity duration-500",
-        visible ? "opacity-100" : "opacity-0 pointer-events-none"
+        "absolute bottom-[10vh] tablet-p:bottom-[15vh] right-[5%] tablet-p:right-[10%] tablet:right-[15%] z-30",
+        "flex flex-col items-center gap-3 select-none pointer-events-none"
       )}
+      style={{ opacity: 0, visibility: 'hidden' }}
     >
       <div className="flex flex-col items-start gap-2">
         {/* 상단 텍스트 (SWIPE) */}

@@ -22,6 +22,7 @@ export function buildForWhoTimeline(
   if (!forwho || !nemo?.nemoEl) return;
 
   const { constants, data } = options.registry;
+  const { isMobile, isMobileView, isTabletPortrait } = options;
   const { NEMO_RESPONSIVE_LAYOUT, EASE, TIMING_CFG } = constants;
   const FORWHO_FRAME = NEMO_RESPONSIVE_LAYOUT.FORWHO_FRAME;
   
@@ -58,16 +59,47 @@ export function buildForWhoTimeline(
     tl.call(() => {
       forwho.resetCards();
     }, [], start);
+
+    // [V43.Fix] 다른 페이지 복귀 시 남아있는 이미지 왜곡 잔상을 강제로 초기화
+    if (nemo.imageEl) {
+      tl.set(nemo.imageEl, { 
+        scaleX: 1, 
+        scaleY: 1, 
+        skewX: 0, 
+        filter: 'blur(0px)',
+        autoAlpha: 1,
+        immediateRender: false 
+      }, start);
+    }
   }
 
   // STEP C: Carousel Transformation
   const frame = FORWHO_FRAME[mode];
 
+  // [V43.Fix] %, vw, vh 단위를 px 단위로 변환 (모바일/태블릿 픽셀 퍼펙트 대응)
+  const getSafePos = (val: string | number, isWidth: boolean) => {
+    if (typeof val === 'number') return val;
+    const str = val.toString();
+    const base = isWidth ? window.innerWidth : window.innerHeight;
+    
+    if (str.includes('%')) return base * (parseFloat(str) / 100);
+    if (str.includes('vw')) return window.innerWidth * (parseFloat(str) / 100);
+    if (str.includes('vh')) return window.innerHeight * (parseFloat(str) / 100);
+    
+    return parseFloat(str) || 0;
+  };
+
+  // [V43.Detail] 브라우저 원본 값을 사용하여 서브픽셀 오차 방지
+  const getTargetW = () => getForWhoTargetRect()?.width ?? getSafePos(frame.w, true);
+  const getTargetH = () => getForWhoTargetRect()?.height ?? getSafePos(frame.h, false);
+  const getTargetL = () => getForWhoTargetRect()?.left ?? getSafePos(frame.left, true);
+  const getTargetT = () => getForWhoTargetRect()?.top ?? getSafePos(frame.top, false);
+
   tl.to(nemo.nemoEl, {
-    width: () => (getForWhoTargetRect()?.width ?? frame.w) - 2,
-    height: () => (getForWhoTargetRect()?.height ?? frame.h) - 2,
-    left: () => (getForWhoTargetRect()?.left ?? frame.left) + 1,
-    top: () => (getForWhoTargetRect()?.top ?? frame.top) + 1,
+    width: () => getTargetW() - 2,  // 양쪽 보더(1px * 2) 고려
+    height: () => getTargetH() - 2, // 상하 보더(1px * 2) 고려
+    left: () => getTargetL() + 1,   // 보더 두께만큼 안쪽으로 이동
+    top: () => getTargetT() + 1,
     borderRadius: frame.borderRadius,
     duration: (effectiveEnd - frameMorphStart) * r,
     ease: EASE.TRANSITION
@@ -93,32 +125,113 @@ export function buildForWhoTimeline(
       ease: 'power2.inOut'
     }, distortionStart);
 
-    const swapPoint = distortionStart + distortionDuration + 0.03;
+    const swapPoint = distortionStart + distortionDuration;
     
+    // [V43.Fix] 버스 이미지 페이드아웃 가속 (0.3s -> 0.1s)
     tl.to([nemo.nemoEl, nemo.imageEl], { 
       autoAlpha: 0, 
-      duration: 0.3,
-      ease: 'power2.in',
+      duration: 0.1, 
+      ease: 'none',
       immediateRender: false 
     }, swapPoint);
 
     if (forwho.contentWrapperRef.current) {
+      // 캐러셀 등장 시점을 버스 이미지 소멸 시점과 더 밀접하게 동기화
       tl.set(forwho.contentWrapperRef.current, { autoAlpha: 0, transition: 'none', immediateRender: false }, frameMorphStart);
-      tl.set(forwho.contentWrapperRef.current, { autoAlpha: 1, transition: 'none', immediateRender: false }, swapPoint - 0.2); 
+      // [V63] 삼위일체 동기화: 캐러셀 안착 즉시 드래그 허용
+      tl.set(forwho.contentWrapperRef.current, { 
+        autoAlpha: 1, 
+        pointerEvents: "auto", // 드래그 즉시 허용
+        transition: 'none', 
+        immediateRender: false 
+      }, swapPoint); 
+      
+      // [V51] 안착 시점에 화살표 및 힌트 즉시 노출 (효과 없이 딱!)
+      // [V63] 삼위일체 동기화: 안착 시점에 화살표 및 힌트 즉시 노출 (오프셋 0)
+      tl.set("#forwho-arrows, #forwho-scroll-hint", {
+        autoAlpha: 1,
+        pointerEvents: "auto",
+        immediateRender: false // 안착 전 노출 방지 핵심 설정
+      }, swapPoint); 
+      
+      // [V49] 기기별 맞춤 타이틀 트랜스포메이션 (Mobile / Tablet / PC 분기)
+      if (forwho.introTextRef.current) {
+        const titleEl = forwho.introTextRef.current.querySelector('h2');
+        const animDuration = 0.8;
+        const animStart = swapPoint - 0.8;
+
+
+        // 2. 위치 및 디자인 이동 애니메이션
+        if (!isMobileView) {
+          // [V57] PC: 수평 이동(Side-ways) 시네마틱 궤적 복원
+          const titleEl = forwho.introTextRef.current?.querySelector('h2');
+          tl.to(forwho.introTextRef.current, {
+            left: "6%",
+            top: "50%", // 안착 지점
+            yPercent: -50,
+            xPercent: 0,
+            duration: 1.2,
+            ease: "power3.inOut"
+          }, animStart);
+
+          if (titleEl) {
+            tl.to(titleEl, {
+              fontSize: "2.5rem",
+              lineHeight: 1.4,
+              color: "#1a1a1a",
+              duration: 1.2,
+              ease: "power3.inOut"
+            }, animStart);
+          }
+        } else if (isTabletPortrait) {
+          // [V57] Tablet Portrait: 카드 위 좌측 상단 안착
+          const titleEl = forwho.introTextRef.current?.querySelector('h2');
+          tl.to(forwho.introTextRef.current, {
+            left: "8%",
+            top: "15%", // 카드 이미지 위 여백
+            yPercent: 0,
+            xPercent: 0,
+            duration: 1.2,
+            ease: "power3.inOut"
+          }, animStart);
+
+          if (titleEl) {
+            tl.to(titleEl, {
+              fontSize: "1.7rem",
+              lineHeight: 1.4,
+              color: "#4e4c4cff",
+              textAlign: "left",
+              duration: 1.2,
+              ease: "power3.inOut"
+            }, animStart);
+          }
+        } else if (isMobile) {
+          // [V57] Mobile: 카드 위 좌측 상단 정밀 안착
+          const titleEl = forwho.introTextRef.current?.querySelector('h2');
+          tl.to(forwho.introTextRef.current, {
+            left: "8%",
+            top: "20%", // 사용자 지정 안착 지점
+            yPercent: 0,
+            xPercent: 0,
+            duration: 1.2,
+            ease: "power3.inOut"
+          }, animStart);
+
+          if (titleEl) {
+            tl.to(titleEl, {
+              fontSize: "1.3rem",
+              lineHeight: 1.4,
+              color: "#4e4c4cff", 
+              textAlign: "left",
+              duration: 1.2,
+              ease: "power3.inOut"
+            }, animStart);
+          }
+        }
+      }
     }
   }
 
-  if (forwho.introTextRef.current) {
-    tl.to(forwho.introTextRef.current, {
-      top: '12%', 
-      left: mode === 'PC' ? '14%' : '5%',
-      x: 0,
-      scale: 0.6,
-      opacity: 0.8,
-      duration: (effectiveEnd - frameMorphStart) * r,
-      ease: EASE.TRANSITION
-    }, frameMorphStart);
-  }
 
   // STEP D & E: [V12 Unified] Carousel Lifecycle & Philosophy Reveal + Finale
   if (forwho.contentWrapperRef.current && forwho.philosophyRef.current) {

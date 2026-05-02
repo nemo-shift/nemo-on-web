@@ -21,6 +21,14 @@
 
 ---
 
+### [x] [6A] V12.55 Cinematic Scroll Hint & Guide Layer Consolidation (2026-05-01 완료)
+
+- **대상**: `GlobalScrollHint.tsx`, `ForWhoScrollHint.tsx`, `builders/scroll.ts`, `builders/forwho.ts`
+- **내용**: 각 섹션에 산재된 힌트를 `GlobalScrollHint`로 통합 관리. 애니메이션 진행 상태와 연동된 '시네마틱 페이싱' 로직 도입.
+- **성과**: 가이드 UI의 전역 관제 체계 확립 및 사용자 몰입도 방해 요소(시각적 노이즈) 제거. 기기별 3단계 반응형 수치 최적화 안착.
+
+---
+
 ### [x] [5B] V11 Macro Final - 인터랙션 엔진 정규화 완결 (2026-04-17 완료)
 
 - **대상**: `GlobalInteractionStage.tsx`, `global-interaction-utils.ts`, `interaction-registry.ts`, `builders/*.ts`

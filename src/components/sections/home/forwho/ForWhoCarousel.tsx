@@ -50,17 +50,24 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  // [V50] 수동 무한 루프 구현을 위한 데이터 확장 (앞뒤로 하나씩 추가)
+  const swiperRef = useRef<any>(null);
+  const showArrow = !isMobileView && interactionMode === 'mouse';
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full flex items-center justify-center py-10"
+      className={cn(
+        "relative w-full h-full flex pt-28 pb-10",
+        // PC: 왼쪽 타이틀 공간 확보를 위한 스플릿 구도
+        "flex-col tablet:flex-row items-center justify-center tablet:justify-end"
+      )}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* 1. 하이엔드 마그네틱 커서 (PC Only / Experimental) */}
-      {!isMobileView && interactionMode === 'mouse' && isHovering && (
+      {/* 1. 하이엔드 마그네틱 커서 (PC Only) */}
+      {showArrow && isHovering && (
         <div 
           className="pointer-events-none absolute z-50 mix-blend-difference hidden tablet:flex items-center justify-center w-24 h-24 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm transition-transform duration-200 ease-out"
           style={{ 
@@ -75,38 +82,65 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
         </div>
       )}
 
-      <Swiper
-        modules={[Navigation, Autoplay, EffectCoverflow]}
-        loop={true}
-        spaceBetween={isMobileView || isTabletPortrait ? 16 : 40}
-        slidesPerView={isMobileView || isTabletPortrait ? 1.08 : 1.5}
-        centeredSlides={true}
-        grabCursor={true}
-        navigation={!isMobileView && interactionMode === 'mouse'}
-        onSlideChange={(swiper) => {
-          setExpandedId(null);
-          if (typeof window !== 'undefined') {
-            (window as any).__forWhoCurrentIndex = swiper.realIndex;
-          }
-        }}
-        onInit={(swiper) => {
-          if (typeof window !== 'undefined') {
-            (window as any).__forWhoCurrentIndex = swiper.realIndex;
-          }
-        }}
-      >
-        {FOR_WHO_LIST.map((item) => (
-          <SwiperSlide key={item.id} className="pb-12">
-            <div 
-              onClick={() => toggleExpand(item.id)}
-              className={cn(
-                "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer shadow-2xl mx-auto",
-                "h-[50vh] tablet:h-[55vh] tablet-p:h-[52vh]",
-                // PC에서는 와이드 비율을 위해 너비 제한, 모바일은 여백을 위해 90%
-                "w-[90%] tablet:w-full desktop:max-w-[70vw] desktop-wide:max-w-[65vw]",
-                expandedId === item.id ? "scale-[1.02]" : "hover:scale-[0.98]"
-              )}
-            >
+      {/* 2. 커스텀 내비게이션 화살표 (PC 전용 - 우측 영역 내부로 제한) */}
+      {showArrow && (
+        <div id="forwho-arrows" className="opacity-0 pointer-events-none transition-none">
+          <div 
+            className="absolute top-1/2 -translate-y-1/2 left-[35%] z-50 cursor-pointer p-6 group swiper-button-prev-custom"
+            onClick={(e) => {
+              e.stopPropagation();
+              swiperRef.current?.slidePrev();
+            }}
+          >
+            <div className="text-white/60 group-hover:text-white group-hover:-translate-x-1 transition-all duration-300 drop-shadow-md">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+          </div>
+          <div 
+            className="absolute top-1/2 -translate-y-1/2 right-[5%] z-50 cursor-pointer p-6 group swiper-button-next-custom"
+            onClick={(e) => {
+              e.stopPropagation();
+              swiperRef.current?.slideNext();
+            }}
+          >
+            <div className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all duration-300 drop-shadow-md">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. 캐러셀 영역 (PC: 우측 70% 차지) */}
+      <div className="w-full tablet:w-[70%] h-full flex items-center">
+        <Swiper
+          onSwiper={(swiper) => { swiperRef.current = swiper; }}
+          modules={[Navigation, Autoplay, EffectCoverflow]}
+          loop={true} 
+          className="forwho-swiper w-full"
+          spaceBetween={isMobileView || isTabletPortrait ? 16 : 0}
+          slidesPerView={1.0} // PC에서도 이제 한 장씩만
+          centeredSlides={true}
+          grabCursor={true}
+          watchSlidesProgress={true}
+          navigation={false}
+          onSlideChange={(swiper) => {
+            setExpandedId(null);
+            if (typeof window !== 'undefined') {
+              (window as any).__forWhoCurrentIndex = swiper.realIndex;
+            }
+          }}
+        >
+          {FOR_WHO_LIST.map((item, index) => (
+            <SwiperSlide key={`${item.id}-${index}`} className="pb-12">
+              <div 
+                onClick={() => toggleExpand(item.id)}
+                className={cn(
+                  "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer mx-auto",
+                  "h-[45vh] mobile:h-[48vh] tablet-p:h-[52vh] tablet:h-[60vh]",
+                  "w-full tablet:w-[85%]", // 카드 너비 미세 조정
+                  expandedId === item.id ? "scale-[1.01]" : "scale-100"
+                )}
+              >
               {/* 카드 이미지 레이어 */}
               <div className="absolute inset-0 w-full h-full overflow-hidden">
                 <Image
@@ -121,17 +155,16 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                   )}
                   style={{ objectPosition: item.image.objectPosition }}
                 />
-                {/* 시네마틱 오버레이 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                {/* 시네마틱 오버레이 제거 (깔끔한 배경 유도) */}
               </div>
 
-              {/* 기본 노출 정보 (Target Name) */}
+              {/* 기본 노출 정보 (왼쪽 상단 배치 & 블랙 테마) */}
               <div className={cn(
-                "absolute bottom-8 left-8 right-8 z-10 transition-all duration-500",
-                expandedId === item.id ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+                "absolute top-10 left-10 z-10 transition-all duration-500",
+                expandedId === item.id ? "opacity-0 -translate-y-4" : "opacity-100 translate-y-0"
               )}>
-                <p className="text-white/50 text-xs font-suit mb-2 tracking-widest uppercase">{item.flow}</p>
-                <h4 className="text-white text-3xl tablet:text-4xl font-suit font-bold tracking-tight">
+                <p className="text-white/50 text-[10px] tablet-p:text-[11px] tablet:text-xs font-suit mb-2 tracking-[0.2em] uppercase font-bold">{item.flow}</p>
+                <h4 className="text-white text-2xl tablet-p:text-3xl tablet:text-4xl font-suit font-bold tracking-tight leading-tight">
                   {item.target}
                 </h4>
               </div>
@@ -146,11 +179,11 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                   {/* 타겟 & 흐름 재강조 */}
                   <div className="space-y-1">
                     <p className="text-white/60 text-[10px] tracking-[.3em] uppercase">{item.flow}</p>
-                    <h5 className="text-white text-2xl tablet:text-3xl font-suit font-bold">{item.target}</h5>
+                    <h5 className="text-white text-2xl tablet-p:text-[1.75rem] tablet:text-3xl font-suit font-bold">{item.target}</h5>
                   </div>
 
                   {/* 설명 */}
-                  <p className="text-white/90 text-sm tablet:text-base font-suit leading-relaxed break-keep">
+                  <p className="text-white/90 text-sm tablet-p:text-[0.9375rem] tablet:text-base font-suit leading-relaxed break-keep">
                     {item.description}
                   </p>
 
@@ -160,7 +193,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                   {/* 네모:ON의 역할/철학 */}
                   <div className="space-y-2">
                     <p className="text-[10px] text-white/40 tracking-wider">네모:ON의 역할</p>
-                    <p className="text-white font-suit font-medium text-lg tablet:text-xl">
+                    <p className="text-white font-suit font-medium text-lg tablet-p:text-[1.125rem] tablet:text-xl">
                       {item.philosophy}
                     </p>
                   </div>
@@ -176,21 +209,48 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             </div>
           </SwiperSlide>
         ))}
-      </Swiper>
+        </Swiper>
+      </div>
 
       {/* 가로 스크롤 힌트 UI (Step 4 신규) */}
       <ForWhoScrollHint visible={expandedId === null} />
 
       <style jsx global>{`
+        .forwho-swiper .swiper-slide {
+          backface-visibility: visible !important;
+          -webkit-backface-visibility: visible !important;
+          transform-style: preserve-3d !important;
+          visibility: visible !important;
+        }
+
         .forwho-swiper .swiper-button-next,
         .forwho-swiper .swiper-button-prev {
-          color: white;
-          opacity: 0.3;
-          transition: opacity 0.3s;
+          color: #18181b; /* zinc-900 계열의 어두운 색상 */
+          opacity: 0.4;
+          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+          width: 40px;
+          height: 40px;
         }
+
+        .forwho-swiper .swiper-button-prev {
+          left: 10%;
+        }
+
+        .forwho-swiper .swiper-button-next {
+          right: 10%;
+        }
+
+        .forwho-swiper .swiper-button-next:after,
+        .forwho-swiper .swiper-button-prev:after {
+          font-size: 18px; /* 크기 축소 */
+          font-weight: 900;
+        }
+
         .forwho-swiper .swiper-button-next:hover,
         .forwho-swiper .swiper-button-prev:hover {
-          opacity: 1;
+          opacity: 0.9;
+          transform: scale(1.15);
+          color: #000;
         }
       `}</style>
     </div>

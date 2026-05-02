@@ -277,8 +277,14 @@ export function getForWhoTargetRect(): { left: number; top: number; width: numbe
 
   const rect = target.getBoundingClientRect();
   
-  // 0번 카드가 뷰포트 밖이거나 아직 렌더링되지 않은 경우(width 0) 방어
-  if (rect.width === 0) return null;
+  // [V43.Fix] 비정상적인 좌표 캡처 방지 (철벽 가드 V2)
+  const isTooHigh = rect.top < window.innerHeight * 0.2;
+  const isTooLow = rect.top > window.innerHeight;
+  const isTooNarrow = rect.width < 300;
+  
+  if (isTooHigh || isTooLow || isTooNarrow) {
+    return null;
+  }
 
   return {
     left: rect.left + rect.width / 2,
