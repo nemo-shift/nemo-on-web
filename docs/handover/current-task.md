@@ -2,7 +2,37 @@
 > **문서 목적**: 네모:ON의 **'현재 진행 상황'** 실시간 기록소. 우리가 지금까지 완벽하게 완수한 성취(✅)와 오늘 당장 땀 흘려 처리 중인 작업들을 관리하여 프로젝트의 연속성을 보장함.
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
-## [최신] ✅ 2026-05-01: V12.55 Cinematic Scroll Hint Engine & System Hardening 성료
+
+## [최신] ✅ 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync 성료
+
+ForWho 섹션의 반응형 아키텍처를 프로젝트 표준인 3단 분리 체계(Mobile/Tablet-P/Others)로 정규화하고, "눈에 보이면 즉시 조작 가능하다"는 UX 원칙에 따라 타이틀 안착, UI 노출, 드래그 허용 시점을 1ms의 오차 없이 동기화한 '삼위일체(Trinity) 동기화'를 완성했습니다.
+
+### 💎 주요 달성 성과 (V63 ForWho Normalization & Trinity Sync)
+
+- **Architecture: 3-Way Logic Decoupling**:
+  - `builders/forwho.ts`와 `ForWhoSection.tsx` 내의 혼재된 분기문을 `isMobile`, `isTabletPortrait`, `!isMobileView` 기반의 배타적 3단 체계로 전면 재편.
+  - **기기별 시작점(Origin) 좌표 확정**:
+    - PC: `left-[60%] bottom-[23%]` (버스 안 우측 하단 복원)
+    - Tablet-P: `left-[50%] bottom-[25%]` (시각적 균형 보정)
+    - Mobile: `left-[44%] bottom-[25%]` (가독성 중심 배치)
+  - **기기별 안착점(Target) 폰트 정밀화**: `rem` 단위를 직접 사용하여 소수점 단위 조절 구조 확보 (PC: 3rem / Tablet-P: 2.5rem / Mobile: 1.35rem).
+
+- **UX: Trinity Synchronization (삼위일체 동기화)**:
+  - **동기화 지점 통합**: '타이틀 안착 = 화살표/힌트 등장 = 드래그 허용(`pointer-events: auto`)시점을 `swapPoint` 단일 지점으로 일치시켜 "보이는 즉시 만질 수 있는" 하이엔드 경험 구현.
+  - **Zero-Delay Reveal**: `tl.to` 대신 `tl.set`을 사용하여 애니메이션 지연 없이 UI가 즉시 노출되도록 개선.
+  - **ImmediateRender Bug Defense**: GSAP `.set()`의 선행 렌더링 성질로 인해 안착 전 UI가 보이던 버그를 `immediateRender: false` 명시를 통해 근본적으로 박멸.
+
+- **UI: Architectural Layout Cleanup**:
+  - `ForWhoCarousel.tsx` 및 `ForWhoSection.tsx` 내의 낡은 Tailwind 브레이크포인트(`md:`, `lg:`)를 프로젝트 전용 규격(`tablet-p:`, `tablet:`)으로 전수 교체.
+  - 카드 내부 텍스트(Flow, Target, Description 등)의 위계를 3단계로 정밀화하여 태블릿 세로 모드의 시각적 공백 해결.
+
+### 🧩 차기 핵심 과제: "Phase 7 - Fluid Typography & CSS Engine Handover"
+
+- [ ] **[Step 1: ForWhoSection Fluid Typography]**: `h2` 시작 타이틀에 Tailwind Arbitrary `clamp()`를 적용하여 브라우저 리사이즈 시 실시간 가변 폰트 구현.
+- [ ] **[Step 2: Builder Logic Handover]**: GSAP에서 `fontSize` 강제 주입을 제거하고 `inherit` 혹은 제어권 양도를 통해 안착 후에도 `clamp` 엔진이 살아있게 보존.
+- [ ] **[Consistency Audit]**: 포후 섹션 내의 나머지 고정 수치 텍스트들을 동일한 유동적 시스템으로 전이.
+33: 
+34: ## ✅ 2026-05-01: V12.55 Cinematic Scroll Hint Engine & System Hardening 성료
 
 기존 섹션별로 산재되어 있던 스크롤 가이드를 하나의 지능형 엔진(`GlobalScrollHint`)으로 통합하고, 애니메이션 흐름에 따라 힌트가 스스로 숨고 나타나는 '시네마틱 페이싱'을 완성했습니다. 또한 전역 기기 상태 참조 체계를 표준화하여 시스템 안정성을 확보했습니다.
 

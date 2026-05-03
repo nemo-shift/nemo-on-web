@@ -1,4 +1,19 @@
-## [최신] 🚀 2026-05-01: V12.55 Cinematic Scroll Pacing & System Hardening
+## [최신] 🚀 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync
+ 
+- **ForWho Architecture Normalization**: 
+  - ForWho 섹션의 모든 반응형 분기를 `isMobile`, `isTabletPortrait`, `!isMobileView`의 3단계로 정규화하여 시스템 무결성 확보.
+  - Tailwind 커스텀 브레이크포인트(`tablet-p`, `tablet`)와 JS 기기 감지 변수 간의 1:1 매칭 프로토콜 확립.
+- **Trinity Synchronization Protocol**:
+  - **Single-Point Control**: 타이틀 안착, UI 노출, 조작 허용(`pointer-events`)을 `swapPoint` 단일 지점으로 물리적 동기화.
+  - **Zero-Delay Engine**: `tl.set` 기반의 즉시 노출 시스템 및 `immediateRender: false`를 통한 선행 렌더링 글리치(Glitch) 완벽 방어.
+- **Architectural UI/UX Bifurcation (이원화 설계)**:
+  - **UX 축**: `interactionMode`('mouse' | 'touch')에 따른 기능적 분리 (마그네틱 커서 vs 터치 스와이프).
+  - **UI 축**: Tailwind 브레이크포인트에 따른 레이아웃적 분리 (PC 스플릿 vs 모바일 스택).
+  - 이 두 축이 독립적으로 작동하면서도 시각적으로 공명하는 하이엔드 반응형 체계 구축.
+- **Responsive Font Normalization**: 
+  - `rem` 단위를 활용한 정밀 폰트 제어 및 브레이크포인트별 독립 수치 할당 체계 안착.
+
+## 🚀 2026-05-01: V12.55 Cinematic Scroll Pacing & System Hardening
 
 - **GlobalScrollHint Architecture**: 
   - 각 섹션에 파편화되어 있던 스크롤 힌트(`HeroBottomBar`, `PainHint` 등)를 `GlobalScrollHint` 단일 컴포넌트로 통합 및 `portal` 관리.

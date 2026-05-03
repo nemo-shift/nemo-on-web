@@ -1,9 +1,27 @@
 > [!NOTE]
 > **문서 목적**: 네모:ON의 **'기술적 진화 및 결정 기록'**. 과거의 수많은 리팩토링 여정과 아키텍처적 선언들을 추적하여, 왜 지금의 구조가 탄생했는지에 대한 '이유'를 보존함.
 
-<!-- 실행 로드맵-->
+# [Roadmap] 프로젝트 기술 진화 실행 로드맵
 
-# [IMPORTANT] Antigravity 전역 소통 및 실행 프로토콜 (v14.11)
+### [ ] [7B] V64 Fluid Typography System (유동적 폰트 시스템)
+
+- **대상**: `ForWhoSection.tsx`, `builders/forwho.ts`
+- **내용**: 
+  - **Step 1**: Tailwind Arbitrary `clamp()`를 활용하여 브라우저 너비에 실시간 비례하는 시작점 폰트 구현.
+  - **Step 2**: GSAP의 `fontSize` 강제 주입을 제거하고 제어권을 CSS 엔진으로 양도하여 안착 후 유동성 보존.
+- **목적**: 브레이크포인트 간의 '턱'이 없는 살아있는 타이포그래피 구현 및 아키텍처적 유연성 확보.
+
+---
+
+### [x] [7A] V63 ForWho Architecture Normalization & Trinity Sync (2026-05-02 완료)
+
+- **대상**: `ForWhoSection.tsx`, `ForWhoCarousel.tsx`, `builders/forwho.ts`
+- **내용**: ForWho 섹션의 반응형 로직을 `isMobile / Tablet-P / Others` 3단 체계로 정규화. 타이틀 안착, UI 노출, 조작 허용 시점을 `swapPoint`로 일치시킨 '삼위일체(Trinity) 동기화' 구현.
+- **성과**: UX/UI 이원화 설계 안착 및 기기별 독립 로직 구축으로 시스템 안정성 극대화. GSAP `immediateRender` 버그 정복.
+
+---
+
+### [x] [6A] V12.55 Cinematic Scroll Hint & Guide Layer Consolidation (2026-05-01 완료)
 
 본 문서는 프로젝트 수행 시 Antigravity가 반드시 준수해야 할 **'최상위 행동 지침'**입니다.
 
