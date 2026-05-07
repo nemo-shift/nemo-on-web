@@ -166,7 +166,7 @@ export function buildForWhoTimeline(
           // [V57] PC: 수평 이동(Side-ways) 시네마틱 궤적 복원
           const titleEl = forwho.introTextRef.current?.querySelector('h2');
           tl.to(forwho.introTextRef.current, {
-            left: "6%",
+            left: "5%",
             top: "50%", // 안착 지점
             yPercent: -50,
             xPercent: 0,
@@ -176,7 +176,6 @@ export function buildForWhoTimeline(
 
           if (titleEl) {
             tl.to(titleEl, {
-              fontSize: "2.5rem",
               lineHeight: 1.4,
               color: "#1a1a1a",
               duration: 1.2,
@@ -197,7 +196,6 @@ export function buildForWhoTimeline(
 
           if (titleEl) {
             tl.to(titleEl, {
-              fontSize: "1.7rem",
               lineHeight: 1.4,
               color: "#4e4c4cff",
               textAlign: "left",
@@ -219,7 +217,6 @@ export function buildForWhoTimeline(
 
           if (titleEl) {
             tl.to(titleEl, {
-              fontSize: "1.3rem",
               lineHeight: 1.4,
               color: "#4e4c4cff", 
               textAlign: "left",

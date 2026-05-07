@@ -65,10 +65,14 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
           )}
         >
           <h2 
-            className="text-white font-suit font-bold tracking-tight"
+            className={cn(
+              "text-white font-suit font-bold tracking-tight",
+              "text-[clamp(1.1rem,5vw,1.35rem)]", // Mobile
+              "tablet-p:text-[clamp(1.5rem,4vw,2.5rem)]", // Tablet Portrait
+              "tablet:text-[clamp(2rem,3vw,3rem)]" // PC
+            )}
             style={{ 
-              lineHeight: 1.4,
-              fontSize: !isMobileView ? "3rem" : isTabletPortrait ? "2.5rem" : "1.35rem"
+              lineHeight: 1.4
             }}
           >
             {FOR_WHO_TOP_SENTENCE.split('\n').map((line, i) => (
