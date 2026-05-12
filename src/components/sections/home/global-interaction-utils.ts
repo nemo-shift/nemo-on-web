@@ -24,20 +24,23 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   let curr = 0;
   const offsets: Record<string, number> = {};
 
-  // ... (상단 히어로 및 페인 로직 유지)
+  // 상단 히어로 및 페인 로직
+  const heroWeight = isTouch ? w.HERO_STILL_TOUCH : w.HERO_STILL;
+  const painWeight = isTouch ? w.PAIN_STILL_TOUCH : w.PAIN_STILL;
+
   offsets[STAGES.HERO] = curr;
   offsets[STAGES.HERO_STILL_START] = curr;
-  curr += w.HERO_STILL * 0.4; offsets[STAGES.HERO_STILL_LOGO_EJECT] = curr;
-  curr += w.HERO_STILL * 0.35; offsets[STAGES.HERO_STILL_CONTENT_RISE] = curr;
-  curr += w.HERO_STILL * 0.2; offsets[STAGES.HERO_STILL_NEMO_REVEAL] = curr;
-  curr += w.HERO_STILL * 0.05; offsets[STAGES.HERO_STILL_END] = curr;
+  curr += heroWeight * 0.4; offsets[STAGES.HERO_STILL_LOGO_EJECT] = curr;
+  curr += heroWeight * 0.35; offsets[STAGES.HERO_STILL_CONTENT_RISE] = curr;
+  curr += heroWeight * 0.2; offsets[STAGES.HERO_STILL_NEMO_REVEAL] = curr;
+  curr += heroWeight * 0.05; offsets[STAGES.HERO_STILL_END] = curr;
 
   offsets[STAGES.START_TO_PAIN] = curr;
   curr += t;
   offsets[STAGES.TO_PAIN] = curr; 
 
-  curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_CONTENT] = curr;
-  curr += w.PAIN_STILL * 0.5; offsets[STAGES.PAIN_SHIFT] = curr;
+  curr += painWeight * 0.5; offsets[STAGES.PAIN_CONTENT] = curr;
+  curr += painWeight * 0.5; offsets[STAGES.PAIN_SHIFT] = curr;
 
   // 공명 지평선 모핑 구간
   const morphGap = isTouch ? TIMING_CFG.GAPS.RESONANCE_MORPH.TOUCH : TIMING_CFG.GAPS.RESONANCE_MORPH.PC;
@@ -76,10 +79,11 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   curr += funnelWeight * 0.3; offsets[STAGES.CORE_FUNNEL_SNAP] = curr;
   curr += funnelWeight * 0.2; offsets[STAGES.CORE_FUNNEL_EXPAND] = curr;
 
-  curr += expandWeight; // [V18.Fix] 터치 전용 가중치 주입
+  curr += expandWeight; 
   offsets[STAGES.TO_FORWHO] = curr;
 
-  curr += w.FOR_WHO_STILL;
+  const forWhoWeight = isTouch ? w.FOR_WHO_STILL_TOUCH : w.FOR_WHO_STILL;
+  curr += forWhoWeight;
   offsets[STAGES.FW_CONTENT] = curr;
 
   curr += t;
@@ -88,16 +92,19 @@ export function calculateLabels(registry: InteractionRegistry, mode: 'mouse' | '
   curr += t;
   offsets[STAGES.TO_STORY] = curr;
 
-  curr += w.STORY_STILL;
+  const storyWeight = isTouch ? w.STORY_STILL_TOUCH : w.STORY_STILL;
+  curr += storyWeight;
   offsets[STAGES.STORY_CONTENT] = curr;
 
   curr += t;
-  offsets[STAGES.STORY_ERASE] = curr; // [V11.4] 삭제 시작 지점
+  offsets[STAGES.STORY_ERASE] = curr; 
 
-  curr += w.STORY_ERASE_STILL; // 삭제 진행 가중치
-  offsets[STAGES.TO_CTA] = curr; // 삭제 완료 후 CTA로 전환되는 지점
+  const storyEraseWeight = isTouch ? w.STORY_ERASE_STILL_TOUCH : w.STORY_ERASE_STILL;
+  curr += storyEraseWeight; 
+  offsets[STAGES.TO_CTA] = curr; 
 
-  curr += w.CTA_STILL;
+  const ctaWeight = isTouch ? w.CTA_STILL_TOUCH : w.CTA_STILL;
+  curr += ctaWeight;
   offsets[STAGES.CTA_CONTENT] = curr;
 
   curr += t;

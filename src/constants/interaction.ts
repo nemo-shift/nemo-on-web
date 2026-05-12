@@ -144,20 +144,26 @@ export const TIMING_CFG = {
   
   // 섹션별 정지(Stillness) 가중치 - 스크롤 호흡 결정
   SECTION_WEIGHT: {
-    HERO_STILL: 2.0,      // 초기 진입 시 로고 위용 감상 구간
-    PAIN_STILL: 6.0,      // 5개 포인트 순차 노출 (길게)
-    RESONANCE_STILL: 24.0, // 공명 마퀴 시퀀스
-    RESONANCE_STILL_TOUCH: 2.0, // 터치 기기 전용 (호흡 단축)
+    HERO_STILL: 2.0,
+    HERO_STILL_TOUCH: 3.0, // [V65] 초기 진입 연출 감상 시간 확보
+    PAIN_STILL: 6.0,
+    PAIN_STILL_TOUCH: 8.0, // [V65] 5개 포인트 순차 노출 호흡 조절
+    RESONANCE_STILL: 24.0,
+    RESONANCE_STILL_TOUCH: 10.0, // [V65] 공명 마퀴 연출 감상 (기존 2.0에서 대폭 상향)
     MESSAGE_STILL: 12.0,   
-    MESSAGE_STILL_PC: 30.0, // 고사양 PC에서의 감상 호흡 상향
+    MESSAGE_STILL_PC: 30.0,
     CORE_FUNNEL_STILL: 20.0,
-    CORE_FUNNEL_STILL_TOUCH: 4.0, // [V18.Fix] 터치용 호흡
+    CORE_FUNNEL_STILL_TOUCH: 8.0, // [V65] 퍼널 안착 시퀀스 인지력 강화 (기존 4.0에서 상향)
     CORE_FUNNEL_EXPAND_WEIGHT: 8.0, 
-    CORE_FUNNEL_EXPAND_TOUCH: 2.0, // [V18.Fix] 터치용 팽창 호흡
-    FOR_WHO_STILL: 15.0,   // [V12] 문구 리빌 및 섹션 전환 구조 재정의를 위한 공간 확보 (기존 8.0)
+    CORE_FUNNEL_EXPAND_TOUCH: 4.0, // [V65] 팽창 호흡 보강 (기존 2.0에서 상향)
+    FOR_WHO_STILL: 15.0,
+    FOR_WHO_STILL_TOUCH: 8.0, // [V65] 모바일 카드 캐러셀 통과 피로도 감소 (신규)
     STORY_STILL: 12.0,     
-    STORY_ERASE_STILL: 10.0, // [V11.4] 백스페이스 삭제를 위한 충분한 구간 확보
-    CTA_STILL: 7.0, // [V12] 터미널 타이핑 연출을 위한 충분한 스크롤 공간 확보
+    STORY_STILL_TOUCH: 6.0, // [V65] 문장 완성 호흡 최적화 (신규)
+    STORY_ERASE_STILL: 10.0,
+    STORY_ERASE_STILL_TOUCH: 4.0, // [V65] 삭제 연출 속도감 확보 (신규)
+    CTA_STILL: 7.0,
+    CTA_STILL_TOUCH: 4.0, // [V65] 푸터 리빌을 위한 스크롤 관성 확보 (신규)
   },
 
   // 구간별 전환 간극(Gaps) - 정교한 리듬 설계
