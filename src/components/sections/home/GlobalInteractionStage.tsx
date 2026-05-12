@@ -210,7 +210,7 @@ export const GlobalInteractionStage = ({
             trigger: '#home-stage',
             start: 'top top',
             end: () => `+=${finalY}`,
-            scrub: TIMING_CFG.SCRUB,
+            scrub: interactionMode === 'touch' ? TIMING_CFG.SCRUB_TOUCH : TIMING_CFG.SCRUB,
             pin: true,
             pinSpacing: true, 
             snap: {

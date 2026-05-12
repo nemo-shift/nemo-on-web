@@ -167,6 +167,7 @@ export const TIMING_CFG = {
   },
 
   SCRUB: 1.0, 
+  SCRUB_TOUCH: 0.4, // [V65] 터치 시 지연 현상 제거를 위한 최적화 수치
   EASE_TRANS: 'power2.inOut',
   EASE_STILL: 'none',
 

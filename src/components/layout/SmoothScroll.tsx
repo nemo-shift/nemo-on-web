@@ -43,7 +43,7 @@ export default function SmoothScroll({
   orientation = 'vertical',
   smoothWheel = true,
   smoothTouch = true,
-  touchMultiplier = 2,
+  touchMultiplier = 1.3, // [V65] 기본 2.0에서 1.3으로 하향하여 가중치 튜닝 영점 확보
   integrateGSAP = true,
   className,
   onScroll,
