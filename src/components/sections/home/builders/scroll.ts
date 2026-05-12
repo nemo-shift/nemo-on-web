@@ -24,6 +24,7 @@ export function buildSectionScrollTimeline(
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
   const H = SECTION_SCROLL_HEIGHT;
+  const isTouch = options.interactionMode === 'touch';
 
   // 1. 기초 레이아웃 영점 보정
   gsap.set('#home-stage', { minHeight: '100vh' });
@@ -88,18 +89,19 @@ export function buildSectionScrollTimeline(
   const fullText = '불안을 끄고, 기준을 켭니다.\n\n이제 브랜드를 켤 차례입니다.';
   const eraseState = { length: fullText.length };
 
-  // [Tuning] 커서 등장 후 충분히 머물렀다가 삭제가 시작되도록 0.5의 지연 시간(Offset) 추가
+  // [Tuning] 커서 등장 후 충분히 머물렀다가 삭제가 시작되도록 지연 시간(Offset) 추가
+  const eraseOffset = isTouch ? 0.2 : 0.5;
   tl.to(eraseState, {
     length: 0,
     ease: 'none',
     // 대기 시간이 늘어난 만큼 실제 삭제 애니메이션의 듀레이션 계산 조정
-    duration: L[STAGES.TO_CTA] - (L[STAGES.STORY_ERASE] + 0.5),
+    duration: L[STAGES.TO_CTA] - (L[STAGES.STORY_ERASE] + eraseOffset),
     onUpdate: () => {
       const count = Math.floor(eraseState.length);
       const sliced = fullText.substring(0, count);
       gsap.set('#story-text-4', { textContent: sliced });
     }
-  }, L[STAGES.STORY_ERASE] + 0.5);
+  }, L[STAGES.STORY_ERASE] + eraseOffset);
 
   // [V11.4] 삭제 중에는 기차를 고정하여 터미널 연출의 몰입감을 높입니다.
   // 기차 이동을 여기서 하지 않고, 삭제가 완료된 후 TO_CTA에서 이동시킵니다.
@@ -147,10 +149,10 @@ export function buildSectionScrollTimeline(
     }
 
     // 환경 전이 (CSS 변수)
-    // [V12_Refine] ForWho -> Story 구간은 문구 퇴장 시점에 맞춰 더 부드럽고 길게 전이
+    // [V12_Refine] ForWho -> Story 구간은 문구 퇴장 시점에 맞춰 더 부드럽고 길게 전이 (터치는 구간 협소로 축소)
     const isForWhoToStory = label === STAGES.FW_TO_STORY;
-    const transitionDuration = isForWhoToStory ? 1.5 * r : 
-                               (label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE) ? 1.5 * r : t * r;
+    const isLongTrans = label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE || isForWhoToStory;
+    const transitionDuration = (isLongTrans && !isTouch) ? 1.5 * r : t * r;
     
     tl.fromTo(document.documentElement, 
       { '--header-fg': lastEnv.fg, '--bg': lastEnv.bg, '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)' },
@@ -178,7 +180,6 @@ export function buildSectionScrollTimeline(
   tl.to(hintTarget, { autoAlpha: 0, duration: t * 0.5, ease: 'power2.out' }, L[STAGES.TO_PAIN] + (r * 0.4));
   
   // 공명(Resonance) 문장 퇴장 시 기기별(PC/Touch) 타이밍 분리
-  const isTouch = options.interactionMode === 'touch';
   const resonanceDuration = L[STAGES.PAIN_TO_MSG] - L[STAGES.RESONANCE];
   const resonanceHintInTime = isTouch 
     ? L[STAGES.PAIN_TO_MSG] - (t * 0.8) 

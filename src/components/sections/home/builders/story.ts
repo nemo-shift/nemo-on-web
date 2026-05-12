@@ -11,7 +11,8 @@ export const buildStoryTimeline = (
   options: GlobalBuilderOptions
 ) => {
   const { STAGES, TIMING_CFG } = options.registry.constants;
-  const w = TIMING_CFG.SECTION_WEIGHT.STORY_STILL;
+  const isTouch = options.interactionMode === 'touch';
+  const w = isTouch ? TIMING_CFG.SECTION_WEIGHT.STORY_STILL_TOUCH : TIMING_CFG.SECTION_WEIGHT.STORY_STILL;
   const start = L[STAGES.TO_STORY];
   const step = w / 4;
   const { isMobileView } = options;

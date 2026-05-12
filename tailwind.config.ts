@@ -8,6 +8,7 @@ const config: Config = {
   ],
   theme: {
     screens: {
+      'mobile': '480px',        // Level 1: 스마트폰 일반 (높이 제어 등 대응)
       'tablet-p': '744px',      // Level 2: 태블릿 세로 (Full-frame 유지)
       'tablet': '992px',        // Level 3: 태블릿 가로 / 데스크탑 진입 (Peeking 시작)
       'desktop-wide': '1440px',  // Level 4: 와이드 데스크탑 (에디토리얼 그리드 최적화)

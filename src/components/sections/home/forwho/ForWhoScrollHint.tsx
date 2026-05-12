@@ -48,7 +48,7 @@ export default function ForWhoScrollHint({ visible }: ForWhoScrollHintProps): Re
     <div 
       id="forwho-scroll-hint"
       className={cn(
-        "absolute bottom-[10vh] tablet-p:bottom-[15vh] right-[5%] tablet-p:right-[10%] tablet:right-[15%] z-30",
+        "absolute bottom-[14vh] mobile:bottom-[14vh] tablet-p:bottom-[10vh] tablet:bottom-[12vh] right-[8%] tablet-p:right-[10%] tablet:right-[7%] z-30",
         "flex flex-col items-center gap-3 select-none pointer-events-none"
       )}
       style={{ opacity: 0, visibility: 'hidden' }}

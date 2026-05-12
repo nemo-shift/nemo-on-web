@@ -23,7 +23,7 @@ export const FOR_WHO_LIST: ForWhoItem[] = [
     image: {
       src: '/images/home/forwho/target1.jpg',
       alt: '예비창업가 이미지',
-      objectPosition: '75% center',
+      objectPosition: '67% center',
     },
   },
   {

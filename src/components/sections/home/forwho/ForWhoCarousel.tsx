@@ -52,7 +52,8 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
 
   // [V50] 수동 무한 루프 구현을 위한 데이터 확장 (앞뒤로 하나씩 추가)
   const swiperRef = useRef<any>(null);
-  const showArrow = !isMobileView && interactionMode === 'mouse';
+  const isTouch = interactionMode === 'touch';
+  const showArrow = true; // [V65] 터치 환경에서도 화살표 노출 (스타일로 분기)
 
   return (
     <div 
@@ -67,7 +68,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
       onMouseLeave={() => setIsHovering(false)}
     >
       {/* 1. 하이엔드 마그네틱 커서 (PC Only) */}
-      {showArrow && isHovering && (
+      {!isTouch && !isMobileView && isHovering && (
         <div 
           className="pointer-events-none absolute z-50 mix-blend-difference hidden tablet:flex items-center justify-center w-24 h-24 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm transition-transform duration-200 ease-out"
           style={{ 
@@ -82,28 +83,46 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
         </div>
       )}
 
-      {/* 2. 커스텀 내비게이션 화살표 (PC 전용 - 우측 영역 내부로 제한) */}
+      {/* 2. 커스텀 내비게이션 화살표 (PC/Touch 분기 레이아웃) */}
       {showArrow && (
         <div id="forwho-arrows" className="opacity-0 pointer-events-none transition-none">
           <div 
-            className="absolute top-1/2 -translate-y-1/2 left-[35%] z-50 cursor-pointer p-6 group swiper-button-prev-custom"
+            className={cn(
+              "absolute z-50 cursor-pointer p-6 group swiper-button-prev-custom transition-all duration-500",
+              // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
+              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              // 수평 위치: 3단계 분기
+              isMobile ? "left-1" : isTabletPortrait ? "left-[6%]" : "left-[35%]"
+            )}
             onClick={(e) => {
               e.stopPropagation();
               swiperRef.current?.slidePrev();
             }}
           >
-            <div className="text-white/60 group-hover:text-white group-hover:-translate-x-1 transition-all duration-300 drop-shadow-md">
+            <div className={cn(
+              "transition-all duration-300 drop-shadow-md",
+              isTouch ? "text-white/70" : "text-white/60 group-hover:text-white group-hover:-translate-x-1"
+            )}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </div>
           </div>
           <div 
-            className="absolute top-1/2 -translate-y-1/2 right-[5%] z-50 cursor-pointer p-6 group swiper-button-next-custom"
+            className={cn(
+              "absolute z-50 cursor-pointer p-6 group swiper-button-next-custom transition-all duration-500",
+              // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
+              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              // 수평 위치: 3단계 분기
+              isMobile ? "right-1" : isTabletPortrait ? "right-[6%]" : "right-[5%]"
+            )}
             onClick={(e) => {
               e.stopPropagation();
               swiperRef.current?.slideNext();
             }}
           >
-            <div className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all duration-300 drop-shadow-md">
+            <div className={cn(
+              "transition-all duration-300 drop-shadow-md",
+              isTouch ? "text-white/70" : "text-white/60 group-hover:text-white group-hover:translate-x-1"
+            )}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </div>
           </div>
@@ -111,7 +130,10 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
       )}
 
       {/* 3. 캐러셀 영역 (PC: 우측 70% 차지) */}
-      <div className="w-full tablet:w-[70%] h-full flex items-center">
+      <div className={cn(
+        "w-full tablet:w-[70%] h-full flex transition-all duration-500",
+        (isMobile || isTabletPortrait) ? "items-end pb-20" : "items-center"
+      )}>
         <Swiper
           onSwiper={(swiper) => { swiperRef.current = swiper; }}
           modules={[Navigation, Autoplay, EffectCoverflow]}
@@ -136,8 +158,8 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                 onClick={() => toggleExpand(item.id)}
                 className={cn(
                   "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer mx-auto",
-                  "h-[45vh] mobile:h-[48vh] tablet-p:h-[52vh] tablet:h-[60vh]",
-                  "w-full tablet:w-[85%]", // 카드 너비 미세 조정
+                  "h-[48vh] mobile:h-[48vh] tablet-p:h-[54vh] tablet:h-[60vh]",
+                  isMobile ? "w-[86%]" : isTabletPortrait ? "w-[85%]" : "tablet:w-[85%]", // [V65] 기기별 카드 폭 정밀 분기
                   expandedId === item.id ? "scale-[1.01]" : "scale-100"
                 )}
               >
@@ -153,7 +175,11 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                     "object-cover transition-all duration-1000 ease-out",
                     expandedId === item.id ? "scale-110 blur-xl opacity-40" : "scale-100 blur-0 opacity-80 group-hover:scale-105"
                   )}
-                  style={{ objectPosition: item.image.objectPosition }}
+                  style={{ 
+                    objectPosition: (isMobile && item.id === 1) 
+                      ? '60% center' // [V65] 모바일 첫 번째 카드 이미지 우측 이동 (시각적 균형)
+                      : item.image.objectPosition 
+                  }}
                 />
                 {/* 시네마틱 오버레이 제거 (깔끔한 배경 유도) */}
               </div>
