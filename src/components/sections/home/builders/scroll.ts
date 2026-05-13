@@ -23,8 +23,8 @@ export function buildSectionScrollTimeline(
 
   const t = TIMING_CFG.TRANSITION_WEIGHT;
   const r = TIMING_CFG.TRANSITION_FINISH_RATIO;
-  const H = SECTION_SCROLL_HEIGHT;
   const isTouch = options.interactionMode === 'touch';
+  const offsets = options.sectionOffsets || {};
 
   // 1. 기초 레이아웃 영점 보정
   gsap.set('#home-stage', { minHeight: '100vh' });
@@ -43,19 +43,20 @@ export function buildSectionScrollTimeline(
     }, L[STAGES.HERO_STILL_CONTENT_RISE]);
   }
 
-  // [V11.Macro_Final] 섹션별 물리적 스크롤 이동 (VHS 기반)
-  tl.to(target, { y: `-${H.HERO}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.START_TO_PAIN]);
-  tl.to(target, { y: `-${H.HERO + H.PAIN}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.PAIN_TO_MSG]);
+  // [V66.Phase3-2] 섹션별 물리적 스크롤 이동 (실측 픽셀 기반)
+  // vh 대신 실측된 오프셋을 직접 주입하여 브라우저별 렌더링 오차를 0으로 만듭니다.
+  tl.to(target, { y: -(offsets['section-pain'] || 0), duration: t, ease: EASE.TRANSITION }, L[STAGES.START_TO_PAIN]);
+  tl.to(target, { y: -(offsets['section-message'] || 0), duration: t, ease: EASE.TRANSITION }, L[STAGES.PAIN_TO_MSG]);
 
   // [V18.Audit] 퍼널 조립 중에는 배경 고정, 팽창 시점에 맞춰 포후 섹션으로 전이
   const expandDuration = L[STAGES.TO_FORWHO] - L[STAGES.CORE_FUNNEL_EXPAND];
   tl.to(target, { 
-    y: `-${H.HERO + H.PAIN + H.MESSAGE}vh`, 
+    y: -(offsets['section-forwho'] || 0), 
     duration: expandDuration, 
     ease: EASE.TRANSITION 
   }, L[STAGES.CORE_FUNNEL_EXPAND]);
 
-  tl.to(target, { y: `-${H.HERO + H.PAIN + H.MESSAGE + H.FORWHO}vh`, duration: t, ease: EASE.TRANSITION }, L[STAGES.FW_TO_STORY]);
+  tl.to(target, { y: -(offsets['section-brand-story'] || 0), duration: t, ease: EASE.TRANSITION }, L[STAGES.FW_TO_STORY]);
   
   // [V11.4] 3단계: 스토리 -> CTA 전환 연출 옵션 설정
   // 나중에 터미널 그린 색상을 다시 확인하고 싶을 때 이 값을 true로 변경하세요.
@@ -108,7 +109,7 @@ export function buildSectionScrollTimeline(
 
   // [V11.4] 5단계: 백스페이스 삭제 완료 후 CTA 섹션으로 부드럽게 이동
   tl.to(target, {
-    y: `-${H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.BRIDGE}vh`,
+    y: -(offsets['section-cta'] || 0),
     duration: t,
     ease: EASE.TRANSITION
   }, L[STAGES.TO_CTA]);
@@ -154,6 +155,10 @@ export function buildSectionScrollTimeline(
     const isLongTrans = label === STAGES.PAIN_TO_MSG || label === STAGES.TO_MESSAGE || isForWhoToStory;
     const transitionDuration = (isLongTrans && !isTouch) ? 1.5 * r : t * r;
     
+    // [V66.Phase3-2] 페인 섹션 배경색 전환 타이밍 선제적 보정
+    // 히어로에서 페인으로 이동을 시작하는 'START_TO_PAIN' 시점에 배경색 변화를 즉시 시작합니다.
+    const startTime = label === STAGES.TO_PAIN ? L[STAGES.START_TO_PAIN] : (isForWhoToStory ? time - (transitionDuration * 0.5) : time);
+    
     tl.fromTo(document.documentElement, 
       { '--header-fg': lastEnv.fg, '--bg': lastEnv.bg, '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)' },
       {
@@ -164,7 +169,7 @@ export function buildSectionScrollTimeline(
         ease: isForWhoToStory ? 'power2.inOut' : 'none',
         immediateRender: false
       }, 
-      isForWhoToStory ? time - (transitionDuration * 0.5) : time // ForWho 전환은 선제적으로 시작
+      startTime
     );
 
 

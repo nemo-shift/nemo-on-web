@@ -32,6 +32,7 @@ export interface GlobalBuilderOptions {
   isOn: boolean;
   interactionMode: 'mouse' | 'touch';
   registry: InteractionRegistry; // [V11.20] 빌더 전용 보급로
+  sectionOffsets?: Record<string, number>; // [V66.Phase3-2] 실측 오프셋 주입용
   // [V43] 리사이즈 복구 시나리오를 위한 실측 영점 좌표
   initialNemoPos?: {
     left: number;
