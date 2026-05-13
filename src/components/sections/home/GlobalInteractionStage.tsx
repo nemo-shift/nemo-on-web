@@ -53,6 +53,10 @@ export const GlobalInteractionStage = ({
   const rafId        = useRef<number | null>(null);
   const keywordsTrigger = useRef<ScrollTrigger | null>(null);
   
+  // [V66.Phase1] 진단 데이터 상태 관리
+  const [diagnostics, setDiagnostics] = useState<any>(null);
+  const [showDiag, setShowDiag] = useState(false);
+
   // [V66.Phase1] 리사이즈 임계값 관리를 위한 상태
   const lastWidthRef = useRef<number>(0);
   const lastHeightRef = useRef<number>(0);
@@ -205,6 +209,16 @@ export const GlobalInteractionStage = ({
           });
           console.log('Section Heights (Measured):', sectionHeightsMap);
           console.groupEnd();
+
+          // [V66.Phase1] 오버레이 표시를 위한 상태 업데이트
+          setDiagnostics({
+            vh: window.innerHeight,
+            vv: window.visualViewport?.height || 0,
+            footer: measuredFooterHeight,
+            est: estimatedTotalHeight,
+            real: measuredTotalHeight,
+            diff: measuredTotalHeight - estimatedTotalHeight
+          });
 
           // [V66.Phase1] Phase 1에서는 아직 기존 계산식(estimatedTotalHeight)을 유지합니다.
           const finalY = estimatedTotalHeight - window.innerHeight;
@@ -549,6 +563,41 @@ export const GlobalInteractionStage = ({
       {/* // [DEPLOY-DELETE] : 디버그 전용 점프 엔진 도킹 (배포 시 이 한 줄만 삭제하거나 debug.ts에서 OFF) */}
       {/* [DEPLOY-DELETE] 디버그 점프 엔진 (인터랙션 준비 완료 시 활성화) */}
       <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />
+
+      {/* [V66.Phase1] 모바일 전용 실시간 진단 오버레이 (방법 2) */}
+      {mounted && isMobile && (
+        <div className="fixed bottom-4 right-4 pointer-events-auto" style={{ zIndex: 99999 }}>
+          <button 
+            onClick={() => setShowDiag(!showDiag)}
+            className="bg-black/80 text-white text-[10px] px-3 py-2 rounded-full font-mono border border-white/20 backdrop-blur-md active:scale-95 transition-transform"
+          >
+            {showDiag ? 'CLOSE DIAG' : 'V66 DIAG'}
+          </button>
+
+          {showDiag && diagnostics && (
+            <div className="absolute bottom-12 right-0 bg-black/90 text-[#00ff00] p-4 rounded-xl font-mono text-[11px] w-[260px] border border-[#00ff00]/30 shadow-2xl backdrop-blur-xl">
+              <div className="flex justify-between border-b border-[#00ff00]/20 pb-2 mb-2">
+                <span className="opacity-70">Nemo V66 Engine</span>
+                <span className="font-bold">LIVE</span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between"><span>Viewport(H)</span> <span>{diagnostics.vh}px</span></div>
+                <div className="flex justify-between"><span>Visual(H)</span> <span>{diagnostics.vv}px</span></div>
+                <div className="flex justify-between border-t border-[#00ff00]/10 pt-1 mt-1"><span>Footer(M)</span> <span>{diagnostics.footer}px</span></div>
+                <div className="flex justify-between"><span>Sections(Est)</span> <span>{Math.round(diagnostics.est)}px</span></div>
+                <div className="flex justify-between"><span>Sections(Real)</span> <span>{Math.round(diagnostics.real)}px</span></div>
+                <div className="flex justify-between border-t border-[#00ff00]/30 pt-2 mt-2 font-bold text-yellow-400">
+                  <span>CUMULATIVE DIFF</span>
+                  <span>{Math.round(diagnostics.diff)}px</span>
+                </div>
+              </div>
+              <div className="mt-3 text-[9px] text-[#00ff00]/50 italic">
+                * Diff &gt; 0: Footer is below fold
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
