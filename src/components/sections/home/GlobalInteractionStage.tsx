@@ -21,8 +21,13 @@ import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
 import { DEBUG_CONFIG } from '@/constants/debug';
 import InteractionDebugger from './InteractionDebugger';
 
+// [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
+// 모바일 주소창 변화로 인한 미세한 height 리사이즈를 무시하여 인터랙션 튐 현상을 방지합니다.
 gsap.registerPlugin(ScrollTrigger);
-
+ScrollTrigger.config({ 
+  ignoreMobileResize: true,
+  autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize" 
+});
 
 export const GlobalInteractionStage = ({
   isMobile,
@@ -38,7 +43,6 @@ export const GlobalInteractionStage = ({
 }: GlobalInteractionStageProps) => {
   const { isScrollable, footerHeight, setIsTimelineReady, toggle } = useHeroContext();
 
-
   const containerRef = useRef<HTMLDivElement>(null);
   const logoHandle   = useRef<JourneyLogoHandle>(null);
   const nemoHandle   = useRef<SharedNemoHandle>(null);
@@ -47,12 +51,17 @@ export const GlobalInteractionStage = ({
   const rafId        = useRef<number | null>(null);
   const keywordsTrigger = useRef<ScrollTrigger | null>(null);
   
+  // [V66.Phase1] 리사이즈 임계값 관리를 위한 상태
+  const lastWidthRef = useRef<number>(0);
+  const lastHeightRef = useRef<number>(0);
+
   // [V11.Separation] 하이드레이션 오류 방지를 위한 마운트 상태 관리
   const [mounted, setMounted] = useState(false);
-  const [revision, setRevision] = useState(0); // [V11.6] 홈 복귀 시 엔진 원포인트 기동용 리비전
+  const [revision, setRevision] = useState(0); 
   useEffect(() => {
     setMounted(true);
-    return () => {};
+    lastWidthRef.current = window.innerWidth;
+    lastHeightRef.current = window.innerHeight;
   }, []);
 
   useEffect(() => {
@@ -75,8 +84,26 @@ export const GlobalInteractionStage = ({
     }
   }, []);
 
+  // [V66.Phase1] 지능형 리사이즈 감지 정책 적용
   useEffect(() => {
-    return () => {};
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      
+      // 너비가 변했거나 (가로/세로 전환), 높이 변화가 임계값(80px 또는 12%) 이상일 때만 엔진 재가동
+      const widthChanged = Math.abs(w - lastWidthRef.current) > 2;
+      const heightDiff = Math.abs(h - lastHeightRef.current);
+      const heightThreshold = Math.max(80, lastHeightRef.current * 0.12);
+      
+      if (widthChanged || heightDiff > heightThreshold) {
+        lastWidthRef.current = w;
+        lastHeightRef.current = h;
+        setRevision(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -88,8 +115,6 @@ export const GlobalInteractionStage = ({
     }
   }, [isScrollable]);
 
-  // [V11.13 Fix] 타임라인 빌드 전, 렌더링 단계에서 전역 스타일을 즉시 동기 주입하여 
-  // 포탈 내 로고가 찰나의 순간에도 '--header-fg' 변수를 잃지 않도록 보장합니다.
   if (mounted) {
     const isRestoring = (currProgressRef.current || 0) > 0.001;
     initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoring);
@@ -107,31 +132,89 @@ export const GlobalInteractionStage = ({
       if (!isScrollable || !mounted) return;
       if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
       
-      rafId.current = requestAnimationFrame(() => ctx.add(() => {
-          // [V43] 측정 전 레이아웃을 강제로 리프레시하여 요동치는 좌표(-795px 등)를 고정시킵니다.
-          ScrollTrigger.refresh();
+      // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
+      const runMeasurementAndBuild = async () => {
+        if (typeof document !== 'undefined' && (document as any).fonts) {
+          await (document as any).fonts.ready;
+        }
 
-          // [V43] 리사이즈 복구 여부를 전역 플래그(isRestoringRef)로부터 확실히 전달받습니다.
-          const isRestoringNow = isRestoringRef.current;
+        rafId.current = requestAnimationFrame(() => ctx.add(() => {
+          // [V66.Phase1] 모든 섹션 ID 정의
+          const sectionIds = [
+            'section-hero',
+            'section-pain',
+            'section-message',
+            'section-forwho',
+            'section-brand-story',
+            'section-bridge',
+            'section-cta'
+          ];
+
+          // [V66.Phase1] 측정 가드: 모든 섹션이 렌더링되었는지 확인
+          const sectionElements = sectionIds.map(id => document.getElementById(id));
+          const allRendered = sectionElements.every(el => el && el.offsetHeight > 0);
           
-          // [V42] 레이아웃이 확정된 RAF 시점에서 단 한 번, 정밀하게 초기 상태를 측정하고 주입합니다.
-          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoringNow);
-          initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile, isTabletPortrait, progress: currProgressRef.current });
-          const measuredPos = initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, isTabletPortrait, progress: currProgressRef.current, isRestoring: isRestoringNow });
+          // [V66.Phase1] 푸터 높이 실측 또는 Fallback
+          const footerEl = document.querySelector('footer');
+          const measuredFooterHeight = footerEl?.offsetHeight || footerHeight;
 
-          const { offsets: L, totalWeight } = calculateLabels(INTERACTION_REGISTRY, interactionMode);
+          // 푸터 높이가 아직 0이고 실기기 모바일인 경우, 정확한 측정을 위해 빌드를 한 차례 지연
+          if (measuredFooterHeight === 0 && isMobile) {
+            console.warn('[V66.Phase1] Footer height not ready, deferring build...');
+            setRevision(prev => prev + 1);
+            return;
+          }
+
+          if (!allRendered) {
+            console.warn('[V66.Phase1] Some sections are missing or height is 0, retrying...');
+            setRevision(prev => prev + 1);
+            return;
+          }
+
+          // [V66.Phase1] 지형 실측 (Ground Truth Measurement)
+          const sectionHeightsMap = sectionIds.reduce((map, id) => {
+            map[id] = document.getElementById(id)?.offsetHeight || 0;
+            return map;
+          }, {} as Record<string, number>);
+
+          const measuredSectionsTotal = Object.values(sectionHeightsMap).reduce((a, b) => a + b, 0);
+          const measuredTotalHeight = measuredSectionsTotal + measuredFooterHeight;
+
+          // 기존 vh 방식 계산값 (진단용)
           const { 
             SECTION_SCROLL_HEIGHT: H, 
             TIMING_CFG, 
             STAGES, 
           } = INTERACTION_REGISTRY.constants;
-          
           const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
+          const sectionHeightsSum = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.BRIDGE + H.CTA;
+          const estimatedTotalHeight = vhToPx(sectionHeightsSum) + footerHeight;
+
+          // [V66.Phase1] 뷰포트 진단 데이터 로그 출력
+          console.group('🚀 Nemo V66 Phase 1: Interaction Engine Diagnostics');
+          console.table({
+            'Viewport (Inner)': window.innerHeight,
+            'Viewport (Visual)': window.visualViewport?.height || 'N/A',
+            'Footer (Context)': footerHeight,
+            'Footer (Measured)': measuredFooterHeight,
+            'Sections Total (Estimated)': estimatedTotalHeight,
+            'Sections Total (Measured)': measuredTotalHeight,
+            'Cumulative Error (px)': measuredTotalHeight - estimatedTotalHeight
+          });
+          console.log('Section Heights (Measured):', sectionHeightsMap);
+          console.groupEnd();
+
+          // [V66.Phase1] Phase 1에서는 아직 기존 계산식(estimatedTotalHeight)을 유지합니다.
+          const finalY = estimatedTotalHeight - window.innerHeight;
+
+          ScrollTrigger.refresh();
+          const isRestoringNow = isRestoringRef.current;
           
-          // [V18.Audit] 전체 섹션의 vh 합산 + 푸터 높이 - 현재 뷰포트 (총 가용 스크롤 범위)
-          const sectionHeights = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.BRIDGE + H.CTA;
-          const totalHeight = vhToPx(sectionHeights) + footerHeight;
-          const finalY = totalHeight - window.innerHeight;
+          initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoringNow);
+          initLogoState(INTERACTION_REGISTRY, logo, { isOn, isMobile, isTabletPortrait, progress: currProgressRef.current });
+          const measuredPos = initNemoState(INTERACTION_REGISTRY, nemo, { isOn, isMobileView, isTabletPortrait, progress: currProgressRef.current, isRestoring: isRestoringNow });
+
+          const { offsets: L, totalWeight } = calculateLabels(INTERACTION_REGISTRY, interactionMode);
 
           localTl = gsap.timeline({
             defaults: { ease: 'none' },
@@ -268,6 +351,10 @@ export const GlobalInteractionStage = ({
             setIsTimelineReady(true);
           }, 200);
         }));
+      };
+
+      // 실측 및 빌드 프로세스 시작
+      runMeasurementAndBuild();
     });
 
     return () => {
