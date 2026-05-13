@@ -565,38 +565,44 @@ export const GlobalInteractionStage = ({
       <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />
 
       {/* [V66.Phase1] 모바일 전용 실시간 진단 오버레이 (방법 2) */}
-      {mounted && isMobile && (
-        <div className="fixed bottom-4 right-4 pointer-events-auto" style={{ zIndex: 99999 }}>
+      {mounted && isMobile && typeof document !== 'undefined' && createPortal(
+        <div className="fixed bottom-6 right-6 pointer-events-auto" style={{ zIndex: 999999 }}>
           <button 
-            onClick={() => setShowDiag(!showDiag)}
-            className="bg-black/80 text-white text-[10px] px-3 py-2 rounded-full font-mono border border-white/20 backdrop-blur-md active:scale-95 transition-transform"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDiag(!showDiag);
+            }}
+            className="bg-[#00ff00] text-black text-[11px] px-4 py-2 rounded-full font-bold shadow-2xl border border-white/20 active:scale-90 transition-all"
+            style={{ boxShadow: '0 0 20px rgba(0,255,0,0.3)' }}
           >
-            {showDiag ? 'CLOSE DIAG' : 'V66 DIAG'}
+            {showDiag ? 'CLOSE' : 'V66 DIAG'}
           </button>
 
           {showDiag && diagnostics && (
-            <div className="absolute bottom-12 right-0 bg-black/90 text-[#00ff00] p-4 rounded-xl font-mono text-[11px] w-[260px] border border-[#00ff00]/30 shadow-2xl backdrop-blur-xl">
-              <div className="flex justify-between border-b border-[#00ff00]/20 pb-2 mb-2">
-                <span className="opacity-70">Nemo V66 Engine</span>
-                <span className="font-bold">LIVE</span>
+            <div className="absolute bottom-14 right-0 bg-black/95 text-[#00ff00] p-5 rounded-2xl font-mono text-[12px] w-[280px] border border-[#00ff00]/30 shadow-2xl backdrop-blur-2xl">
+              <div className="flex justify-between border-b border-[#00ff00]/20 pb-2 mb-3">
+                <span className="opacity-70 text-[10px]">Nemo V66 Engine</span>
+                <span className="font-bold text-[10px]">LIVE</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex justify-between"><span>Viewport(H)</span> <span>{diagnostics.vh}px</span></div>
-                <div className="flex justify-between"><span>Visual(H)</span> <span>{diagnostics.vv}px</span></div>
-                <div className="flex justify-between border-t border-[#00ff00]/10 pt-1 mt-1"><span>Footer(M)</span> <span>{diagnostics.footer}px</span></div>
-                <div className="flex justify-between"><span>Sections(Est)</span> <span>{Math.round(diagnostics.est)}px</span></div>
-                <div className="flex justify-between"><span>Sections(Real)</span> <span>{Math.round(diagnostics.real)}px</span></div>
-                <div className="flex justify-between border-t border-[#00ff00]/30 pt-2 mt-2 font-bold text-yellow-400">
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span className="opacity-60">Viewport(H)</span> <span>{diagnostics.vh}px</span></div>
+                <div className="flex justify-between"><span className="opacity-60">Visual(H)</span> <span>{diagnostics.vv}px</span></div>
+                <div className="flex justify-between border-t border-[#00ff00]/10 pt-1.5 mt-1.5"><span className="opacity-60">Footer(M)</span> <span>{diagnostics.footer}px</span></div>
+                <div className="flex justify-between"><span className="opacity-60">Sections(Est)</span> <span>{Math.round(diagnostics.est)}px</span></div>
+                <div className="flex justify-between"><span className="opacity-60">Sections(Real)</span> <span>{Math.round(diagnostics.real)}px</span></div>
+                <div className="flex justify-between border-t border-[#00ff00]/30 pt-3 mt-3 font-bold text-yellow-400 text-[14px]">
                   <span>CUMULATIVE DIFF</span>
                   <span>{Math.round(diagnostics.diff)}px</span>
                 </div>
               </div>
-              <div className="mt-3 text-[9px] text-[#00ff00]/50 italic">
-                * Diff &gt; 0: Footer is below fold
+              <div className="mt-4 text-[10px] text-[#00ff00]/50 italic leading-tight">
+                * Diff &gt; 0: Footer is below fold<br/>
+                * Diff &lt; 0: Footer is pushed up
               </div>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
