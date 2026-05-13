@@ -210,11 +210,9 @@ export const GlobalInteractionStage = ({
           console.log('Section Heights (Measured):', sectionHeightsMap);
           console.groupEnd();
 
-          // [V66.Phase3] 푸터 하단 안전 여백 (모바일 컨트롤 바 간섭 방지)
-          const FOOTER_SAFE_MARGIN = 80;
-
-          // [V66.Phase2/3] Surgical Fix: 전체 이동 거리(finalY)를 실측 데이터 기반으로 보정
-          const finalY = (measuredTotalHeight + FOOTER_SAFE_MARGIN) - window.innerHeight;
+          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom(80px)으로 대체되었습니다.
+          // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
+          const finalY = measuredTotalHeight - window.innerHeight;
 
           // [V66.Phase3] 각 섹션별 실제 픽셀 오프셋 측정 (Top-relative)
           const sectionOffsetsMap = sectionIds.reduce((map, id) => {
