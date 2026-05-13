@@ -210,11 +210,25 @@ export const GlobalInteractionStage = ({
           console.log('Section Heights (Measured):', sectionHeightsMap);
           console.groupEnd();
 
-          // [V66.Phase2] Surgical Fix: 전체 이동 거리(finalY)를 실측 데이터(measuredTotalHeight)로 교체합니다.
-          // 이제 엔진은 브라우저의 vh 해석에 의존하지 않고, 실제 그려진 픽셀 길이를 기준으로 움직입니다.
-          const finalY = measuredTotalHeight - window.innerHeight;
+          // [V66.Phase3] 푸터 하단 안전 여백 (모바일 컨트롤 바 간섭 방지)
+          const FOOTER_SAFE_MARGIN = 80;
 
-          // [V66.Phase1/2] 오버레이 표시를 위한 상태 업데이트
+          // [V66.Phase2/3] Surgical Fix: 전체 이동 거리(finalY)를 실측 데이터 기반으로 보정
+          const finalY = (measuredTotalHeight + FOOTER_SAFE_MARGIN) - window.innerHeight;
+
+          // [V66.Phase3] 각 섹션별 실제 픽셀 오프셋 측정 (Top-relative)
+          const sectionOffsetsMap = sectionIds.reduce((map, id) => {
+            const el = document.getElementById(id);
+            if (el && sectionsContentRef.current) {
+              // 래퍼 상단으로부터의 상대적 거리 계산
+              map[id] = el.offsetTop;
+            } else {
+              map[id] = 0;
+            }
+            return map;
+          }, {} as Record<string, number>);
+
+          // [V66.Phase1/2/3] 오버레이 표시를 위한 상태 업데이트
           setDiagnostics({
             vh: window.innerHeight,
             vv: window.visualViewport?.height || 0,
@@ -222,7 +236,8 @@ export const GlobalInteractionStage = ({
             est: estimatedTotalHeight,
             real: measuredTotalHeight,
             diff: measuredTotalHeight - estimatedTotalHeight,
-            targetY: finalY // JSX에서 접근 가능하도록 추가
+            targetY: finalY,
+            sectionOffsets: sectionOffsetsMap // P3-1에서 추가
           });
 
           ScrollTrigger.refresh();
@@ -613,6 +628,17 @@ export const GlobalInteractionStage = ({
                       <span>ST.GAP</span> 
                       <span>{Math.round(diagnostics.targetY - diagnostics.currentYAtEnd)}px</span>
                     </div>
+                  </div>
+                )}
+                
+                {showDiag && diagnostics.sectionOffsets && (
+                  <div className="mt-2 pt-2 border-t border-[#00ff00]/10 max-h-[100px] overflow-y-auto space-y-0.5 text-[9px] opacity-60">
+                    {Object.entries(diagnostics.sectionOffsets).map(([id, offset]) => (
+                      <div key={id} className="flex justify-between">
+                        <span>{id.replace('section-', '')}</span>
+                        <span>{Math.round(offset as number)}px</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
