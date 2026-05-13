@@ -23,11 +23,13 @@ import InteractionDebugger from './InteractionDebugger';
 
 // [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
 // 모바일 주소창 변화로 인한 미세한 height 리사이즈를 무시하여 인터랙션 튐 현상을 방지합니다.
-gsap.registerPlugin(ScrollTrigger);
-ScrollTrigger.config({ 
-  ignoreMobileResize: true,
-  autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize" 
-});
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ 
+    ignoreMobileResize: true,
+    autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize" 
+  });
+}
 
 export const GlobalInteractionStage = ({
   isMobile,
