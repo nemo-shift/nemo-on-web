@@ -210,18 +210,20 @@ export const GlobalInteractionStage = ({
           console.log('Section Heights (Measured):', sectionHeightsMap);
           console.groupEnd();
 
-          // [V66.Phase1] 오버레이 표시를 위한 상태 업데이트
+          // [V66.Phase2] Surgical Fix: 전체 이동 거리(finalY)를 실측 데이터(measuredTotalHeight)로 교체합니다.
+          // 이제 엔진은 브라우저의 vh 해석에 의존하지 않고, 실제 그려진 픽셀 길이를 기준으로 움직입니다.
+          const finalY = measuredTotalHeight - window.innerHeight;
+
+          // [V66.Phase1/2] 오버레이 표시를 위한 상태 업데이트
           setDiagnostics({
             vh: window.innerHeight,
             vv: window.visualViewport?.height || 0,
             footer: measuredFooterHeight,
             est: estimatedTotalHeight,
             real: measuredTotalHeight,
-            diff: measuredTotalHeight - estimatedTotalHeight
+            diff: measuredTotalHeight - estimatedTotalHeight,
+            targetY: finalY // JSX에서 접근 가능하도록 추가
           });
-
-          // [V66.Phase1] Phase 1에서는 아직 기존 계산식(estimatedTotalHeight)을 유지합니다.
-          const finalY = estimatedTotalHeight - window.innerHeight;
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
@@ -250,6 +252,15 @@ export const GlobalInteractionStage = ({
 
               if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
                 syncNemoCoordinates(nemoHandle.current?.nemoEl || null);
+              }
+
+              // [V66.Phase2] 물리 법칙 검증 로그 (결승점 안착 여부 체크)
+              if (currentProgress >= 0.99) {
+                const currentY = -gsap.getProperty(sectionsContentRef.current, 'y') as number;
+                setDiagnostics((prev: any) => ({
+                  ...prev,
+                  currentYAtEnd: currentY
+                }));
               }
             }
           });
@@ -594,6 +605,16 @@ export const GlobalInteractionStage = ({
                   <span>CUMULATIVE DIFF</span>
                   <span>{Math.round(diagnostics.diff)}px</span>
                 </div>
+                {diagnostics.currentYAtEnd !== undefined && (
+                  <div className="mt-2 pt-2 border-t border-[#00ff00]/10 space-y-1 text-[10px]">
+                    <div className="flex justify-between opacity-70"><span>Target Y</span> <span>{Math.round(diagnostics.targetY)}px</span></div>
+                    <div className="flex justify-between opacity-70"><span>Current Y</span> <span>{Math.round(diagnostics.currentYAtEnd)}px</span></div>
+                    <div className="flex justify-between font-bold text-cyan-400">
+                      <span>ST.GAP</span> 
+                      <span>{Math.round(diagnostics.targetY - diagnostics.currentYAtEnd)}px</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="mt-4 text-[10px] text-[#00ff00]/50 italic leading-tight">
                 * Diff &gt; 0: Footer is below fold<br/>
