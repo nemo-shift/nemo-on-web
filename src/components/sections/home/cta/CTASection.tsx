@@ -99,15 +99,21 @@ export const CTASection = () => {
   const handleAction = useCallback((type: 'yes' | 'no') => {
     if (status !== 'idle') return;
 
+    // [V66.Phase3.3] 자동 포커싱 트리거 발송
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('nemo:cta-focus'));
+    }
+
+    // [V66.Phase3.3-UX] 버튼을 물리적으로 사라지게 하지 않고 상태만 전환합니다.
+    // 이전의 tl.to(['#cta-buttons', ...], { opacity: 0 }) 로직을 제거하여 
+    // 기기별로 달랐던 버튼 소실 현상을 해결하고 일관성을 확보합니다.
     const tl = gsap.timeline();
-    // 1. 초기 메시지 영역(#cta-terminal-idle)과 버튼 영역(#cta-buttons)만 페이드아웃
-    tl.to(['#cta-buttons', '#cta-terminal-idle'], {
+    tl.to('#cta-terminal-idle', {
       opacity: 0,
       y: -20,
       duration: 0.4,
       ease: 'power2.inOut',
       onComplete: () => {
-        // 2. 상태 전환
         setStatus(type === 'yes' ? 'loading' : 'error');
       }
     });
@@ -203,21 +209,43 @@ export const CTASection = () => {
             "mt-12 tablet-p:mt-16 flex items-center justify-center opacity-0 translate-y-8",
             "space-x-6",
             "tablet-p:space-x-10",
-            "tablet:space-x-16"
+            "tablet:space-x-16",
+            status !== 'idle' && "opacity-100 translate-y-0"
           )}
         >
           <button 
             onClick={() => handleAction('yes')}
-            className="group relative px-8 tablet-p:px-10 py-3 border border-[#00FF41]/40 hover:border-[#00FF41] transition-all duration-300"
+            disabled={status !== 'idle'}
+            className={cn(
+              "group relative px-8 tablet-p:px-10 py-3 border border-[#00FF41]/40 transition-all duration-300",
+              status === 'idle' && "hover:border-[#00FF41]", // [V66.UX] 아이들 상태에서만 호버 허용
+              status !== 'idle' && (status === 'loading' ? 'opacity-50' : 'opacity-10 pointer-events-none'),
+              status !== 'idle' && 'cursor-not-allowed'
+            )}
           >
             <span className="relative z-10 font-mono text-[#00FF41] text-lg tablet-p:text-xl tracking-widest">YES</span>
-            <div className="absolute inset-0 bg-[#00FF41]/0 group-hover:bg-[#00FF41]/10 transition-all duration-300" />
+            <div className={cn(
+              "absolute inset-0 bg-[#00FF41]/0 transition-all duration-300",
+              status === 'idle' && "group-hover:bg-[#00FF41]/10", // [V66.UX] 아이들 상태에서만 배경 호버
+              status === 'loading' && "bg-[#00FF41]/20" // [V66.UX] 선택 시 더 선명하게 채움
+            )} />
           </button>
           <button 
             onClick={() => handleAction('no')}
-            className="group relative px-8 tablet-p:px-10 py-3 border border-white/20 hover:border-white/40 transition-all duration-300 opacity-50 hover:opacity-100"
+            disabled={status !== 'idle'}
+            className={cn(
+              "group relative px-8 tablet-p:px-10 py-3 border border-white/20 transition-all duration-300",
+              status === 'idle' ? 'opacity-50 hover:opacity-100 hover:border-white/40' : (status === 'error' ? 'opacity-50' : 'opacity-10 pointer-events-none'),
+              status !== 'idle' && 'cursor-not-allowed'
+            )}
           >
             <span className="relative z-10 font-mono text-white text-lg tablet-p:text-xl tracking-widest">NO</span>
+            {/* [V66.UX] NO 버튼에도 채우기 레이어 추가 */}
+            <div className={cn(
+              "absolute inset-0 bg-white/0 transition-all duration-300",
+              status === 'idle' && "group-hover:bg-white/10",
+              status === 'error' && "bg-white/20" 
+            )} />
           </button>
         </div>
       </div>
