@@ -137,6 +137,14 @@ export const GlobalInteractionStage = ({
     const ctx = gsap.context(() => {
       if (!isScrollable || !mounted) return;
       if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
+
+      // [V66.Phase3.2-Hotfix] iOS/모바일 스크롤 안정화 (첫 터치 뻑뻑함 해결)
+      if (isMobile) {
+        ScrollTrigger.normalizeScroll({
+          allowNestedScroll: true,
+          momentum: 0 // [Fix] 타입을 number로 수정하여 에러 해결
+        });
+      }
       
       // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
       const runMeasurementAndBuild = async () => {
