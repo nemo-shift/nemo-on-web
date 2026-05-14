@@ -11,6 +11,8 @@ import SharedNemo, { SharedNemoHandle } from './SharedNemo';
 import FallingKeywordsStage, { FallingKeywordsHandle } from './FallingKeywordsStage';
 import {
   INTERACTION_Z_INDEX,
+  STAGES,
+  TIMING_CFG
 } from '@/constants/interaction';
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
@@ -19,12 +21,12 @@ import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
 import { DEBUG_CONFIG } from '@/constants/debug';
-import InteractionDebugger from './InteractionDebugger';
+
+import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
 // [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
-// 모바일 주소창 변화로 인한 미세한 height 리사이즈를 무시하여 인터랙션 튐 현상을 방지합니다.
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
   ScrollTrigger.config({ 
     ignoreMobileResize: true,
     autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize" 
@@ -53,9 +55,8 @@ export const GlobalInteractionStage = ({
   const rafId        = useRef<number | null>(null);
   const keywordsTrigger = useRef<ScrollTrigger | null>(null);
   
-  // [V66.Phase1] 진단 데이터 상태 관리
-  const [diagnostics, setDiagnostics] = useState<any>(null);
-  const [showDiag, setShowDiag] = useState(false);
+  // [V66.Phase3.3] 실측 오프셋 관리를 위한 상태
+  const [offsets, setOffsets] = useState<Record<string, number>>({});
 
   // [V66.Phase1] 리사이즈 임계값 관리를 위한 상태
   const lastWidthRef = useRef<number>(0);
@@ -138,11 +139,10 @@ export const GlobalInteractionStage = ({
       if (!isScrollable || !mounted) return;
       if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
 
-      // [V66.Phase3.2-Hotfix] iOS/모바일 스크롤 안정화 (첫 터치 뻑뻑함 해결)
       if (isMobile) {
         ScrollTrigger.normalizeScroll({
           allowNestedScroll: true,
-          momentum: 0 // [Fix] 타입을 number로 수정하여 에러 해결
+          momentum: 0
         });
       }
       
@@ -194,39 +194,10 @@ export const GlobalInteractionStage = ({
           const measuredSectionsTotal = Object.values(sectionHeightsMap).reduce((a, b) => a + b, 0);
           const measuredTotalHeight = measuredSectionsTotal + measuredFooterHeight;
 
-          // 기존 vh 방식 계산값 (진단용)
-          const { 
-            SECTION_SCROLL_HEIGHT: H, 
-            TIMING_CFG, 
-            STAGES, 
-          } = INTERACTION_REGISTRY.constants;
-          const vhToPx = (vh: number) => (vh * window.innerHeight) / 100;
-          const sectionHeightsSum = H.HERO + H.PAIN + H.MESSAGE + H.FORWHO + H.STORY + H.BRIDGE + H.CTA;
-          const estimatedTotalHeight = vhToPx(sectionHeightsSum) + footerHeight;
-
-          // [V66.Phase1] 뷰포트 진단 데이터 로그 출력
-          console.group('🚀 Nemo V66 Phase 1: Interaction Engine Diagnostics');
-          console.table({
-            'Viewport (Inner)': window.innerHeight,
-            'Viewport (Visual)': window.visualViewport?.height || 'N/A',
-            'Footer (Context)': footerHeight,
-            'Footer (Measured)': measuredFooterHeight,
-            'Sections Total (Estimated)': estimatedTotalHeight,
-            'Sections Total (Measured)': measuredTotalHeight,
-            'Cumulative Error (px)': measuredTotalHeight - estimatedTotalHeight
-          });
-          console.log('Section Heights (Measured):', sectionHeightsMap);
-          console.groupEnd();
-
-          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom(80px)으로 대체되었습니다.
-          // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
-          const finalY = measuredTotalHeight - window.innerHeight;
-
-          // [V66.Phase3] 각 섹션별 실제 픽셀 오프셋 측정 (Top-relative)
+          // [V66.Phase3.3] 실측된 오프셋 데이터를 맵으로 생성
           const sectionOffsetsMap = sectionIds.reduce((map, id) => {
             const el = document.getElementById(id);
             if (el && sectionsContentRef.current) {
-              // 래퍼 상단으로부터의 상대적 거리 계산
               map[id] = el.offsetTop;
             } else {
               map[id] = 0;
@@ -234,17 +205,12 @@ export const GlobalInteractionStage = ({
             return map;
           }, {} as Record<string, number>);
 
-          // [V66.Phase1/2/3] 오버레이 표시를 위한 상태 업데이트
-          setDiagnostics({
-            vh: window.innerHeight,
-            vv: window.visualViewport?.height || 0,
-            footer: measuredFooterHeight,
-            est: estimatedTotalHeight,
-            real: measuredTotalHeight,
-            diff: measuredTotalHeight - estimatedTotalHeight,
-            targetY: finalY,
-            sectionOffsets: sectionOffsetsMap // P3-1에서 추가
-          });
+          // 포커싱용 상태 업데이트
+          setOffsets(sectionOffsetsMap);
+
+          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom(80px)으로 대체되었습니다.
+          // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
+          const finalY = measuredTotalHeight - window.innerHeight;
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
@@ -275,14 +241,6 @@ export const GlobalInteractionStage = ({
                 syncNemoCoordinates(nemoHandle.current?.nemoEl || null);
               }
 
-              // [V66.Phase2] 물리 법칙 검증 로그 (결승점 안착 여부 체크)
-              if (currentProgress >= 0.99) {
-                const currentY = -gsap.getProperty(sectionsContentRef.current, 'y') as number;
-                setDiagnostics((prev: any) => ({
-                  ...prev,
-                  currentYAtEnd: currentY
-                }));
-              }
             }
           });
           
@@ -409,11 +367,13 @@ export const GlobalInteractionStage = ({
 
     return () => {
       setIsTimelineReady(false);
-
       console.log('[Interaction/V33] Cleanup Context');
 
       if (rafId.current) cancelAnimationFrame(rafId.current);
-      if (layoutTimerRef.current) { clearTimeout(layoutTimerRef.current); layoutTimerRef.current = null; }
+      if (layoutTimerRef.current) { 
+        clearTimeout(layoutTimerRef.current); 
+        layoutTimerRef.current = null; 
+      }
 
       const wrapper = sectionsContentRef.current;
       if (wrapper) {
@@ -444,6 +404,26 @@ export const GlobalInteractionStage = ({
       }
     };
   }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode, footerHeight], revertOnUpdate: true });
+
+  // [V66.Phase3.3] CTA 자동 포커스 이벤트 리스너 (최신 offsets 상태 반영)
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const handleCtaFocus = () => {
+      const ctaOffset = offsets['section-cta'];
+      if (typeof ctaOffset === 'number' && ctaOffset > 0) {
+        gsap.to(window, {
+          scrollTo: ctaOffset,
+          duration: 1.2,
+          ease: 'power3.inOut',
+          overwrite: true
+        });
+      }
+    };
+
+    window.addEventListener('nemo:cta-focus', handleCtaFocus);
+    return () => window.removeEventListener('nemo:cta-focus', handleCtaFocus);
+  }, [offsets, mounted]);
 
   // [V11.11 Fix] 포탈 내 변수 소실을 차단하기 위해 데이터 시트에서 현재 환경의 색상을 직접 추출합니다.
   const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
@@ -594,71 +574,7 @@ export const GlobalInteractionStage = ({
         isTabletPortrait={isTabletPortrait} 
       />
 
-      {/* // [DEPLOY-DELETE] : 디버그 전용 점프 엔진 도킹 (배포 시 이 한 줄만 삭제하거나 debug.ts에서 OFF) */}
-      {/* [DEPLOY-DELETE] 디버그 점프 엔진 (인터랙션 준비 완료 시 활성화) */}
-      <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />
 
-      {/* [V66.Phase1] 모바일 전용 실시간 진단 오버레이 (방법 2) */}
-      {mounted && isMobile && typeof document !== 'undefined' && createPortal(
-        <div className="fixed bottom-6 right-6 pointer-events-auto" style={{ zIndex: 999999 }}>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDiag(!showDiag);
-            }}
-            className="bg-[#00ff00] text-black text-[11px] px-4 py-2 rounded-full font-bold shadow-2xl border border-white/20 active:scale-90 transition-all"
-            style={{ boxShadow: '0 0 20px rgba(0,255,0,0.3)' }}
-          >
-            {showDiag ? 'CLOSE' : 'V66 DIAG'}
-          </button>
-
-          {showDiag && diagnostics && (
-            <div className="absolute bottom-14 right-0 bg-black/95 text-[#00ff00] p-5 rounded-2xl font-mono text-[12px] w-[280px] border border-[#00ff00]/30 shadow-2xl backdrop-blur-2xl">
-              <div className="flex justify-between border-b border-[#00ff00]/20 pb-2 mb-3">
-                <span className="opacity-70 text-[10px]">Nemo V66 Engine</span>
-                <span className="font-bold text-[10px]">LIVE</span>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span className="opacity-60">Viewport(H)</span> <span>{diagnostics.vh}px</span></div>
-                <div className="flex justify-between"><span className="opacity-60">Visual(H)</span> <span>{diagnostics.vv}px</span></div>
-                <div className="flex justify-between border-t border-[#00ff00]/10 pt-1.5 mt-1.5"><span className="opacity-60">Footer(M)</span> <span>{diagnostics.footer}px</span></div>
-                <div className="flex justify-between"><span className="opacity-60">Sections(Est)</span> <span>{Math.round(diagnostics.est)}px</span></div>
-                <div className="flex justify-between"><span className="opacity-60">Sections(Real)</span> <span>{Math.round(diagnostics.real)}px</span></div>
-                <div className="flex justify-between border-t border-[#00ff00]/30 pt-3 mt-3 font-bold text-yellow-400 text-[14px]">
-                  <span>CUMULATIVE DIFF</span>
-                  <span>{Math.round(diagnostics.diff)}px</span>
-                </div>
-                {diagnostics.currentYAtEnd !== undefined && (
-                  <div className="mt-2 pt-2 border-t border-[#00ff00]/10 space-y-1 text-[10px]">
-                    <div className="flex justify-between opacity-70"><span>Target Y</span> <span>{Math.round(diagnostics.targetY)}px</span></div>
-                    <div className="flex justify-between opacity-70"><span>Current Y</span> <span>{Math.round(diagnostics.currentYAtEnd)}px</span></div>
-                    <div className="flex justify-between font-bold text-cyan-400">
-                      <span>ST.GAP</span> 
-                      <span>{Math.round(diagnostics.targetY - diagnostics.currentYAtEnd)}px</span>
-                    </div>
-                  </div>
-                )}
-                
-                {showDiag && diagnostics.sectionOffsets && (
-                  <div className="mt-2 pt-2 border-t border-[#00ff00]/10 max-h-[100px] overflow-y-auto space-y-0.5 text-[9px] opacity-60">
-                    {Object.entries(diagnostics.sectionOffsets).map(([id, offset]) => (
-                      <div key={id} className="flex justify-between">
-                        <span>{id.replace('section-', '')}</span>
-                        <span>{Math.round(offset as number)}px</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 text-[10px] text-[#00ff00]/50 italic leading-tight">
-                * Diff &gt; 0: Footer is below fold<br/>
-                * Diff &lt; 0: Footer is pushed up
-              </div>
-            </div>
-          )}
-        </div>,
-        document.body
-      )}
     </div>
   );
 };

@@ -48,7 +48,15 @@ export default function HomeStage(): React.ReactElement {
       />
       
       {/* 콘텐츠 영역: Z_CONTENT(100)로 GlobalInteractionStage(Z_STAGE_WRAPPER:50)보다 상위 쌓임 맥락 확보 */}
-      <div id="home-stage" ref={containerRef} className="relative w-full" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
+      <div 
+        id="home-stage" 
+        ref={containerRef} 
+        className="relative w-full" 
+        style={{ 
+          zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
+          touchAction: isMobile ? 'pan-y' : 'auto' // [V66.Phase3.2-Hotfix] iOS 첫 터치 뻑뻑함 해결
+        }}
+      >
         {/* 모든 섹션을 포함하는 래퍼: 섹션 이동 및 배경색 전환을 위한 핵심 ID(sections-content-wrapper) 탑재 */}
         <div 
           id="sections-content-wrapper"

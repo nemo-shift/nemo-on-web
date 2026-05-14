@@ -333,7 +333,7 @@ export const KEYWORD_CFG = {
   DESIGN: {
     PC:      { bh: 52, fontSize: 24, padding: 35, minW: 100 },
     TABLET:  { bh: 46, fontSize: 24, padding: 30, minW: 80 },
-    MOBILE:  { bh: 40, fontSize: 20, padding: 25, minW: 60 },
+    MOBILE:  { bh: 32, fontSize: 16, padding: 20, minW: 50 },
   },
 
   // 물리 엔진 파라미터

@@ -17,7 +17,7 @@ export const BrandStorySection = () => {
           style={{ zIndex: 0, backgroundColor: '#faf7f2' }}
         />
 
-        {/* 섹션 안내 가이드 : 섹션 별 구분원할때 주석 해제 */}
+        {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
         {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
           <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: BrandStory Section</span>
         </div>*/}
@@ -32,12 +32,16 @@ export const BrandStorySection = () => {
           <h2 
             id="story-title"
             className={cn(
-              'absolute top-24 font-bold text-[#0D1A1F]/20 uppercase tracking-[0.2em] text-center transition-all duration-500',
-              'text-4xl',                         // Mobile
-              'tablet-p:text-5xl',                 // 744px
-              'tablet:text-5xl',                   // 992px
-              'desktop-wide:text-6xl',             // 1440px
-              'desktop-cap:text-7xl'               // 1920px
+              'absolute top-1/2 -translate-y-1/2 rotate-90 font-bold text-[#0D1A1F]/20 uppercase tracking-[0.2em] whitespace-nowrap transition-all duration-500',
+              'right-[-85px]',                    // Mobile: 더 오른쪽으로
+              'tablet-p:right-[-120px]',            // Tablet Portrait: 더 오른쪽으로
+              'tablet:right-[-40px]',              // PC (Tablet 이상): 기존 유지
+              'desktop-wide:right-[-60px]',        // PC (Wide): 기존 유지
+              'text-4xl',
+              'tablet-p:text-5xl',
+              'tablet:text-5xl',
+              'desktop-wide:text-6xl',
+              'desktop-cap:text-7xl'
             )}
           >
             Brand Story
