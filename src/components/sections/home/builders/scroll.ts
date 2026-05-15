@@ -71,17 +71,17 @@ export function buildSectionScrollTimeline(
     onComplete: () => {
       // 옵션이 활성화된 경우에만 텍스트 색상을 그린으로 변경
       if (STORY_TRANSITION_OPTS.ENABLE_TERMINAL_GREEN) {
-        gsap.set('#story-text-4', { color: STORY_TRANSITION_OPTS.TERMINAL_GREEN });
+        gsap.set('#story-text-6', { color: STORY_TRANSITION_OPTS.TERMINAL_GREEN });
       }
       // 터미널 깜빡이 커서 노출
-      gsap.set('#story-cursor-4', { display: 'inline-block', opacity: 1 });
+      gsap.set('#story-cursor-6', { display: 'inline-block', opacity: 1 });
     },
     onReverseComplete: () => {
       // 역스크롤 시(CTA에서 다시 스토리로 올라올 때) 상태 원복
       if (STORY_TRANSITION_OPTS.ENABLE_TERMINAL_GREEN) {
-        gsap.set('#story-text-4', { color: '#FFFFFF' }); // 다시 흰색으로
+        gsap.set('#story-text-6', { color: '#FFFFFF' }); // 다시 흰색으로
       }
-      gsap.set('#story-cursor-4', { display: 'none', opacity: 0 });
+      gsap.set('#story-cursor-6', { display: 'none', opacity: 0 });
     }
   }, L[STAGES.STORY_CONTENT] + t - 0.01);
   
@@ -89,7 +89,7 @@ export function buildSectionScrollTimeline(
   // 스크롤에 따라 글자가 뒤에서부터 한 글자씩 지워지는 물리적 효과를 구현합니다.
   const fullText = '불안을 끄고, 기준을 켭니다.\n\n이제 브랜드를 켤 차례입니다.';
   const eraseState = { length: fullText.length };
-
+ 
   // [Tuning] 커서 등장 후 충분히 머물렀다가 삭제가 시작되도록 지연 시간(Offset) 추가
   const eraseOffset = isTouch ? 0.2 : 0.5;
   tl.to(eraseState, {
@@ -100,7 +100,7 @@ export function buildSectionScrollTimeline(
     onUpdate: () => {
       const count = Math.floor(eraseState.length);
       const sliced = fullText.substring(0, count);
-      gsap.set('#story-text-4', { textContent: sliced });
+      gsap.set('#story-text-6', { textContent: sliced });
     }
   }, L[STAGES.STORY_ERASE] + eraseOffset);
 

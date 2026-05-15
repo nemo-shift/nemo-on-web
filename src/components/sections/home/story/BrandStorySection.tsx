@@ -56,20 +56,22 @@ export const BrandStorySection = () => {
                 className="absolute inset-0 flex items-center justify-center opacity-0 translate-y-8"
               >
                 <p className={cn(
-                  "font-suit font-medium leading-relaxed text-center whitespace-pre-wrap transition-colors duration-500",
+                  "font-suit font-medium leading-relaxed whitespace-pre-wrap transition-colors duration-500",
                   "mx-auto",
+                  // [V66.UX] 1-1은 왼쪽 정렬, 1-2는 오른쪽 정렬, 나머지는 중앙 정렬
+                  idx === 0 ? "text-left" : (idx === 1 ? "text-right" : "text-center"),
                   // [Tier 1] Mobile
                   "text-base max-w-[85vw]",
                   // [Tier 2] Tablet Portrait
                   "tablet-p:text-xl tablet-p:max-w-[75vw]",
                   // [Tier 3] The Rest (PC/Landscape)
                   "tablet:text-2xl tablet:max-w-[800px]",
-                  idx === 0 || idx === 3 ? "text-white" : "text-white"
+                  "text-white"
                 )}>
-                  {idx === 3 ? (
+                  {idx === 5 ? (
                     <>
-                      <span id="story-text-4">{item.content}</span>
-                      <span id="story-cursor-4" className="text-[#00FF41] animate-terminal-cursor font-mono text-xl tablet-p:text-2xl tablet:text-3xl" style={{ display: 'none', marginLeft: '2px' }}>|</span>
+                      <span id="story-text-6">{item.content}</span>
+                      <span id="story-cursor-6" className="text-[#00FF41] animate-terminal-cursor font-mono text-xl tablet-p:text-2xl tablet:text-3xl" style={{ display: 'none', marginLeft: '2px' }}>|</span>
                     </>
                   ) : item.content}
                 </p>
