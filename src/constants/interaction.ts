@@ -158,8 +158,8 @@ export const TIMING_CFG = {
     CORE_FUNNEL_EXPAND_TOUCH: 4.0, // [V65] 팽창 호흡 보강 (기존 2.0에서 상향)
     FOR_WHO_STILL: 15.0,
     FOR_WHO_STILL_TOUCH: 8.0, // [V65] 모바일 카드 캐러셀 통과 피로도 감소 (신규)
-     STORY_STILL: 18.0,     
-     STORY_STILL_TOUCH: 12.0, // [V66.UX] 6단계 확장에 따른 정독 시간 확보
+    STORY_STILL: 21.0,     
+    STORY_STILL_TOUCH: 22.0, // [V66.UX] 모바일 호흡 대수술 - 정독 시간 대폭 확보 (15.0 -> 22.0)
     STORY_ERASE_STILL: 10.0,
     STORY_ERASE_STILL_TOUCH: 4.0, // [V65] 삭제 연출 속도감 확보 (신규)
     CTA_STILL: 7.0,
