@@ -20,7 +20,8 @@ import GlobalScrollHint from './GlobalScrollHint';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
-import { DEBUG_CONFIG } from '@/constants/debug';
+import { DEBUG_CONFIG } from '@/constants/debug'; // [완성후-삭제]
+import InteractionDebugger from './InteractionDebugger'; // [완성후-삭제]
 
 import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
@@ -45,7 +46,7 @@ export const GlobalInteractionStage = ({
   forwhoRef,
   sectionsContentRef,
 }: GlobalInteractionStageProps) => {
-  const { isScrollable, footerHeight, setIsTimelineReady, toggle } = useHeroContext();
+  const { isScrollable, footerHeight, isTimelineReady, setIsTimelineReady, toggle } = useHeroContext();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const logoHandle   = useRef<JourneyLogoHandle>(null);
@@ -574,7 +575,8 @@ export const GlobalInteractionStage = ({
         isTabletPortrait={isTabletPortrait} 
       />
 
-
+      {/* 5. Interaction Debugger (v11.Separation) [완성후-삭제] */}
+      {mounted && <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />}
     </div>
   );
 };

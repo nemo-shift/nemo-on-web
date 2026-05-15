@@ -9,7 +9,7 @@ import { debugLog } from './debug-utils';
 import { InteractionRegistry } from './types';
 
 /**
- * // [DEPLOY-DELETE] : 배포 전 반드시 삭제 (디버그 점프 엔진)
+ * // [완성후-삭제] : 프로젝트 최종 완성 시점에만 삭제 (디버그 점프 엔진)
  * 
  * 특정 섹션의 인터랙션을 즉시 확인하기 위한 '순간 이동' 컴포넌트입니다.
  * 인터랙션 엔진의 '무결성'을 위해 GlobalInteractionStage 본체에서 분리하여 독자적으로 작동합니다.

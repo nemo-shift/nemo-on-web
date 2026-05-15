@@ -1,7 +1,7 @@
-import { DEBUG_CONFIG } from '@/constants/debug';
+import { DEBUG_CONFIG } from '@/constants/debug'; // [완성후-삭제]
 
 /**
- * // [DEPLOY-DELETE] : 배포 전 삭제 예정
+ * // [완성후-삭제] : 프로젝트 최종 완성 시점에만 삭제 예정
  * 디버그 모드에서만 컬러풀한 로그를 출력하는 유틸리티입니다.
  * 일반 시스템 로그와 시각적으로 분리하여 실수를 방지합니다.
  */
