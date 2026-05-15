@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import {
   Noto_Sans_KR,
   DM_Sans,
@@ -62,6 +62,10 @@ const bebasNeue = Bebas_Neue({
 export const metadata: Metadata = {
   title: '네모:ON',
   description: '불안한 안녕, 기준은 언제나 당신 : 네모:ON 공식 웹사이트',
+};
+
+export const viewport: Viewport = {
+  colorScheme: 'light',
 };
 
 export default function RootLayout({
