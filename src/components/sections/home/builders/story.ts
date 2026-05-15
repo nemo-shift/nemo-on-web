@@ -43,7 +43,7 @@ export const buildStoryTimeline = (
   const p2Pos = isTabletPortrait
     ? { x: '2vw', y: '3vh' } // 태블릿 세로: 중앙 정렬 및 상향 배치
     : isMobileView 
-      ? { x: 0, y: '4vh' } 
+      ? { x: 0, y: '6vh' } 
       : { x: '5vw', y: '8vh' };
 
   tl.fromTo('#story-paragraph-2', 
