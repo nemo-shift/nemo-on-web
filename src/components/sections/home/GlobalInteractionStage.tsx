@@ -451,7 +451,7 @@ export const GlobalInteractionStage = ({
         className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-0"
         style={{ 
           zIndex: INTERACTION_Z_INDEX.Z_BACKGROUND_TYPO,
-          willChange: 'opacity, transform' 
+          willChange: 'opacity, transform'
         }}
       >
         <div className="flex flex-col items-start justify-center px-[5vw] w-full">

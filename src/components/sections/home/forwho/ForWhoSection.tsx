@@ -63,6 +63,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
             isTabletPortrait && "left-[50%] bottom-[25%]", // Tablet: 우측 하단 (좌측으로 살짝 이동)
             isMobile && "left-[44%] bottom-[25%]" // Mobile: 우측 하단
           )}
+          style={{ willChange: 'transform, opacity' }}
         >
           <h2 
             className={cn(
@@ -88,6 +89,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
             "absolute inset-0 z-0 opacity-0 pointer-events-none",
             "flex flex-col items-center justify-center text-center px-6"
           )}
+          style={{ willChange: 'transform, opacity' }}
         >
           <div className="space-y-4 tablet:space-y-6">
             <p className={cn(
@@ -111,6 +113,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
         <div 
           ref={contentWrapperRef}
           className="absolute inset-0 z-10 opacity-0 pointer-events-none"
+          style={{ willChange: 'transform, opacity' }}
         >
           <ForWhoCarousel ref={carouselRef} />
         </div>
