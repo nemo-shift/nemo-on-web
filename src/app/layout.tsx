@@ -76,6 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
+      style={{ colorScheme: 'only light' }}
       className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col font-suit">
