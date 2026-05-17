@@ -1,0 +1,91 @@
+import React, { useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ABOUT_PHILOSOPHY_DATA } from '@/data/about';
+import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export default function AboutPhilosophy() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  useGSAP(() => {
+    if (!containerRef.current || !titleRef.current || !contentRef.current) return;
+
+    // 본문 콘텐츠 초기 은폐 (초기 진입 시에는 오직 검은색 타이틀만 노출)
+    gsap.set(contentRef.current, { opacity: 0, y: 60 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        id: 'about-philosophy-trigger', // 🔗 [체인 링크] 히어로와의 결속을 위한 고유 ID 부여
+        refreshPriority: 5,              // 🔗 [체인 링크] 히어로가 먼저 계산된 뒤 자리를 잡도록 우선순위 정렬
+        trigger: containerRef.current,
+        start: 'top top',                // GSAP가 히어로의 500vh 높이를 감안하여 자연스럽게 5000px로 계산하도록 유도
+        // [Safe Relative Duration] 시작점으로부터 1.5배 스크롤 동안 고정 (오버레이 스택 공간 보증)
+        end: () => `+=${window.innerHeight * 1.5}`,
+        scrub: true,
+        pin: true,
+        pinSpacing: true, // 단독 1차 검수를 위해 안전한 pinSpacing: true 유지
+      }
+    });
+
+    // 1. 거대 타이틀: 스크롤에 따라 선명한 검은색(1)에서 은은한 워터마크(0.04)로 옅어짐 (블러 없음)
+    tl.to(titleRef.current, {
+      opacity: 0.04,
+      ease: 'none'
+    }, 0);
+
+    // 2. 본문 콘텐츠: 타이틀이 은은해진 30% 지점부터 부드럽게 페이드인하여 화면에 도킹
+    // [기획 명세 준수]: 이전 섹션의 콘텐츠가 다 보여진 상태를 유지하므로, 페이드아웃 퇴장 없이 1.0 상태를 유지합니다.
+    tl.to(contentRef.current, {
+      opacity: 1,
+      y: 0,
+      ease: 'power2.out'
+    }, 0.3); // 30% 스크롤 지점 시간차 등장
+
+  }, { scope: containerRef });
+
+  return (
+    <section 
+      ref={containerRef}
+      id="about-philosophy"
+      className="relative w-full h-[180vh] bg-white z-10 overflow-hidden"
+    >
+      {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
+      <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
+        <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Philosophy Section</span>
+      </div>
+      {/* 100vh 풀스크린 뷰포트 영역 (pin 대상) */}
+      <div className="w-full h-screen flex flex-col items-center justify-center relative">
+        
+        {/* 거대 배경 타이틀 (선명한 검은색에서 시작) */}
+        <span 
+          ref={titleRef}
+          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none text-center leading-none z-0 ${ABOUT_STAGE_STYLES.philosophy.bgTitle.size} ${ABOUT_STAGE_STYLES.philosophy.bgTitle.top} ${ABOUT_STAGE_STYLES.philosophy.bgTitle.tracking}`}
+        >
+          {ABOUT_PHILOSOPHY_DATA.bgTitle}
+        </span>
+
+        {/* 전면 본문 콘텐츠 레이어 */}
+        <div 
+          ref={contentRef}
+          className={`relative z-10 container mx-auto px-6 text-center text-[#0d1a1f] ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.yOffset}`}
+        >
+          <div className={`flex flex-col w-fit mx-auto text-left ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}>
+            {ABOUT_PHILOSOPHY_DATA.paragraphs.map((p, idx) => (
+              <p 
+                key={idx} 
+                className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
+              >
+                {p}
+              </p>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

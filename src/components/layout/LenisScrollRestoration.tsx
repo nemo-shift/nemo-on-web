@@ -127,10 +127,11 @@ export default function LenisScrollRestoration(): null {
 
     if (getNavigationType() === 'direct') {
       setTimeout(() => {
+        const lenisInst = (window as any).lenis;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).lenis) {
+        if (lenisInst) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).lenis.scrollTo(0, { immediate: true });
+          lenisInst.scrollTo(0, { immediate: true });
         } else {
           window.scrollTo(0, 0);
         }

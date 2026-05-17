@@ -17,29 +17,36 @@ export default function GlobalScrollTriggerCleanup(): null {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (pathname === '/') return; // 홈은 GlobalInteractionStage가 직접 관리
-    ScrollTrigger.killAll(true);
-
-    const pinSpacers = document.querySelectorAll(
-      '.pin-spacer, .gsap-pin-spacer',
-    );
-    pinSpacers.forEach((spacer) => spacer.remove());
-
-    const elementsWithGSAPStyles = document.querySelectorAll(
-      '[style*="transform"], [style*="pin"], [style*="position: fixed"]',
-    );
-    elementsWithGSAPStyles.forEach((element) => {
-      const el = element as HTMLElement;
-      if (el.style.transform?.includes('matrix')) {
-        el.style.transform = '';
-      }
-      if (
-        el.style.position === 'fixed' &&
-        element.classList.contains('pin-spacer')
-      ) {
-        el.style.position = '';
+    
+    // [Surgical Precision Cleanup]
+    // 신규 페이지(About 등)의 뼈대와 트리거가 무차별적으로 뜯겨나가지 않도록
+    // 오직 과거 홈페이지(/)에 속해 있던 잔여 ScrollTrigger와 고정 핀 스페이서들만 저격하여 안전하게 소멸시킵니다.
+    const allTriggers = ScrollTrigger.getAll();
+    allTriggers.forEach((trigger) => {
+      const el = trigger.trigger as HTMLElement;
+      if (el && (
+        el.id === 'home-stage' ||
+        el.id === 'section-hero' ||
+        el.id === 'section-pain' ||
+        el.id === 'section-message' ||
+        el.id === 'section-forwho' ||
+        el.id === 'section-brand-story' ||
+        el.id === 'section-cta' ||
+        el.id === 'sections-content-wrapper' ||
+        el.closest('#home-stage')
+      )) {
+        // 홈페이지 잔여물만 강제 소멸 및 레이아웃 상태 원복
+        trigger.kill(true);
       }
     });
 
+    // 홈페이지 관련 마크업 및 pin-spacer가 확실히 사멸되도록 후속 정리
+    const homepagePinSpacers = document.querySelectorAll(
+      '#home-stage .pin-spacer, #home-stage .gsap-pin-spacer, .pin-spacer[id*="home"], .gsap-pin-spacer[id*="home"]'
+    );
+    homepagePinSpacers.forEach((spacer) => spacer.remove());
+
+    // 브라우저의 전체적인 ScrollTrigger 측정 좌표를 다시 싱크
     ScrollTrigger.refresh();
   }, [pathname]);
 
