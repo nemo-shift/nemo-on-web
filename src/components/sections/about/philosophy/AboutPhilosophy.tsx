@@ -23,27 +23,32 @@ export default function AboutPhilosophy() {
         refreshPriority: 5,              // 🔗 [체인 링크] 히어로가 먼저 계산된 뒤 자리를 잡도록 우선순위 정렬
         trigger: containerRef.current,
         start: 'top top',                // GSAP가 히어로의 500vh 높이를 감안하여 자연스럽게 5000px로 계산하도록 유도
-        // [Safe Relative Duration] 시작점으로부터 1.5배 스크롤 동안 고정 (오버레이 스택 공간 보증)
-        end: () => `+=${window.innerHeight * 1.5}`,
+        // [Zero-Gap Sync] 섹션의 물리적 높이인 1.8배(180vh) 동안 완벽하게 핀 고정 유지 (Meaning이 100% 덮을 때까지)
+        end: () => `+=${window.innerHeight * 1.8}`,
         scrub: true,
         pin: true,
-        pinSpacing: true, // 단독 1차 검수를 위해 안전한 pinSpacing: true 유지
+        pinSpacing: false, // 다음 섹션 카드가 위로 덮어씌울 수 있도록 spacing 비활성화
       }
     });
 
-    // 1. 거대 타이틀: 스크롤에 따라 선명한 검은색(1)에서 은은한 워터마크(0.04)로 옅어짐 (블러 없음)
+    // 1. 거대 타이틀: 0%에서 40% 지점까지 오파시티 옅어짐 (지속시간 0.4)
     tl.to(titleRef.current, {
       opacity: 0.04,
+      duration: 0.4,
       ease: 'none'
     }, 0);
 
-    // 2. 본문 콘텐츠: 타이틀이 은은해진 30% 지점부터 부드럽게 페이드인하여 화면에 도킹
+    // 2. 본문 콘텐츠: 20% 지점부터 시작하여 50% 지점까지 등장 완료 (지속시간 0.3)
     // [기획 명세 준수]: 이전 섹션의 콘텐츠가 다 보여진 상태를 유지하므로, 페이드아웃 퇴장 없이 1.0 상태를 유지합니다.
     tl.to(contentRef.current, {
       opacity: 1,
       y: 0,
+      duration: 0.3,
       ease: 'power2.out'
-    }, 0.3); // 30% 스크롤 지점 시간차 등장
+    }, 0.2); // 20% 스크롤 지점 등장
+
+    // 3. [50% 스크롤 독서 버퍼] 50% 지점부터 100% 지점까지는 아무런 움직임 없이 완전히 정지하여 여유로운 독서 시간 확보 (지속시간 0.5)
+    tl.to({}, { duration: 0.5 }, 0.5);
 
   }, { scope: containerRef });
 
@@ -54,9 +59,9 @@ export default function AboutPhilosophy() {
       className="relative w-full h-[180vh] bg-white z-10 overflow-hidden"
     >
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
-      <div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
+      {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Philosophy Section</span>
-      </div>
+      </div>*/}
       {/* 100vh 풀스크린 뷰포트 영역 (pin 대상) */}
       <div className="w-full h-screen flex flex-col items-center justify-center relative">
         
