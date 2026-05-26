@@ -81,7 +81,7 @@ export default function OfferingsIntro() {
   }, { scope: sectionRef });
 
   return (
-    <div 
+    <section 
       ref={sectionRef}
       id="offerings-intro"
       className="relative w-full bg-white text-[#0d1a1f]"
@@ -146,6 +146,6 @@ export default function OfferingsIntro() {
           </div>
         </div>
       </section>
-    </div>
+    </section>
   );
 }
