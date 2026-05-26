@@ -4,6 +4,7 @@ import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_PHILOSOPHY_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
+import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,6 +12,10 @@ export default function AboutPhilosophy() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // [Zero-Gap Sync] 스크롤 여유 및 관성 방어를 위한 가중치 배율 (상수 파일 sub-interaction.ts 연동)
+  const scrollMultiplier = ABOUT_SCROLL_MULTIPLIERS.PHILOSOPHY;
+
   useGSAP(() => {
     if (!containerRef.current || !titleRef.current || !contentRef.current) return;
 
@@ -23,8 +28,8 @@ export default function AboutPhilosophy() {
         refreshPriority: 5,              // 🔗 [체인 링크] 히어로가 먼저 계산된 뒤 자리를 잡도록 우선순위 정렬
         trigger: containerRef.current,
         start: 'top top',                // GSAP가 히어로의 500vh 높이를 감안하여 자연스럽게 5000px로 계산하도록 유도
-        // [Zero-Gap Sync] 섹션의 물리적 높이인 1.8배(180vh) 동안 완벽하게 핀 고정 유지 (Meaning이 100% 덮을 때까지)
-        end: () => `+=${window.innerHeight * 1.8}`,
+        // [Zero-Gap Sync] 섹션의 물리적 높이 동안 완벽하게 핀 고정 유지 (Meaning이 100% 덮을 때까지)
+        end: () => `+=${window.innerHeight * scrollMultiplier}`,
         scrub: true,
         pin: true,
         pinSpacing: false, // 다음 섹션 카드가 위로 덮어씌울 수 있도록 spacing 비활성화
@@ -50,13 +55,19 @@ export default function AboutPhilosophy() {
     // 3. [50% 스크롤 독서 버퍼] 50% 지점부터 100% 지점까지는 아무런 움직임 없이 완전히 정지하여 여유로운 독서 시간 확보 (지속시간 0.5)
     tl.to({}, { duration: 0.5 }, 0.5);
 
+    // [Perfect Stacking Sync] 모든 섹션이 성공적으로 조율된 후 좌표계를 1회 정밀 측정합니다.
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
   }, { scope: containerRef });
 
   return (
     <section 
       ref={containerRef}
       id="about-philosophy"
-      className="relative w-full h-[180vh] bg-white z-10 overflow-hidden"
+      className="relative w-full bg-white z-10 overflow-hidden"
+      style={{ height: `${scrollMultiplier * 100}vh` }}
     >
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
       {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">

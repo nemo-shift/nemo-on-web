@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SmoothScroll from '@/components/layout/SmoothScroll';
-import { useHeroContext } from '@/context';
+import { useHeroContext, useDevice } from '@/context';
 import AboutHero from './hero/AboutHero';
 import AboutPhilosophy from './philosophy/AboutPhilosophy';
 import AboutMeaning from './meaning/AboutMeaning';
@@ -12,18 +12,32 @@ import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 export default function AboutStage() {
   const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const { interactionMode } = useDevice();
 
   useEffect(() => {
     // About 페이지는 구조적으로 스크롤이 가능해야 함 (홈페이지의 스크롤 잠금 해제)
     toggle();
     setIsScrollable(true);
 
+    // [v26.98 UI Detail] 모바일 터치 관성 스크롤을 제어하여 핀 꼬임을 1차 방어 (홈페이지 싱크)
+    if (interactionMode === 'touch') {
+      ScrollTrigger.normalizeScroll({
+        allowNestedScroll: true,
+        momentum: 0
+      });
+    }
+
     // [Perfect Stacking Sync] 모든 서브 섹션들이 확실히 마운트된 직후,
     // 브라우저의 ScrollTrigger 물리 좌표 측정을 한 번 더 갱신하여 레이아웃 꼬임을 완벽 예방합니다.
     requestAnimationFrame(() => {
       ScrollTrigger.refresh();
     });
-  }, [toggle, setIsScrollable]);
+
+    // [Side-effect Free] 어바웃 페이지 이탈 시 전역 터치 정규화 설정을 해제하여 타 페이지로의 전염을 원천 차단
+    return () => {
+      ScrollTrigger.normalizeScroll(false);
+    };
+  }, [toggle, setIsScrollable, interactionMode]);
 
   return (
     <main id="about-stage" className="relative z-[1] w-full">

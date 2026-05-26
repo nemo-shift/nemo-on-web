@@ -4,6 +4,7 @@ import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_PROMISE_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
+import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,6 +12,9 @@ export default function AboutPromise() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // [Zero-Gap Sync] 마지막 섹션이므로 푸터 리빌 타이밍을 빠르게 하기 위해 가중치 배율 축소 (상수 파일 sub-interaction.ts 연동)
+  const scrollMultiplier = ABOUT_SCROLL_MULTIPLIERS.PROMISE;
 
   useGSAP(() => {
     if (!containerRef.current || !titleRef.current || !contentRef.current) return;
@@ -24,8 +28,8 @@ export default function AboutPromise() {
         refreshPriority: 1, // 🔗 [체인 링크] 의미 섹션이 끝난 뒤 계산되도록 최하위 우선순위 배정
         trigger: containerRef.current,
         start: 'top top',
-        // [Zero-Gap Sync] 섹션의 물리적 높이인 1.8배(180vh) 동안 완벽하게 핀 고정 유지 (독서 버퍼 보증)
-        end: () => `+=${window.innerHeight * 1.8}`,
+        // [Zero-Gap Sync] 섹션의 물리적 높이 동안 완벽하게 핀 고정 유지 (독서 버퍼 보증)
+        end: () => `+=${window.innerHeight * scrollMultiplier}`,
         scrub: true,
         pin: true,
         pinSpacing: true, // 마지막 섹션이므로 spacing을 활성화하여 푸터가 자연스럽게 리빌되도록 유도
@@ -51,6 +55,11 @@ export default function AboutPromise() {
     // 3. [50% 스크롤 독서 버퍼] 50% 지점부터 100% 지점까지는 아무런 움직임 없이 완전히 정지하여 여유로운 독서 시간 확보 (지속시간 0.5)
     tl.to({}, { duration: 0.5 }, 0.5);
 
+    // [Perfect Stacking Sync] 모든 섹션이 성공적으로 조율된 후 좌표계를 1회 정밀 측정합니다.
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
   }, { scope: containerRef });
 
   const renderParagraph = (text: string) => {
@@ -73,7 +82,8 @@ export default function AboutPromise() {
     <section 
       ref={containerRef}
       id="about-promise"
-      className="relative w-full h-[180vh] bg-white z-30 overflow-hidden"
+      className="relative w-full bg-white z-30 overflow-hidden"
+      style={{ height: `${scrollMultiplier * 100}vh` }}
     >
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
       {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">

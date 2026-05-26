@@ -12,7 +12,7 @@ export const ABOUT_STAGE_STYLES = {
     // 거대 배경 타이틀 (Who We Are)
     bgTitle: {
       size: "text-[42px] tablet-p:text-[76px] tablet:text-[130px] desktop-wide:text-[150px]",
-      top: "top-[16%] tablet-p:top-[20%] tablet:top-[22%]",
+      top: "top-[24%] tablet-p:top-[28%] tablet:top-[30%]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.2em]"
     },
     // 전면 본문 콘텐츠 블록
@@ -28,7 +28,7 @@ export const ABOUT_STAGE_STYLES = {
     // (향후 고도화 시 연동할 Meaning 섹션 레이아웃 예비용 자리)
     bgTitle: {
       size: "text-[36px] tablet-p:text-[64px] tablet:text-[110px] desktop-wide:text-[130px]",
-      top: "top-[15%] tablet-p:top-[18%] tablet:top-[20%]",
+      top: "top-[22%] tablet-p:top-[26%] tablet:top-[28%]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.2em]"
     },
     content: {
@@ -43,7 +43,7 @@ export const ABOUT_STAGE_STYLES = {
     // (향후 고도화 시 연동할 Promise 섹션 레이아웃 예비용 자리)
     bgTitle: {
       size: "text-[42px] tablet-p:text-[76px] tablet:text-[130px] desktop-wide:text-[150px]",
-      top: "top-[16%] tablet-p:top-[20%] tablet:top-[22%]",
+      top: "top-[24%] tablet-p:top-[28%] tablet:top-[30%]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.2em]"
     },
     content: {

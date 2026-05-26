@@ -14,6 +14,20 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // 최초 마운트(진입) 시 스크롤이 상단으로 튀어 올라가는 현상을 차단하기 위한 플래그
+  const isMounted = React.useRef(false);
+
+  // 질문 번호(currentIdx)가 변경될 때마다 화면 스크롤을 즉시 최상단으로 초기화 (질문 전환 전용)
+  React.useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  }, [currentIdx]);
+
   const currentQuestion: DiagnosisQuestion = DIAGNOSIS_QUESTIONS[currentIdx];
   const isLastQuestion = currentIdx === DIAGNOSIS_QUESTIONS.length - 1;
 

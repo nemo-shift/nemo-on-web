@@ -11,6 +11,20 @@ export default function DiagnosisContainer() {
   const [step, setStep] = useState<DiagnosisStep>('INTRO');
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
 
+  // 최초 마운트 시 스크롤 상단 튐 방지용 플래그
+  const isMounted = React.useRef(false);
+
+  // 대기(INTRO), 설문(WIZARD), 결과(RESULT) 등 단계가 바뀔 때마다 스크롤을 최상단으로 리셋
+  React.useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  }, [step]);
+
   const handleStart = () => {
     setAnswers({});
     setStep('WIZARD');

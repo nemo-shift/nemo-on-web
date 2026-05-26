@@ -104,7 +104,7 @@ export default function OfferingsHero() {
       }}
     >
       {/* 배경 고정 헤더 타이틀 */}
-      <h1 className="absolute top-[15%] font-dm text-[clamp(50px,8vw,120px)] font-bold tracking-widest uppercase text-[#0d1a1f] select-none pointer-events-none z-20">
+      <h1 className="absolute top-[clamp(170px,24vh,280px)] left-4 tablet-p:top-[clamp(160px,22vh,260px)] tablet-p:left-12 tablet:top-[clamp(140px,20vh,280px)] tablet:left-48 text-[clamp(58px,14vw,88px)] tablet-p:text-[clamp(76px,12vw,110px)] tablet:text-[clamp(96px,9vw,150px)] font-dm font-bold tracking-wider uppercase text-[#0d1a1f] select-none pointer-events-none z-20">
         OFFERINGS
       </h1>
       
