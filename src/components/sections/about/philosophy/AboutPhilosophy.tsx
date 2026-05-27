@@ -116,7 +116,7 @@ export default function AboutPhilosophy() {
           className={`relative z-10 container mx-auto px-6 text-center text-[#0d1a1f] ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.yOffset}`}
         >
           {/* 메타 라벨 (상시 고정 및 정밀 세로 정렬선 확보) */}
-          <div ref={labelRef} className="relative w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] mx-auto flex flex-col text-left mb-6 tablet:mb-8 pl-2 tablet-p:pl-24 tablet:pl-16">
+          <div ref={labelRef} className={`relative mx-auto flex flex-col text-left mb-6 tablet:mb-8 ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.labelPaddingLeft}`}>
             <span className="text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600">
               01 / BRAND PHILOSOPHY
             </span>
@@ -127,12 +127,12 @@ export default function AboutPhilosophy() {
             {/* Phase 1 Box */}
             <div 
               ref={phase1Ref}
-              className={`absolute top-0 left-1/2 -translate-x-1/2 ml-4 tablet-p:ml-36 tablet:ml-24 w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
+              className={`absolute top-0 left-1/2 -translate-x-1/2 flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase1.map((p, idx) => (
                 <p 
-                  key={idx} 
-                  className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
+                   key={idx} 
+                   className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
                   {p}
                 </p>
@@ -142,12 +142,12 @@ export default function AboutPhilosophy() {
             {/* Phase 2 Box */}
             <div 
               ref={phase2Ref}
-              className={`absolute top-0 left-1/2 -translate-x-1/2 ml-4 tablet-p:ml-36 tablet:ml-24 w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
+              className={`absolute top-0 left-1/2 -translate-x-1/2 flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase2.map((p, idx) => (
                 <p 
-                  key={idx} 
-                  className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
+                   key={idx} 
+                   className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
                   {p}
                 </p>
