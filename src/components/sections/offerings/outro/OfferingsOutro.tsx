@@ -49,7 +49,7 @@ export default function OfferingsOutro() {
     <section 
       ref={sectionRef}
       id="offerings-outro"
-      className="relative w-full min-h-screen py-32 px-6 sm:px-12 md:px-24 flex flex-col justify-center bg-white text-[#0d1a1f]"
+      className="relative w-full min-h-screen py-32 px-6 sm:px-12 md:px-24 flex flex-col justify-center bg-transparent text-[#0d1a1f]"
     >
       <div className="max-w-4xl mx-auto w-full text-center flex flex-col gap-12">
         

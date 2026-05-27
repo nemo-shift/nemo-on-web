@@ -19,6 +19,7 @@ if (typeof window !== 'undefined') {
 
 export default function OfferingsStage() {
   const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const stageContainerRef = useRef<HTMLDivElement>(null); // 🆕 배경 전체를 감싸는 돔 참조용 ref 추가
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
 
@@ -34,8 +35,88 @@ export default function OfferingsStage() {
   }, [toggle, setIsScrollable]);
 
   useGSAP(() => {
-    if (!horizontalWrapperRef.current || !horizontalContainerRef.current) return;
+    if (!stageContainerRef.current || !horizontalWrapperRef.current || !horizontalContainerRef.current) return;
 
+    // ─────────────────────────────────────────────
+    // 🎨 [Master Color Morphing] 스크롤 양방향 배경색 변환 엔진 구축
+    // ─────────────────────────────────────────────
+    
+    // 0. 초기화: PRELUDE는 가장 정갈한 퓨어 흰색으로 시작
+    gsap.set(stageContainerRef.current, { backgroundColor: '#ffffff', transition: 'background-color 0.8s ease-out' });
+
+    // 1. WHAT WE DO 섹션 진입 시 (60% 영역 확보 시): 소프트 아이보리로 서서히 페이드
+    ScrollTrigger.create({
+      trigger: '.intro-wwd-label',
+      start: 'top 60%',
+      onEnter: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#f7f1e9', // 소프트 아이보리
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#ffffff', // 롤백 시 다시 PRELUDE 퓨어 화이트 복원
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      }
+    });
+
+    // 2. STUDIO 가로 섹션 진입 시 (가로 래퍼가 화면의 60%에 닿을 때): 고품격 딥 다크 에메랄드
+    ScrollTrigger.create({
+      trigger: horizontalWrapperRef.current,
+      start: 'top 60%',
+      onEnter: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#0d1a1f', // 딥 다크
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#f7f1e9', // 롤백 시 다시 WHAT WE DO 소프트 아이보리 복원
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      }
+    });
+
+    // 3. LAB 가로 섹션 진입 시 (가로 타임라인의 스크롤 중반부 이후 횡이동이 시작된 지점): 퓨어 라이트 그레이
+    // Studio & Lab 가로 스위칭 타임라인에 직접 연동하여 횡이동이 가동되는 시점(0.35 근방)에 동시 변환하도록 엮음
+    
+    // 4. OUTRO 섹션 진입 시 (아웃트로 헤더가 화면의 60%에 도달 시): 정갈한 퓨어 화이트 회귀
+    ScrollTrigger.create({
+      trigger: '.outro-label',
+      start: 'top 60%',
+      onEnter: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#ffffff', // 퓨어 화이트
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#e2e8f0', // 롤백 시 다시 LAB 뚜렷한 스토니 그레이(#e2e8f0) 복원
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      }
+    });
+
+    // ─────────────────────────────────────────────
+    // 가로 스크롤 및 컴포넌트 내부 모션 제어
+    // ─────────────────────────────────────────────
+    
     // Studio 가로 진입용 초깃값 설정 (왼쪽 -40px 대기)
     gsap.set(['.studio-header', '.studio-title', '.studio-content', '.studio-caps', '.studio-cta'], {
       opacity: 0,
@@ -70,6 +151,13 @@ export default function OfferingsStage() {
       duration: 0.3,
     }, 0.35);
 
+    // 🆕 횡이동이 시작되면서 가로 스크롤 타임라인 중반부에 도달하면 배경색을 LAB의 원래 고유 아이덴티티 색상인 뚜렷한 스토니 그레이(#e2e8f0)로 선명하게 모핑 전이
+    tl.to(stageContainerRef.current, {
+      backgroundColor: '#e2e8f0',
+      duration: 0.15,
+      ease: 'power2.inOut',
+    }, 0.35);
+
     // 2. Studio 텍스트 등장 모션 (0.0 ~ 0.25 구간)
     tl.to('.studio-header', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0)
       .to('.studio-title', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.05)
@@ -91,12 +179,16 @@ export default function OfferingsStage() {
       .to('.lab-content-right', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.75)
       .to('.lab-cta', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.8);
 
-  }, { scope: horizontalWrapperRef });
+  }, { scope: stageContainerRef }); // 🆕 돔 스코프를 전체 배경 컨테이너로 매핑
 
   return (
     <main id="offerings-stage" className="relative z-[1] w-full">
-      {/* 콘텐츠 전체 컨테이너 */}
-      <div className="relative w-full bg-[#f8f9fa] text-[#0d1a1f]">
+      {/* 콘텐츠 전체 컨테이너 (여기에 ref를 걸어 스크롤 60% 시점마다 배경색이 스르륵 흐르도록 보장) */}
+      <div 
+        ref={stageContainerRef}
+        className="relative w-full text-[#0d1a1f]"
+        style={{ transition: 'background-color 0.8s ease-out' }}
+      >
         
         {/* 1. Hero Section */}
         <OfferingsHero />
@@ -104,7 +196,7 @@ export default function OfferingsStage() {
         {/* 2. Sections Wrapper (스태킹 및 수평 슬라이딩을 위한 흐름) */}
         <div 
           id="offerings-sections-wrapper" 
-          className="relative w-full"
+          className="relative w-full bg-transparent" // 🆕 배경이 투명하게 비치도록 투명화 조치
           style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
         >
           {/* Intro Section */}
@@ -114,11 +206,11 @@ export default function OfferingsStage() {
           <div 
             ref={horizontalWrapperRef}
             id="offerings-horizontal-wrapper" 
-            className="relative w-full overflow-hidden"
+            className="relative w-full overflow-hidden bg-transparent" // 🆕 투명화
           >
             <div 
               ref={horizontalContainerRef}
-              className="flex flex-row w-[200vw] h-screen overflow-hidden"
+              className="flex flex-row w-[200vw] h-screen overflow-hidden bg-transparent" // 🆕 투명화
             >
               <OfferingsStudio />
               <OfferingsLab />

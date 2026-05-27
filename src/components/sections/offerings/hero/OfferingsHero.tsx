@@ -56,9 +56,10 @@ export default function OfferingsHero() {
           refreshPriority: 10,
           trigger: containerRef.current,
           start: "top top",
-          end: () => `+=${window.innerHeight * 2}`,
+          // 🆕 완충 정지 버퍼를 위한 런웨이 확보를 위해 스크롤 높이를 기존 2배에서 2.5배로 대폭 확장
+          end: () => `+=${window.innerHeight * 2.5}`,
           pin: true,
-          scrub: 1,
+          scrub: 1, // 부드러운 스크러빙
           onLeave: () => {
             const lenis = (window as any).lenis;
             const targetTrigger = ScrollTrigger.getById(
@@ -79,26 +80,31 @@ export default function OfferingsHero() {
       });
 
       // 네모가 화면을 100vw, 100vh로 덮으며 완전한 직각으로 변하는 애니메이션
+      // 0부터 0.8 시점까지 팽창 진행 (지속시간 0.8)
       tl.to(
         nemoRef.current,
         {
           width: "100vw",
           height: "100vh",
           borderRadius: 0,
-          duration: 1,
+          duration: 0.8,
           ease: "power2.inOut",
         },
         0,
       );
 
-      // 3단계 키워드 순간 교체 (툭 툭 연출)
-      // 0.33 지점에서 [담다] 아웃 -> [닮다] 인
-      tl.set(".offerings-keyword-0", { opacity: 0 }, 0.33);
-      tl.set(".offerings-keyword-1", { opacity: 1 }, 0.33);
+      // 🆕 [호흡 정지 완충 버퍼] 0.8 시점부터 1.0 시점까지 팽창 완료 상태를 가만히 유지 (지속시간 0.2)
+      // 이 구간 덕분에 스크롤을 더 내려야만 플레루드로 텔레포트가 이뤄져 급발진이 완벽히 방어됩니다.
+      tl.to({}, { duration: 0.2 }, 0.8);
 
-      // 0.66 지점에서 [닮다] 아웃 -> [ON] 인
-      tl.set(".offerings-keyword-1", { opacity: 0 }, 0.66);
-      tl.set(".offerings-keyword-2", { opacity: 1 }, 0.66);
+      // 3단계 키워드 순간 교체 (툭 툭 연출 타이밍도 팽창 진행 속도 0.8에 비례하여 안정적으로 미세 조정)
+      // 0.25 지점에서 [담다] 아웃 -> [닮다] 인
+      tl.set(".offerings-keyword-0", { opacity: 0 }, 0.25);
+      tl.set(".offerings-keyword-1", { opacity: 1 }, 0.25);
+
+      // 0.55 지점에서 [닮다] 아웃 -> [ON] 인
+      tl.set(".offerings-keyword-1", { opacity: 0 }, 0.55);
+      tl.set(".offerings-keyword-2", { opacity: 1 }, 0.55);
     },
     {
       dependencies: [isInitialized, isMobileView, isTabletPortrait],

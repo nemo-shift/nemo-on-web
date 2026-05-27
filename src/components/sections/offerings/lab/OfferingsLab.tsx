@@ -10,7 +10,7 @@ export default function OfferingsLab() {
   return (
     <div 
       id="offering-section-lab"
-      className="w-screen h-screen flex-shrink-0 flex flex-col justify-center bg-[#f1f5f9] text-[#0d1a1f] px-6 sm:px-12 md:px-24"
+      className="w-screen h-screen flex-shrink-0 flex flex-col justify-center bg-transparent text-[#0d1a1f] px-6 sm:px-12 md:px-24"
     >
       <div className="max-w-5xl mx-auto w-full flex flex-col gap-8">
         

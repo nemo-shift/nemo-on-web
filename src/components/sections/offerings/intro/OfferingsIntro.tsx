@@ -84,10 +84,10 @@ export default function OfferingsIntro() {
     <section 
       ref={sectionRef}
       id="offerings-intro"
-      className="relative w-full bg-white text-[#0d1a1f]"
+      className="relative w-full bg-transparent text-[#0d1a1f]"
     >
       {/* 1. PRELUDE 핵심 슬로건 */}
-      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-white">
+      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
         <div className="max-w-5xl mx-auto w-full flex flex-col gap-8">
           <span className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600 intro-prelude-label">
             01 / PRELUDE
@@ -108,11 +108,11 @@ export default function OfferingsIntro() {
 
       {/* 01과 02 사이의 에디토리얼 구분선 */}
       <div className="max-w-5xl mx-auto px-6 tablet-p:px-24 tablet:px-48 flex justify-center">
-        <div className="w-[180px] tablet-p:w-[320px] tablet:w-full h-[1px] bg-gray-200" />
+        <div className="w-[180px] tablet-p:w-[320px] tablet:w-full h-[1px] bg-gray-200/50" />
       </div>
 
       {/* 2. WHAT WE DO 상세 영역 */}
-      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-white">
+      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
         <div className="max-w-5xl mx-auto w-full flex flex-col gap-12">
           <div className="flex flex-col gap-4">
             <span className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600 intro-wwd-label">
