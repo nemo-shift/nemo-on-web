@@ -11,16 +11,20 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AboutMeaning() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const phase1Ref = useRef<HTMLDivElement>(null);
+  const phase2Ref = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null); // 🆕 메타 라벨용 ref 추가
 
   // [Zero-Gap Sync] 스크롤 여유 및 관성 방어를 위한 가중치 배율 (상수 파일 sub-interaction.ts 연동)
   const scrollMultiplier = ABOUT_SCROLL_MULTIPLIERS.MEANING;
 
   useGSAP(() => {
-    if (!containerRef.current || !titleRef.current || !contentRef.current) return;
+    if (!containerRef.current || !titleRef.current || !phase1Ref.current || !phase2Ref.current || !labelRef.current) return;
 
-    // 본문 콘텐츠 초기 은폐 (초기 진입 시에는 오직 검은색 타이틀만 노출)
-    gsap.set(contentRef.current, { opacity: 0, y: 60 });
+    // 본문 콘텐츠 및 메타 라벨 초기 은폐 (오직 거대 타이틀만 선명하게 보이도록 방어)
+    gsap.set(phase1Ref.current, { opacity: 0, y: 30, x: 0 }); // 1번은 수직 상승 진입
+    gsap.set(phase2Ref.current, { opacity: 0, y: 0, x: -40 });  // 2번은 왼쪽(x: -40)에서 대기 (일방향 가로 진입용)
+    gsap.set(labelRef.current, { opacity: 0, y: 20 }); // 라벨 초기 은폐
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -36,24 +40,51 @@ export default function AboutMeaning() {
       }
     });
 
-    // 1. 거대 타이틀: 0%에서 40% 지점까지 오파시티 옅어짐 (지속시간 0.4)
+    // 1. 거대 타이틀: 0%에서 20% 지점까지 오파시티 옅어지며 단독 퇴장 (지속시간 0.2)
     tl.to(titleRef.current, {
       opacity: 0.04,
-      duration: 0.4,
+      duration: 0.2,
       ease: 'none'
     }, 0);
 
-    // 2. 본문 콘텐츠: 20% 지점부터 시작하여 50% 지점까지 등장 완료 (지속시간 0.3)
-    // [기획 명세 준수]: 이전 섹션의 콘텐츠가 다 보여진 상태를 유지하므로, 페이드아웃 퇴장 없이 1.0 상태를 유지합니다.
-    tl.to(contentRef.current, {
+    // 2. Phase 1 콘텐츠 및 메타 라벨 동시 등장: 20% 지점까지 빠르게 등장 완료 (지속시간 0.1)
+    tl.to(phase1Ref.current, {
       opacity: 1,
       y: 0,
-      duration: 0.3,
+      duration: 0.1,
       ease: 'power2.out'
-    }, 0.2); // 20% 스크롤 지점 등장
+    }, 0.1);
 
-    // 3. [50% 스크롤 독서 버퍼] 50% 지점부터 100% 지점까지는 아무런 움직임 없이 완전히 정지하여 여유로운 독서 시간 확보 (지속시간 0.5)
-    tl.to({}, { duration: 0.5 }, 0.5);
+    tl.to(labelRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.1,
+      ease: 'power2.out'
+    }, 0.1); // 라벨도 10% 지점 싱크!
+
+    // 3. [Phase 1 정독 구간] 20%부터 42% 지점까지 완전 고정 유지 (지속시간 0.22)
+    tl.to({}, { duration: 0.22 }, 0.2);
+
+    // 4. [가로 순차 스왑 모션] 42%~49% 1번 퇴장 ➔ 49%~53% 비움 ➔ 53%~60% 2번 안착 (x축 시차 겹침 방어)
+    tl.to(phase1Ref.current, {
+      opacity: 0,
+      x: -40,
+      duration: 0.07,
+      ease: 'power2.in'
+    }, 0.42);
+
+    tl.to(phase2Ref.current, {
+      opacity: 1,
+      x: 0,
+      duration: 0.07,
+      ease: 'power2.out'
+    }, 0.53); // 1번이 사라진 후 빈 공간 대기하다가 58% 지점부터 2번이 진입 시작
+
+    // 5. [Phase 2 정독 구간 극대화] 60%부터 98% 지점까지 스크롤 내리는 내내 완전 고정 (지속시간 0.38)
+    tl.to({}, { duration: 0.38 }, 0.6); // 30% 휠 거리에 달하는 넓은 정독 존 확보!
+
+    // 6. [오버레이 지연 마감 대기] 98%부터 100% 지점까지 비로소 다음 카드를 위해 대기 (지속시간 0.02)
+    tl.to({}, { duration: 0.02 }, 0.98);
 
     // [Perfect Stacking Sync] 모든 섹션이 성공적으로 조율된 후 좌표계를 1회 정밀 측정합니다.
     requestAnimationFrame(() => {
@@ -85,10 +116,6 @@ export default function AboutMeaning() {
       className="relative w-full bg-[#f7f1e9] z-20 overflow-hidden"
       style={{ height: `${scrollMultiplier * 100}vh` }}
     >
-      {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
-      {/*<div className="absolute top-0 left-0 w-full border-t border-red-500/50 z-[100] pointer-events-none">
-        <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Meaning Section</span>
-      </div>*/}
       {/* 100vh 풀스크린 뷰포트 영역 (pin 대상) */}
       <div className="w-full h-screen flex flex-col items-center justify-center relative">
         
@@ -102,18 +129,46 @@ export default function AboutMeaning() {
 
         {/* 전면 본문 콘텐츠 레이어 */}
         <div 
-          ref={contentRef}
           className={`relative z-10 container mx-auto px-6 text-center text-[#0d1a1f] ${ABOUT_STAGE_STYLES.meaning.content.maxWidth} ${ABOUT_STAGE_STYLES.meaning.content.yOffset}`}
         >
-          <div className={`flex flex-col w-fit mx-auto text-left ${ABOUT_STAGE_STYLES.meaning.content.gap}`}>
-            {ABOUT_MEANING_DATA.paragraphs.map((p, idx) => (
-              <p 
-                key={idx} 
-                className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}
-              >
-                {renderParagraph(p)}
-              </p>
-            ))}
+          {/* 메타 라벨 (상시 고정 및 정밀 세로 정렬선 확보) */}
+          <div ref={labelRef} className="relative w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] mx-auto flex flex-col text-left mb-6 tablet:mb-8 pl-2 tablet-p:pl-24 tablet:pl-16">
+            <span className="text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600">
+              02 / REC+ANGLE
+            </span>
+          </div>
+
+          {/* absolute 겹침을 위한 고정 높이 래퍼 컨테이너 (정중앙 밸런스 래퍼) */}
+          <div className="relative w-full h-[320px] sm:h-[240px] tablet:h-[260px] flex justify-center">
+            {/* Phase 1 Box */}
+            <div 
+              ref={phase1Ref}
+              className={`absolute top-0 left-1/2 -translate-x-1/2 ml-4 tablet-p:ml-36 tablet:ml-24 w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] flex flex-col text-left ${ABOUT_STAGE_STYLES.meaning.content.gap}`}
+            >
+              {ABOUT_MEANING_DATA.phase1.map((p, idx) => (
+                <p 
+                  key={idx} 
+                  className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}
+                >
+                  {renderParagraph(p)}
+                </p>
+              ))}
+            </div>
+
+            {/* Phase 2 Box */}
+            <div 
+              ref={phase2Ref}
+              className={`absolute top-0 left-1/2 -translate-x-1/2 ml-4 tablet-p:ml-36 tablet:ml-24 w-full max-w-[85vw] tablet-p:max-w-[480px] tablet:max-w-[550px] flex flex-col text-left ${ABOUT_STAGE_STYLES.meaning.content.gap}`}
+            >
+              {ABOUT_MEANING_DATA.phase2.map((p, idx) => (
+                <p 
+                  key={idx} 
+                  className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}
+                >
+                  {renderParagraph(p)}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
 

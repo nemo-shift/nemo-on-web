@@ -136,6 +136,7 @@ export default function AboutHero() {
       style={{
         background:
           "linear-gradient(135deg, #ccf7fe 0%, #ffffff 40%, #ffffff 60%, #f9ede0 100%)",
+        //"linear-gradient(135deg, #f9ede0 0%, #ffffff 40%, #ffffff 60%, #ccf7fe 100%)",
       }}
     >
       {/* 배경 고정 타이틀 (검은색, 사라지지 않음. z-20으로 설정하여 네모가 이 글자 밑으로 팽창함) */}
