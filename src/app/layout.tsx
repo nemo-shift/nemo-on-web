@@ -84,7 +84,7 @@ export default function RootLayout({
         <GlobalScrollTriggerCleanup />
         <SmoothScroll
           duration={1.2}
-          touchMultiplier={2}
+          touchMultiplier={1.3}
           smoothWheel={true}
           smoothTouch={true}
           integrateGSAP={true}
