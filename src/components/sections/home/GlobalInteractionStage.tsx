@@ -75,13 +75,17 @@ export const GlobalInteractionStage = ({
     lastHeightRef.current = window.innerHeight;
   }, []);
 
-  // isTimelineReady 시 오버레이 페이드아웃 후 DOM에서 제거
+  // 오버레이 해제:
+  // - 오프모드(!isScrollable): 마운트 직후 100ms 후 해제 (HeroContext overflow:hidden이 스크롤 담당)
+  // - 온모드(isScrollable): isTimelineReady까지 대기 후 500ms 해제
   useEffect(() => {
-    if (isTimelineReady) {
-      const timer = setTimeout(() => setShowOverlay(false), 500);
+    if (!mounted) return;
+    if (!isScrollable || isTimelineReady) {
+      const delay = isTimelineReady ? 500 : 100;
+      const timer = setTimeout(() => setShowOverlay(false), delay);
       return () => clearTimeout(timer);
     }
-  }, [isTimelineReady]);
+  }, [mounted, isScrollable, isTimelineReady]);
 
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {
