@@ -72,7 +72,7 @@ export default function DiagnosisResult({ answers, onRestart }: DiagnosisResultP
         
         {/* 1. 메인 버튼: 결과 스캔 (블랙 플랫 & 스퀘어 버튼) */}
         <Link
-          href="https://nemo-on.com/basic"
+          href="https://define-zeta.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           className="w-full py-4.5 bg-text-dark text-white font-bold text-center text-xs tracking-widest uppercase transition-colors duration-300 hover:bg-brand flex items-center justify-center gap-2 cursor-pointer rounded-none active:scale-[0.99]"
