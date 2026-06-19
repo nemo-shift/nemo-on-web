@@ -5,6 +5,8 @@ import HeroSloganOn from '../HeroSloganOn';
 import HeroOnPhraseLayer from '../HeroOnPhraseLayer';
 import HeroOnShapesStage from '../HeroOnShapesStage';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import { COLORS } from '@/constants/colors';
+import { cn } from '@/lib/utils';
 
 type HeroOnMobileViewProps = {
   isOn: boolean;
@@ -41,20 +43,32 @@ export default function HeroOnMobileView({
       {/* [V11.41 Separation] 레이어 1: 슬로건 독립 레이어 (중앙 박스 flex 간섭 완전 차단) */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}>
         {isOn && !isTransitioning && sequenceStep === 5 && (
-          <div 
+          <div
             id="hero-on-center-phrase"
             className="absolute pointer-events-auto"
-            style={{ 
+            style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
-              bottom: '16vh', // [V11.51 Fix] 도화지 확장을 통해 이제 음수값 없이 깨끗한 양수값으로 하단 배치
+              bottom: '16vh',
               left: '50%',
               transform: 'translateX(-50%)',
-              width: '100%',
-              padding: '0 24px'
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '8px'
             }}
           >
-            <HeroSloganOn />
+            <HeroSloganOn isSmall />
+            <div
+              className={cn(
+                'font-bold tracking-tight leading-[1.1] select-none pointer-events-none',
+                'text-[1.5rem] tablet-p:text-[2.5rem] tablet:text-[3.0rem] desktop-wide:text-[3.6rem] desktop-cap:text-[4.0rem]'
+              )}
+              style={{ fontFamily: 'var(--font-suit), sans-serif', color: COLORS.TEXT.DARK, whiteSpace: 'nowrap' }}
+            >
+              <span className="block">사업의 기준을 설계하고,</span>
+              <span className="block">브랜드와 웹으로 구현합니다</span>
+            </div>
           </div>
         )}
       </div>

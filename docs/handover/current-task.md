@@ -3,7 +3,120 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync 성료
+## [최신] ✅ 2026-06-20: UI 폴리싱 - 푸터 리빌 완성, 사이드메뉴 홈버튼, 커서 개편, ForWho 터치 레이아웃
+
+### 💎 주요 달성 성과
+
+- **푸터 리빌 이중 스페이서 버그 수정**:
+  - `AboutStage` / `OfferingsStage` 내부에 `footerHeight` 스페이서가 자체 존재하고 있었고, `FooterRevealSpacer`(layout.tsx 전역)까지 추가되어 이중으로 스크롤 런웨이가 쌓이는 버그 수정.
+  - 두 컴포넌트 내부의 스페이서 div 제거. 전역 `FooterRevealSpacer`가 단일 책임.
+  - layout.tsx `<main className="flex-1">` → `<main>` 으로 변경 (flex-1 과잉 팽창 방지).
+  - 서브페이지 푸터 "Get in touch" 클릭 가능 + 리빌 효과 동시 완성.
+
+- **SideMenu 홈 아이콘 버튼 추가**:
+  - 메인 패널 좌상단에 `lucide-react`의 `Home` 아이콘 버튼 배치.
+  - Stagger 애니메이션에 포함 (`homeButtonRef`).
+  - **홈 페이지에서 클릭**: 메뉴만 닫기 (GSAP 상태 리셋 복잡성 방지).
+  - **다른 페이지에서 클릭**: `animateClose('/')` 라우팅.
+  - 아이콘 크기 브레이크포인트별 분기: 모바일 `w-6`, 744px `w-8`, 992px `w-11`.
+  - **같은 페이지 메뉴 클릭 시 스크롤 탑**: `animateClose(undefined, true)` → `lenis.scrollTo(0, { duration: 0.8 })`.
+
+- **PointRingCursor 커서 상태 교체**:
+  - 기존: 기본=크림/틸 원, 오버=주황 네모 → **변경: 기본=주황 네모(50px), 오버=주황 동그라미(30px)**.
+  - LERP 속도 향상: POINT `0.3→0.5`, RING `0.15→0.35` (더 빠른 추적).
+  - Contact 커서는 기존 유지 (80px 흰 원 + "Contact" 텍스트).
+
+- **ForWhoCarousel 커서 영역 수정**:
+  - `onMouseEnter`/`onMouseLeave`가 전체 컨테이너에 걸려있어 카드 밖 영역에서도 커서 변경되던 문제 수정.
+  - 이벤트를 각 카드 div로 이동하여 카드 위에서만 커서 변경.
+  - 포후 카드 내부 커서 텍스트 `View` → `Click` 변경.
+
+- **ForWhoCarousel 터치 모드 레이아웃 개편**:
+  - 터치 기기에서 click-to-expand 토글 제거. 모든 카드 정보 항상 노출.
+  - 카드별 피사체 위치를 분석하여 텍스트를 반대편에 배치 (`TOUCH_POSITIONS` 배열).
+    - id1(예비창업가): top-left / id2(성장모색): top-right / id3(확장준비): bottom-center
+    - id4(개인브랜드): bottom-left / id5(스타트업): top-left
+  - 그라디언트 스크림(상단/하단 방향 자동 결정) + 텍스트 레이어 (flow → target → description → 구분선 → 네모:ON의 역할 → philosophy).
+  - 마우스 모드: 기존 toggle 방식 완전 유지.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/about/AboutStage.tsx` | 내부 footerHeight 스페이서 제거 |
+| `src/components/sections/offerings/OfferingsStage.tsx` | 내부 footerHeight 스페이서 제거 |
+| `src/app/layout.tsx` | `<main>` flex-1 제거, FooterRevealSpacer 추가 |
+| `src/components/layout/FooterRevealSpacer.tsx` | 신규 생성 (전역 스페이서) |
+| `src/components/layout/index.ts` | FooterRevealSpacer export 추가 |
+| `src/components/layout/Footer.tsx` | 서브페이지 z-index: 0 |
+| `src/components/layout/SideMenu.tsx` | 홈 아이콘 버튼, scrollToTop 로직, homeButtonRef stagger |
+| `src/components/ui/PointRingCursor.tsx` | 기본/오버 커서 상태 교체, LERP 속도 향상 |
+| `src/components/sections/home/forwho/ForWhoCarousel.tsx` | 커서 영역 수정, 터치 모드 항상 노출 레이아웃 |
+| `src/data/home/forwho.ts` | 텍스트 단축 (투자자·고객, 설명/확장, 철학·전문성) |
+
+---
+
+## ✅ 2026-06-19: 히어로 슬로건 개편 + 배경 이미지 시스템 구축 성료
+
+히어로 ON 모드 슬로건 구조를 재편하고, 배경 이미지(조명/벽돌 배경)를 기반으로 한 **섹션별 조명 색상 오버레이 시스템**과 **포후 구간 배경 패닝**을 구축했습니다.
+
+### 💎 주요 달성 성과
+
+- **Hero OFF 모드 모바일 탭 버그 수정**:
+  - `HeroOffMobileView`에 `isToggleHovered` / `setIsToggleHovered` props가 전달되지 않아 모바일에서 탭해도 버튼 hover 상태가 변하지 않던 문제 해결.
+  - `HeroMobileView` 함수 시그니처의 구조 분해 누락(`isToggleHovered` not defined ReferenceError)도 동시 수정.
+  - 관련 파일: `HeroOffMobileView.tsx`, `HeroMobileView.tsx`
+
+- **Hero ON 슬로건 구조 개편 (전 기기)**:
+  - 기존 대형 슬로건 자리에 **"사업의 기준을 설계하고, 브랜드와 웹으로 구현합니다"** 새 메인 슬로건 배치.
+  - 기존 "불안을 끄고, 기준을 켭니다" + 포커스 블러 애니메이션은 그대로 유지하되, 소형(`isSmall`) 태그라인으로 상단에 재배치.
+  - `HeroSloganOn.tsx`에 `isSmall` prop 추가 (텍스트 크기, 코너 브래킷, 패딩 별도 계산).
+  - 관련 파일: `HeroSloganOn.tsx`, `HeroOnPCView.tsx`, `HeroOnMobileView.tsx`, `HeroOnTabletView.tsx`
+
+- **배경 이미지 레이어 시스템 구축** (`HomeStage.tsx`):
+  - Layer 1: 배경색 (`var(--bg)`) — 기존 유지
+  - Layer 2: `hero-bg.webp` 고정 이미지 레이어 (`id="hero-bg-layer"`, `bottom: -600px` 버퍼로 패닝 공간 확보)
+  - Layer 3: 색상 오버레이 div (`backgroundColor: 'rgb(0, 50, 130)'`, opacity는 CSS 변수 제어)
+
+- **파란 조명 오버레이 시스템** (`scroll.ts`):
+  - 히어로 → 페인 구간: `--light-overlay-opacity` 0 → 0.5 (서서히 파란 조명 등장)
+  - 페인 → 메시지 구간: 0.5 → 0 (원래 배경색으로 복귀)
+  - **핵심 버그 수정**: 조건 `label === STAGES.TO_PAIN` → `label === STAGES.START_TO_PAIN` 으로 수정 (`TO_PAIN`은 `LOGO_JOURNEY_SECTIONS`에 없어 영원히 실행되지 않던 dead code).
+  - `globals.css`에 `--light-overlay-opacity: 0` 변수 추가.
+  - 오버레이 색상 `rgb(20, 55, 140)` → `rgb(0, 50, 130)` (R=0으로 낮춰 따뜻한 배경과 섞여도 보라색 방지).
+
+- **포후 구간 배경 이미지 패닝** (`scroll.ts`):
+  - `backgroundPosition` 애니메이션은 이미지 오버플로우 없을 시 무효 → `translateY`(div 자체 이동) 방식으로 전환.
+  - `CORE_FUNNEL_EXPAND` → `TO_FORWHO`: `y: 0 → -500px` (램프가 화면 위로 상승)
+  - 카드 퇴장 시점(`exitStart`, forwho.ts 공식 그대로 재계산) → 원위치 복귀: `y: -500 → 0`
+  - `fwExitDuration * 0.5` 안에 복귀 완료 → "모든 대표님의 첫번째 파트너가 되겠습니다" 문구 등장 시 이미 제자리.
+
+- **브랜드스토리 구간 배경 이미지 페이드아웃** (`scroll.ts`):
+  - `STORY_ERASE` 시점(배경색 틸 → 다크 전환)에 `opacity: 1 → 0` (duration: `t * r ≈ 0.36`)
+
+### 🧩 잔여 과제 및 알려진 사항
+
+- [ ] **배경 이미지 노출 섹션 범위 최종 확정**: 현재 히어로~스토리이레이즈 구간 노출. 포후 이전 구간에서의 이미지 노출 여부 추가 검토 가능.
+- [ ] **오버레이 opacity 파인튜닝**: 현재 `0.5`. 기기/환경에 따라 조도 조정 필요 시 `scroll.ts` 두 곳 모두 수정.
+- [ ] **패닝 이동량 파인튜닝**: 현재 `-500px`. 디바이스 해상도에 따라 조정 가능.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/hero/views/HeroOffMobileView.tsx` | `isToggleHovered` prop 추가, 탭 인터랙션 복구 |
+| `src/components/sections/home/hero/views/HeroMobileView.tsx` | `isToggleHovered` 구조 분해 누락 수정 |
+| `src/components/sections/home/hero/HeroSloganOn.tsx` | `isSmall` prop 추가 |
+| `src/components/sections/home/hero/views/HeroOnPCView.tsx` | 새 메인 슬로건 + 소형 태그라인 레이아웃 |
+| `src/components/sections/home/hero/views/HeroOnMobileView.tsx` | 동일 |
+| `src/components/sections/home/hero/views/HeroOnTabletView.tsx` | 동일 |
+| `src/components/sections/home/HomeStage.tsx` | 3레이어 배경 시스템 구축, `id="hero-bg-layer"` 추가 |
+| `src/components/sections/home/builders/scroll.ts` | 오버레이/패닝/페이드아웃 애니메이션 추가, dead code 버그 수정 |
+| `src/app/globals.css` | `--light-overlay-opacity: 0` 변수 추가 |
+
+---
+
+## ✅ 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync 성료
 
 ForWho 섹션의 반응형 아키텍처를 프로젝트 표준인 3단 분리 체계(Mobile/Tablet-P/Others)로 정규화하고, "눈에 보이면 즉시 조작 가능하다"는 UX 원칙에 따라 타이틀 안착, UI 노출, 드래그 허용 시점을 1ms의 오차 없이 동기화한 '삼위일체(Trinity) 동기화'를 완성했습니다.
 

@@ -11,6 +11,7 @@ interface HeroSloganOnProps {
   blurAmount?: number;
   animationDuration?: number;
   pauseBetweenAnimations?: number;
+  isSmall?: boolean;
 }
 
 /**
@@ -18,12 +19,14 @@ interface HeroSloganOnProps {
  * 온모드(ON) 전용 슬로건 — 단어별 포커스 블러 애니메이션.
  * 불안을 끄고, 기준을 켭니다
  * 오프모드(OFF)와 완전히 분리된 독립 컴포넌트.
+ * isSmall: 새 메인 슬로건 왼쪽 상단 소형 레이블용
  */
 const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   sentence = '불안을 끄고, 기준을 켭니다',
   blurAmount = 4,
   animationDuration = 0.6,
   pauseBetweenAnimations = 2,
+  isSmall = false,
 }) => {
   const segments = sentence.split(',').map(s => s.trim());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -39,6 +42,23 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   const focusBoxRef = React.useRef<HTMLDivElement>(null);
   const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([]);
 
+  const cornerPositions = isSmall ? [
+    '-top-[1px] -left-[1px] border-t border-l',
+    '-top-[1px] -right-[1px] border-t border-r',
+    '-bottom-[1px] -left-[1px] border-b border-l',
+    '-bottom-[1px] -right-[1px] border-b border-r',
+  ] : [
+    '-top-[1.5px] -left-[1.5px] border-t-2 border-l-2',
+    '-top-[1.5px] -right-[1.5px] border-t-2 border-r-2',
+    '-bottom-[1.5px] -left-[1.5px] border-b-2 border-l-2',
+    '-bottom-[1.5px] -right-[1.5px] border-b-2 border-r-2',
+  ];
+  const bracketSize = isSmall ? 'w-1.5 h-1.5' : 'w-2.5 h-2.5';
+  const textSizeClass = isSmall
+    ? 'text-[0.85rem] tablet-p:text-[0.95rem] tablet:text-[1.05rem] desktop-wide:text-[1.1rem] desktop-cap:text-[1.2rem]'
+    : 'text-[1.8rem] tablet-p:text-[3.0rem] tablet:text-[3.6rem] desktop-wide:text-[4.2rem] desktop-cap:text-[4.8rem]';
+  const segmentPaddingClass = isSmall ? 'px-1 py-0.5' : 'px-1.5 py-1';
+
   // 단어별 포커스 애니메이션
   useGSAP(() => {
     if (!containerRef.current) return;
@@ -46,7 +66,7 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
     segmentRefs.current.forEach((el, index) => {
       if (!el) return;
       const isActive = index === currentIndex;
-      
+
       gsap.to(el, {
         filter: isActive ? 'blur(0px)' : `blur(${blurAmount}px)`,
         opacity: isActive ? 1 : 0.2,
@@ -68,18 +88,20 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
       }
     });
 
-    // 데코레이티브 라인
-    const decoLine = containerRef.current.querySelector('.deco-line');
-    if (decoLine) {
-      gsap.fromTo(decoLine, 
-        { scaleX: 0, opacity: 0 },
-        { scaleX: 1, opacity: 0.5, duration: 0.8, delay: 0.3, ease: 'circ.out' }
-      );
+    // 데코레이티브 라인 (기본 크기에서만)
+    if (!isSmall) {
+      const decoLine = containerRef.current.querySelector('.deco-line');
+      if (decoLine) {
+        gsap.fromTo(decoLine,
+          { scaleX: 0, opacity: 0 },
+          { scaleX: 1, opacity: 0.5, duration: 0.8, delay: 0.3, ease: 'circ.out' }
+        );
+      }
     }
-  }, { dependencies: [currentIndex], scope: containerRef });
+  }, { dependencies: [currentIndex, isSmall], scope: containerRef });
 
   return (
-    <div ref={containerRef} className="relative w-full h-auto flex flex-col justify-start overflow-hidden">
+    <div ref={containerRef} className={cn("relative h-auto flex flex-col justify-start overflow-hidden", isSmall ? 'w-auto' : 'w-full')}>
       <div className="flex items-center relative">
         <div className="flex items-center relative">
           {/* 공통 포커스 박스 (하나의 엘리먼트가 이동) */}
@@ -88,15 +110,10 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
             className="absolute pointer-events-none z-10"
             style={{ border: '1.5px solid transparent' }}
           >
-            {[
-              '-top-[1.5px] -left-[1.5px] border-t-2 border-l-2',
-              '-top-[1.5px] -right-[1.5px] border-t-2 border-r-2',
-              '-bottom-[1.5px] -left-[1.5px] border-b-2 border-l-2',
-              '-bottom-[1.5px] -right-[1.5px] border-b-2 border-r-2',
-            ].map((pos, i) => (
-              <div 
+            {cornerPositions.map((pos, i) => (
+              <div
                 key={i}
-                className={`absolute w-2.5 h-2.5 ${pos}`} 
+                className={`absolute ${bracketSize} ${pos}`}
                 style={{ borderColor: COLORS.HERO.OFF.ACCENT }}
               />
             ))}
@@ -104,24 +121,14 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
 
           {segments.map((segment, index) => (
             <div key={index} className="flex items-center">
-              <div 
+              <div
                 ref={el => { segmentRefs.current[index] = el; }}
-                className="flex items-center justify-center px-1.5 py-1 min-w-fit"
+                className={cn("flex items-center justify-center min-w-fit", segmentPaddingClass)}
               >
                 <span
-                  /* 
-                   * [V11.33] 온모드 슬로건 5단계 정규화
-                   * - 모바일(2.2rem)부터 데스크탑 캡(4.8rem)까지 계단식 성장 적용
-                   * - 특히 tablet-p(744px) 구간의 3.0rem 수치를 추가하여 중형 태블릿의 가독성 확보
-                   */
-                  //슬로건 크기
                   className={cn(
                     'font-bold tracking-tight pointer-events-none select-none whitespace-nowrap leading-none transition-all duration-500',
-                    'text-[1.8rem]',                  // Mobile
-                    'tablet-p:text-[3.0rem]',          // 744px
-                    'tablet:text-[3.6rem]',            // 992px
-                    'desktop-wide:text-[4.2rem]',      // 1440px
-                    'desktop-cap:text-[4.8rem]'        // 1920px
+                    textSizeClass
                   )}
                   style={{
                     fontFamily: 'var(--font-suit), sans-serif',
@@ -132,16 +139,12 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
                 </span>
               </div>
               {index < segments.length - 1 && (
-                <span 
+                <span
                   className={cn(
                     'select-none mx-1 transition-all duration-500 font-bold',
-                    'text-[1.8rem]',
-                    'tablet-p:text-[3.0rem]',
-                    'tablet:text-[3.6rem]',
-                    'desktop-wide:text-[4.2rem]',
-                    'desktop-cap:text-[4.8rem]'
+                    textSizeClass
                   )}
-                  style={{ 
+                  style={{
                     fontFamily: 'var(--font-suit), sans-serif',
                     color: COLORS.TEXT.DARK,
                   }}
@@ -152,14 +155,16 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
             </div>
           ))}
         </div>
-        {/* 데코레이티브 라인 */}
-        <div
-          className="deco-line absolute -bottom-1.5 left-[0.25rem] right-[0.25rem] h-[1px]"
-          style={{ 
-            background: `linear-gradient(90deg, transparent 0%, ${COLORS.HERO.ON.ACCENT} 40%, ${COLORS.HERO.ON.ACCENT} 100%)`,
-            transformOrigin: 'left',
-          }}
-        />
+        {/* 데코레이티브 라인 (기본 크기에서만 표시) */}
+        {!isSmall && (
+          <div
+            className="deco-line absolute -bottom-1.5 left-[0.25rem] right-[0.25rem] h-[1px]"
+            style={{
+              background: `linear-gradient(90deg, transparent 0%, ${COLORS.HERO.ON.ACCENT} 40%, ${COLORS.HERO.ON.ACCENT} 100%)`,
+              transformOrigin: 'left',
+            }}
+          />
+        )}
       </div>
     </div>
   );

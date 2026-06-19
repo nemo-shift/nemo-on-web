@@ -163,7 +163,7 @@ export const TIMING_CFG = {
     STORY_ERASE_STILL: 10.0,
     STORY_ERASE_STILL_TOUCH: 4.0, // [V65] 삭제 연출 속도감 확보 (신규)
     CTA_STILL: 7.0,
-    CTA_STILL_TOUCH: 4.0, // [V65] 푸터 리빌을 위한 스크롤 관성 확보 (신규)
+    CTA_STILL_TOUCH: 8.0, // [V65→Fix] 4.0→8.0: 모바일 역스크롤 완충 및 푸터 도달 전 호흡 확보
   },
 
   // 구간별 전환 간극(Gaps) - 정교한 리듬 설계

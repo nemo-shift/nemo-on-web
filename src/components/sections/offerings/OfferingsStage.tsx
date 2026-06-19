@@ -18,7 +18,7 @@ if (typeof window !== 'undefined') {
 }
 
 export default function OfferingsStage() {
-  const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const { toggle, setIsScrollable } = useHeroContext();
   const stageContainerRef = useRef<HTMLDivElement>(null); // 🆕 배경 전체를 감싸는 돔 참조용 ref 추가
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
@@ -222,12 +222,6 @@ export default function OfferingsStage() {
         </div>
         
       </div>
-      
-      {/* 푸터 리빌을 위한 스페이서 */}
-      <div 
-        className="relative w-full bg-transparent pointer-events-none" 
-        style={{ height: footerHeight || '25vh' }}
-      />
     </main>
   );
 }

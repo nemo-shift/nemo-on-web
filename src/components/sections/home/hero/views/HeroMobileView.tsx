@@ -33,6 +33,8 @@ export default function HeroMobileView({
   shapesOnRevealed,
   setShapesOnRevealed,
   showCenteredShapes,
+  isToggleHovered,
+  setIsToggleHovered,
   activeShape,
   isInteractionActive,
   handleToggle,
@@ -84,6 +86,8 @@ export default function HeroMobileView({
           <HeroOffMobileView
             isOn={isOn}
             isTransitioning={isTransitioning}
+            isToggleHovered={isToggleHovered}
+            setIsToggleHovered={setIsToggleHovered}
             handleToggle={handleToggle}
           />
         </div>

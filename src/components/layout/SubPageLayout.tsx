@@ -26,8 +26,8 @@ export default function SubPageLayout({
   return (
     <main className="relative z-[1] w-full">
       {/* 1. 실제 서브 페이지 컨텐츠 (배경색 격리 레이어 + 컨텐츠 스타일 적용) */}
-      <div 
-        /* 
+      <div
+        /*
          * [V11.33] 서브페이지 전역 패딩 정규화
          * - 모든 상세 페이지(About, Contact 등)의 상단 여백 및 좌우 여백을 5축 시스템에 통합
          * - Header 높이와 비례하여 상단 여백(pt)을 기기별로 차등 배분
@@ -39,21 +39,15 @@ export default function SubPageLayout({
           'tablet:pt-28 tablet:px-10',           // 992px
           'desktop-wide:pt-32 desktop-wide:px-12', // 1440px
           'desktop-cap:pt-40 desktop-cap:px-16',  // 1920px
-          bg, 
+          bg,
           className
         )}
-        style={{ 
-          backgroundColor: bg === 'bg-surface-cream' ? 'var(--bg)' : undefined 
+        style={{
+          backgroundColor: bg === 'bg-surface-cream' ? 'var(--bg)' : undefined
         }}
       >
         {children}
       </div>
-
-      {/* 2. 푸터 리빌을 위한 투명 스페이서 (Native Reveal 런웨이) */}
-      <div 
-        className="relative w-full bg-transparent pointer-events-none" 
-        style={{ height: footerHeight || '25vh' }}
-      />
     </main>
   );
 }

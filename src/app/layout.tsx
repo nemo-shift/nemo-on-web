@@ -21,6 +21,7 @@ const ebGaramond = EB_Garamond({
 import {
   Header,
   Footer,
+  FooterRevealSpacer,
   LenisScrollRestoration,
   GlobalScrollTriggerCleanup,
   SmoothScroll,
@@ -96,7 +97,8 @@ export default function RootLayout({
               <Header />
               {/* MenuSystem: MenuToggle(모핑 버튼) + SideMenu(패널) 전역 관리 */}
               <MenuSystem />
-              <main className="flex-1">{children}</main>
+              <main>{children}</main>
+              <FooterRevealSpacer />
               <Footer />
             </HeroProvider>
           </DeviceProvider>

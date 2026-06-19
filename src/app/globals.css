@@ -47,6 +47,7 @@ html {
 
   /* 실시간 배경색 인터폴레이션을 위한 변수 */
   --bg: var(--bg-cream);
+  --bg-img-opacity: 0;
   --scroll-hint-fg: rgba(240, 235, 227, 0.6);
 }
 
@@ -77,7 +78,7 @@ html {
 
 /* --- 기본 스타일 --- */
 body {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text-dark);
   font-family: var(--font-suit);
   -webkit-font-smoothing: antialiased;

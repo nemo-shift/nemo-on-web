@@ -1,4 +1,11 @@
-## [최신] 🚀 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync
+## [최신] ✅ 2026-06-20: UI 폴리싱 — 푸터/커서/사이드메뉴/ForWho 터치 개편
+
+- **푸터 리빌 완성**: 이중 스페이서 버그 수정 (`AboutStage`/`OfferingsStage` 내부 스페이서 제거), `FooterRevealSpacer` 전역 단일화, 서브페이지 클릭 + 리빌 동시 동작.
+- **SideMenu 홈 아이콘**: 패널 좌상단 `Home` 아이콘 버튼. 홈→홈은 메뉴 닫기만, 타 페이지→홈은 라우팅. 같은 페이지 재클릭 시 `lenis.scrollTo(0)`.
+- **PointRingCursor 개편**: 기본=주황 네모(50px), 오버=주황 동그라미(30px), LERP 가속(0.5/0.35).
+- **ForWho 터치 레이아웃**: 토글 제거, 카드 정보 항상 노출, 피사체 위치 반대편에 텍스트 고정 배치.
+
+## 🚀 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync
  
 - **ForWho Architecture Normalization**: 
   - ForWho 섹션의 모든 반응형 분기를 `isMobile`, `isTabletPortrait`, `!isMobileView`의 3단계로 정규화하여 시스템 무결성 확보.

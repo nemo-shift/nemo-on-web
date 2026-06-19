@@ -103,8 +103,8 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
           {/* 상단: Step (하나. 둘. ...) */}
           <div 
             ref={stepRef} 
-            className="opacity-0 font-suit font-bold tracking-[0.2em] mb-4 text-[#f0ebe3]/80"
-            style={{ fontSize: '0.8rem', willChange: 'opacity, transform' }}
+            className="opacity-0 font-suit font-bold tracking-[0.2em] mb-4"
+            style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', willChange: 'opacity, transform', textShadow: '0 1px 6px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6)' }}
           >
             STEP 01
           </div>
@@ -122,12 +122,15 @@ const SharedNemo = forwardRef<SharedNemoHandle, SharedNemoProps>(
           {/* 하단: Content (Pain Points) */}
           <div 
             ref={contentRef}
-            className="opacity-0 font-suit font-medium text-[#f0ebe3] mt-8"
-            style={{ 
+            className="opacity-0 font-suit font-medium mt-8"
+
+            style={{
               fontSize: '1.05rem',
               lineHeight: '1.6',
+              color: '#ffffff',
               wordBreak: 'keep-all',
-              willChange: 'opacity, transform' 
+              willChange: 'opacity, transform',
+              textShadow: '0 1px 8px rgba(0,0,0,0.9), 0 0 24px rgba(0,0,0,0.7)',
             }}
           >
             {/* 텍스트는 GlobalInteractionStage에서 직접 주입 */}

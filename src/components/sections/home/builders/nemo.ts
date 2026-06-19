@@ -170,7 +170,7 @@ export function buildNemoTimeline(
 
   bridgeItems.forEach((text: string, i: number) => {
     const startTime = L[STAGES.PAIN_CONTENT] + bridgeDelay + (i * bridgeGap);
-    tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, opacity: 0 }, startTime);
+    tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, textShadow: 'none', opacity: 0 }, startTime);
     tl.to(content, { opacity: 1, duration: 0.2 }, startTime);
     tl.to(content, { opacity: 0, duration: 0.1 }, startTime + bridgeGap - 0.1);
   });

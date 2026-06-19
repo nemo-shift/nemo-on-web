@@ -113,8 +113,8 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
     let py = 0;
     let rx = 0;
     let ry = 0;
-    const POINT_LERP = 0.3;
-    const RING_LERP = 0.15;
+    const POINT_LERP = 0.5;
+    const RING_LERP = 0.35;
 
     const animate = () => {
       const { x, y } = positionRef.current;
@@ -127,9 +127,9 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
         pointRef.current.style.transform = `translate3d(${px - 4}px, ${py - 4}px, 0)`;
       }
       if (ringRef.current) {
-        let size = 30;
-        if (cursorType === 'pointer') size = 50;
-        if (cursorType === 'contact') size = 80; // contact는 좀 더 크게
+        let size = 50; // 기본: 주황 네모
+        if (cursorType === 'pointer') size = 30; // 오버: 주황 동그라미
+        if (cursorType === 'contact') size = 80;
         const half = size / 2;
         ringRef.current.style.transform = `translate3d(${rx - half}px, ${ry - half}px, 0)`;
       }
@@ -172,11 +172,11 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
           position: 'fixed',
           top: 0,
           left: 0,
-          width: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 50 : 30),
-          height: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 50 : 30),
-          border: cursorType === 'contact' ? 'none' : `1px solid ${isHover ? squareColor : ringColor}`,
+          width: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 30 : 50),
+          height: cursorType === 'contact' ? 80 : (cursorType === 'pointer' ? 30 : 50),
+          border: cursorType === 'contact' ? 'none' : `1px solid ${squareColor}`,
           backgroundColor: cursorType === 'contact' ? '#ffffff' : 'transparent',
-          borderRadius: cursorType === 'pointer' ? '4px' : '50%',
+          borderRadius: cursorType === 'pointer' ? '50%' : (cursorType === 'contact' ? '50%' : '4px'),
           pointerEvents: 'none',
           zIndex: INTERACTION_Z_INDEX.Z_CURSOR_RING,
           display: 'flex',

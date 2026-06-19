@@ -135,7 +135,7 @@ export default function AboutHero() {
       className="relative w-full h-screen flex items-center justify-center overflow-hidden"
       style={{
         background:
-          "linear-gradient(135deg, #ccf7fe 0%, #ffffff 40%, #ffffff 60%, #f9ede0 100%)",
+          "linear-gradient(135deg, #ccf7fe 0%, #ffffff 40%, #ffffff 60%, #ccf7fe 100%)",
         //"linear-gradient(135deg, #f9ede0 0%, #ffffff 40%, #ffffff 60%, #ccf7fe 100%)",
       }}
     >

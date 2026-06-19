@@ -76,7 +76,7 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       )}
       style={{ 
         backgroundColor: '#0a0a0a', 
-        zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : INTERACTION_Z_INDEX.Z_BEHIND_BG,
+        zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : 0,
         pointerEvents: 'auto',
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,

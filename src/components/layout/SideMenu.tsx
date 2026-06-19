@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Home } from 'lucide-react';
 import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
@@ -71,6 +72,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const dimRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const homeButtonRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const isAnimatingRef = useRef(false);
 
@@ -148,8 +150,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       );
     });
 
-    // 4) 3중 레이어 슬라이드인 (오른쪽 → 왼쪽)
-    const items = menuItemsRef.current.filter(Boolean);
+    // 4) 메뉴 텍스트 + 홈 버튼 Stagger 등장
+    const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     tl.fromTo(items,
       { y: 40, opacity: 0 },
       {
@@ -173,7 +175,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   // ─────────────────────────────────────────
   // 닫기 애니메이션
   // ─────────────────────────────────────────
-  const animateClose = useCallback((targetHref?: string) => {
+  const animateClose = useCallback((targetHref?: string, scrollToTop?: boolean) => {
     // 기존 진행 중인 애니메이션 강제 중단
     if (tlRef.current) {
       tlRef.current.kill();
@@ -203,12 +205,21 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         // 라우팅: onComplete 안에서 실행 → 애니메이션 끊김 방지
         if (targetHref) {
           router.push(targetHref);
+        } else if (scrollToTop) {
+          // 같은 페이지 재클릭 시 최상단으로 스크롤
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (typeof window !== 'undefined' && (window as any).lenis) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (window as any).lenis.scrollTo(0, { duration: 0.8 });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
       },
     });
 
-    // 1) 메뉴 텍스트 & 모든 레이어 동시 슬라이드아웃 (All-at-once)
-    const items = menuItemsRef.current.filter(Boolean);
+    // 1) 메뉴 텍스트 & 홈 버튼 & 모든 레이어 동시 슬라이드아웃 (All-at-once)
+    const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     const layers = [mainPanelRef.current, layer2Ref.current, layer1Ref.current];
 
     tl.to(layers, {
@@ -309,10 +320,20 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   // ─────────────────────────────────────────
   // 메뉴 항목 클릭 핸들러 (onComplete 라우팅)
   // ─────────────────────────────────────────
-  const handleItemClick = (href: string) => {
-    // 현재 페이지와 동일하면 그냥 닫기
-    if (pathname === href) {
+  const handleHomeClick = () => {
+    // 홈에 있을 때: 복잡한 GSAP 상태 리셋 이슈로 메뉴만 닫기
+    // 다른 페이지: 홈으로 라우팅
+    if (isHome) {
       animateClose();
+    } else {
+      animateClose('/');
+    }
+  };
+
+  const handleItemClick = (href: string) => {
+    // 현재 페이지와 동일하면 닫기 + 최상단으로 스크롤
+    if (pathname === href) {
+      animateClose(undefined, true);
       return;
     }
     animateClose(href);
@@ -370,6 +391,20 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         }}
       >
         <div className="flex flex-col h-full px-8 py-6 tablet-p:px-12 tablet-p:py-8">
+
+          {/* ── 홈 버튼 (좌상단) ── */}
+          <div ref={homeButtonRef} className="opacity-0 mt-3 tablet-p:mt-6 tablet:mt-8">
+            <button
+              type="button"
+              onClick={handleHomeClick}
+              className="group flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
+            >
+              <Home
+                className="transition-colors duration-300 group-hover:text-[var(--accent)] w-6 h-6 tablet-p:w-8 tablet-p:h-8 tablet:w-11 tablet:h-11"
+                style={{ color: COLORS.TEXT.DARK }}
+              />
+            </button>
+          </div>
 
           {/* ── 메뉴 항목 (Stagger 등장 대상) ── */}
           <nav className="flex-1 flex flex-col justify-center gap-8 tablet-p:gap-10">

@@ -11,7 +11,7 @@ import AboutPromise from './promise/AboutPromise';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 export default function AboutStage() {
-  const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const { toggle, setIsScrollable } = useHeroContext();
   const { interactionMode } = useDevice();
 
   useEffect(() => {
@@ -59,12 +59,6 @@ export default function AboutStage() {
         </div>
         
       </div>
-      
-      {/* 3. 푸터 리빌을 위한 투명 스페이서 (Native Reveal 런웨이) */}
-      <div 
-        className="relative w-full bg-transparent pointer-events-none" 
-        style={{ height: footerHeight || '25vh' }}
-      />
     </main>
   );
 }

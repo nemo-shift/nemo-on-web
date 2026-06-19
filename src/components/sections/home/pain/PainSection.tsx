@@ -100,7 +100,9 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
                     'mb-32 tablet:mb-40'
                   )}
                 >
-                  <SplitText text={slide.text} innerRef={sRefs[idx]} />
+                  <div>
+                    <SplitText text={slide.text} innerRef={sRefs[idx]} />
+                  </div>
                 </div>
               </div>
             ))}
