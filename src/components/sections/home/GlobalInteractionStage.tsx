@@ -554,6 +554,8 @@ export const GlobalInteractionStage = ({
                 fallingRef.current?.reset();
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if ((window as any).lenis) (window as any).lenis.scrollTo(0, { immediate: true });
+                // ScrollTrigger 캐시된 scroll position과 실제 위치 동기화
+                requestAnimationFrame(() => ScrollTrigger.refresh());
               }}
             />
           </div>
