@@ -98,6 +98,35 @@ export const GlobalInteractionStage = ({
   const isRestoringRef  = useRef<boolean>(false); 
   const layoutTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null); 
 
+  // [Fix 4] 모바일 브라우저 컨트롤 바 등장/숨김 시 ScrollTrigger 좌표 동기화
+  // ignoreMobileResize:true 가 빈번한 갱신을 막으므로, visualViewport 기반으로
+  // 높이 변화가 50px 이상 안정된 후 1회만 refresh (300ms 디바운스)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastHeight = window.visualViewport.height;
+
+    const handleViewportResize = () => {
+      const currentHeight = window.visualViewport!.height;
+      const diff = Math.abs(currentHeight - lastHeight);
+      if (diff < 50) return; // 소소한 변화 무시, 컨트롤 바 수준만 감지
+
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        lastHeight = window.visualViewport!.height;
+        if (masterTl.current) ScrollTrigger.refresh();
+        debounceTimer = null;
+      }, 300);
+    };
+
+    window.visualViewport.addEventListener('resize', handleViewportResize);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportResize);
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.history.scrollRestoration = 'manual';
