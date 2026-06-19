@@ -42,7 +42,6 @@ export default function useLenisScroll(
   options: UseLenisScrollOptions = {},
 ): React.MutableRefObject<Lenis | null> {
   const lenisRef = useRef<Lenis | null>(null);
-  const rafRef = useRef<number | null>(null);
 
   const {
     integrateGSAP = false,
@@ -59,10 +58,6 @@ export default function useLenisScroll(
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') {
       if (lenisRef.current) {
-        if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current);
-          rafRef.current = null;
-        }
         if (typeof lenisRef.current.destroy === 'function') {
           lenisRef.current.destroy();
         }
@@ -92,23 +87,6 @@ export default function useLenisScroll(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).lenis = lenis;
 
-    const raf = (time: number) => {
-      if (lenisRef.current && typeof lenisRef.current.raf === 'function') {
-        lenisRef.current.raf(time);
-        rafRef.current = requestAnimationFrame(raf);
-      } else {
-        if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current);
-          rafRef.current = null;
-        }
-      }
-    };
-
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    rafRef.current = requestAnimationFrame(raf);
-
     let gsapScrollUnsubscribe: (() => void) | null = null;
     let gsapTickerHandler: ((time: number) => void) | null = null;
     if (integrateGSAP) {
@@ -123,11 +101,6 @@ export default function useLenisScroll(
     }
 
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-
       if (integrateGSAP) {
         if (
           gsapScrollUnsubscribe &&
