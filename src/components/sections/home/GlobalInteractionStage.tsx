@@ -65,12 +65,23 @@ export const GlobalInteractionStage = ({
 
   // [V11.Separation] 하이드레이션 오류 방지를 위한 마운트 상태 관리
   const [mounted, setMounted] = useState(false);
-  const [revision, setRevision] = useState(0); 
+  const [revision, setRevision] = useState(0);
+  // 타임라인 준비 전 터치 스크롤 차단용 투명 오버레이 상태
+  const [showOverlay, setShowOverlay] = useState(true);
+
   useEffect(() => {
     setMounted(true);
     lastWidthRef.current = window.innerWidth;
     lastHeightRef.current = window.innerHeight;
   }, []);
+
+  // isTimelineReady 시 오버레이 페이드아웃 후 DOM에서 제거
+  useEffect(() => {
+    if (isTimelineReady) {
+      const timer = setTimeout(() => setShowOverlay(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isTimelineReady]);
 
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {
@@ -579,6 +590,23 @@ export const GlobalInteractionStage = ({
 
       {/* 5. Interaction Debugger (v11.Separation) [완성후-삭제] */}
       {mounted && <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />}
+
+      {/* 타임라인 준비 전 투명 오버레이 — iOS/Android 초기 터치 스크롤 차단 */}
+      {showOverlay && mounted && typeof document !== 'undefined' && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9000,
+            opacity: isTimelineReady ? 0 : 1,
+            transition: 'opacity 0.4s ease',
+            pointerEvents: isTimelineReady ? 'none' : 'all',
+            touchAction: isTimelineReady ? 'auto' : 'none',
+            backgroundColor: 'transparent',
+          }}
+        />,
+        document.body
+      )}
     </div>
   );
 };
