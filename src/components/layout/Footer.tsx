@@ -68,19 +68,22 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       className={cn(
         isHomeStage ? 'relative' : 'fixed bottom-0 left-0',
         'w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
-        'h-[450px] px-6 py-12 pb-[80px]',                 // Mobile (Safety Margin for Browser UI)
+        'h-[450px] px-6 py-12',                            // Mobile
         'tablet-p:h-[500px] tablet-p:px-8 tablet-p:py-14 tablet-p:pb-14',   // 744px
         'tablet:h-[600px] tablet:px-10 tablet:py-8',        // 992px
         'desktop-wide:h-[600px] desktop-wide:px-12 desktop-wide:py-12', // 1440px (User 기준)
         'desktop-cap:h-[750px] desktop-cap:px-16 desktop-cap:py-16'   // 1920px (User 기준)
       )}
-      style={{ 
-        backgroundColor: '#0a0a0a', 
+      style={{
+        backgroundColor: '#0a0a0a',
         zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : 0,
         pointerEvents: 'auto',
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,
-        transition: 'opacity 0.3s'
+        transition: 'opacity 0.3s',
+        // [V67.ViewportFix] 모바일 크롬 높이만큼 정확히 보정 (데스크톱에선 0).
+        // lvh(주소창 접힘) - svh(주소창 펼침) = 해당 기기의 브라우저 크롬 높이.
+        paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))',
       }}
     >
       {/* [상부 그룹] 상단(Get in touch)과 중앙(로고)의 밀착된 리듬 제어 */}

@@ -67,6 +67,8 @@ export function buildNemoTimeline(
       // [V43.PathFix] 히어로 박스가 50%가 아닌 다른 곳에 있다면, 다음 지점도 그만큼 시프트하여 경로의 일관성을 유지합니다.
       let adjustedTop = layout.top;
       if (initial && typeof heroLayout.top === 'string' && heroLayout.top.endsWith('%')) {
+        // [V67.ViewportFix-검토필요] 시각 요소 배치용 innerHeight — 스크롤 거리 계산 아님.
+        // nemo 위치 보정 % 계산이 브라우저 크롬 상태에 따라 미세 오차 발생 가능. _2 문서에서 교체 예정.
         const vh = window.innerHeight;
         const heroConstantPx = (parseFloat(heroLayout.top) * vh) / 100;
         const offsetPx = initial.top - heroConstantPx;

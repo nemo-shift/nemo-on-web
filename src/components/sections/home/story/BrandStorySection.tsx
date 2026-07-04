@@ -9,7 +9,7 @@ export const BrandStorySection = () => {
       className="relative w-full h-[400vh] overflow-visible"
       style={{ backgroundColor: 'transparent' }}
     >
-      <div className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
+      <div className="sticky top-0 left-0 w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
         {/* [NEW] 물리적 분할 배경 패널 (화이트) */}
         <div 
           id="story-bg-white"

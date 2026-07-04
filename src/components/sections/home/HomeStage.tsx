@@ -130,7 +130,7 @@ export default function HomeStage(): React.ReactElement {
             <ForWhoSection ref={forwhoRef} />
             <BrandStorySection />
             {/* [V11.4] 백스페이스 삭제 연출을 위한 물리적 브릿지 공간 확보 */}
-            <div id="section-bridge" className="w-full h-[100vh]" />
+            <div id="section-bridge" className="w-full h-[100svh]" />
             <CTASection />
             <Footer isHomeStage={true} />
           </div>

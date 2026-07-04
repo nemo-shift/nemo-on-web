@@ -68,8 +68,8 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Pain Section</span>
       </div>*/}
 
-      <div 
-        className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden"
+      <div
+        className="sticky top-0 left-0 w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
       >
         {/* [섹션명 표시]  */}

@@ -77,15 +77,17 @@ export function buildForWhoTimeline(
   const frame = FORWHO_FRAME[mode];
 
   // [V43.Fix] %, vw, vh 단위를 px 단위로 변환 (모바일/태블릿 픽셀 퍼펙트 대응)
+  // [V67.ViewportFix-검토필요] 시각 요소 배치용 innerHeight — 스크롤 거리 계산 아님.
+  // 카드 포지션 vh 값이 브라우저 크롬 상태에 따라 달라질 수 있음. _2 문서에서 svhPx로 교체 예정.
   const getSafePos = (val: string | number, isWidth: boolean) => {
     if (typeof val === 'number') return val;
     const str = val.toString();
     const base = isWidth ? window.innerWidth : window.innerHeight;
-    
+
     if (str.includes('%')) return base * (parseFloat(str) / 100);
     if (str.includes('vw')) return window.innerWidth * (parseFloat(str) / 100);
     if (str.includes('vh')) return window.innerHeight * (parseFloat(str) / 100);
-    
+
     return parseFloat(str) || 0;
   };
 

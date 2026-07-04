@@ -25,6 +25,18 @@ import InteractionDebugger from './InteractionDebugger'; // [완성후-삭제]
 
 import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
+// [V67.ViewportFix] 브라우저 크롬 상태와 무관한 안정 뷰포트 높이(100svh) 실측
+const getStableVH = (): number => {
+  if (typeof document === 'undefined') return 0;
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;height:100svh;width:0;visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h || window.innerHeight;
+};
+
 // [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -115,7 +127,12 @@ export const GlobalInteractionStage = ({
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         lastHeight = window.visualViewport!.height;
-        if (masterTl.current) ScrollTrigger.refresh();
+        // [V67.ViewportFix] 핀 구간 후반(푸터 근처)에서는 refresh가 눈에 보이는
+        // 점프를 유발하므로 스킵. STEP 1~2로 기하학이 svh 고정이라 보정 불필요.
+        const progress = masterTl.current?.progress() ?? 0;
+        if (masterTl.current && progress <= 0.9) {
+          ScrollTrigger.refresh();
+        }
         debounceTimer = null;
       }, 300);
     };
@@ -137,17 +154,19 @@ export const GlobalInteractionStage = ({
   }, []);
 
   // [V66.Phase1] 지능형 리사이즈 감지 정책 적용
+  // [V67.ViewportFix] 터치 기기에서는 높이 변화(브라우저 크롬 등장/퇴장)를 무시.
+  // 화면 회전은 너비 변화(widthChanged)로 감지되므로 정상 커버됨.
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      
+
       // 너비가 변했거나 (가로/세로 전환), 높이 변화가 임계값(80px 또는 12%) 이상일 때만 엔진 재가동
       const widthChanged = Math.abs(w - lastWidthRef.current) > 2;
       const heightDiff = Math.abs(h - lastHeightRef.current);
       const heightThreshold = Math.max(80, lastHeightRef.current * 0.12);
-      
-      if (widthChanged || heightDiff > heightThreshold) {
+
+      if (widthChanged || (interactionMode !== 'touch' && heightDiff > heightThreshold)) {
         lastWidthRef.current = w;
         lastHeightRef.current = h;
         setRevision(prev => prev + 1);
@@ -156,7 +175,7 @@ export const GlobalInteractionStage = ({
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [interactionMode]);
 
   useEffect(() => {
     if (isScrollable) {
@@ -253,9 +272,11 @@ export const GlobalInteractionStage = ({
           // 포커싱용 상태 업데이트
           setOffsets(sectionOffsetsMap);
 
-          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom(80px)으로 대체되었습니다.
+          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom으로 대체되었습니다.
           // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
-          const finalY = measuredTotalHeight - window.innerHeight;
+          // [V67.ViewportFix] innerHeight(크롬 상태에 따라 가변) 대신 svh 실측값 사용
+          const stableVH = getStableVH();
+          const finalY = measuredTotalHeight - stableVH;
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;

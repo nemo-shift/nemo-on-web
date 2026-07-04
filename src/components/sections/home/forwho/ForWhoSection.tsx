@@ -49,7 +49,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
       </div>*/}
 
       <div 
-        className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
+        className="sticky top-0 left-0 w-full h-[100svh] flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
       >
         {/* 1. 시네마틱 인트로 문구 (Arrival Stage) */}

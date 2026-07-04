@@ -146,7 +146,7 @@ export const CTASection = () => {
   return (
     <section 
       id="section-cta"
-      className="relative w-full h-[100vh] flex flex-col items-center justify-center overflow-hidden bg-[#0D1A1F]"
+      className="relative w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden bg-[#0D1A1F]"
     >
 
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
