@@ -96,6 +96,8 @@ export const GlobalInteractionStage = ({
   // 재시도 안전장치: 연속 재시도 횟수 추적 (MAX_RETRY 초과 시 오버레이 강제 해제)
   const MAX_RETRY = 5;
   const retryCountRef = useRef(0);
+  // [V68.Fix1] 마지막 빌드 시 footerHeight 기록 — 60px 게이트용
+  const lastBuiltFooterHeightRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
@@ -130,8 +132,11 @@ export const GlobalInteractionStage = ({
   // [Fix 4] 모바일 브라우저 컨트롤 바 등장/숨김 시 ScrollTrigger 좌표 동기화
   // ignoreMobileResize:true 가 빈번한 갱신을 막으므로, visualViewport 기반으로
   // 높이 변화가 50px 이상 안정된 후 1회만 refresh (300ms 디바운스)
+  // [V68.Fix2] svh 전환 이후 touch에서는 시각 뷰포트 높이 변화(크롬 제어 바)가
+  // ScrollTrigger 재빌드 트리거가 될 이유가 없음 — 터치에서는 핸들러 즉시 종료
   useEffect(() => {
     if (typeof window === 'undefined' || !window.visualViewport) return;
+    if (interactionMode === 'touch') return;
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     let lastHeight = window.visualViewport.height;
@@ -159,7 +164,7 @@ export const GlobalInteractionStage = ({
       window.visualViewport?.removeEventListener('resize', handleViewportResize);
       if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, []);
+  }, [interactionMode]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -230,6 +235,8 @@ export const GlobalInteractionStage = ({
       
       // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
       const runMeasurementAndBuild = async () => {
+        // [V68.Fix3] 재빌드 진단 로그 (확인 후 제거)
+        console.log('[V68.Diag] rebuild', { revision, footerHeight, scrollY: window.scrollY });
         if (typeof document !== 'undefined' && (document as any).fonts) {
           await (document as any).fonts.ready;
         }
@@ -459,6 +466,8 @@ export const GlobalInteractionStage = ({
             // [V23.Bulletproof] 모든 레이아웃 렌더링 및 스크롤 복구가 끝난 후 최종 정밀 리프레시
             ScrollTrigger.refresh();
             retryCountRef.current = 0;
+            // [V68.Fix1] 빌드 완료 시점의 footerHeight 기록 (게이트 기준값)
+            lastBuiltFooterHeightRef.current = measuredFooterHeight;
             setIsTimelineReady(true);
           }, 200);
         }));
@@ -506,7 +515,7 @@ export const GlobalInteractionStage = ({
         }
       }
     };
-  }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode, footerHeight], revertOnUpdate: true });
+  }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode], revertOnUpdate: true });
 
   // [V66.Phase3.3] CTA 자동 포커스 이벤트 리스너 (최신 offsets 상태 반영)
   useEffect(() => {
@@ -527,6 +536,17 @@ export const GlobalInteractionStage = ({
     window.addEventListener('nemo:cta-focus', handleCtaFocus);
     return () => window.removeEventListener('nemo:cta-focus', handleCtaFocus);
   }, [offsets, mounted]);
+
+  // [V68.Fix1] footerHeight 변화 게이트 — 60px 이상 차이 시에만 재빌드 트리거
+  // useGSAP deps에서 footerHeight를 제거하고, 실제로 의미 있는 변화(레이아웃 영향 수준)만 반응.
+  // 모바일 컨트롤 바 전환으로 인한 calc() 미세 변화(~20-34px)는 차단됨.
+  useEffect(() => {
+    if (!masterTl.current) return;
+    if (Math.abs(footerHeight - lastBuiltFooterHeightRef.current) > 60) {
+      retryCountRef.current = 0;
+      setRevision(prev => prev + 1);
+    }
+  }, [footerHeight]);
 
   // [V11.11 Fix] 포탈 내 변수 소실을 차단하기 위해 데이터 시트에서 현재 환경의 색상을 직접 추출합니다.
   const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
