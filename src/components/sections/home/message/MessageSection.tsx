@@ -56,7 +56,7 @@ export const MessageSection = forwardRef<MessageSectionHandle>((_, ref) => {
     <section 
       ref={containerRef} 
       id="section-message" 
-      className="relative w-full h-[800vh]"
+      className="relative w-full h-[800svh]"
       style={{ backgroundColor: 'transparent' }}
     >
 
@@ -78,7 +78,7 @@ export const MessageSection = forwardRef<MessageSectionHandle>((_, ref) => {
             <div className="message-layer-standard absolute inset-0 flex items-center justify-center text-center select-none">
               <div 
                 ref={el => { standardRefs.current[idx] = el; }}
-                className="relative translate-y-[120vh]"
+                className="relative translate-y-[120svh]"
                 style={{ color: MESSAGE_COLORS.BEFORE.STANDARD }}
               >
                 <MessageGroupLines group={group} charClassName="standard-char" />
@@ -95,7 +95,7 @@ export const MessageSection = forwardRef<MessageSectionHandle>((_, ref) => {
             >
               <div 
                 ref={el => { invertedRefs.current[idx] = el; }}
-                className="relative translate-y-[120vh]"
+                className="relative translate-y-[120svh]"
                 style={{ color: MESSAGE_COLORS.BEFORE.INVERTED }}
               >
                 <MessageGroupLines group={group} charClassName="inverted-char" />

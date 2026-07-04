@@ -94,7 +94,7 @@ export default function HeroOnPhraseLayer({
       className={cn(
         "absolute inset-0 flex flex-col justify-center z-20 pointer-events-none transition-all duration-500",
         "items-center gap-[0.24em] -translate-x-[20%] -translate-y-[5%]",
-        "tablet-p:items-center tablet-p:gap-[min(1vw,1.5vh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5vh]",
+        "tablet-p:items-center tablet-p:gap-[min(1vw,1.5svh)] tablet-p:-translate-x-[8%] tablet-p:translate-y-[5svh]",
         "visible opacity-100",
       )}
     >

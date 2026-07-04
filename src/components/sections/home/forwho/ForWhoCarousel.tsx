@@ -97,7 +97,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             className={cn(
               "absolute z-50 cursor-pointer p-6 group swiper-button-prev-custom transition-all duration-500",
               // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
-              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              isTouch ? "top-auto bottom-[40svh]" : "top-1/2 -translate-y-1/2",
               // 수평 위치: 3단계 분기
               isMobile ? "left-1" : isTabletPortrait ? "left-[6%]" : "left-[35%]"
             )}
@@ -117,7 +117,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             className={cn(
               "absolute z-50 cursor-pointer p-6 group swiper-button-next-custom transition-all duration-500",
               // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
-              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              isTouch ? "top-auto bottom-[40svh]" : "top-1/2 -translate-y-1/2",
               // 수평 위치: 3단계 분기
               isMobile ? "right-1" : isTabletPortrait ? "right-[6%]" : "right-[5%]"
             )}
@@ -173,7 +173,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                 className={cn(
                   "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] mx-auto",
                   isTouch ? "" : "cursor-pointer",
-                  "h-[48vh] mobile:h-[48vh] tablet-p:h-[54vh] tablet:h-[60vh]",
+                  "h-[48svh] mobile:h-[48svh] tablet-p:h-[54svh] tablet:h-[60svh]",
                   isMobile ? "w-[86%]" : isTabletPortrait ? "w-[85%]" : "tablet:w-[85%]",
                   !isTouch && (expandedId === item.id ? "scale-[1.01]" : "scale-100")
                 )}

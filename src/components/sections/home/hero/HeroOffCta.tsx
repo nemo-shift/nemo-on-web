@@ -101,7 +101,7 @@ const HeroOffCta: React.FC<HeroOffCtaProps> = ({
               className={cn(
                 'whitespace-nowrap transition-all duration-700 font-[family-name:var(--font-suit)]',
                 'text-[2.8rem] tablet-p:text-[5rem] tablet:text-[5.5rem] desktop-wide:text-[7rem] desktop-cap:text-[8rem]',
-                'mt-[-0.2vh] tablet-p:mt-[-0.1vh] tablet:mt-[-0.5vh] desktop-wide:mt-[-1vh]'
+                'mt-[-0.2svh] tablet-p:mt-[-0.1svh] tablet:mt-[-0.5svh] desktop-wide:mt-[-1svh]'
               )}
               style={{ 
                 transform: isMobile ? 'translateX(2vw) scaleX(0.8)' : (isMobileView ? 'translateX(1vw) scaleX(0.75)' : 'translateX(1vw) scaleX(0.7)'),

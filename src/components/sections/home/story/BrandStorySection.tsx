@@ -6,7 +6,7 @@ export const BrandStorySection = () => {
   return (
     <section 
       id="section-brand-story"
-      className="relative w-full h-[400vh] overflow-visible"
+      className="relative w-full h-[400svh] overflow-visible"
       style={{ backgroundColor: 'transparent' }}
     >
       <div className="sticky top-0 left-0 w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
@@ -48,7 +48,7 @@ export const BrandStorySection = () => {
           </h2>
 
           {/* [NEW] 4단계 단락 콘텐츠 매핑 */}
-          <div className="relative w-full h-[40vh] flex items-center justify-center">
+          <div className="relative w-full h-[40svh] flex items-center justify-center">
             {BRAND_STORY_CONTENT.map((item, idx) => (
               <div
                 key={item.id}

@@ -46,7 +46,7 @@ export default function HeroMobileView({
     <>
       {/* 1. 상단 스페이서 (공통 뼈대) */}
       <div style={{ 
-        minHeight: isOn ? '16vh' : '10vh', 
+        minHeight: isOn ? '16svh' : '10svh',
         flexShrink: 0, 
         order: 0,
         transition: 'min-height 0.7s ease',
@@ -75,7 +75,7 @@ export default function HeroMobileView({
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,
-            minHeight: '40vh',
+            minHeight: '40svh',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',

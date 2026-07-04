@@ -39,7 +39,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
     <section 
       ref={containerRef} 
       id="section-forwho" 
-      className="relative w-full h-[1000vh]"
+      className="relative w-full h-[1000svh]"
       style={{ backgroundColor: 'transparent' }}
     >
 

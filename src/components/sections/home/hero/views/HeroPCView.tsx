@@ -47,7 +47,7 @@ export default function HeroPCView({
     <>
       {/* 1. 상단 스페이서 (공통 뼈대: 12vh -> 20vh) */}
       <div style={{ 
-        minHeight: isOn ? '20vh' : '12vh', 
+        minHeight: isOn ? '20svh' : '12svh',
         flexShrink: 0, 
         order: 0,
         transition: 'min-height 0.7s ease',
@@ -78,7 +78,7 @@ export default function HeroPCView({
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,
-            minHeight: '60vh', 
+            minHeight: '60svh',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -113,8 +113,8 @@ export default function HeroPCView({
       )}
 
       {/* 3. 하단 여백 (공통 뼈대) */}
-      <div className="flex-1" style={{ order: 4, minHeight: '4vh' }} />
-      <div style={{ order: 11, flexShrink: 0, minHeight: '10vh' }} />
+      <div className="flex-1" style={{ order: 4, minHeight: '4svh' }} />
+      <div style={{ order: 11, flexShrink: 0, minHeight: '10svh' }} />
     </>
   );
 }

@@ -88,7 +88,7 @@ export default function HeroOffPCView({
             top: '56%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            marginTop: '0vh' 
+            marginTop: '0'
           }}
           onMouseEnter={() => setIsToggleHovered(true)}
           onMouseLeave={() => setIsToggleHovered(false)}
