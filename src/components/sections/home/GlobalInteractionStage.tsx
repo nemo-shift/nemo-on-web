@@ -81,6 +81,10 @@ export const GlobalInteractionStage = ({
   // 타임라인 준비 전 터치 스크롤 차단용 투명 오버레이 상태
   const [showOverlay, setShowOverlay] = useState(true);
 
+  // 재시도 안전장치: 연속 재시도 횟수 추적 (MAX_RETRY 초과 시 오버레이 강제 해제)
+  const MAX_RETRY = 5;
+  const retryCountRef = useRef(0);
+
   useEffect(() => {
     setMounted(true);
     lastWidthRef.current = window.innerWidth;
@@ -101,6 +105,7 @@ export const GlobalInteractionStage = ({
 
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {
+      retryCountRef.current = 0;
       setRevision(prev => prev + 1);
     }
   }, [mounted]);
@@ -169,6 +174,7 @@ export const GlobalInteractionStage = ({
       if (widthChanged || (interactionMode !== 'touch' && heightDiff > heightThreshold)) {
         lastWidthRef.current = w;
         lastHeightRef.current = h;
+        retryCountRef.current = 0;
         setRevision(prev => prev + 1);
       }
     };
@@ -239,13 +245,25 @@ export const GlobalInteractionStage = ({
           // 푸터 높이가 아직 0이고 실기기 모바일인 경우, 정확한 측정을 위해 빌드를 한 차례 지연
           if (measuredFooterHeight === 0 && isMobile) {
             console.warn('[V66.Phase1] Footer height not ready, deferring build...');
-            setRevision(prev => prev + 1);
+            if (retryCountRef.current < MAX_RETRY) {
+              retryCountRef.current += 1;
+              setRevision(prev => prev + 1);
+            } else {
+              console.error('[V66.Phase1] Max retries exceeded (footer). Force-releasing overlay.');
+              setShowOverlay(false);
+            }
             return;
           }
 
           if (!allRendered) {
             console.warn('[V66.Phase1] Some sections are missing or height is 0, retrying...');
-            setRevision(prev => prev + 1);
+            if (retryCountRef.current < MAX_RETRY) {
+              retryCountRef.current += 1;
+              setRevision(prev => prev + 1);
+            } else {
+              console.error('[V66.Phase1] Max retries exceeded (sections). Force-releasing overlay.');
+              setShowOverlay(false);
+            }
             return;
           }
 
@@ -424,6 +442,7 @@ export const GlobalInteractionStage = ({
           layoutTimerRef.current = setTimeout(() => {
             // [V23.Bulletproof] 모든 레이아웃 렌더링 및 스크롤 복구가 끝난 후 최종 정밀 리프레시
             ScrollTrigger.refresh();
+            retryCountRef.current = 0;
             setIsTimelineReady(true);
           }, 200);
         }));

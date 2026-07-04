@@ -48,8 +48,6 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
 export function useDevice() {
   const context = useContext(DeviceContext);
   if (!context) {
-    // 만약 Provider 밖에서 사용된다면, 안전을 위해 Hook을 직접 호출하여 Fallback 제공
-    // (완전한 정화 전까지 과도기적 안정성 확보)
     throw new Error('useDevice must be used within a DeviceProvider');
   }
   return context;
