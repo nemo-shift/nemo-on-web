@@ -45,7 +45,7 @@ export default function useLenisScroll(
 
   const {
     integrateGSAP = false,
-    touchMultiplier = 2,
+    touchMultiplier = 1,
     duration = 1.2,
     smoothWheel = true,
     syncTouch = true,
