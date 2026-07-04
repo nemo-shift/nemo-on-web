@@ -62,7 +62,7 @@ export default function GlobalScrollHint(): React.ReactElement {
       id="global-scroll-hint"
       style={{
         position: 'fixed',
-        bottom: isPureMobile ? '32px' : 'clamp(24px, 4vh, 48px)', // 모바일은 하단바 고려하여 고정값
+        bottom: isPureMobile ? '32px' : 'clamp(24px, 4svh, 48px)', // [V67.ViewportFix] 4vh → 4svh / 모바일은 하단바 고려하여 고정값
         left: '50%',
         transform: 'translateX(-50%)', // 중앙 정렬
         zIndex: INTERACTION_Z_INDEX.Z_UI_GUIDE,

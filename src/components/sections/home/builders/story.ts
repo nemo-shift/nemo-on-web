@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 
 /**
  * [V12.Story] Brand Story 6-Step Sequence Builder
@@ -15,7 +15,7 @@ export const buildStoryTimeline = (
   const w = isTouch ? TIMING_CFG.SECTION_WEIGHT.STORY_STILL_TOUCH : TIMING_CFG.SECTION_WEIGHT.STORY_STILL;
   const start = L[STAGES.TO_STORY];
   const step = w / 10.0; // [V66.UX] Expanded divisor for maximum stay time (7.5 -> 10.0)
-  const { isMobileView, isTabletPortrait } = options;
+  const { isMobileView, isTabletPortrait, stableVH } = options;
 
   // Common Animation Options
   const fadeOut = { opacity: 0, y: -20, duration: step * 0.4, ease: 'power2.in' };
@@ -24,14 +24,15 @@ export const buildStoryTimeline = (
   // ─────────────────────────────────────────────
   // Phase 1-1: Group 1 First (Zigzag Layout)
   // ─────────────────────────────────────────────
+  // [V67.ViewportFix] 'Nvh' 문자열 → svhPx(N, stableVH) px 숫자로 교체
   const p1Pos = isTabletPortrait
-    ? { x: '-2vw', y: '-14vh' } // 태블릿 세로: 중앙 정렬
-    : isMobileView 
-      ? { x: 0, y: '-14vh' } 
-      : { x: '-5vw', y: '-12vh' };
+    ? { x: '-2vw', y: svhPx(-14, stableVH) } // 태블릿 세로: 중앙 정렬
+    : isMobileView
+      ? { x: 0, y: svhPx(-14, stableVH) }
+      : { x: '-5vw', y: svhPx(-12, stableVH) };
 
-  tl.fromTo('#story-paragraph-1', 
-    { opacity: 0, ...p1Pos, y: parseFloat(p1Pos.y as string) + 5 + 'vh' },
+  tl.fromTo('#story-paragraph-1',
+    { opacity: 0, ...p1Pos, y: p1Pos.y + svhPx(5, stableVH) },
     { opacity: 1, ...p1Pos, duration: step * 0.6, ease: 'power2.out' },
     start + 0.2
   );
@@ -40,14 +41,15 @@ export const buildStoryTimeline = (
   // Phase 1-2: Group 1 Second (Cumulative Zigzag)
   // ─────────────────────────────────────────────
   const p2Start = start + step;
+  // [V67.ViewportFix] 'Nvh' 문자열 → svhPx(N, stableVH) px 숫자로 교체
   const p2Pos = isTabletPortrait
-    ? { x: '2vw', y: '3vh' } // 태블릿 세로: 중앙 정렬 및 상향 배치
-    : isMobileView 
-      ? { x: 0, y: '10vh' } 
-      : { x: '5vw', y: '8vh' };
+    ? { x: '2vw', y: svhPx(3, stableVH) } // 태블릿 세로: 중앙 정렬 및 상향 배치
+    : isMobileView
+      ? { x: 0, y: svhPx(10, stableVH) }
+      : { x: '5vw', y: svhPx(8, stableVH) };
 
-  tl.fromTo('#story-paragraph-2', 
-    { opacity: 0, ...p2Pos, y: parseFloat(p2Pos.y as string) - 5 + 'vh' },
+  tl.fromTo('#story-paragraph-2',
+    { opacity: 0, ...p2Pos, y: p2Pos.y - svhPx(5, stableVH) },
     { opacity: 1, ...p2Pos, duration: step * 0.6, ease: 'power2.out' },
     p2Start + step * 0.2
   );
@@ -60,13 +62,16 @@ export const buildStoryTimeline = (
 
   if (isTabletPortrait) {
     tl.fromTo('#story-bg-white', { opacity: 1, yPercent: -100, xPercent: 0 }, { yPercent: -58, duration: step * 0.6, ease: 'power3.inOut' }, p3Start);
-    tl.fromTo('#story-paragraph-3', { opacity: 0, y: '16vh', x: 0 }, { opacity: 1, y: '8vh', x: 0, duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-3', { opacity: 0, y: svhPx(16, stableVH), x: 0 }, { opacity: 1, y: svhPx(8, stableVH), x: 0, duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
   } else if (isMobileView) {
     tl.fromTo('#story-bg-white', { opacity: 1, yPercent: -100, xPercent: 0 }, { yPercent: -58, duration: step * 0.6, ease: 'power3.inOut' }, p3Start);
-    tl.fromTo('#story-paragraph-3', { opacity: 0, y: '16vh', x: 0 }, { opacity: 1, y: '8vh', x: 0, duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-3', { opacity: 0, y: svhPx(16, stableVH), x: 0 }, { opacity: 1, y: svhPx(8, stableVH), x: 0, duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
   } else {
     tl.fromTo('#story-bg-white', { opacity: 1, xPercent: -100, yPercent: 0 }, { xPercent: -50, duration: step * 0.6, ease: 'power3.inOut' }, p3Start);
-    tl.fromTo('#story-paragraph-3', { opacity: 0, x: '25vw', y: '5vh' }, { opacity: 1, x: '25vw', y: '-3vh', duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx (vw는 유지)
+    tl.fromTo('#story-paragraph-3', { opacity: 0, x: '25vw', y: svhPx(5, stableVH) }, { opacity: 1, x: '25vw', y: svhPx(-3, stableVH), duration: step * 0.6, ease: 'power2.out' }, p3Start + step * 0.2);
   }
 
   // ─────────────────────────────────────────────
@@ -74,13 +79,16 @@ export const buildStoryTimeline = (
   // ─────────────────────────────────────────────
   const p4Start = start + step * 4.4; // 2-1 stay time: 1.7 steps
   tl.to('#story-paragraph-3', fadeOut, p4Start);
-  
+
   if (isTabletPortrait) {
-    tl.fromTo('#story-paragraph-4', { opacity: 0, y: '7vh', x: 0 }, { opacity: 1, y: '15vh', x: 0, duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-4', { opacity: 0, y: svhPx(7, stableVH), x: 0 }, { opacity: 1, y: svhPx(15, stableVH), x: 0, duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
   } else if (isMobileView) {
-    tl.fromTo('#story-paragraph-4', { opacity: 0, y: '7vh', x: 0 }, { opacity: 1, y: '15vh', x: 0, duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-4', { opacity: 0, y: svhPx(7, stableVH), x: 0 }, { opacity: 1, y: svhPx(15, stableVH), x: 0, duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
   } else {
-    tl.fromTo('#story-paragraph-4', { opacity: 0, x: '25vw', y: '-5vh' }, { opacity: 1, x: '25vw', y: '3vh', duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx (vw는 유지)
+    tl.fromTo('#story-paragraph-4', { opacity: 0, x: '25vw', y: svhPx(-5, stableVH) }, { opacity: 1, x: '25vw', y: svhPx(3, stableVH), duration: step * 0.6, ease: 'power2.out' }, p4Start + step * 0.2);
   }
 
   // ─────────────────────────────────────────────
@@ -91,10 +99,12 @@ export const buildStoryTimeline = (
 
   if (isTabletPortrait) {
     tl.to('#story-bg-white', { yPercent: 50, duration: step * 0.8, ease: 'power3.inOut' }, p5Start);
-    tl.fromTo('#story-paragraph-5', { opacity: 0, y: '-17vh', x: 0 }, { opacity: 1, y: '-25vh', x: 0, duration: step * 0.6, ease: 'power2.out' }, p5Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-5', { opacity: 0, y: svhPx(-17, stableVH), x: 0 }, { opacity: 1, y: svhPx(-25, stableVH), x: 0, duration: step * 0.6, ease: 'power2.out' }, p5Start + step * 0.2);
   } else if (isMobileView) {
     tl.to('#story-bg-white', { yPercent: 50, duration: step * 0.8, ease: 'power3.inOut' }, p5Start);
-    tl.fromTo('#story-paragraph-5', { opacity: 0, y: '-17vh' }, { opacity: 1, y: '-25vh', duration: step * 0.6, ease: 'power2.out' }, p5Start + step * 0.2);
+    // [V67.ViewportFix] y vh → svhPx
+    tl.fromTo('#story-paragraph-5', { opacity: 0, y: svhPx(-17, stableVH) }, { opacity: 1, y: svhPx(-25, stableVH), duration: step * 0.6, ease: 'power2.out' }, p5Start + step * 0.2);
   } else {
     tl.to('#story-bg-white', { xPercent: 50, duration: step * 0.8, ease: 'power3.inOut' }, p5Start);
     tl.fromTo('#story-paragraph-5', { opacity: 0, x: '-33vw', y: 0 }, { opacity: 1, x: '-25vw', y: 0, duration: step * 0.6, ease: 'power2.out' }, p5Start + step * 0.2);

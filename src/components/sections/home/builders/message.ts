@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 export interface MessageBuilderRefs {
   standardGroups: (HTMLDivElement | null)[];
   invertedGroups: (HTMLDivElement | null)[];
@@ -36,6 +36,7 @@ export function buildMessageTimeline(
 
     const groupStart = startTime + (index * groupDuration);
     const isTouch = options.interactionMode === 'touch';
+    const { stableVH } = options;
     
     // 각 그룹 내의 호흡 배분 (총합이 1.0)
     const riseTime   = groupDuration * (isTouch ? 0.20 : 0.30); 
@@ -47,8 +48,9 @@ export function buildMessageTimeline(
 
     // 1. Rise (공간 부상)
     // 두 레이어를 동시에 올림. 고정 마스크가 뷰포트 좌표를 유지하므로 지나가는 동안만 파란색 노출
-    tl.fromTo(targets, 
-      { y: '120vh', autoAlpha: 1 },
+    // [V67.ViewportFix] '120vh' → svhPx(120, stableVH)
+    tl.fromTo(targets,
+      { y: svhPx(120, stableVH), autoAlpha: 1 },
       { y: '0', duration: riseTime, ease: 'power2.out', immediateRender: true },
       groupStart
     );
@@ -90,8 +92,9 @@ export function buildMessageTimeline(
       ease: 'power1.inOut'
     }, groupStart + riseTime + revealTime);
 
+    // [V67.ViewportFix] '-120vh' → svhPx(-120, stableVH)
     tl.to(targets, {
-      y: '-120vh',
+      y: svhPx(-120, stableVH),
       duration: exitTime,
       ease: 'power2.in'
     }, groupStart + riseTime + revealTime);

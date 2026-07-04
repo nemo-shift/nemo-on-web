@@ -317,17 +317,19 @@ export const GlobalInteractionStage = ({
             tl.addLabel(key, time);
           });
 
-          const builderOptions: GlobalBuilderOptions = { 
-            isMobile, 
-            isMobileView, 
-            isTabletPortrait, 
-            isOn, 
+          const builderOptions: GlobalBuilderOptions = {
+            isMobile,
+            isMobileView,
+            isTabletPortrait,
+            isOn,
             interactionMode,
             registry: INTERACTION_REGISTRY,
             // [V43] 실측된 동적 영점 데이터를 빌더들에게 보급합니다.
             initialNemoPos: measuredPos || undefined,
             // [V66.Phase3-2] 실측 오프셋 데이터를 엔진에 주입합니다.
-            sectionOffsets: sectionOffsetsMap
+            sectionOffsets: sectionOffsetsMap,
+            // [V67.ViewportFix] svh 실측값을 모든 빌더에 보급합니다.
+            stableVH,
           };
 
 

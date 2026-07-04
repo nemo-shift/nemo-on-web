@@ -1,4 +1,14 @@
-## [최신] ✅ 2026-06-20: UI 폴리싱 — 푸터/커서/사이드메뉴/ForWho 터치 개편
+## [최신] ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+
+- **핵심**: 모바일 브라우저 크롬(주소창/컨트롤바) 등장/숨김에 따른 `window.innerHeight` 변동이 GSAP 타임라인 기하학을 흔드는 근본 원인을 `svh` 단위로 봉쇄.
+- **CSS 통일**: `h-screen`/`100vh` → `h-[100svh]` (7개 섹션 파일 + HeroSection 램프)
+- **JS GSAP 통일**: `getStableVH()` DOM probe 헬퍼로 `svh` px 실측 → `GlobalInteractionStage` `finalY`, `builderOptions.stableVH` 주입
+- **빌더 통일**: `svhPx()` 헬퍼로 `story.ts`/`message.ts`/`funnel.ts`의 모든 `'Nvh'` 문자열 → 숫자 px 교체; `forwho.ts`/`nemo.ts` `window.innerHeight` → `stableVH`
+- **UI 컴포넌트**: `HeroOffPCView`/`HeroOffMobileView`/`HeroOffTabletView`/`GlobalScrollHint`의 `vh` → `svh`
+- **리사이즈 방어**: 터치 기기 높이 변화 시 타임라인 재빌드 차단; `visualViewport` 가드 (`progress > 0.9` 시 refresh 스킵)
+- **푸터 보정**: `paddingBottom: calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))`
+
+## ✅ 2026-06-20: UI 폴리싱 — 푸터/커서/사이드메뉴/ForWho 터치 개편
 
 - **푸터 리빌 완성**: 이중 스페이서 버그 수정 (`AboutStage`/`OfferingsStage` 내부 스페이서 제거), `FooterRevealSpacer` 전역 단일화, 서브페이지 클릭 + 리빌 동시 동작.
 - **SideMenu 홈 아이콘**: 패널 좌상단 `Home` 아이콘 버튼. 홈→홈은 메뉴 닫기만, 타 페이지→홈은 라우팅. 같은 페이지 재클릭 시 `lenis.scrollTo(0)`.

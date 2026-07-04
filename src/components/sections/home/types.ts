@@ -40,7 +40,15 @@ export interface GlobalBuilderOptions {
     width: number;
     height: number;
   };
+  // [V67.ViewportFix] 브라우저 크롬 상태와 무관한 안정 뷰포트 높이(100svh) px 실측값
+  stableVH: number;
 }
+
+/**
+ * [V67.ViewportFix] 'Nvh' 상당의 안정 px 값 (svh 기준)
+ * GSAP 트윈에 'Nvh' 문자열 대신 사용 — window.innerHeight 의존 제거
+ */
+export const svhPx = (n: number, stableVH: number): number => (n / 100) * stableVH;
 
 /**
  * Home Section 전역 인터랙션 레이어용 Props [V11.55 확장]

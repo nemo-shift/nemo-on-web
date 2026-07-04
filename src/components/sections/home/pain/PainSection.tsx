@@ -60,7 +60,7 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
     <section 
       ref={containerRef} 
       id="section-pain" 
-      className="relative w-full h-[1000vh]"
+      className="relative w-full h-[1000svh]"
       style={{ backgroundColor: 'transparent' }}
     >
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}

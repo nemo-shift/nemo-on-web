@@ -3,7 +3,86 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-06-20: UI 폴리싱 - 푸터 리빌 완성, 사이드메뉴 홈버튼, 커서 개편, ForWho 터치 레이아웃
+## [최신] ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+
+### 💎 주요 달성 성과
+
+- **근본 원인 해결**: 모바일 브라우저 크롬(주소창/컨트롤바)이 등장/숨김에 따라 `window.innerHeight`가 변동하여 GSAP 타임라인 기하학이 흔들리는 문제를 `svh` 단위로 완전 고정.
+
+- **[STEP 1] CSS 뷰포트 단위 통일** (`h-screen`/`100vh` → `h-[100svh]`):
+  - `PainSection.tsx`: `h-screen` → `h-[100svh]`, `h-[1000vh]` → `h-[1000svh]`
+  - `MessageSection.tsx`, `ForWhoSection.tsx`, `BrandStorySection.tsx`: `h-screen` → `h-[100svh]`
+  - `CTASection.tsx`: `h-[100vh]` → `h-[100svh]`
+  - `HomeStage.tsx` (`#section-bridge`): `h-[100vh]` → `h-[100svh]`
+  - `HeroSection.tsx`: `min-h-screen` → `min-h-[100svh]`, 램프 `60vh`/`90vh` → `60svh`/`90svh`
+
+- **[STEP 2] `getStableVH` 헬퍼 + `stableVH` 주입** (`GlobalInteractionStage.tsx`):
+  - DOM probe div로 `100svh`를 px 실측하는 `getStableVH()` 함수 컴포넌트 외부에 추가
+  - `finalY = measuredTotalHeight - stableVH` (기존 `window.innerHeight` 교체)
+  - `builderOptions`에 `stableVH` 주입
+
+- **[STEP 3] 터치 기기 높이 변화 리사이즈 무시**:
+  - resize useEffect: 너비 변화 OR (마우스 기기 AND 높이 임계값 초과)만 재빌드
+  - `interactionMode` 의존성 추가
+
+- **[STEP 4] visualViewport 진행도 가드**:
+  - `masterTl.progress() > 0.9` 시 `ScrollTrigger.refresh()` 스킵
+
+- **[STEP 5] 푸터 하단 여백 보정** (`Footer.tsx`):
+  - `pb-[80px]` 제거 → `paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))'`
+
+- **[STEP 2-B-1] `svhPx` 헬퍼 + `GlobalBuilderOptions.stableVH`** (`types.ts`):
+  - `svhPx(n, stableVH)` 헬퍼 export — GSAP `'Nvh'` 문자열 대체용 안정 px 변환
+  - `GlobalBuilderOptions`에 `stableVH: number` 필드 추가
+
+- **[STEP 2-B-2] GSAP 빌더 `vh` 문자열 교체**:
+  - `story.ts`: 전체 재작성, 모든 `'Nvh'` → `svhPx(N, stableVH)` 숫자 px
+  - `message.ts`: `'120vh'`/`'-120vh'` → `svhPx(120/−120, stableVH)`
+  - `funnel.ts`: `'-8vh'`/`'-7vh'` → `svhPx` 변환
+
+- **[STEP 2-B-3] 빌더 내 `window.innerHeight` 교체**:
+  - `forwho.ts` `getSafePos`: `window.innerHeight` → `options.stableVH`, `%` 기준값도 교체
+  - `nemo.ts`: `const vh = window.innerHeight` → `const vh = options.stableVH`
+
+- **[STEP 2-B-4] UI 컴포넌트 `vh` → `svh` 교체**:
+  - `HeroOffPCView.tsx`: `80vh`/`15vh`/`-20vh`/`gap-[1vh]` → `svh`
+  - `HeroOffMobileView.tsx`: `gap-[6vh]`/`-7vh`/`-28vh` → `svh`
+  - `HeroOffTabletView.tsx`: `gap-[4vh]`/`-1vh` → `svh`
+  - `GlobalScrollHint.tsx`: `4vh` → `4svh`
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/types.ts` | `stableVH` 필드, `svhPx` 헬퍼 export |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `getStableVH()`, `finalY` 교체, resize 터치 무시, vP 가드, `stableVH` 주입 |
+| `src/components/sections/home/pain/PainSection.tsx` | `h-[1000svh]`, sticky `h-[100svh]` |
+| `src/components/sections/home/message/MessageSection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/forwho/ForWhoSection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/story/BrandStorySection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/cta/CTASection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/HomeStage.tsx` | `#section-bridge h-[100svh]` |
+| `src/components/sections/home/hero/HeroSection.tsx` | `min-h-[100svh]`, 램프 `svh` |
+| `src/components/layout/Footer.tsx` | `paddingBottom: calc(100lvh - 100svh + ...)` |
+| `src/components/sections/home/builders/story.ts` | 전체 재작성 — 모든 `vh` → `svhPx` |
+| `src/components/sections/home/builders/message.ts` | `120vh` → `svhPx` |
+| `src/components/sections/home/builders/funnel.ts` | `-8vh`/`-7vh` → `svhPx` |
+| `src/components/sections/home/builders/forwho.ts` | `getSafePos` → `stableVH` 기준 |
+| `src/components/sections/home/builders/nemo.ts` | `window.innerHeight` → `stableVH` |
+| `src/components/sections/home/hero/views/HeroOffPCView.tsx` | 4곳 `vh` → `svh` |
+| `src/components/sections/home/hero/views/HeroOffMobileView.tsx` | 3곳 `vh` → `svh` |
+| `src/components/sections/home/hero/views/HeroOffTabletView.tsx` | 2곳 `vh` → `svh` |
+| `src/components/sections/home/GlobalScrollHint.tsx` | `4vh` → `4svh` |
+
+### 🧩 잔여 과제 / 확인 필요 사항
+
+- [ ] **실기기 검증**: 실제 iOS Safari, Android Chrome에서 컨트롤바 등장/숨김 시 레이아웃 안정성 확인
+- [ ] **CTA_STILL_TOUCH 4.0→8.0**: 역스크롤 완충 예정 (모바일 스크롤 버그 이슈 백로그)
+- [ ] **[V67.ViewportFix-검토필요] 태그 빌더**: `calculateLabels()` 등 일부 빌더에서 남은 `vh` 문자열 추가 점검 가능
+
+---
+
+## ✅ 2026-06-20: UI 폴리싱 - 푸터 리빌 완성, 사이드메뉴 홈버튼, 커서 개편, ForWho 터치 레이아웃
 
 ### 💎 주요 달성 성과
 

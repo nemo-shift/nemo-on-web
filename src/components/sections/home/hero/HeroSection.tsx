@@ -240,7 +240,7 @@ export default function HeroSection({
               left: '50%',
               transform: 'translateX(-50%)',
               width: '100vw',
-              height: isMobileView ? '60vh' : '90vh',
+              height: isMobileView ? '60svh' : '90svh', // [V67.ViewportFix] vh → svh
               zIndex: INTERACTION_Z_INDEX.Z_BASE_BG + 1,
               pointerEvents: 'none',
               filter: 'blur(60px)',
