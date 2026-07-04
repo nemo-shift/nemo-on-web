@@ -44,12 +44,13 @@ export default function HomeStage(): React.ReactElement {
       />
       {/* 0.2 히어로 온모드 전용 배경 이미지 레이어 */}
       {/* bottom: -250px: 뷰포트 아래 250px 여유 확보 → translateY 패닝 시 공백 없음 */}
+
       <div
         id="hero-bg-layer"
         className="fixed left-0 right-0 top-0 pointer-events-none"
         style={{
           bottom: -600,
-          backgroundImage: "url('/images/home/home-bg.webp')",
+          backgroundImage: "url('/images/home/white-light.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
@@ -58,13 +59,15 @@ export default function HomeStage(): React.ReactElement {
           zIndex: INTERACTION_Z_INDEX.Z_BEHIND_BG + 1,
         }}
       />
+
       {/* 0.3 페인 섹션 전용 배경 이미지 레이어 (크로스페이드) */}
+
       {isOn && (
         <div
           id="pain-bg-layer"
           className="fixed inset-0 pointer-events-none"
           style={{
-            backgroundImage: "url('/images/home/lighton-blue-bg.webp')",
+            backgroundImage: "url('/images/home/blue-light.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center top",
             backgroundRepeat: "no-repeat",
@@ -79,6 +82,7 @@ export default function HomeStage(): React.ReactElement {
           }}
         />
       )}
+
       {/* 0. Global Interaction Layer (Outside pinned area for stable fixed positioning) */}
       <GlobalInteractionStage
         isMobile={isMobile}
