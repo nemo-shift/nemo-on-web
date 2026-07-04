@@ -81,6 +81,9 @@ export default function RootLayout({
       className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col font-suit">
+        {/* [TEMP] Eruda 모바일 콘솔 — 확인 후 제거 */}
+        <script src="https://cdn.jsdelivr.net/npm/eruda" />
+        <script dangerouslySetInnerHTML={{ __html: 'eruda.init()' }} />
         <LenisScrollRestoration />
         <GlobalScrollTriggerCleanup />
         <SmoothScroll
