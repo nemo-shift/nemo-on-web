@@ -6,3 +6,4 @@ export { default as GlobalScrollTriggerCleanup } from './GlobalScrollTriggerClea
 export { default as SmoothScroll } from './SmoothScroll';
 export { default as MenuSystem } from './MenuSystem';
 export * from './GlobalElements';
+export { default as KakaoTalkBanner } from './KakaoTalkBanner';

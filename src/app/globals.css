@@ -208,3 +208,45 @@ html.custom-cursor-active *::after {
 .animate-lamp-pulse-mobile {
   animation: lampPulseMobile 8s ease-in-out infinite;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   [V68.LegacyWebViewFallback] svh 미지원 구형 WebView(카카오톡 인앱 등) 안전망
+   svh를 지원하는 브라우저(Safari/Chrome 등)는 이 블록을 완전히 무시합니다.
+   카카오톡 WebView가 업데이트되어 svh 지원이 확인되면 이 블록 전체를 삭제할 것.
+   ───────────────────────────────────────────────────────────────────────────── */
+@supports not (height: 100svh) {
+  /* height */
+  .h-\[100svh\]      { height: 100vh !important; }
+  .h-\[40svh\]       { height: 40vh !important; }
+  .h-\[48svh\]       { height: 48vh !important; }
+  .h-\[54svh\]       { height: 54vh !important; }
+  .h-\[60svh\]       { height: 60vh !important; }
+  .h-\[400svh\]      { height: 400vh !important; }
+  .h-\[800svh\]      { height: 800vh !important; }
+  .h-\[1000svh\]     { height: 1000vh !important; }
+  /* min-height */
+  .min-h-\[100svh\]  { min-height: 100vh !important; }
+  /* bottom */
+  .bottom-\[10svh\]  { bottom: 10vh !important; }
+  .bottom-\[12svh\]  { bottom: 12vh !important; }
+  .bottom-\[14svh\]  { bottom: 14vh !important; }
+  .bottom-\[40svh\]  { bottom: 40vh !important; }
+  /* gap */
+  .gap-\[1svh\]      { gap: 1vh !important; }
+  .gap-\[4svh\]      { gap: 4vh !important; }
+  .gap-\[6svh\]      { gap: 6vh !important; }
+  /* margin-top (음수 포함) */
+  .mt-\[-0\.1svh\]   { margin-top: -0.1vh !important; }
+  .mt-\[-0\.2svh\]   { margin-top: -0.2vh !important; }
+  .mt-\[-0\.5svh\]   { margin-top: -0.5vh !important; }
+  .mt-\[-1svh\]      { margin-top: -1vh !important; }
+  /* translate-y — --tw-translate-y 변수 재정의 */
+  .translate-y-\[5svh\]    { --tw-translate-y: 5vh !important; }
+  .translate-y-\[120svh\]  { --tw-translate-y: 120vh !important; }
+
+  /* [STEP 3] Footer 크롬 보정 패딩 폴백.
+     svh/lvh 미지원 환경에서는 calc()가 무효화되므로 고정 여백으로 복귀. */
+  #site-footer {
+    padding-bottom: 80px !important;
+  }
+}

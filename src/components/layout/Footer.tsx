@@ -55,7 +55,8 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
   }
 
   return (
-    <footer 
+    <footer
+      id="site-footer"
       ref={footerRef}
       /* 
        * [V11.33] 푸터 레이아웃 구조 정규화 (Final Tuning)

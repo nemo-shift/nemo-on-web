@@ -235,8 +235,6 @@ export const GlobalInteractionStage = ({
       
       // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
       const runMeasurementAndBuild = async () => {
-        // [V68.Fix3] 재빌드 진단 로그 (확인 후 제거)
-        console.log('[V68.Diag] rebuild', { revision, footerHeight, scrollY: window.scrollY });
         if (typeof document !== 'undefined' && (document as any).fonts) {
           await (document as any).fonts.ready;
         }

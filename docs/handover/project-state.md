@@ -1,4 +1,112 @@
-## [최신] ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + 코드 품질
+## [최신] ✅ 2026-07-04: V68.KakaoBanner — 카카오톡 인앱 브라우저 WebView 대응
+
+### 배경 및 원인
+카카오톡 인앱 브라우저(구형 WebView)는 `svh`/`lvh` CSS 단위(2022년 말 표준화)를 인식하지 못한다.
+V67.ViewportFix에서 전체 레이아웃을 `svh` 기반으로 전환했기 때문에, 카카오톡 인앱에서 접속 시
+히어로 섹션 컨테이너 높이 0 붕괴, 메시지·포후·스토리 섹션 요소 미표시 현상이 발생.
+
+CSS는 이해하지 못하는 단위의 선언을 통째로 무시하므로, `height: 100svh` 가 무시되면
+해당 요소는 높이 미지정 상태로 붕괴하고, 그 안의 `translate-y-[Nsvh]` 도 `transform: none`
+으로 무시되어 콘텐츠가 화면 밖으로 밀려남.
+
+**실기기 확인**: 카카오톡 인앱에서 직접 접속 → 섹션 요소 아예 미표시 확인됨.
+
+---
+
+### 구현 전략: 2-레이어 방어
+
+#### 레이어 1 — CSS `@supports` 폴백 (`src/app/globals.css` 최하단)
+
+`@supports not (height: 100svh)` 블록으로 svh를 모르는 환경에서만 vh로 자동 대체.
+svh 지원 브라우저(Safari/Chrome 등)는 이 블록을 평가조차 하지 않으므로 기존 동작 100% 유지.
+
+**대상 클래스 (그랩 시점 기준 21개)**:
+| 분류 | 클래스 | 폴백 값 |
+|------|--------|---------|
+| height | h-[100/40/48/54/60/400/800/1000svh] | 동일 숫자 vh |
+| min-height | min-h-[100svh] | 100vh |
+| bottom | bottom-[10/12/14/40svh] | 동일 숫자 vh |
+| gap | gap-[1/4/6svh] | 동일 숫자 vh |
+| margin-top | mt-[-0.1/-0.2/-0.5/-1svh] | 동일 숫자 vh |
+| translate-y | translate-y-[5/120svh] | `--tw-translate-y` 변수 재정의 |
+
+**STEP 3 — Footer paddingBottom 폴백**:
+- `footer` 요소에 `id="site-footer"` 추가 (`Footer.tsx` L58)
+- `#site-footer { padding-bottom: 80px !important; }` — V67의 `calc(100lvh - 100svh + ...)` 이
+  svh/lvh 미지원 환경에서 calc 전체 무효화되므로 80px 고정 여백으로 복귀.
+  (80px = 모바일 크롬 컨트롤 바 ~56px + safe-area ~20px 기준 추정값)
+
+**새 svh 클래스 추가 시 주의**: 코드에 새로운 Tailwind svh arbitrary value 클래스를 추가하면
+globals.css의 `@supports` 블록에도 대응 폴백을 추가해야 함. 아래 grep으로 전수 확인:
+```bash
+grep -rhoE "[a-z-]+-\[-?[0-9.]+svh\]" --include="*.tsx" --include="*.ts" \
+  src/components/sections/home | sort -u
+```
+
+**인라인 style={{ }} svh 값 (STEP 2 — 미구현, 배너로 대체)**:
+HeroSection, HeroOff/OnView 등에 `height: '100svh'`, `bottom: '-20svh'` 등 인라인 스타일이
+13곳 잔존. 이 값들은 CSS 셀렉터로 접근 불가능하다. 현재는 배너(레이어 2)로 카카오톡 사용자를
+외부 브라우저로 유도해 우회. 만약 배너를 비활성화하거나 더 완전한 폴백이 필요하면 STEP 2 구현 필요:
+→ `docs/troubleshooting/claude-code-prompt-svh-legacy-webview-fallback.md` STEP 2 참고
+→ 핵심: `:root { --unit-svh: 1svh; }` + `@supports not { --unit-svh: 1vh; }` → 인라인 값을
+  `'calc(var(--unit-svh) * N)'` 패턴으로 교체
+
+---
+
+#### 레이어 2 — 카카오톡 인앱 배너 (`src/components/layout/KakaoTalkBanner.tsx`)
+
+**동작**: `navigator.userAgent.includes('KAKAOTALK')` 로 인앱 브라우저 감지.
+감지 시 하단 고정 배너 표시. "브라우저로 열기" 클릭 → `window.open(location.href, '_blank')`.
+`✕` 버튼으로 세션 내 닫기 가능.
+
+**등록 위치**: `src/app/layout.tsx` — `<body>` 최상단, `<LenisScrollRestoration />` 바로 위.
+
+**비활성화 방법 (WebView 업데이트 시)**:
+1. `KakaoTalkBanner.tsx` 상단 `const KAKAO_BANNER_ENABLED = true;` → `false` 로 변경 (즉시 배너 비노출)
+2. 완전 제거 시: `layout.tsx`에서 `<KakaoTalkBanner />` 제거 → `KakaoTalkBanner.tsx` 삭제
+   → `layout/index.ts` export 라인 삭제 → `globals.css`의 `[V68.LegacyWebViewFallback]`
+   `@supports` 블록 전체 삭제 → `Footer.tsx`의 `id="site-footer"` 제거 (선택)
+
+**시효성**: 카카오톡 WebView 버전이 올라갈수록 `KAKAOTALK` UA를 가진 환경에서도 svh가 정상
+동작하므로 배너가 자연스럽게 불필요해짐. 배너를 끄는 시점은 실기기(카카오톡 인앱) 테스트에서
+레이아웃이 정상임을 확인한 후.
+
+**UserAgent 감지 안정성**: `KAKAOTALK` 문자열은 오랫동안 유지된 카카오톡 UA 규약으로 안정적.
+다만 카카오톡이 UA 문자열을 변경하면 감지가 깨질 수 있음. 그 경우 CSS.supports 방식으로 전환:
+```ts
+// UserAgent 대신 기능 감지 방식으로 교체 가능:
+const supportsSvh = typeof CSS !== 'undefined' && CSS.supports('height', '100svh');
+setIsKakao(!supportsSvh);
+```
+
+---
+
+### 관련 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/app/globals.css` | `@supports not (height: 100svh)` 블록 추가 (최하단) |
+| `src/components/layout/Footer.tsx` | `<footer id="site-footer">` 추가 |
+| `src/components/layout/KakaoTalkBanner.tsx` | 신규 생성 |
+| `src/components/layout/index.ts` | KakaoTalkBanner export 추가 |
+| `src/app/layout.tsx` | `<KakaoTalkBanner />` 추가 |
+
+---
+
+## ✅ 2026-07-04: V68 — 모바일 정방향 스크롤 시 섹션 요소 미표시 버그 수정
+
+**증상**: 모바일 정방향 스크롤 시 공명 문장·메시지·포후 카드·스토리 텍스트/배경이 표시되지 않음. 역스크롤(컨트롤 바 등장) 시에는 정상.
+
+**근본 원인**: `footerHeight`가 `useGSAP` deps에 포함되어 있어, 모바일 크롬 컨트롤 바 전환 시 `paddingBottom: calc(100lvh - 100svh + ...)` 값이 미세하게 변동(~20-34px) → 스크롤 중 전체 타임라인 재빌드 발생 → 이미 지나간 GSAP 트윈이 초기 상태(opacity:0)로 리셋됨.
+
+**수정 내용** (`GlobalInteractionStage.tsx`):
+- **Fix 1 (근본)**: `footerHeight`를 `useGSAP` deps에서 제거. `lastBuiltFooterHeightRef`로 마지막 빌드 시 값 기록. 별도 게이트 이펙트(`>60px` 차이 시에만 재빌드)로 실제 레이아웃 변화만 반응.
+- **Fix 2 (보조)**: `visualViewport` resize 핸들러에서 `interactionMode === 'touch'` 시 즉시 리턴. V67 svh 전환 이후 터치에서 이 핸들러의 역할이 없어졌으므로 차단. deps `[]` → `[interactionMode]`.
+- **검증**: Eruda 진단 로그(`[V68.Diag] rebuild`)로 실기기에서 재빌드 횟수 확인 → 초기 1회만 발생 확인 후 로그 제거.
+
+---
+
+## ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + 코드 품질
 
 - **`syncNemoCoordinates` `--nemo-b` 오차**: `stableVH?` 인자 추가, `window.innerHeight` → `stableVH ?? window.innerHeight`. MessageSection clip-path 기준 불일치 해소.
 - **`nemo.ts` vh2px 변환**: `vh2px(v)` 헬퍼 추가. `n≥100`(풀블리드) → `stableLVH`, else → `svhPx`. GSAP height 트윈 3곳 적용.
