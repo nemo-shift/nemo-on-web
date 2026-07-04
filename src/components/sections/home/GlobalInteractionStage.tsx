@@ -37,6 +37,18 @@ const getStableVH = (): number => {
   return h || window.innerHeight;
 };
 
+// [V67.ViewportFix] 풀블리드 커버용 안정 높이(100lvh) 실측 — 크롬 접힘 상태에서도 전체 덮음
+const getStableLVH = (): number => {
+  if (typeof document === 'undefined') return 0;
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;height:100lvh;width:0;visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h || window.innerHeight;
+};
+
 // [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -251,6 +263,7 @@ export const GlobalInteractionStage = ({
             } else {
               console.error('[V66.Phase1] Max retries exceeded (footer). Force-releasing overlay.');
               setShowOverlay(false);
+              setIsTimelineReady(true);
             }
             return;
           }
@@ -263,6 +276,7 @@ export const GlobalInteractionStage = ({
             } else {
               console.error('[V66.Phase1] Max retries exceeded (sections). Force-releasing overlay.');
               setShowOverlay(false);
+              setIsTimelineReady(true);
             }
             return;
           }
@@ -292,8 +306,9 @@ export const GlobalInteractionStage = ({
 
           // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom으로 대체되었습니다.
           // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
-          // [V67.ViewportFix] innerHeight(크롬 상태에 따라 가변) 대신 svh 실측값 사용
+          // [V67.ViewportFix] innerHeight(크롬 상태에 따라 가변) 대신 svh/lvh 실측값 사용
           const stableVH = getStableVH();
+          const stableLVH = getStableLVH();
           const finalY = measuredTotalHeight - stableVH;
 
           ScrollTrigger.refresh();
@@ -322,7 +337,7 @@ export const GlobalInteractionStage = ({
               const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
 
               if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
-                syncNemoCoordinates(nemoHandle.current?.nemoEl || null);
+                syncNemoCoordinates(nemoHandle.current?.nemoEl || null, stableVH);
               }
 
             }
@@ -346,8 +361,9 @@ export const GlobalInteractionStage = ({
             initialNemoPos: measuredPos || undefined,
             // [V66.Phase3-2] 실측 오프셋 데이터를 엔진에 주입합니다.
             sectionOffsets: sectionOffsetsMap,
-            // [V67.ViewportFix] svh 실측값을 모든 빌더에 보급합니다.
+            // [V67.ViewportFix] svh/lvh 실측값을 모든 빌더에 보급합니다.
             stableVH,
+            stableLVH,
           };
 
 

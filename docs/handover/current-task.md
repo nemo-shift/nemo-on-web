@@ -3,7 +3,98 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+## [최신] ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + MAX_RETRY 폴백 강화 + 미사용 상수 정리
+
+### 💎 주요 달성 성과
+
+- **syncNemoCoordinates `--nemo-b` 오차 수정** (`global-interaction-utils.ts`):
+  - `stableVH?: number` 인자 추가. `window.innerHeight` → `stableVH ?? window.innerHeight`.
+  - `GlobalInteractionStage`의 onUpdate 클로저에서 `stableVH`를 전달하도록 수정.
+  - 효과: 모바일 크롬 접힌 상태(실사용 대부분)에서 MessageSection clip-path 기준값과 클리핑 대상(100svh)이 일치.
+
+- **nemo.ts vh2px 변환 헬퍼** (`builders/nemo.ts`):
+  - `svhPx` import 추가.
+  - `vh2px(v)` 헬퍼: `n >= 100`(풀블리드) → `stableLVH` 기준, 나머지 → `svhPx(n, stableVH)`.
+  - GSAP `tl.to` height 3곳(`sections.forEach`, `bridgeLayout.h`, `resonanceLayout.h`) 에 `vh2px` 적용.
+  - 효과: 빌드 시점 `window.innerHeight` 박제 제거 → 뷰포트 변화에 무관한 안정 px.
+
+- **`getStableLVH` + `stableLVH` 주입** (`GlobalInteractionStage.tsx`, `types.ts`):
+  - DOM probe div로 `100lvh` 실측하는 `getStableLVH()` 추가.
+  - `GlobalBuilderOptions`에 `stableLVH: number` 필드 추가.
+  - `runMeasurementAndBuild` 내부에서 `stableLVH` 계산 후 `builderOptions`에 주입.
+
+- **MAX_RETRY 폴백 강화** (`GlobalInteractionStage.tsx`):
+  - 기존: MAX_RETRY 초과 시 `setShowOverlay(false)`만.
+  - 추가: `setIsTimelineReady(true)` 동시 호출 → HomeStage opacity 가드 해제 + 내부 GSAP 요소 숨김 방지.
+
+- **히어로 뷰 `vh` → `svh` 잔여분 수정**:
+  - `HeroOffTabletView.tsx`: `bottom: '-30vh'` → `'-30svh'`
+  - `HeroOnMobileView.tsx`: `bottom: '16vh'` → `'16svh'`, `translate(40px, 1vh)` → `1svh`
+  - `HeroOnTabletView.tsx`: `bottom: '15vh'` → `'15svh'`, `translate(0px, -4vh)` → `-4svh`
+  - `HeroTabletView.tsx`: 스페이서 5곳 (`15/10vh`, `40vh`, `3vh`, `5vh`) → `svh`
+
+- **Footer 고정 높이 → 최소 높이** (`Footer.tsx`):
+  - `h-[450px]` 등 → `min-h-[450px]` (모든 브레이크포인트 동일 적용).
+  - 효과: `paddingBottom: calc(100lvh - 100svh + safe-area)` 가 최대 ~120px일 때 콘텐츠가 border-box 내에서 눌리지 않음.
+
+- **`minHeight: '100vh'` → `'100svh'`** (`builders/scroll.ts`):
+  - `gsap.set('#home-stage', { minHeight: '100svh' })` 로 정책 통일.
+
+- **`NEMO_SIZE` 미사용 vh 상수 삭제** (`constants/interaction.ts`):
+  - `BORDER_BOX_H: '48vh'`, `TEAL_BOX_H: '62vh'`, `IMAGE_H: '52vh'` 삭제 (grep 확인, 소비처 없음).
+
+### 🔧 수정된 파일 목록
+
+| # | 파일 | 변경 내용 |
+|---|------|----------|
+| 1 | `global-interaction-utils.ts` | `syncNemoCoordinates` `stableVH?` 인자, `--nemo-b` 수정 |
+| 2 | `types.ts` | `GlobalBuilderOptions`에 `stableLVH: number` 추가 |
+| 3 | `GlobalInteractionStage.tsx` | `getStableLVH`, `stableLVH` 주입, onUpdate stableVH 전달, MAX_RETRY setIsTimelineReady 추가 |
+| 4 | `builders/nemo.ts` | `svhPx` import, `vh2px` 헬퍼, height 트윈 3곳 적용 |
+| 5 | `hero/views/HeroOffTabletView.tsx` | `bottom: '-30svh'` |
+| 6 | `hero/views/HeroOnMobileView.tsx` | `16svh`, `1svh` |
+| 7 | `hero/views/HeroOnTabletView.tsx` | `15svh`, `-4svh` |
+| 8 | `hero/views/HeroTabletView.tsx` | 스페이서 5곳 `svh` |
+| 9 | `layout/Footer.tsx` | `h-[450px]` → `min-h-[450px]` (전 브레이크포인트) |
+| 10 | `builders/scroll.ts` | `minHeight: '100svh'` |
+| 11 | `constants/interaction.ts` | `NEMO_SIZE` 미사용 vh 상수 3개 삭제 |
+
+### 🧩 검증 항목
+
+- [ ] 실기기(iOS Safari, Android Chrome): 크롬 접힌 상태 새로고침 vs 최상단 새로고침 → 메시지 클립·네모 크기 동일성 확인
+- [ ] 히어로 태블릿 모드 레이아웃 스페이서 정상 동작 확인
+
+---
+
+## ✅ 2026-07-04: 코드 품질 — 무한 재시도 루프 방어, 인터벌 누수 수정, 주석 불일치 정리
+
+### 💎 주요 달성 성과
+
+- **무한 재시도 루프 방어** (`GlobalInteractionStage.tsx`):
+  - `MAX_RETRY = 5`, `retryCountRef` 추가.
+  - 외부 트리거(초기 마운트, 리사이즈)에서 카운터 리셋.
+  - 재시도 2곳(`footer height === 0`, `allRendered === false`)에 가드 적용: 5회 초과 시 `setRevision` 중단 + `setShowOverlay(false)` 강제 해제.
+  - 빌드 성공(`setIsTimelineReady(true)`) 시 카운터 리셋.
+  - 효과: 섹션 ID 오타 등 정적 오류로 영영 렌더되지 않아도 오버레이(z-index 9000)가 사용자 조작을 영구 차단하는 상황 방지.
+
+- **useScramble 인터벌 누수 수정** (`src/hooks/useScramble.ts`):
+  - `useEffect` cleanup에 `clearInterval(intervalRef.current)` 추가.
+  - 효과: 스크램블 도중 페이지 이동 시 인터벌이 언마운트된 컴포넌트의 state를 계속 업데이트하던 메모리 누수 차단.
+
+- **DeviceContext 주석 불일치 수정** (`src/context/DeviceContext.tsx`):
+  - `useDevice`가 실제로는 `throw`하는데 "Fallback 제공"이라고 잘못 기술된 주석 제거.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `MAX_RETRY=5`, `retryCountRef`, 재시도 가드 2곳, 오버레이 강제 해제 |
+| `src/hooks/useScramble.ts` | 언마운트 시 `clearInterval` cleanup 추가 |
+| `src/context/DeviceContext.tsx` | `throw`와 모순되는 "Fallback 제공" 주석 제거 |
+
+---
+
+## ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
 
 ### 💎 주요 달성 성과
 

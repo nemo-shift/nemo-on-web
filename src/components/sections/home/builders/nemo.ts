@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import { SharedNemoHandle } from '../SharedNemo';
 import { FallingKeywordsHandle } from '../FallingKeywordsStage';
 import { PainSectionHandle } from '../pain/PainSection';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 
 /**
  * [V11.55] buildNemoTimeline (Nemo Master Engine)
@@ -37,6 +37,18 @@ export function buildNemoTimeline(
 
   const isTouch = options.interactionMode === 'touch';
   const sections = NEMO_JOURNEY_SECTIONS;
+
+  // [V67.ViewportFix] vh 문자열 → 안정 px 변환 헬퍼
+  // n >= 100 (풀블리드 커버) → lvh 기준, else → svh 기준
+  const vh2px = (v: string | number): string | number => {
+    if (typeof v === 'string' && v.endsWith('vh')) {
+      const n = parseFloat(v);
+      return n >= 100
+        ? (n / 100) * options.stableLVH
+        : svhPx(n, options.stableVH);
+    }
+    return v;
+  };
 
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
   // [V11.Macro_Final] ForWho 인트로 이미지는 해당 섹션 전까진 절대 노출되지 않도록 강제 초기화
@@ -112,7 +124,7 @@ export function buildNemoTimeline(
 
     tl.to(el, {
       width: cfg.width,
-      height: cfg.height,
+      height: vh2px(cfg.height),
       borderRadius: cfg.borderRadius,
       backgroundColor: cfg.backgroundColor,
       border: cfg.border,
@@ -186,7 +198,7 @@ export function buildNemoTimeline(
   const bridgeLayout = NEMO_RESPONSIVE_LAYOUT.BRIDGE[mode];
   tl.to(el, {
     width: bridgeLayout.w,
-    height: bridgeLayout.h,
+    height: vh2px(bridgeLayout.h),
     left: bridgeLayout.left,
     top: bridgeLayout.top,
     backgroundColor: '#F7F4F0',
@@ -201,7 +213,7 @@ export function buildNemoTimeline(
   
   tl.to(el, {
     width: resonanceLayout.w,
-    height: resonanceLayout.h,
+    height: vh2px(resonanceLayout.h),
     left: resonanceLayout.left,
     top: resonanceLayout.top,
     backgroundColor: COLORS.TEXT.LIGHT,

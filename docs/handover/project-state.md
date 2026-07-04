@@ -1,4 +1,16 @@
-## [최신] ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+## [최신] ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + 코드 품질
+
+- **`syncNemoCoordinates` `--nemo-b` 오차**: `stableVH?` 인자 추가, `window.innerHeight` → `stableVH ?? window.innerHeight`. MessageSection clip-path 기준 불일치 해소.
+- **`nemo.ts` vh2px 변환**: `vh2px(v)` 헬퍼 추가. `n≥100`(풀블리드) → `stableLVH`, else → `svhPx`. GSAP height 트윈 3곳 적용.
+- **`getStableLVH` + `stableLVH` 주입**: DOM probe로 `100lvh` 실측. `GlobalBuilderOptions`에 필드 추가. 모든 빌더에 보급.
+- **MAX_RETRY 폴백 강화**: `setShowOverlay(false)` 에 `setIsTimelineReady(true)` 추가 → HomeStage opacity 가드까지 해제.
+- **히어로 뷰 잔여 `vh` → `svh`**: `HeroOffTabletView` / `HeroOnMobileView` / `HeroOnTabletView` / `HeroTabletView` 총 8곳.
+- **Footer `h` → `min-h`**: `h-[450px]` 계열 전부 `min-h-[450px]`로 교체 — `paddingBottom` calc와 충돌 방지.
+- **`minHeight: '100svh'`**: `builders/scroll.ts` 정책 통일.
+- **`NEMO_SIZE` 미사용 상수 삭제**: `BORDER_BOX_H`, `TEAL_BOX_H`, `IMAGE_H` 제거 (소비처 없음 확인).
+- **코드 품질**: `MAX_RETRY=5` + `retryCountRef` 무한 재시도 방어, `useScramble` clearInterval cleanup, DeviceContext 주석 불일치 제거.
+
+## ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
 
 - **핵심**: 모바일 브라우저 크롬(주소창/컨트롤바) 등장/숨김에 따른 `window.innerHeight` 변동이 GSAP 타임라인 기하학을 흔드는 근본 원인을 `svh` 단위로 봉쇄.
 - **CSS 통일**: `h-screen`/`100vh` → `h-[100svh]` (7개 섹션 파일 + HeroSection 램프)

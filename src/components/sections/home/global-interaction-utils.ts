@@ -301,15 +301,18 @@ export function getForWhoTargetRect(): { left: number; top: number; width: numbe
   };
 }
 
-export function syncNemoCoordinates(nemoEl: HTMLElement | null): void {
+export function syncNemoCoordinates(nemoEl: HTMLElement | null, stableVH?: number): void {
   if (!nemoEl) return;
-  
+
   const rect = nemoEl.getBoundingClientRect();
   const root = document.documentElement;
-  
+  // [V67.ViewportFix] innerHeight(크롬 접힘 = lvh) 대신 stableVH(svh) 사용
+  // MessageSection clip-path(--nemo-b 기반)가 100svh 기준이므로 일치시킴
+  const vh = stableVH ?? window.innerHeight;
+
   root.style.setProperty('--nemo-t', `${rect.top}px`);
   root.style.setProperty('--nemo-r', `${window.innerWidth - rect.right}px`);
-  root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
+  root.style.setProperty('--nemo-b', `${vh - rect.bottom}px`);
   root.style.setProperty('--nemo-l', `${rect.left}px`);
 }
 

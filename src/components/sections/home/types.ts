@@ -42,6 +42,8 @@ export interface GlobalBuilderOptions {
   };
   // [V67.ViewportFix] 브라우저 크롬 상태와 무관한 안정 뷰포트 높이(100svh) px 실측값
   stableVH: number;
+  // [V67.ViewportFix] 풀블리드 커버용 (100lvh) — 크롬 접힘 상태에서도 전체 화면을 덮어야 할 때 사용
+  stableLVH: number;
 }
 
 /**

@@ -88,7 +88,7 @@ export default function HeroOffTabletView({
         id="hero-tablet-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '-30vh', 
+          bottom: '-30svh',
           left: '50%', 
           transform: 'translateX(-50%)'
         }}

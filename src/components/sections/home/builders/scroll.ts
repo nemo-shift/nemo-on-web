@@ -27,7 +27,7 @@ export function buildSectionScrollTimeline(
   const offsets = options.sectionOffsets || {};
 
   // 1. 기초 레이아웃 영점 보정
-  gsap.set('#home-stage', { minHeight: '100vh' });
+  gsap.set('#home-stage', { minHeight: '100svh' });
   gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
   // 2. 히어로 콘텐츠 패러랙스 상승 (무대 비우기)

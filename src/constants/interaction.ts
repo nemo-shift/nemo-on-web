@@ -199,18 +199,15 @@ export const NEMO_SIZE = {
   INITIAL_W: 56,
   INITIAL_H: 56,
   INITIAL_BORDER_RADIUS: 6,
-  
+
   // 페인 섹션 테두리 박스 (레거시 호환용 - 기본값)
   BORDER_BOX_W: '18vw',
-  BORDER_BOX_H: '48vh',
-  
+
   // 메시지 세로 틸 박스
   TEAL_BOX_W: '16vw',
-  TEAL_BOX_H: '62vh',
-  
+
   // 포후 가로 이미지 프레임
   IMAGE_W: '72vw',
-  IMAGE_H: '52vh',
 };
 
 // [V11.45] 페인 섹션 기기별 최적 레이아웃 매트릭스 (w, h, left, top)
