@@ -275,3 +275,8 @@ html.custom-cursor-active *::after {
     padding-bottom: 80px !important;
   }
 }
+
+/* dvh와 svh는 같은 시기에 함께 지원되기 시작한 단위 — dvh 미지원 환경은 svh 미지원과 동일. */
+@supports not (height: 100dvh) {
+  .h-\[100dvh\] { height: 100vh !important; }
+}

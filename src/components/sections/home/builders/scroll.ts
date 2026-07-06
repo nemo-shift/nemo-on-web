@@ -31,7 +31,8 @@ export function buildSectionScrollTimeline(
   // "실시간 뷰포트 창" 자체이므로 예외적으로 dvh 사용. svh는 측정용
   // (finalY, 섹션 높이)에만 쓰고, 이 창의 시각적 채움에는 dvh가 맞다.
   // 스크롤 중 주소창이 접히며 남던 하얀 공백(V71) 수정.
-  gsap.set('#home-stage', { minHeight: '100dvh' });
+  const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
+  gsap.set('#home-stage', { minHeight: supportsDvh ? '100dvh' : '100svh' });
   gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
   // 2. 히어로 콘텐츠 패러랙스 상승 (무대 비우기)

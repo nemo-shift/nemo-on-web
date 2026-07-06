@@ -9,7 +9,8 @@ export const BrandStorySection = () => {
       className="relative w-full h-[400svh] overflow-visible"
       style={{ backgroundColor: 'transparent' }}
     >
-      <div className="sticky top-0 left-0 w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
+      {/* [V71] 구도 상자는 측정에 미관여(외곽 트랙이 측정 담당) → 실시간 뷰포트 채움을 위해 dvh 사용. 외곽 트랙·finalY의 svh는 유지. */}
+      <div className="sticky top-0 left-0 w-full h-[100dvh] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
         {/* [NEW] 물리적 분할 배경 패널 (화이트) */}
         <div 
           id="story-bg-white"
