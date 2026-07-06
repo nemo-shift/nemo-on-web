@@ -56,26 +56,26 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
         maxWidth: 360,                                 // [V75/STEP E] 확대
       }}
     >
-      {/* [V75/STEP E] 우측 상단 X — "다시 보지 않기" (본체 클릭과 역할 분리) */}
+      {/* [V75/STEP E] 우측 상단 — "다시 보지 않기" 텍스트 링크 */}
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); setHasDismissedScrollNudge(true); }}
-        aria-label="다시 보지 않기"
         style={{
           position: 'absolute',
-          top: 10,
-          right: 10,
+          top: 12,
+          right: 14,
           background: 'transparent',
           border: 'none',
-          color: 'rgba(240,235,227,0.5)',
+          color: 'rgba(240,235,227,0.4)',
           cursor: 'pointer',
-          padding: 4,
-          lineHeight: 0,
+          padding: 0,
+          fontSize: 11,
+          letterSpacing: '0.02em',
+          textDecoration: 'underline',
+          textUnderlineOffset: 2,
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        다시 보지 않기
       </button>
 
       <div
