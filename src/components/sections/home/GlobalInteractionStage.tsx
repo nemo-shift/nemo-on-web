@@ -17,6 +17,7 @@ import {
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
 import GlobalScrollHint from './GlobalScrollHint';
+import ScrollOnboardingNudge from './ScrollOnboardingNudge';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
@@ -692,9 +693,13 @@ export const GlobalInteractionStage = ({
         document.body
       )}
       
-      {/* 3. Global Scroll Hint (통합 가이드) */}
+      {/* 3. Global Scroll Hint (통합 가이드) + 온보딩 넛지 배너 */}
       {mounted && typeof document !== 'undefined' && createPortal(
         <GlobalScrollHint />,
+        document.body
+      )}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <ScrollOnboardingNudge />,
         document.body
       )}
 

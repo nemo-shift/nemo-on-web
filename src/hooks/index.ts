@@ -1,4 +1,5 @@
 export { default as useParticles } from './useParticles';
+export * from './useScrollIdleNudge';
 export { default as useLenisScroll } from './useLenisScroll';
 export * from './useHeroSequence';
 export * from './useScramble';

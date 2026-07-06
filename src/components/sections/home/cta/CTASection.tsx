@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
 import { gsap } from 'gsap';
@@ -10,14 +11,18 @@ export const CTASection = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'complete'>('idle');
   const [activeLogs, setActiveLogs] = useState<string[]>([]);
   const router = useRouter();
+  const { setIsTransitioning } = useHeroContext();
 
   // [Step 9-3] 최종 리다이렉트 실행 함수
   const performRedirect = useCallback(() => {
     setStatus('complete');
-    // 스크롤 잠금 해제 후 이동
+    // [V74] Lenis 재가동 + 컨텍스트 리셋 — 목적지 페이지 스크롤 정상화, 뒤로가기 시 힌트 박제 방지
+    const lenis = (window as any).lenis;
+    if (lenis) lenis.start();
+    setIsTransitioning(false);
     document.body.style.overflow = 'auto';
     router.push('/diagnosis');
-  }, [router]);
+  }, [router, setIsTransitioning]);
 
   // [Step 9-2] 로그 시퀀스 처리 함수
   const startLogSequence = useCallback((type: 'yes' | 'no') => {
@@ -123,9 +128,12 @@ export const CTASection = () => {
   useEffect(() => {
     if (status !== 'idle' && status !== 'complete') {
       const type = status === 'loading' ? 'yes' : 'no';
-      
-      // [Step 9-3] 스크롤 잠금 활성화
+
+      // [V74] 실제 스크롤 잠금 — Lenis는 body overflow를 무시하므로 lenis.stop()으로 입력 차단
+      const lenis = (window as any).lenis;
+      if (lenis) lenis.stop();
       document.body.style.overflow = 'hidden';
+      setIsTransitioning(true);
 
       const timeout = setTimeout(() => {
         gsap.to('#cta-terminal-logs', {
@@ -137,11 +145,11 @@ export const CTASection = () => {
 
       return () => {
         clearTimeout(timeout);
-        // 컴포넌트 언마운트 시(이동 시) 스크롤 잠금 확실히 해제
+        // 컴포넌트 언마운트 시 body overflow만 해제 — lenis.start()는 performRedirect에서 처리
         document.body.style.overflow = 'auto';
       };
     }
-  }, [status, startLogSequence]);
+  }, [status, startLogSequence, setIsTransitioning]);
 
   return (
     <section 
