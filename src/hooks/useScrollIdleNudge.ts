@@ -11,6 +11,7 @@ interface UseScrollIdleNudgeOptions {
 interface UseScrollIdleNudgeResult {
   shouldShow: boolean;
   dismiss: () => void; // [V74/STEP9] 수동 닫기 — 클릭/터치 핸들러에서 호출
+  isRepeat: boolean;   // [V75/STEP A] 최초 등장 여부 — 카피 분기용
 }
 
 /**
@@ -26,13 +27,16 @@ export function useScrollIdleNudge({
   repeatDelayMs = 7000,
 }: UseScrollIdleNudgeOptions): UseScrollIdleNudgeResult {
   const [shouldShow, setShouldShow] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(false); // [V75/STEP A]
   const hasTriggeredOnceRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleTimer = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    const delay = hasTriggeredOnceRef.current ? repeatDelayMs : firstDelayMs;
+    const wasTriggeredBefore = hasTriggeredOnceRef.current;
+    const delay = wasTriggeredBefore ? repeatDelayMs : firstDelayMs;
     timerRef.current = setTimeout(() => {
+      setIsRepeat(wasTriggeredBefore); // [V75/STEP A] 등장 시점 기준으로 판단
       setShouldShow(true);
       hasTriggeredOnceRef.current = true;
     }, delay);
@@ -65,5 +69,5 @@ export function useScrollIdleNudge({
     };
   }, [active, scheduleTimer, dismiss]);
 
-  return { shouldShow, dismiss };
+  return { shouldShow, dismiss, isRepeat };
 }

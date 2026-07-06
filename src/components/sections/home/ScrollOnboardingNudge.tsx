@@ -11,14 +11,22 @@ import { INTERACTION_Z_INDEX } from '@/constants/interaction';
  * 여정 진행률과 무관한 독립 오버레이.
  *
  * ⚠️ 카피 초안 — 배포 전 최종 문구 확인 필요.
- * ⚠️ background: rgba(10,14,13,0.55)는 다크 히어로 배경 기준 임시값.
+ * ⚠️ background는 다크 히어로 배경 기준값.
  *    라이트 배경 구간에서 배너가 뜰 가능성이 있으면 --scroll-hint-fg 방식의
  *    반전 처리가 필요함 — 발견 시 사용자에게 보고 후 지시받을 것.
  */
 export default function ScrollOnboardingNudge(): React.ReactElement | null {
-  const { isOn, isScrollable, isTransitioning } = useHeroContext();
-  const active = isOn && isScrollable && !isTransitioning;
-  const { shouldShow, dismiss } = useScrollIdleNudge({ active });
+  const {
+    isOn,
+    isScrollable,
+    isTransitioning,
+    hasDismissedScrollNudge,
+    setHasDismissedScrollNudge,
+  } = useHeroContext();
+
+  // [V75/STEP E] hasDismissedScrollNudge가 true면 active 자체를 끔 — 타이머도 중단됨
+  const active = isOn && isScrollable && !isTransitioning && !hasDismissedScrollNudge;
+  const { shouldShow, dismiss, isRepeat } = useScrollIdleNudge({ active });
 
   if (!active) return null;
 
@@ -40,12 +48,36 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
         pointerEvents: shouldShow ? 'auto' : 'none',
         cursor: 'pointer',
         textAlign: 'center',
-        padding: '28px 32px',
+        padding: '34px 40px',                          // [V75/STEP E] 확대
         borderRadius: 12,
-        background: 'rgba(10,14,13,0.55)',
-        maxWidth: 320,
+        background: 'rgba(8,12,11,0.92)',              // [V75/STEP B]
+        border: '1px solid rgba(93,202,165,0.18)',     // [V75/STEP B]
+        boxShadow: '0 8px 32px rgba(0,0,0,0.35)',      // [V75/STEP B]
+        maxWidth: 360,                                 // [V75/STEP E] 확대
       }}
     >
+      {/* [V75/STEP E] 우측 상단 X — "다시 보지 않기" (본체 클릭과 역할 분리) */}
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setHasDismissedScrollNudge(true); }}
+        aria-label="다시 보지 않기"
+        style={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          background: 'transparent',
+          border: 'none',
+          color: 'rgba(240,235,227,0.5)',
+          cursor: 'pointer',
+          padding: 4,
+          lineHeight: 0,
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+
       <div
         style={{
           width: 34,
@@ -70,8 +102,9 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
           }}
         />
       </div>
+      {/* [V75/STEP A] 최초/재등장 카피 분기 */}
       <p style={{ fontSize: 16, fontWeight: 500, color: '#F0EBE3', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
-        스크롤해서 이야기를 시작해보세요
+        {isRepeat ? '스크롤해서 이야기를 이어가보세요' : '스크롤해서 이야기를 시작해보세요'}
       </p>
       <p style={{ fontSize: 13, color: 'rgba(240,235,227,0.55)', margin: 0, fontFamily: 'var(--font-eb-garamond, inherit)' }}>
         브랜드가 켜지는 과정을 함께 따라가 보세요

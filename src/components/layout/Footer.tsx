@@ -175,25 +175,8 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         )}
       >
         <div className="flex items-center gap-6 text-sm font-medium tracking-wide">
-          <a 
-            href="https://threads.net" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-[#0891b2] transition-colors"
-          >
-            Threads
-          </a>
-          <a 
-            href="https://instagram.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-[#0891b2] transition-colors"
-          >
-            Instagram
-          </a>
-          {/* [V11.33] 모바일에서 구분선 숨김 */}
-          <span className="w-[1px] h-3 bg-white/20 mx-1 hidden tablet:block" />
-          <Link 
+          {/* [V75/STEP C] Threads/Instagram 플레이스홀더 제거 — 실제 계정 확정 후 재추가 */}
+          <Link
             href="/privacy"
             className="hover:text-[#0891b2] transition-colors"
           >
