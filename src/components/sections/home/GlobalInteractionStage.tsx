@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -20,8 +20,13 @@ import GlobalScrollHint from './GlobalScrollHint';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
-import { DEBUG_CONFIG } from '@/constants/debug'; // [완성후-삭제]
-import InteractionDebugger from './InteractionDebugger'; // [완성후-삭제]
+// [V69.LaunchReady] STEP 5 — InteractionDebugger dev 전용 dynamic import (프로덕션 번들 제외)
+import dynamic from 'next/dynamic';
+const IS_DEV = process.env.NODE_ENV === 'development';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const InteractionDebugger: React.ComponentType<any> = IS_DEV
+  ? dynamic(() => import('./InteractionDebugger'), { ssr: false })
+  : () => null;
 
 import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
@@ -209,10 +214,14 @@ export const GlobalInteractionStage = ({
     }
   }, [isScrollable]);
 
-  if (mounted) {
+  // [V69.LaunchReady] STEP 6 — 렌더 본문 DOM 조작 → useLayoutEffect 이동 (React 규칙 준수)
+  // ⚠️ 이동 후 홈 새로고침 시 첫 페인트 FOUC 발생 여부를 반드시 눈으로 확인할 것.
+  //    깜빡임 발생 시 이 블록을 되돌리고 원인 보고 후 중단한다.
+  useLayoutEffect(() => {
+    if (!mounted) return;
     const isRestoring = (currProgressRef.current || 0) > 0.001;
     initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoring);
-  }
+  }, [mounted, isOn, isMobileView]);
 
   useGSAP(() => {
     const logo = logoHandle.current;
@@ -454,7 +463,7 @@ export const GlobalInteractionStage = ({
 
               ScrollTrigger.refresh();
               isRestoringRef.current = false;
-              console.log('[Interaction/V33] Restoration Success');
+              if (process.env.NODE_ENV !== 'production') console.log('[Interaction/V33] Restoration Success');
             });
           } else {
             isRestoringRef.current = false;
@@ -477,7 +486,7 @@ export const GlobalInteractionStage = ({
 
     return () => {
       setIsTimelineReady(false);
-      console.log('[Interaction/V33] Cleanup Context');
+      if (process.env.NODE_ENV !== 'production') console.log('[Interaction/V33] Cleanup Context');
 
       if (rafId.current) cancelAnimationFrame(rafId.current);
       if (layoutTimerRef.current) { 
@@ -494,7 +503,7 @@ export const GlobalInteractionStage = ({
         wrapper.style.transform = '';
       }
 
-      console.log('[Interaction/Debug] Cleanup - Triggering ctx.revert()');
+      if (process.env.NODE_ENV !== 'production') console.log('[Interaction/Debug] Cleanup - Triggering ctx.revert()');
       ctx.revert();
       gsap.set('#home-stage', { clearProps: 'transform,position' });
 

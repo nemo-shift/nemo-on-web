@@ -1,4 +1,48 @@
-## [최신] ✅ 2026-07-04: V68.KakaoBanner — 카카오톡 인앱 브라우저 WebView 대응
+## [최신] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료
+
+**브랜치**: `fix/mobile-scroll-bugs`
+**목표**: 배포 전 P0(무음 데이터 손실·SEO 부재)·P1(코드 품질) 항목 일괄 정리 — STEP 1~9 전체 완료.
+
+### STEP 1 — Contact Form 실제 발송 연결
+- `src/app/api/contact/route.ts` 신규: Resend SDK, 허니팟, IP 속도 제한(3/min), 파일 첨부 처리.
+- `ContactForm.tsx` 전면 재작성: FormData POST, 로딩/에러 상태, 폴백 이메일 링크.
+- `.env.local`: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL`.
+
+### STEP 2 — 개인정보처리방침 페이지
+- `src/app/privacy/page.tsx` 신규 (서버 컴포넌트, SubPageLayout, metadata 포함).
+- ⚠️ 배포 전 법무 검토 필수.
+
+### STEP 3 — Error Boundaries 3종
+- `error.tsx` / `not-found.tsx` / `global-error.tsx` 신규 생성.
+
+### STEP 4 — SEO / OG / sitemap / robots
+- `layout.tsx` 루트 metadata 추가 (metadataBase, OG, twitter, favicon).
+- 9개 페이지 고유 metadata export 추가.
+- `sitemap.ts` + `robots.ts` 신규.
+
+### STEP 5 — 디버그 코드 제거
+- `GlobalInteractionStage.tsx`: `DEBUG_CONFIG` 제거, `InteractionDebugger` → dev-only dynamic import, `console.log` 3곳 → production 가드.
+- `HeroContext.tsx`: `DEBUG_CONFIG` / `SHOULD_DEBUG` 의존성 완전 제거.
+
+### STEP 6 — 렌더 바디 사이드 이펙트 → useLayoutEffect
+- `GlobalInteractionStage.tsx` 렌더 바디 내 `initGlobalStyles(...)` → `useLayoutEffect` (deps: `[mounted, isOn, isMobileView]`). FOUC 없음 확인.
+
+### STEP 7 — SVH 폴백 정리 + 자동화 스크립트
+- `globals.css` dead rule 8개 제거, 반응형 프리픽스 `@media` 블록 추가.
+- `scripts/check-svh-fallback.sh` 신규 — 32개 클래스 전수 검증.
+- `package.json` `build` → `pnpm run check:svh && next build` 연결.
+
+### STEP 8 — 히어로 인라인 svh 폴백
+- `--unit-svh: 1svh` (`:root`) + `--unit-svh: 1vh` (`@supports not`) 추가.
+- `HeroSection.tsx` 인라인 `100svh`/`60svh`/`90svh` → `calc(var(--unit-svh) * N)`.
+
+### STEP 9 — 잔여 정리
+- `.gitattributes` 신규 (`* text=auto eol=lf`).
+- `KakaoTalkBanner.tsx` UA + `CSS.supports('height', '100svh')` 조합 감지로 개선.
+
+---
+
+## ✅ 2026-07-04: V68.KakaoBanner — 카카오톡 인앱 브라우저 WebView 대응
 
 ### 배경 및 원인
 카카오톡 인앱 브라우저(구형 WebView)는 `svh`/`lvh` CSS 단위(2022년 말 표준화)를 인식하지 못한다.
@@ -56,8 +100,17 @@ HeroSection, HeroOff/OnView 등에 `height: '100svh'`, `bottom: '-20svh'` 등 �
 #### 레이어 2 — 카카오톡 인앱 배너 (`src/components/layout/KakaoTalkBanner.tsx`)
 
 **동작**: `navigator.userAgent.includes('KAKAOTALK')` 로 인앱 브라우저 감지.
-감지 시 하단 고정 배너 표시. "브라우저로 열기" 클릭 → `window.open(location.href, '_blank')`.
-`✕` 버튼으로 세션 내 닫기 가능.
+감지 시 하단 고정 배너 표시. `✕` 버튼으로 세션 내 닫기 가능.
+
+**[왜 window.open()이 아닌 클립보드 복사인가]**
+카카오톡 WebView는 보안 정책상 `window.open()` 을 차단하거나 같은 인앱 브라우저 안에서 열어버림.
+프로그래밍으로 외부 브라우저를 강제 실행할 방법이 없어, URL 클립보드 복사 방식으로 대체.
+
+**UX 흐름**:
+1. 기본 상태: 안내 문구 + `[주소 복사]` 버튼
+2. 복사 클릭 시: `navigator.clipboard.writeText(url)` 실행 → 버튼 사라지고 안내 문구 전환
+   → "주소가 복사되었습니다. Chrome 또는 Safari를 열고 붙여넣어 주세요."
+3. `✕`: 양쪽 상태 모두에서 배너 닫기
 
 **등록 위치**: `src/app/layout.tsx` — `<body>` 최상단, `<LenisScrollRestoration />` 바로 위.
 

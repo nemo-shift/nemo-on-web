@@ -208,7 +208,7 @@ export default function HeroSection({
           position: 'relative',
           zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
           width: '100vw',
-          height: '100svh',
+          height: 'calc(var(--unit-svh) * 100)', // [V69.LaunchReady] STEP 8 — svh 인라인 폴백
           display: 'flex',
           flexDirection: 'column',
           // padding은 각 뷰에서 처리
@@ -240,7 +240,7 @@ export default function HeroSection({
               left: '50%',
               transform: 'translateX(-50%)',
               width: '100vw',
-              height: isMobileView ? '60svh' : '90svh', // [V67.ViewportFix] vh → svh
+              height: isMobileView ? 'calc(var(--unit-svh) * 60)' : 'calc(var(--unit-svh) * 90)', // [V69.LaunchReady] STEP 8
               zIndex: INTERACTION_Z_INDEX.Z_BASE_BG + 1,
               pointerEvents: 'none',
               filter: 'blur(60px)',

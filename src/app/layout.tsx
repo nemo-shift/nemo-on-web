@@ -61,9 +61,43 @@ const bebasNeue = Bebas_Neue({
   variable: '--font-bebas',
 });
 
+// [V69.LaunchReady] STEP 4 — SEO 메타데이터 / OG / sitemap / robots
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nemo-on.vercel.app';
+
 export const metadata: Metadata = {
-  title: '네모:ON',
-  description: '불안한 안녕, 기준은 언제나 당신 : 네모:ON 공식 웹사이트',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: '네모:ON — 브랜드를 켜다',
+    template: '%s | 네모:ON',
+  },
+  description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오',
+  openGraph: {
+    siteName: '네모:ON',
+    locale: 'ko_KR',
+    type: 'website',
+    images: [
+      {
+        url: '/nemoon_og.png',
+        width: 1200,
+        height: 630,
+        alt: '네모:ON — 브랜드를 켜다',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
+    other: [
+      { rel: 'android-chrome-192x192', url: '/favicon/android-chrome-192x192.png' },
+      { rel: 'android-chrome-512x512', url: '/favicon/android-chrome-512x512.png' },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,0 +1,6 @@
+# [V69.LaunchReady] STEP 9
+# 이후 커밋부터 LF 줄끝 자동 적용
+# 기존 CRLF 파일은 이 커밋에서 일괄 정규화하지 않음 (diff 오염 방지)
+# 일괄 정규화가 필요하면 별도 커밋으로 진행할 것
+
+* text=auto eol=lf

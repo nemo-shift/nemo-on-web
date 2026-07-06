@@ -3,7 +3,97 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + MAX_RETRY 폴백 강화 + 미사용 상수 정리
+## [최신] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료 (STEP 1–9)
+
+### 💎 주요 달성 성과
+
+**P0 — 무음 데이터 손실 / 사용자 보호**
+
+- **[STEP 1] Contact Form → Resend API Route** (`src/app/api/contact/route.ts` 신규):
+  - 기존 `onSubmitSuccess(form)` 호출만 하고 실제로 데이터를 아무 곳에도 전송하지 않던 버그 수정.
+  - Next.js API Route + Resend SDK로 이메일 발송. 수신 주소: `turn.nemoon@gmail.com`.
+  - 서버 사이드: 허니팟(`_hp`), IP 기반 속도 제한(3회/분, in-memory Map), 필드 검증, 파일 첨부 처리.
+  - Resend 인스턴스를 핸들러 내부에서 지연 초기화 (빌드 타임 ByteString 오류 방지).
+  - `ContactForm.tsx` 전면 재작성: FormData POST, 로딩/에러 상태, 폴백 이메일 링크 포함.
+  - `.env.local`: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL` 추가.
+
+- **[STEP 2] 개인정보처리방침 페이지** (`src/app/privacy/page.tsx` 신규):
+  - SubPageLayout 래퍼, 수집 항목·목적·보유 기간 표, Resend 위탁 처리, 정보주체 권리, 문의처 포함.
+  - 서버 컴포넌트, `metadata` export. ⚠️ 배포 전 법무 검토 필수 주석 첨부.
+
+- **[STEP 3] Error Boundaries** (신규 3종):
+  - `src/app/error.tsx`: `'use client'`, reset() 버튼, 홈 링크, CSS vars 인라인 스타일.
+  - `src/app/not-found.tsx`: 서버 컴포넌트, metadata export, 홈 버튼.
+  - `src/app/global-error.tsx`: `'use client'`, `<html><body>` 포함, 외부 의존성 없는 순수 인라인 스타일.
+
+**P0 — SEO / 배포 필수**
+
+- **[STEP 4] 메타데이터 / OG / 사이트맵 / robots**:
+  - `layout.tsx`: `metadataBase`, `title.template`, `openGraph`(nemoon_og.png), `twitter: 'summary_large_image'`, favicon 배열.
+  - 9개 페이지(`/`, `/about`, `/offerings`, `/offerings/studio`, `/offerings/lab`, `/diagnosis`, `/showcase`, `/contact`, `/privacy`)에 고유 `metadata` export 추가.
+  - `src/app/sitemap.ts` + `src/app/robots.ts` 신규 생성.
+
+**P1 — 코드 품질**
+
+- **[STEP 5] 디버그 코드 제거**:
+  - `GlobalInteractionStage.tsx`: `DEBUG_CONFIG` import 제거, `InteractionDebugger` → dev-only `next/dynamic`, `console.log` 3곳 → `!== 'production'` 가드.
+  - `HeroContext.tsx`: `DEBUG_CONFIG` import 제거, `SHOULD_DEBUG`/`IS_DEV` 제거 → `useState(false)`.
+
+- **[STEP 6] 렌더 바디 사이드 이펙트 이동**:
+  - `GlobalInteractionStage.tsx` 렌더 바디 내 `initGlobalStyles(...)` 호출 → `useLayoutEffect`로 이동 (deps: `[mounted, isOn, isMobileView]`).
+  - FOUC 없음 실기기 확인 완료.
+
+- **[STEP 7] SVH 폴백 정리 + 자동화**:
+  - `globals.css` V68 블록에서 dead rule 8개 제거 (실제 마크업에 없는 bare 클래스).
+  - 반응형 프리픽스(`mobile:`, `tablet-p:`, `tablet:`, `desktop-wide:`) 변형 폴백을 `@supports` 내부 `@media` 블록으로 추가.
+  - `scripts/check-svh-fallback.sh` 신규 — tsx/ts에서 svh arbitrary value 클래스 추출 후 globals.css 폴백 존재 여부 검증. 32개 클래스 전수 통과.
+  - `package.json`: `"check:svh"` 스크립트 추가, `"build"` → `"pnpm run check:svh && next build"` 연결.
+
+- **[STEP 8] 히어로 인라인 svh 폴백**:
+  - `:root { --unit-svh: 1svh; }` 추가 (`globals.css`).
+  - `@supports not` 블록: `:root { --unit-svh: 1vh; }` 추가.
+  - `HeroSection.tsx`: `height: '100svh'` → `'calc(var(--unit-svh) * 100)'`, 램프 `60svh`/`90svh` → calc 패턴.
+
+- **[STEP 9] 잔여 정리**:
+  - `.gitattributes` 신규: `* text=auto eol=lf` (이후 커밋부터 LF 줄끝 강제).
+  - `KakaoTalkBanner.tsx`: UA 단독 감지 → UA + `CSS.supports('height', '100svh')` 조합으로 개선 (svh 지원 WebView 버전에서 자동 비노출).
+
+### 🔧 수정된 파일 목록
+
+| # | 파일 | 변경 내용 |
+|---|------|----------|
+| 1 | `src/app/api/contact/route.ts` | 신규 — Resend 발송, 허니팟, 속도 제한 |
+| 2 | `src/components/sections/contact/ContactForm.tsx` | 전면 재작성 — FormData POST, 에러 상태 |
+| 3 | `src/components/sections/contact/ContactContainer.tsx` | `any` → `ContactFormData \| null` |
+| 4 | `.env.local` | RESEND_API_KEY, CONTACT_RECEIVER_EMAIL, NEXT_PUBLIC_SITE_URL |
+| 5 | `src/app/privacy/page.tsx` | 신규 — 개인정보처리방침 |
+| 6 | `src/app/error.tsx` | 신규 — 에러 바운더리 |
+| 7 | `src/app/not-found.tsx` | 신규 — 404 페이지 |
+| 8 | `src/app/global-error.tsx` | 신규 — 루트 레이아웃 크래시 대응 |
+| 9 | `src/app/layout.tsx` | metadataBase, OG, twitter, favicon, KakaoTalkBanner |
+| 10 | `src/app/page.tsx` + 서브 8개 페이지 | 고유 metadata export 추가 |
+| 11 | `src/app/sitemap.ts` | 신규 — 9개 정적 라우트 |
+| 12 | `src/app/robots.ts` | 신규 |
+| 13 | `src/components/sections/home/GlobalInteractionStage.tsx` | 디버그 제거, useLayoutEffect 이동 |
+| 14 | `src/context/HeroContext.tsx` | DEBUG_CONFIG 의존성 제거 |
+| 15 | `src/app/globals.css` | dead svh rule 제거, @media 블록 추가, --unit-svh 변수 |
+| 16 | `src/components/sections/home/hero/HeroSection.tsx` | --unit-svh 인라인 폴백 |
+| 17 | `scripts/check-svh-fallback.sh` | 신규 — SVH 폴백 자동 검증 |
+| 18 | `package.json` | check:svh 스크립트, build 연결, resend 의존성 |
+| 19 | `.gitattributes` | 신규 — LF 줄끝 강제 |
+| 20 | `src/components/layout/KakaoTalkBanner.tsx` | CSS.supports 기능 감지 추가 |
+
+### 🧩 배포 전 체크리스트
+
+- [ ] Resend 대시보드에서 실제 이메일 수신 확인 (테스트 발송)
+- [ ] `src/app/privacy/page.tsx` 법무 검토 후 내용 확정
+- [ ] Vercel 환경변수: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL` 등록
+- [ ] OG 이미지(`/public/nemoon_og.png`) 실제 SNS 공유 미리보기 확인
+- [ ] `pnpm build` 최종 통과 확인 (check:svh 포함)
+
+---
+
+## ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + MAX_RETRY 폴백 강화 + 미사용 상수 정리
 
 ### 💎 주요 달성 성과
 
