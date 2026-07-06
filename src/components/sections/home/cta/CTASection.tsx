@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
+import { markPushNav } from '@/lib/navigation';
 import { gsap } from 'gsap';
 import { DIAGNOSIS_SECTION_CONTENT } from '@/data/home/diagnosis';
 
@@ -13,16 +14,36 @@ export const CTASection = () => {
   const router = useRouter();
   const { setIsTransitioning } = useHeroContext();
 
+  // [V74.ScrollGuidance/STEP6] CTA 섹션 진입 즉시(클릭 전) 힌트/배너 억제.
+  // CTASection은 항상 DOM에 마운트되어 있으므로 IntersectionObserver로 뷰포트 진입 감지.
+  // 리셋은 홈 재진입(HomeStage 마운트) 시점에서 처리한다.
+  useEffect(() => {
+    const el = document.getElementById('section-cta');
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsTransitioning(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [setIsTransitioning]);
+
   // [Step 9-3] 최종 리다이렉트 실행 함수
   const performRedirect = useCallback(() => {
     setStatus('complete');
-    // [V74] Lenis 재가동 + 컨텍스트 리셋 — 목적지 페이지 스크롤 정상화, 뒤로가기 시 힌트 박제 방지
+    // [V74] Lenis 재가동 — 전 사이트 공유 인스턴스이므로 목적지 페이지 스크롤 정상화 필수
     const lenis = (window as any).lenis;
     if (lenis) lenis.start();
-    setIsTransitioning(false);
     document.body.style.overflow = 'auto';
+    // [V72/V74] 명시적 이동 표시 — 진단 페이지가 최상단에서 시작하도록
+    markPushNav();
     router.push('/diagnosis');
-  }, [router, setIsTransitioning]);
+  }, [router]);
 
   // [Step 9-2] 로그 시퀀스 처리 함수
   const startLogSequence = useCallback((type: 'yes' | 'no') => {
@@ -149,7 +170,8 @@ export const CTASection = () => {
         document.body.style.overflow = 'auto';
       };
     }
-  }, [status, startLogSequence, setIsTransitioning]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, startLogSequence]);
 
   return (
     <section 

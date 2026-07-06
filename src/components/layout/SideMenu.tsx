@@ -9,6 +9,7 @@ import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
+import { markPushNav } from '@/lib/navigation';
 
 // ─────────────────────────────────────────────
 // 메뉴 항목 (기획서 기준 4개)
@@ -209,9 +210,10 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (typeof window !== 'undefined' && (window as any).lenis) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (window as any).lenis.scrollTo(0, { duration: 0.8 });
+            // [V74.ScrollGuidance/STEP8] 서브페이지는 GSAP 핀과 무관하므로 즉시 점프
+            (window as any).lenis.scrollTo(0, { immediate: true });
           } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'auto' });
           }
         }
       },
@@ -336,8 +338,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).lenis.start();
     }
-    // [V72] LenisScrollRestoration이 이 이동을 명시적 push로 인식해 top:0으로 처리하도록 플래그 심기
-    try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
+    // [V72/V74.STEP7] LenisScrollRestoration이 이 이동을 명시적 push로 인식해 top:0으로 처리하도록 플래그 심기
+    markPushNav();
     setTimeout(() => router.push(href), NAV_PUSH_DELAY);
   };
 

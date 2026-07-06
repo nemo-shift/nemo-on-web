@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useHeroContext, useDevice } from "@/context";
 import HeroSection from "./hero/HeroSection";
 import { PainSection, PainSectionHandle } from "./pain/PainSection";
@@ -17,7 +17,12 @@ import { INTERACTION_Z_INDEX } from "@/constants/interaction";
  * - GSAP & ScrollTrigger를 활용한 전역 인터랙션은 GlobalInteractionStage에서 총괄합니다.
  */
 export default function HomeStage(): React.ReactElement {
-  const { isOn, isTransitioning, toggle, footerHeight } = useHeroContext();
+  const { isOn, isTransitioning, toggle, footerHeight, setIsTransitioning } = useHeroContext();
+
+  // [V74.ScrollGuidance/STEP6] CTA에서 남은 isTransitioning 잔여 상태 정리.
+  // 홈에 진입하는 모든 경로(최초 방문, 뒤로가기)에서 힌트/배너가 정상 재작동하도록 리셋.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setIsTransitioning(false); }, []);
   const { isMobile, interactionMode, isMobileView, isTabletPortrait } =
     useDevice();
   const containerRef = useRef<HTMLDivElement>(null);

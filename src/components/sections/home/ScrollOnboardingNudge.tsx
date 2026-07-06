@@ -18,21 +18,27 @@ import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 export default function ScrollOnboardingNudge(): React.ReactElement | null {
   const { isOn, isScrollable, isTransitioning } = useHeroContext();
   const active = isOn && isScrollable && !isTransitioning;
-  const show = useScrollIdleNudge({ active });
+  const { shouldShow, dismiss } = useScrollIdleNudge({ active });
 
   if (!active) return null;
 
   return (
     <div
+      onClick={dismiss}
+      onTouchStart={dismiss}
+      role="button"
+      aria-label="안내 닫기"
       style={{
         position: 'fixed',
         top: '50%',
         left: '50%',
-        transform: `translate(-50%, -50%) scale(${show ? 1 : 0.96})`,
+        transform: `translate(-50%, -50%) scale(${shouldShow ? 1 : 0.96})`,
         zIndex: INTERACTION_Z_INDEX.Z_UI_GUIDE + 1,
-        opacity: show ? 1 : 0,
+        opacity: shouldShow ? 1 : 0,
         transition: 'opacity 0.5s ease, transform 0.5s ease',
-        pointerEvents: 'none',
+        // [V74/STEP9] 보일 때만 클릭 가능 — 숨겨진 상태에서 콘텐츠 클릭을 막지 않도록
+        pointerEvents: shouldShow ? 'auto' : 'none',
+        cursor: 'pointer',
         textAlign: 'center',
         padding: '28px 32px',
         borderRadius: 12,
