@@ -120,6 +120,21 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/GmarketSansMedium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="antialiased min-h-screen flex flex-col font-suit">
+        {/* 폰트 프리워밍 — 로컬 폰트 첫 렌더 지연(FOUT) 방지 */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            overflow: 'hidden',
+            opacity: 0,
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--font-esamanru)' }}>가</span>
+          <span style={{ fontFamily: 'var(--font-gmarket)' }}>a</span>
+        </span>
         {/* [V68.KakaoBanner] 카카오톡 인앱 WebView svh 미지원 대응 — KakaoTalkBanner.tsx 참고 */}
         <KakaoTalkBanner />
         <LenisScrollRestoration />

@@ -125,6 +125,12 @@ export const CTASection = () => {
   const handleAction = useCallback((type: 'yes' | 'no') => {
     if (status !== 'idle') return;
 
+    // [힌트 강제 은닉] GSAP 스크럽 타임라인이 나중에 다시 보이게 만들 수
+    // 있으므로, React 상태(isTransitioning)와 별개로 GSAP 레벨에서도
+    // 직접 죽여서 이후 어떤 개입도 못 이기게 고정한다.
+    gsap.killTweensOf('#global-scroll-hint');
+    gsap.set('#global-scroll-hint', { autoAlpha: 0 });
+
     // [V66.Phase3.3] 자동 포커싱 트리거 발송
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('nemo:cta-focus'));

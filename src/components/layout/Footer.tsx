@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useHeroContext } from '@/context';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { NemoIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,27 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
   const footerRef = useRef<HTMLElement>(null);
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === '/';
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    if (pathname === '/contact') {
+      // [Footer Fix] 같은 페이지로의 Link는 Next가 라우트 전환으로
+      // 인식하지 않아 LenisScrollRestoration의 pathname 감시 useEffect가
+      // 재실행되지 않는다 — 직접 최상단으로 이동시킨다.
+      e.preventDefault();
+      const lenis = (window as any).lenis;
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true }); // STEP8과 동일 정책: 즉시 이동
+      } else {
+        window.scrollTo(0, 0);
+      }
+    } else {
+      // [Footer Fix] 다른 페이지에서 이동하는 경우, 저장된 스크롤 위치로
+      // 잘못 복원되지 않도록 명시적 이동 플래그를 남긴다.
+      try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
+    }
+  };
   // [V11.34] ResizeObserver에 200ms 디바운스를 적용하여 리사이즈 중 부하 임계점 제어
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -98,9 +118,10 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       )}>
         {/* 1. 상단: Get in touch */}
         <div className="flex justify-end pt-4">
-          <Link 
+          <Link
             href="/contact"
             data-cursor="contact"
+            onClick={handleContactClick}
             className={cn(
               'font-medium tracking-tight hover:opacity-70 transition-all duration-500 leading-none',
               'text-lg tablet-p:text-xl tablet:text-2xl desktop-wide:text-3xl'
