@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { usePathname } from 'next/navigation';
 import { useMousePosition } from '@/hooks';
 import { useDevice } from '@/context';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
@@ -30,6 +31,13 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
   const isHover = cursorType !== 'default';
   const { position } = useMousePosition();
   const { interactionMode } = useDevice();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // [V73.CursorResetOnRoute] 클릭한 요소가 라우팅으로 언마운트되면
+    // mouseleave가 발생하지 않아 호버 상태가 박제되는 문제 수정.
+    setCursorType('default');
+  }, [pathname]);
   const positionRef = useRef(position);
   const pointRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);

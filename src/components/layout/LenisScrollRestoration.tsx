@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { STORAGE_KEYS, RESTORE_TIMING } from '@/constants/storage';
 
@@ -16,50 +16,12 @@ function safeSessionStorage(): Storage | null {
   }
 }
 
-/**
- * 네비게이션 타입 감지
- * - 'navigate' → direct (URL 직접 입력, Link 클릭)
- * - 'traverse' (back_forward) → normal (뒤로/앞으로가기)
- * window.navigation API 없으면 sessionStorage 폴백
- */
-function getNavigationType(): 'direct' | 'normal' {
-  if (typeof window === 'undefined') return 'direct';
-
-  // Navigation API (최신)
-  const nav = (window as Window & { navigation?: { type?: string } }).navigation;
-  if (nav?.type) {
-    if (nav.type === 'navigate' || nav.type === 'reload') return 'direct';
-    if (nav.type === 'traverse') return 'normal';
-  }
-
-  // PerformanceNavigationTiming (초기 로드 시)
-  const perfEntries = performance.getEntriesByType?.('navigation');
-  const navEntry = perfEntries?.[0] as { type?: string } | undefined;
-  if (navEntry?.type) {
-    if (navEntry.type === 'navigate' || navEntry.type === 'reload')
-      return 'direct';
-    if (navEntry.type === 'back_forward') return 'normal';
-  }
-
-  // sessionStorage 폴백
-  const storage = safeSessionStorage();
-  if (storage) {
-    const stored = storage.getItem(STORAGE_KEYS.NAV_TYPE);
-    if (stored === 'normal') {
-      storage.removeItem(STORAGE_KEYS.NAV_TYPE);
-      return 'normal';
-    }
-  }
-
-  return 'direct';
-}
 
 /**
  * Lenis 스크롤 복원 컴포넌트
  */
 export default function LenisScrollRestoration(): null {
   const pathname = usePathname();
-  const popStateFlagRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -75,44 +37,40 @@ export default function LenisScrollRestoration(): null {
     };
   }, []);
 
-  // popstate 시 'normal' 플래그 설정
-  useEffect(() => {
-    const handlePopState = () => {
-      popStateFlagRef.current = true;
-      const storage = safeSessionStorage();
-      storage?.setItem(STORAGE_KEYS.NAV_TYPE, 'normal');
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
   // pathname 변경 시 스크롤 복원 또는 상단 이동
+  // [V72] getNavigationType() 제거 — SideMenu.navigateTo()가 심은 PUSH_NAV 플래그만 본다.
+  // 플래그 있음(메뉴/링크 명시적 이동) → top:0 강제.
+  // 플래그 없음(뒤로가기·새로고침·직접 입력) → 저장된 위치 복원 시도.
   useEffect(() => {
-    const navType = popStateFlagRef.current ? 'normal' : getNavigationType();
-    popStateFlagRef.current = false;
+    const storage = safeSessionStorage();
+    const isPushNav = storage?.getItem('PUSH_NAV') === '1';
 
-    // 홈('/') 제외 - 항상 0에서 시작
-    if (navType === 'normal' && pathname !== '/') {
+    if (isPushNav) {
+      storage?.removeItem('PUSH_NAV');
+      setTimeout(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const lenis = (window as any).lenis;
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        } else {
+          window.scrollTo(0, 0);
+        }
+      }, RESTORE_TIMING.DIRECT);
+      return;
+    }
+
+    // 플래그 없음: 뒤로가기·새로고침·직접 입력 → 저장된 위치 복원
+    if (pathname !== '/') {
       const timer = setTimeout(() => {
-        const storage = safeSessionStorage();
         const stored = storage?.getItem(`${STORAGE_KEYS.SCROLL_PREFIX}${pathname}`);
         const scrollPosition = stored ? parseFloat(stored) : null;
 
-        if (
-          scrollPosition != null &&
-          typeof scrollPosition === 'number' &&
-          scrollPosition > 0
-        ) {
+        if (scrollPosition != null && scrollPosition > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if ((window as any).lenis) {
+          const lenis = (window as any).lenis;
+          if (lenis) {
             try {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (window as any).lenis.scrollTo(scrollPosition, {
-                immediate: true,
-                force: true,
-                lock: false,
-              });
+              lenis.scrollTo(scrollPosition, { immediate: true, force: true, lock: false });
             } catch {
               window.scrollTo({ top: scrollPosition, behavior: 'auto' });
             }
@@ -123,19 +81,6 @@ export default function LenisScrollRestoration(): null {
       }, RESTORE_TIMING.NORMAL);
 
       return () => clearTimeout(timer);
-    }
-
-    if (getNavigationType() === 'direct') {
-      setTimeout(() => {
-        const lenisInst = (window as any).lenis;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (lenisInst) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          lenisInst.scrollTo(0, { immediate: true });
-        } else {
-          window.scrollTo(0, 0);
-        }
-      }, RESTORE_TIMING.DIRECT);
     }
   }, [pathname]);
 

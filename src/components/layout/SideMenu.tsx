@@ -26,6 +26,8 @@ const LAYER_COLORS = {
   MAIN: COLORS.BG.CREAM,      // #f7f1e9 (크림)
 };
 
+const NAV_PUSH_DELAY = 150; // [V72] 메뉴가 화면을 덮은 뒤 교체가 일어나도록 하는 미세 지연
+
 // ─────────────────────────────────────────────
 // 애니메이션 타이밍
 // ─────────────────────────────────────────────
@@ -202,10 +204,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         // 상태 초기화
         onClose();
 
-        // 라우팅: onComplete 안에서 실행 → 애니메이션 끊김 방지
-        if (targetHref) {
-          router.push(targetHref);
-        } else if (scrollToTop) {
+        if (scrollToTop) {
           // 같은 페이지 재클릭 시 최상단으로 스크롤
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (typeof window !== 'undefined' && (window as any).lenis) {
@@ -251,7 +250,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         ease: 'power2.out',
       }, '-=0.3');
     }
-  }, [getDimTargets, onClose, router]);
+  }, [getDimTargets, onClose]);
 
   // ─────────────────────────────────────────
   // isOpen 변화 감지 → 열기 애니메이션
@@ -318,25 +317,46 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   }, [isOpen, getDimTargets, onClose]);
 
   // ─────────────────────────────────────────
-  // 메뉴 항목 클릭 핸들러 (onComplete 라우팅)
+  // 메뉴 열림 시 프리페치
   // ─────────────────────────────────────────
+  useEffect(() => {
+    if (!isOpen) return;
+    MENU_ITEMS.forEach(({ href }) => router.prefetch(href));
+    router.prefetch('/');
+  }, [isOpen, router]);
+
+  // ─────────────────────────────────────────
+  // 메뉴 항목 클릭 핸들러
+  // ─────────────────────────────────────────
+
+  // ① 이동 전 Lenis 재가동 — 새 페이지 스크롤 복원이 무시되지 않도록
+  // ④ 메뉴 레이어가 덮은 뒤 교체 시작 (병렬 로딩은 프리페치가 담당)
+  const navigateTo = (href: string) => {
+    if (typeof window !== 'undefined' && (window as any).lenis) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).lenis.start();
+    }
+    // [V72] LenisScrollRestoration이 이 이동을 명시적 push로 인식해 top:0으로 처리하도록 플래그 심기
+    try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
+    setTimeout(() => router.push(href), NAV_PUSH_DELAY);
+  };
+
   const handleHomeClick = () => {
-    // 홈에 있을 때: 복잡한 GSAP 상태 리셋 이슈로 메뉴만 닫기
-    // 다른 페이지: 홈으로 라우팅
-    if (isHome) {
+    if (isHome) {                    // ③ 기존 특례 유지
       animateClose();
     } else {
-      animateClose('/');
+      navigateTo('/');
+      animateClose();                // targetHref 없이 — 순수 연출로만
     }
   };
 
   const handleItemClick = (href: string) => {
-    // 현재 페이지와 동일하면 닫기 + 최상단으로 스크롤
-    if (pathname === href) {
+    if (pathname === href) {         // ② 같은 페이지: 기존 동작 그대로
       animateClose(undefined, true);
       return;
     }
-    animateClose(href);
+    navigateTo(href);
+    animateClose();                  // targetHref 없이 — 순수 연출로만
   };
 
   // ─────────────────────────────────────────

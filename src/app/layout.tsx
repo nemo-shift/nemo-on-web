@@ -115,6 +115,10 @@ export default function RootLayout({
       style={{ colorScheme: 'only light' }}
       className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
     >
+      <head>
+        <link rel="preload" href="/fonts/ESAMANRU%20OTF%20LIGHT.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/GmarketSansMedium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body className="antialiased min-h-screen flex flex-col font-suit">
         {/* [V68.KakaoBanner] 카카오톡 인앱 WebView svh 미지원 대응 — KakaoTalkBanner.tsx 참고 */}
         <KakaoTalkBanner />
