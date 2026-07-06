@@ -33,8 +33,7 @@ export default function KakaoTalkBanner() {
     if (!KAKAO_BANNER_ENABLED) return;
     // [V69.LaunchReady] STEP 9 — UA 체크 + CSS 기능 감지 조합
     // 카카오톡 WebView가 svh를 지원하는 버전으로 업데이트되면 자동 비노출
-    const isLegacy = typeof CSS === 'undefined' || !CSS.supports('height', '100svh');
-    setIsKakao(navigator.userAgent.includes('KAKAOTALK') && isLegacy);
+    setIsKakao(navigator.userAgent.includes('KAKAOTALK'));
   }, []);
 
   if (!isKakao || dismissed) return null;
