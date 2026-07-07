@@ -15,10 +15,10 @@ interface UseScrollIdleNudgeResult {
 }
 
 /**
- * [V74.ScrollGuidance] 스크롤 입력이 일정 시간 없으면 shouldShow=true를 반환하는 훅.
+ * [V74.ScrollGuidance / V77] 일정 시간 능동적 입력이 없으면 shouldShow=true를 반환하는 훅.
  * 첫 발동은 짧게(초심자 안내), 이후 발동은 길게(읽는 중 방해 최소화) 잡는다.
- * wheel/touchmove를 "활동"으로 간주 — ForWho 캐러셀의 가로 스와이프도
- * touchmove 이벤트를 발생시키므로 자연히 커버된다.
+ * [V77] wheel/touchmove/pointerdown/keydown을 "활동"으로 간주 —
+ * 스크롤뿐 아니라 캐러셀 클릭·키보드 탐색도 커버한다. mousemove 제외.
  * dismiss()를 호출하면 즉시 숨기고 타이머를 재스케줄해 다음 유휴 시 재등장한다.
  */
 export function useScrollIdleNudge({
@@ -59,12 +59,18 @@ export function useScrollIdleNudge({
 
     const onActivity = () => dismiss();
 
-    window.addEventListener('wheel', onActivity, { passive: true });
-    window.addEventListener('touchmove', onActivity, { passive: true });
+    // [V77] 활동 판단 기준 확장 — 스크롤 입력뿐 아니라 캐러셀 클릭/드래그,
+    // 버튼 조작, 키보드 탐색 등 "능동적으로 페이지를 쓰고 있다"는 확실한
+    // 신호를 전부 활동으로 인정한다. mousemove는 제외 — 마우스가 화면
+    // 위에 있기만 해도 계속 발화해 유휴 감지가 사실상 무력화되므로,
+    // 의도가 명확한 이산적 입력(클릭/탭/키입력)만 신호로 인정한다.
+    const activityEvents = ['wheel', 'touchmove', 'pointerdown', 'keydown'] as const;
+    activityEvents.forEach((evt) =>
+      window.addEventListener(evt, onActivity, { passive: true })
+    );
 
     return () => {
-      window.removeEventListener('wheel', onActivity);
-      window.removeEventListener('touchmove', onActivity);
+      activityEvents.forEach((evt) => window.removeEventListener(evt, onActivity));
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [active, scheduleTimer, dismiss]);

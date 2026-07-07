@@ -262,7 +262,7 @@ export function buildCoreFunnelTimeline(
   if (nemo.imageEl) {
     tl.to(nemo.imageEl, {
       opacity: 1,
-      backgroundPosition: (forwhoLayout as any).bgPos || 'center', // [V18.Phase5] 기기별 맞춤 구도 적용
+      backgroundPosition: forwhoLayout.bgPos || 'center', // [V18.Phase5] 기기별 맞춤 구도 적용
       duration: expandDuration,
       ease: 'power2.inOut'
     }, funnelExpand);

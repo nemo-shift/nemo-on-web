@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useHeroContext } from '@/context';
+import { useHeroContext, useDevice } from '@/context';
 import { useScrollIdleNudge } from '@/hooks';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
@@ -23,6 +23,7 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
     hasDismissedScrollNudge,
     setHasDismissedScrollNudge,
   } = useHeroContext();
+  const { isMobileView } = useDevice();
 
   // [V75/STEP E] hasDismissedScrollNudge가 true면 active 자체를 끔 — 타이머도 중단됨
   const active = isOn && isScrollable && !isTransitioning && !hasDismissedScrollNudge;
@@ -33,7 +34,6 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
   return (
     <div
       onClick={dismiss}
-      onTouchStart={dismiss}
       role="button"
       aria-label="안내 닫기"
       style={{
@@ -48,12 +48,15 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
         pointerEvents: shouldShow ? 'auto' : 'none',
         cursor: 'pointer',
         textAlign: 'center',
-        padding: '34px 40px',                          // [V75/STEP E] 확대
+        // [V78] 모바일은 좁은 화면 폭 대비 패딩을 줄이고, 화면 폭에 비례한
+        // 너비를 써서 텍스트가 숨 쉴 공간을 확보 — 줄바꿈 개선이 목적.
+        padding: isMobileView ? '24px 22px' : '34px 40px',
         borderRadius: 12,
-        background: 'rgba(8,12,11,0.92)',              // [V75/STEP B]
-        border: '1px solid rgba(93,202,165,0.18)',     // [V75/STEP B]
-        boxShadow: '0 8px 32px rgba(0,0,0,0.35)',      // [V75/STEP B]
-        maxWidth: 360,                                 // [V75/STEP E] 확대
+        background: 'rgba(8,12,11,0.92)',
+        border: '1px solid rgba(93,202,165,0.18)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+        width: isMobileView ? 'calc(100vw - 56px)' : undefined,
+        maxWidth: isMobileView ? 300 : 360,
       }}
     >
       {/* [V75/STEP E] 우측 상단 — "다시 보지 않기" 텍스트 링크 */}
@@ -62,8 +65,8 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
         onClick={(e) => { e.stopPropagation(); setHasDismissedScrollNudge(true); }}
         style={{
           position: 'absolute',
-          top: 12,
-          right: 14,
+          top: isMobileView ? 10 : 12,
+          right: isMobileView ? 10 : 14,
           background: 'transparent',
           border: 'none',
           color: 'rgba(240,235,227,0.4)',
@@ -80,19 +83,19 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
 
       <div
         style={{
-          width: 34,
-          height: 34,
+          width: isMobileView ? 28 : 34,
+          height: isMobileView ? 28 : 34,
           border: '1.5px solid #5DCAA5',
           borderRadius: 6,
-          margin: '0 auto 20px',
+          margin: isMobileView ? '0 auto 14px' : '0 auto 20px',
           position: 'relative',
         }}
         className="animate-nemo-pulse"
       >
         <div
           style={{
-            width: 8,
-            height: 8,
+            width: isMobileView ? 6 : 8,
+            height: isMobileView ? 6 : 8,
             background: '#5DCAA5',
             borderRadius: '50%',
             position: 'absolute',
@@ -103,10 +106,10 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
         />
       </div>
       {/* [V75/STEP A] 최초/재등장 카피 분기 */}
-      <p style={{ fontSize: 16, fontWeight: 500, color: '#F0EBE3', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
+      <p style={{ fontSize: isMobileView ? 14 : 16, fontWeight: 500, color: '#F0EBE3', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
         {isRepeat ? '스크롤해서 이야기를 이어가보세요' : '스크롤해서 이야기를 시작해보세요'}
       </p>
-      <p style={{ fontSize: 13, color: 'rgba(240,235,227,0.55)', margin: 0, fontFamily: 'var(--font-eb-garamond, inherit)' }}>
+      <p style={{ fontSize: isMobileView ? 12 : 13, color: 'rgba(240,235,227,0.55)', margin: 0, fontFamily: 'var(--font-eb-garamond, inherit)' }}>
         브랜드가 켜지는 과정을 함께 따라가 보세요
       </p>
     </div>

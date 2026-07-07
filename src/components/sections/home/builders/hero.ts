@@ -121,9 +121,9 @@ export function buildLogoTimeline(
 
     // 로고 부속품(도형/상태) 가시성 제어
     tl.to(logo.shapesEl, { 
-      opacity: (cfg.logo as any).shapes ? 0.8 : 0, 
-      visibility: (cfg.logo as any).shapes ? 'visible' : 'hidden', 
-      pointerEvents: (cfg.logo as any).shapes ? 'auto' : 'none',
+      opacity: cfg.logo.shapes ? 0.8 : 0,
+      visibility: cfg.logo.shapes ? 'visible' : 'hidden',
+      pointerEvents: cfg.logo.shapes ? 'auto' : 'none',
       y: 0,
       duration: ANIMS_CFG.LOGO_MORPH 
     }, time);

@@ -173,7 +173,7 @@ export function buildNemoTimeline(
     if (i < PAIN_POINTS.length - 1) tl.to(line, { opacity: 0, duration: 0.2 }, startTime + itemGap - 0.2);
   });
 
-  const bridgeItems = (RESONANCE_MESSAGE as any).bridge;
+  const bridgeItems = RESONANCE_MESSAGE.bridge;
   const bridgeDelay = 1.2;
   const bridgeDuration = L[STAGES.PAIN_SHIFT] - (L[STAGES.PAIN_CONTENT] + bridgeDelay);
   const bridgeGap = bridgeDuration / bridgeItems.length;
