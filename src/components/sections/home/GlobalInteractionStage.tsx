@@ -9,7 +9,7 @@ import { useHeroContext } from '@/context';
 import JourneyLogo, { JourneyLogoHandle } from './JourneyLogo';
 import SharedNemo, { SharedNemoHandle } from './SharedNemo';
 import type { FallingKeywordsHandle, FallingKeywordsStageProps } from './FallingKeywordsStage';
-const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null });
+const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null }) as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>;
 import {
   INTERACTION_Z_INDEX,
   STAGES,

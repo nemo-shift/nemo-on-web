@@ -62,7 +62,15 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
       {/* [V75/STEP E] 우측 상단 — "다시 보지 않기" 텍스트 링크 */}
       <button
         type="button"
-        onClick={(e) => { e.stopPropagation(); setHasDismissedScrollNudge(true); }}
+        // [V77 Fix] 활동 감지 훅이 window에서 pointerdown을 수신하므로,
+        // click 시점에는 이미 dismiss로 pointerEvents:none이 되어 click이
+        // 버튼에 도달하지 못하는 레이스가 있었다. 버블링 순서상 타깃(버튼)의
+        // pointerdown이 window 리스너보다 항상 먼저 실행되므로, 이 단계에서
+        // 영구 플래그를 설정하고 전파를 끊어 레이스를 원천 차단한다.
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          setHasDismissedScrollNudge(true);
+        }}
         style={{
           position: 'absolute',
           top: isMobileView ? 10 : 12,
