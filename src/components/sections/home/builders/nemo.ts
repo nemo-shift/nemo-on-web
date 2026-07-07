@@ -139,9 +139,8 @@ export function buildNemoTimeline(
     }, time);
   });
 
-  // (중간 로직 유지: 각 페인 포인트 애니메이션 및 물리 엔진 연동...)
   const step = nemo.stepEl, line = nemo.lineEl, content = nemo.contentEl;
-  
+
   const waitOffset = 0.4 * r;
   const painDuration = (L[STAGES.PAIN_CONTENT] - (L[STAGES.TO_PAIN] + waitOffset));
   const itemGap = painDuration / PAIN_POINTS.length;

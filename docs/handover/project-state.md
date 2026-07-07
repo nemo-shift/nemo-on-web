@@ -1,4 +1,30 @@
-## [최신] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료
+## [최신] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **STEP 1**: `PointRingCursor` sizeRef 캐시 + stale closure 수정 (ring 크기 항상 25px 버그)
+- **STEP 2**: `useMousePosition` useState → useRef — mousemove 리렌더 완전 제거
+- **STEP 3**: MutationObserver → document-level `mouseover` 이벤트 위임 (`closest()`)
+- **STEP 4**: Matter.js 게이트 — `ScrollTrigger onEnter/onLeave`로 Runner+RAF 동시 제어. `pauseSimulation` clearRect + `magneticProxiesRef` tween kill (역스크롤 잔상 버그 수정)
+- **STEP 5**: `layout.tsx` `Noto_Sans_KR` dead import 제거
+- **STEP 6**: `next/dynamic` — FallingKeywordsStage(Matter.js) + ForWhoCarousel(Swiper) 청크 분리. offsetHeight 동일 증명 완료
+- **STEP 7**: `syncNemoCoordinates` `_lastNemoRect` 캐시 — 0.1px epsilon, 변화 없으면 setProperty 4회 건너뜀
+
+---
+
+## [이전] ✅ 2026-07-07: V71~V75 — 뷰포트·내비게이션·스크롤 가이드 완성
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **V71**: `#home-stage` dvh 채움, 구도 상자 4개 섹션 dvh 전환, dvh 폴백 블록
+- **V72**: SideMenu `navigateTo()` + PUSH_NAV 플래그, LenisScrollRestoration 방식 교체
+- **V73**: PointRingCursor 라우트 변경 시 커서 리셋
+- **V74**: GlobalScrollHint SVG 꺾쇠화, `useScrollIdleNudge` + `ScrollOnboardingNudge` 신설, CTA lenis 연동, `lib/navigation.ts` markPushNav(), SideMenu 즉시 점프, 배너 클릭 닫기, GSAP 레벨 힌트 강제 은닉
+- **V75**: 배너 카피 최초/재등장 분기(isRepeat), 배경 불투명도 강화, SNS 플레이스홀더 제거, About/Offerings 전용 SubpageScrollHint 신설, HeroContext 영구 닫기 상태(`hasDismissedScrollNudge`) 추가
+
+---
+
+## [이전] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료
 
 **브랜치**: `fix/mobile-scroll-bugs`
 **목표**: 배포 전 P0(무음 데이터 손실·SEO 부재)·P1(코드 품질) 항목 일괄 정리 — STEP 1~9 전체 완료.

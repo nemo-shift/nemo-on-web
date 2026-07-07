@@ -29,7 +29,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
   const [mounted, setMounted] = useState(false);
   const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'contact'>('default');
   const isHover = cursorType !== 'default';
-  const { position } = useMousePosition();
+  const { positionRef } = useMousePosition(); // [V76] ref 직접 수신 — mousemove 리렌더 제거
   const { interactionMode } = useDevice();
   const pathname = usePathname();
 
@@ -38,19 +38,20 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
     // mouseleave가 발생하지 않아 호버 상태가 박제되는 문제 수정.
     setCursorType('default');
   }, [pathname]);
-  const positionRef = useRef(position);
+  const sizeRef = useRef(50); // [V76] cursorType 변경 시만 갱신 — RAF 루프 stale closure 방지
   const pointRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
   const isHoverRef = useRef(false);
 
   useEffect(() => {
-    positionRef.current = position;
-  }, [position]);
-
-  useEffect(() => {
     isHoverRef.current = isHover;
   }, [isHover]);
+
+  // [V76] cursorType → sizeRef 동기화 (RAF 루프에서 stale closure 없이 읽기 위함)
+  useEffect(() => {
+    sizeRef.current = cursorType === 'pointer' ? 30 : cursorType === 'contact' ? 80 : 50;
+  }, [cursorType]);
 
   const showCursor = interactionMode === 'mouse';
 
@@ -68,50 +69,27 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
     };
   }, [mounted, showCursor]);
 
-  // 인터랙티브 요소 호버 시 링 → 네모 변환
+  // [V76] 인터랙티브 요소 호버 감지 — 이벤트 위임 방식
+  // MutationObserver + 개별 리스너 재부착 제거 → document 단일 mouseover로 교체.
+  // closest()가 자식 요소(span/i 등) 진입 시에도 부모 타깃을 잡아
+  // 커서 깜빡임 없이 동작하며, 동적 DOM 변경에도 영향받지 않음.
   useEffect(() => {
     if (!mounted) return;
     const selectors = 'a, button, [data-cursor="pointer"], .pill, [data-bt], [role="button"], [data-cursor="contact"]';
 
-    const onEnter = (e: Event) => {
-      const target = e.currentTarget as HTMLElement;
-      const type = target.getAttribute('data-cursor');
-      if (type === 'contact') {
-        setCursorType('contact');
-      } else {
-        setCursorType('pointer');
-      }
+    const onOver = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest?.(selectors);
+      if (!el) { setCursorType('default'); return; }
+      setCursorType(el.getAttribute('data-cursor') === 'contact' ? 'contact' : 'pointer');
     };
-    const onLeave = () => setCursorType('default');
+    const onDocLeave = () => setCursorType('default');
 
-    // 현재 리스너가 등록된 요소 목록 추적 (중복 등록 방지)
-    const trackedElements = new Set<Element>();
-
-    const detachAll = () => {
-      trackedElements.forEach((el) => {
-        el.removeEventListener('mouseenter', onEnter);
-        el.removeEventListener('mouseleave', onLeave);
-      });
-      trackedElements.clear();
-    };
-
-    const attach = () => {
-      // 기존 리스너를 모두 제거한 뒤 다시 등록 (누적 방지)
-      detachAll();
-      document.querySelectorAll(selectors).forEach((el) => {
-        el.addEventListener('mouseenter', onEnter);
-        el.addEventListener('mouseleave', onLeave);
-        trackedElements.add(el);
-      });
-    };
-
-    attach();
-    const observer = new MutationObserver(attach);
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('mouseover', onOver, { passive: true });
+    document.addEventListener('mouseleave', onDocLeave);
 
     return () => {
-      observer.disconnect();
-      detachAll();
+      document.removeEventListener('mouseover', onOver);
+      document.removeEventListener('mouseleave', onDocLeave);
     };
   }, [mounted]);
 
@@ -135,10 +113,7 @@ export default function PointRingCursor({ isOn }: PointRingCursorProps): React.R
         pointRef.current.style.transform = `translate3d(${px - 4}px, ${py - 4}px, 0)`;
       }
       if (ringRef.current) {
-        let size = 50; // 기본: 주황 네모
-        if (cursorType === 'pointer') size = 30; // 오버: 주황 동그라미
-        if (cursorType === 'contact') size = 80;
-        const half = size / 2;
+        const half = sizeRef.current / 2; // [V76] 캐시된 값 사용 — 매 프레임 분기 제거
         ringRef.current.style.transform = `translate3d(${rx - half}px, ${ry - half}px, 0)`;
       }
       animRef.current = requestAnimationFrame(animate);

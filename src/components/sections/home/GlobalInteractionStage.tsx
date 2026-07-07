@@ -8,7 +8,8 @@ import { useGSAP } from '@gsap/react';
 import { useHeroContext } from '@/context';
 import JourneyLogo, { JourneyLogoHandle } from './JourneyLogo';
 import SharedNemo, { SharedNemoHandle } from './SharedNemo';
-import FallingKeywordsStage, { FallingKeywordsHandle } from './FallingKeywordsStage';
+import type { FallingKeywordsHandle, FallingKeywordsStageProps } from './FallingKeywordsStage';
+const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null });
 import {
   INTERACTION_Z_INDEX,
   STAGES,
@@ -231,10 +232,18 @@ export const GlobalInteractionStage = ({
 
     let localTl: gsap.core.Timeline | null = null;
     let localTrigger: ScrollTrigger | null = null;
+    let localPainTrigger: ScrollTrigger | null = null;
 
     const ctx = gsap.context(() => {
       if (!isScrollable || !mounted) return;
-      if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
+      if (!logo?.containerEl || !nemo?.nemoEl || !falling) {
+        // [V76] FallingKeywordsStage dynamic import 미완료 시 재시도
+        if (!falling && retryCountRef.current < MAX_RETRY) {
+          retryCountRef.current += 1;
+          setTimeout(() => setRevision(prev => prev + 1), 80);
+        }
+        return;
+      }
 
       if (isMobile) {
         ScrollTrigger.normalizeScroll({
@@ -442,6 +451,19 @@ export const GlobalInteractionStage = ({
           });
           keywordsTrigger.current = localTrigger;
 
+          // [V76] Pain 구간 물리 엔진 게이트 — ScrollTrigger onEnter/onLeave로 제어
+          // duration:0 tween onStart 방식은 scrub 모드에서 불안정 → 콜백 방식으로 교체
+          const painEnterScrollY = (L[STAGES.TO_PAIN] / totalDuration) * finalY;
+          const painLeaveScrollY = (L[STAGES.PAIN_TO_MSG] / totalDuration) * finalY;
+          localPainTrigger = ScrollTrigger.create({
+            start: painEnterScrollY,
+            end: painLeaveScrollY,
+            onEnter: () => fallingRef.current?.resumeSimulation(),
+            onLeave: () => fallingRef.current?.pauseSimulation(),
+            onEnterBack: () => fallingRef.current?.resumeSimulation(),
+            onLeaveBack: () => fallingRef.current?.pauseSimulation(),
+          });
+
           // [V23.Bulletproof] 물리적 높이 선점 (Height Pre-sync)
           ScrollTrigger.refresh();
 
@@ -522,6 +544,14 @@ export const GlobalInteractionStage = ({
           keywordsTrigger.current = null;
         }
       }
+
+      if (localPainTrigger) {
+        localPainTrigger.kill();
+        localPainTrigger = null;
+      }
+
+      // [V76] 재빌드 시 물리 엔진 정지 (다음 ScrollTrigger onEnter가 재가동)
+      fallingRef.current?.pauseSimulation();
     };
   }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode], revertOnUpdate: true });
 

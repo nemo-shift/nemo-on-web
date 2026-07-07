@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import {
-  Noto_Sans_KR,
   DM_Sans,
   DM_Mono,
   Bebas_Neue,

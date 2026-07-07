@@ -32,7 +32,7 @@ interface KeywordBody extends Matter.Body {
   bodyHeight: number;
 }
 
-interface FallingKeywordsStageProps {
+export interface FallingKeywordsStageProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   isMobile: boolean;
   isTabletPortrait: boolean;
@@ -49,7 +49,8 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     const bodiesRef = useRef<KeywordBody[]>([]);
     const groundRef = useRef<Matter.Body | null>(null);
     const rafIdRef = useRef<number | null>(null);
-    const isRunningRef = useRef(true); // [V16.41] 가동 상태 추적
+    // [V76] 실행 상태 추적 — pauseSimulation/resumeSimulation이 Runner+RAF 양쪽을 제어
+    const isRunningRef = useRef(false);
 
     // [V16.27] 충돌 카테고리 정의
     const CATEGORY_KEYWORD = 0x0001;
@@ -68,6 +69,9 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
     // [V26.80] 렌더 루프 함수 Ref (전역 오염 제거)
     const renderLoopRef = useRef<(() => void) | null>(null);
 
+    // [V76 Fix] magneticReset 진행 중인 GSAP proxy 트윈 추적 — pauseSimulation 시 일괄 kill
+    const magneticProxiesRef = useRef<object[]>([]);
+
     // 뷰포트 크기 안전 측정 헬퍼
     const getViewport = useCallback(() => ({
       w: (typeof window !== 'undefined' ? window.innerWidth : 0) || 1200,
@@ -81,7 +85,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       const spec = getDesignSpec();
       const ctx = canvasRef.current.getContext('2d');
       let textWidth = spec.minW;
-      
+
       if (ctx) {
         ctx.font = `bold ${spec.fontSize}px SUIT`;
         textWidth = ctx.measureText(text).width + spec.padding;
@@ -103,14 +107,14 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         // [V16.38] 중앙 집중화된 영역 토큰 적용
         const area = (isMobile || isTabletPortrait) ? KEYWORD_CFG.SPAWN_AREA.MOBILE : KEYWORD_CFG.SPAWN_AREA.PC;
         x = (Math.random() * (safeViewW * (area.END - area.START))) + (safeViewW * area.START);
-        
+
         y = 120 + (Math.random() * 180);
 
         // [V16.38] 중앙 집중화된 마진 토큰 적용
         isOverlapping = bodiesRef.current.some(body => {
           const dx = Math.abs(body.position.x - x);
           const dy = Math.abs(body.position.y - y);
-          return dx < (textWidth * KEYWORD_CFG.PHYSICS.MARGIN_X + 10) && 
+          return dx < (textWidth * KEYWORD_CFG.PHYSICS.MARGIN_X + 10) &&
                  dy < (spec.fontSize + KEYWORD_CFG.PHYSICS.MARGIN_Y);
         });
         attempts++;
@@ -154,9 +158,42 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       Matter.World.add(engineRef.current.world, [keywordBody as Matter.Body, pin]);
     }, [getViewport, getDesignSpec]);
 
+    // ─── 물리 엔진 생명주기 제어 (Runner + RAF 동시 제어) ───
+    const pauseSimulation = useCallback(() => {
+      if (!isRunningRef.current) return;
+      isRunningRef.current = false;
+      if (runnerRef.current) Matter.Runner.stop(runnerRef.current);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      // [V76 Fix] 진행 중인 magneticReset 트윈 kill — pause 후 재진입 시 물리 상태 일관성 보장
+      magneticProxiesRef.current.forEach(p => gsap.killTweensOf(p));
+      magneticProxiesRef.current = [];
+      // [V76 Fix] RAF 정지 시점의 마지막 프레임이 캔버스에 얼어붙는 것을 방지
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (ctx && canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+      }
+    }, []);
+
+    const resumeSimulation = useCallback(() => {
+      if (isRunningRef.current) return;
+      if (!engineRef.current || !runnerRef.current) return;
+      isRunningRef.current = true;
+      runnerRef.current.enabled = true;
+      Matter.Runner.run(runnerRef.current, engineRef.current);
+      if (rafIdRef.current === null && renderLoopRef.current) {
+        rafIdRef.current = requestAnimationFrame(renderLoopRef.current);
+      }
+    }, []);
+
     // ─── Handle 인터페이스 (builders.ts와의 계약 — 시그니처 변경 없음) ───
     useImperativeHandle(ref, () => ({
       addKeyword: (text: string) => {
+        resumeSimulation(); // [V76] 안전장치 — 물리 엔진이 활성화되지 않았으면 자동 가동
         createKeywordBody(text);
       },
 
@@ -201,6 +238,10 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
 
       magneticReset: () => {
         if (!engineRef.current) return;
+        // [V76 Fix] 이전 호출의 잔여 트윈 먼저 kill (빠른 역재생 반복 시 중복 방지)
+        magneticProxiesRef.current.forEach(p => gsap.killTweensOf(p));
+        magneticProxiesRef.current = [];
+        resumeSimulation(); // [V76] 역재생 진입 시 물리 엔진 자동 가동
 
         bodiesRef.current.forEach(body => {
           const initial = body.initialPos;
@@ -210,6 +251,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           Matter.Body.setAngularVelocity(body, 0);
 
           const proxy = { x: body.position.x, y: body.position.y };
+          magneticProxiesRef.current.push(proxy); // 추적 등록
 
           gsap.to(proxy, {
             x: initial.x,
@@ -240,6 +282,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           });
 
           const angleProxy = { angle: body.angle };
+          magneticProxiesRef.current.push(angleProxy); // 추적 등록
           gsap.to(angleProxy, {
             angle: 0,
             duration: 1.2,
@@ -253,7 +296,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
 
       reset: () => {
         if (!engineRef.current || !canvasRef.current) return;
-        
+
         // 1. 물리 엔진 월드에서 모든 바디와 핀 제거
         bodiesRef.current.forEach(body => {
           const pin = pinsRef.current.get(body);
@@ -271,22 +314,9 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         }
       },
 
-      pauseSimulation: () => {
-        isRunningRef.current = false;
-        if (rafIdRef.current) {
-          cancelAnimationFrame(rafIdRef.current);
-          rafIdRef.current = null;
-        }
-      },
-
-      resumeSimulation: () => {
-        if (isRunningRef.current) return;
-        isRunningRef.current = true;
-        if (renderLoopRef.current) {
-          rafIdRef.current = requestAnimationFrame(renderLoopRef.current);
-        }
-      },
-    }), [createKeywordBody]);
+      pauseSimulation,
+      resumeSimulation,
+    }), [createKeywordBody, pauseSimulation, resumeSimulation]);
 
     // ─── 물리 엔진 초기화 ───
     useEffect(() => {
@@ -311,7 +341,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         viewH + 50,
         viewW * 2,
         100,
-        { 
+        {
           isStatic: true,
           collisionFilter: { category: CATEGORY_GROUND }
         }
@@ -320,7 +350,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       Matter.World.add(engine.world, [ground]);
 
       const runner = Matter.Runner.create();
-      Matter.Runner.run(runner, engine);
+      // Runner은 resumeSimulation() 호출 시 가동 — 초기 상태는 정지
       runnerRef.current = runner;
 
       const handleResize = () => {
@@ -348,6 +378,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
         Matter.Engine.clear(engine);
         engineRef.current = null;
         runnerRef.current = null;
+        isRunningRef.current = false;
         bodiesRef.current = [];
         pinsRef.current.clear();
       };
@@ -382,7 +413,7 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
           ctx.translate(x, y);
           ctx.rotate(angle);
 
-          const radius = bh / 2.5; 
+          const radius = bh / 2.5;
           ctx.beginPath();
           ctx.moveTo(-bw / 2 + radius, -bh / 2);
           ctx.lineTo(bw / 2 - radius, -bh / 2);
@@ -407,13 +438,18 @@ const FallingKeywordsStage = forwardRef<FallingKeywordsHandle, FallingKeywordsSt
       rafIdRef.current = requestAnimationFrame(renderLoop);
     }
 
-    // [V26.80] 렌더 루프 Ref 동기화 및 시작
+    // [V76] 렌더 루프 Ref 동기화 — 자동 시작 없음 (resumeSimulation이 가동)
+    // props 변경 시 최신 클로저의 renderLoop로 교체 후, 실행 중이었으면 재가동
     useEffect(() => {
       renderLoopRef.current = renderLoop;
-      rafIdRef.current = requestAnimationFrame(renderLoop);
-
+      if (isRunningRef.current && rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(renderLoop);
+      }
       return () => {
-        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+        if (rafIdRef.current !== null) {
+          cancelAnimationFrame(rafIdRef.current);
+          rafIdRef.current = null;
+        }
       };
     }, [renderLoop]);
 

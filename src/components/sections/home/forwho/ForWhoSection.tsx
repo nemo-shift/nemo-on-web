@@ -1,6 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { FOR_WHO_TOP_SENTENCE, FOR_WHO_PHILOSOPHY } from '@/data/home/forwho';
-import ForWhoCarousel, { ForWhoCarouselHandle } from './ForWhoCarousel';
+import type { ForWhoCarouselHandle } from './ForWhoCarousel';
+const ForWhoCarousel = dynamic(() => import('./ForWhoCarousel'), { ssr: false, loading: () => null });
 import { cn } from '@/lib/utils';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { useDevice } from '@/context';

@@ -3,7 +3,192 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료 (STEP 1–9)
+## [최신] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화 완료
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**목표**: 초기 로딩 지연 + 커스텀 커서 지연의 근본 원인을 코드 레벨에서 제거.
+시각 결과물 100% 동일 유지 조건 하에 7단계 순차 완료.
+
+---
+
+### STEP 1 — PointRingCursor RAF 최적화
+
+- `sizeRef = useRef(50)` 추가 — `cursorType` 변경 시만 갱신 (RAF 루프 내 stale closure 수정)
+- ring half-offset 계산을 매 프레임 분기 제거 → `sizeRef.current / 2`로 교체
+- **버그 수정**: stale closure로 인해 ring 크기가 항상 25px으로 고정되던 문제 해결
+
+---
+
+### STEP 2 — useMousePosition useState → useRef
+
+- `src/hooks/useMousePosition.ts`: 반환값 `position`(state) → `positionRef`(ref) 전환
+- `mousemove` 이벤트마다 발생하던 컴포넌트 리렌더 완전 제거
+- `PointRingCursor`: 중간 ref + sync useEffect 제거 → `positionRef` 직접 수신
+
+---
+
+### STEP 3 — MutationObserver → 이벤트 위임
+
+- `PointRingCursor`: MutationObserver + 개별 mouseenter/mouseleave 제거
+- document-level `mouseover` 단일 리스너 + `closest(selectors)`로 교체
+- 자식 요소(`<span>`, `<i>` 등) 위에서도 부모 타깃을 정확히 잡아 커서 깜빡임 없음
+- 동적 DOM 변경에 영향받지 않는 구조
+
+---
+
+### STEP 4 — Matter.js 물리 엔진 게이트
+
+**Pain 구간 외에서 Runner + RAF 완전 정지** (CPU 절약)
+
+#### 구현
+- `FallingKeywordsStage.tsx`:
+  - `isRunningRef` 도입 — `pauseSimulation`/`resumeSimulation`이 `Matter.Runner.stop/run` + RAF cancel/재가동 양쪽 동시 제어
+  - 초기화 시 Runner 미가동 (처음부터 정지 상태)
+  - `addKeyword` / `magneticReset`: `resumeSimulation()` 안전장치 자동 호출
+  - RAF init useEffect: 자동 시작 제거, 재렌더 시 `isRunningRef`가 true면 재가동
+- `builders/nemo.ts`: `duration:0` 게이트 트윈 2개 제거 (scrub 모드에서 onStart 불안정)
+- `GlobalInteractionStage.tsx`:
+  - `ScrollTrigger.create` — `onEnter`/`onLeave`/`onEnterBack`/`onLeaveBack`으로 pain 구간 진입/이탈 콜백
+  - 타임라인 cleanup 시 `fallingRef.current?.pauseSimulation()` 호출
+
+#### 추가 버그 수정 (역스크롤 빠른 이탈 시 캔버스 잔상)
+- `pauseSimulation`에 `clearRect` 추가 — RAF 정지 시점 마지막 프레임 즉시 소거
+- `magneticProxiesRef` 도입 — 진행 중인 magneticReset GSAP 트윈 추적
+- `pauseSimulation` / `magneticReset` 재호출 시 이전 트윈 `gsap.killTweensOf()` 일괄 kill
+
+---
+
+### STEP 5 — Noto_Sans_KR dead import 제거
+
+- `src/app/layout.tsx`: `Noto_Sans_KR` import 제거 (인스턴스화·className 주입 없음 — 완전 미사용)
+- Next.js font: 인스턴스화된 폰트만 로드 → 레이아웃 변화 zero
+
+---
+
+### STEP 6 — next/dynamic 청크 분리
+
+- **FallingKeywordsStage** (Matter.js, ~500KB): `GlobalInteractionStage.tsx`에서 dynamic import, `ssr: false`
+  - `FallingKeywordsStageProps` export 추가
+  - `falling === null` 시 80ms 후 retry (`retryCountRef` 가드 포함)
+- **ForWhoCarousel** (Swiper): `ForWhoSection.tsx`에서 dynamic import, `ssr: false`
+- **offsetHeight 증명 완료**: `#section-forwho` early(7872) = build(7872), `#section-pain` build(7872) 동일 — CSS 고정 높이로 구조적 보장
+
+---
+
+### STEP 7 — syncNemoCoordinates write 최소화
+
+- `global-interaction-utils.ts`: module-level `_lastNemoRect` 캐시 추가
+- 0.1px epsilon 비교 — 4방향 모두 변화 없으면 `setProperty` 4회 전부 건너뜀
+- **효과 구간**: HERO_STILL / PAIN_STILL / CORE_FUNNEL_SNAP 등 정지 구간에서 CSS 뮤테이션 zero
+
+---
+
+### 수정 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/hooks/useMousePosition.ts` | useState → useRef, 리렌더 제거 |
+| `src/components/ui/PointRingCursor.tsx` | sizeRef 캐시, 이벤트 위임, positionRef 직접 수신 |
+| `src/components/sections/home/FallingKeywordsStage.tsx` | Runner+RAF 동시 제어, clearRect, magneticProxiesRef, FallingKeywordsStageProps export |
+| `src/components/sections/home/builders/nemo.ts` | duration:0 게이트 트윈 제거 |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | pain ScrollTrigger, falling dynamic import + retry, cleanup pauseSimulation |
+| `src/components/sections/home/forwho/ForWhoSection.tsx` | ForWhoCarousel dynamic import |
+| `src/components/sections/home/global-interaction-utils.ts` | _lastNemoRect 캐시, SYNC_EPS |
+| `src/app/layout.tsx` | Noto_Sans_KR import 제거 |
+
+---
+
+## [이전] ✅ 2026-07-07: V71~V75 — 뷰포트·내비게이션·스크롤 가이드 시스템 완성
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+---
+
+### V71 — 뷰포트 채움 dvh 전환
+
+- **ViewportFillFix** (`builders/scroll.ts`): `#home-stage` minHeight `svh→dvh` (CSS.supports 런타임 감지)
+- **CompositionBoxFix** (PainSection/MessageSection/ForWhoSection/BrandStorySection): 구도 상자 `h-[100svh]→h-[100dvh]` — 시각적 채움은 dvh, 측정/계산은 svh 유지
+- `globals.css`: `@supports not (height: 100dvh)` dvh 폴백 블록 추가
+
+---
+
+### V72 — 내비게이션 UX 개선
+
+- **SideMenu navigateTo()**: `lenis.start()` + `markPushNav()` + `setTimeout(router.push, 150ms)` — 메뉴 클로즈 애니메이션과 라우팅 충돌 해소
+- **LenisScrollRestoration**: `getNavigationType()` 제거 → `PUSH_NAV` sessionStorage 플래그 방식으로 교체 — 명시적 이동만 top:0, 뒤로가기는 위치 복원
+- **SideMenu 프리페치**: `isOpen` 시 모든 메뉴 항목 `router.prefetch()`
+
+---
+
+### V73 — 커서 라우트 리셋
+
+- **PointRingCursor**: `usePathname()` + `useEffect`로 라우트 변경 시 `setCursorType('default')` — 이전 페이지 커서 상태 잔류 버그 수정
+
+---
+
+### V74 — 스크롤 가이드 시스템 전면 개편
+
+**STEP 1**: `GlobalScrollHint` — SCROLL 텍스트·라인 제거, 인라인 SVG 꺾쇠 + sin 곡선 `translateY` 넛지 (0~6px)
+**STEP 2**: `useScrollIdleNudge` 훅 신설 — 3.5s/7s 유휴 타이머, wheel/touchmove 활동 초기화
+**STEP 3**: `ScrollOnboardingNudge` 컴포넌트 신설 — 화면 중앙 고정 오버레이, animate-nemo-pulse 아이콘
+**STEP 4**: `GlobalInteractionStage`에 createPortal로 마운트
+**STEP 5**: `CTASection` — `lenis.stop()` + `setIsTransitioning(true)` 버튼 클릭 시, `lenis.start()` + `markPushNav()` 리다이렉트 시
+**STEP 6**: `CTASection` IntersectionObserver — CTA 진입 즉시(클릭 전) 힌트 억제. `HomeStage` 마운트 시 `setIsTransitioning(false)` 리셋
+**STEP 7**: `lib/navigation.ts` 신설 — `markPushNav()` 공용 헬퍼. SideMenu·CTASection 인라인 sessionStorage → 함수 호출로 교체
+**STEP 8**: `SideMenu` 서브페이지 재클릭 — `duration: 0.8` → `immediate: true`, `behavior: smooth` → `auto`
+**STEP 9**: `useScrollIdleNudge` `{shouldShow, dismiss}` 반환. 배너 `onClick/onTouchStart={dismiss}`, `pointerEvents` 조건부
+
+**기타**:
+- `CTASection.handleAction`: `gsap.killTweensOf('#global-scroll-hint')` + `autoAlpha: 0` — GSAP 레벨 강제 은닉
+- `layout.tsx`: `<body>` 최상단 hidden span으로 ESAMANRU/GmarketSans 폰트 프리워밍
+- `layout.tsx`: `<head>` 로컬 폰트 2종 `<link rel="preload">` 추가
+- `Footer.tsx`: Contact `/contact` 재클릭 즉시 이동, 타 페이지 이동 시 PUSH_NAV 플래그
+
+---
+
+### V75 — 온보딩 배너 고도화 + 서브페이지 힌트
+
+**STEP A**: `useScrollIdleNudge` `isRepeat` 상태 추가 → `ScrollOnboardingNudge` 최초 "시작해보세요" / 재등장 "이어가보세요" 카피 분기
+**STEP B**: 배너 `background` 0.55→0.92, teal 테두리·드롭섀도 추가 (가독성 강화)
+**STEP C**: `Footer` Threads/Instagram 플레이스홀더 링크 제거
+**STEP D**:
+- `useNearPageBottom` 훅 신설 (RAF + passive scroll, 80px 임계값)
+- `SubpageScrollHint` 컴포넌트 신설 — About/Offerings 전용, 하단 근접 시 자동 소멸
+- `AboutStage` / `OfferingsStage`에만 마운트
+**STEP E**: `HeroContext`에 `hasDismissedScrollNudge` 상태 추가 (새로고침 시 자동 초기화, 페이지 이동 간 유지). 배너 크기 확대(padding 34/40, maxWidth 360), "다시 보지 않기" 텍스트 링크 버튼 추가
+
+### 수정/신규 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/lib/navigation.ts` | **신규** — `markPushNav()` 헬퍼 |
+| `src/lib/index.ts` | markPushNav export 추가 |
+| `src/hooks/useScrollIdleNudge.ts` | **신규** → isRepeat·dismiss 추가 |
+| `src/hooks/useNearPageBottom.ts` | **신규** — 하단 근접 감지 |
+| `src/hooks/index.ts` | useNearPageBottom export 추가 |
+| `src/components/sections/home/GlobalScrollHint.tsx` | SVG 꺾쇠 + translateY 넛지 |
+| `src/components/sections/home/ScrollOnboardingNudge.tsx` | **신규** → 카피 분기·배경 강화·dismiss·영구 닫기 |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | ScrollOnboardingNudge 포탈 마운트 |
+| `src/components/sections/home/cta/CTASection.tsx` | lenis 연동·IntersectionObserver·GSAP 힌트 은닉 |
+| `src/components/sections/home/HomeStage.tsx` | 마운트 시 isTransitioning 리셋 |
+| `src/components/ui/SubpageScrollHint.tsx` | **신규** — 서브페이지 스크롤 힌트 |
+| `src/components/ui/index.ts` | SubpageScrollHint export 추가 |
+| `src/components/sections/about/AboutStage.tsx` | SubpageScrollHint 마운트 |
+| `src/components/sections/offerings/OfferingsStage.tsx` | SubpageScrollHint 마운트 |
+| `src/components/layout/SideMenu.tsx` | navigateTo·markPushNav·immediate 점프 |
+| `src/components/layout/LenisScrollRestoration.tsx` | PUSH_NAV 플래그 방식 전환 |
+| `src/components/layout/Footer.tsx` | Contact 핸들러·SNS 제거 |
+| `src/components/ui/PointRingCursor.tsx` | 라우트 변경 시 커서 리셋 |
+| `src/context/HeroContext.tsx` | hasDismissedScrollNudge 상태 추가 |
+| `src/app/layout.tsx` | 폰트 preload·프리워밍 span |
+| `src/components/sections/home/builders/scroll.ts` | dvh CSS.supports 전환 |
+| PainSection/MessageSection/ForWhoSection/BrandStorySection | 구도 상자 svh→dvh |
+| `src/app/globals.css` | dvh 폴백 블록 추가 |
+
+---
+
+## [이전] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료 (STEP 1–9)
 
 ### 💎 주요 달성 성과
 

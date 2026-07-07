@@ -5,6 +5,7 @@ import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
 import { markPushNav } from '@/lib/navigation';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DIAGNOSIS_SECTION_CONTENT } from '@/data/home/diagnosis';
 
 export const CTASection = () => {
@@ -39,6 +40,8 @@ export const CTASection = () => {
     // [V74] Lenis 재가동 — 전 사이트 공유 인스턴스이므로 목적지 페이지 스크롤 정상화 필수
     const lenis = (window as any).lenis;
     if (lenis) lenis.start();
+    // 재활성화 — 옵션은 GlobalInteractionStage 터치 모드와 동일하게
+    ScrollTrigger.normalizeScroll({ allowNestedScroll: true, momentum: 0 });
     document.body.style.overflow = 'auto';
     // [V72/V74] 명시적 이동 표시 — 진단 페이지가 최상단에서 시작하도록
     markPushNav();
@@ -159,6 +162,9 @@ export const CTASection = () => {
       // [V74] 실제 스크롤 잠금 — Lenis는 body overflow를 무시하므로 lenis.stop()으로 입력 차단
       const lenis = (window as any).lenis;
       if (lenis) lenis.stop();
+      // [터치 스크롤 이중 잠금] Lenis와 별개로 GSAP의 터치 정규화 레이어도
+      // 모바일에서 독자적으로 스크롤을 처리하므로 함께 비활성화해야 함.
+      ScrollTrigger.normalizeScroll(false);
       document.body.style.overflow = 'hidden';
       setIsTransitioning(true);
 
