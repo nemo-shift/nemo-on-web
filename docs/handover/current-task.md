@@ -3,7 +3,72 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화 완료
+## [최신] ✅ 2026-07-08: 빌드 에러 수정 — FallingKeywordsStage TypeScript 타입 캐스팅
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**문제**: `next/dynamic` 래퍼는 TypeScript 타입상 `ref` prop을 지원하지 않아 빌드 실패.
+
+**원인**: `dynamic<FallingKeywordsStageProps>(...)` 반환 타입이 `ref`를 포함하지 않음.
+`FallingKeywordsStage` 자체는 `forwardRef`로 작성되어 런타임에는 정상 동작하지만, TypeScript가 타입 정보를 추적하지 못함.
+
+**해결**: `as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>` 타입 캐스팅 추가.
+
+**수정 파일**:
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `dynamic<>()` 반환 타입에 `ForwardRefExoticComponent` 캐스팅 추가 |
+
+---
+
+## [최신] ✅ 2026-07-07: V77 — ScrollOnboardingNudge 모바일 반응형 + 닫기 버튼 레이스 수정
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**커밋**: `1ea3414` (넛지 모바일 튜닝 + 빌더 as any 제거), `65626e0` (닫기 버튼 레이스 fix)
+
+---
+
+#### 변경 1 — ScrollOnboardingNudge 모바일 반응형
+
+- `useDevice`의 `isMobileView` 참조 추가
+- 컨테이너: `padding` 모바일 `24px 22px` (데스크톱 `34px 40px`), `width: calc(100vw - 56px)`, `maxWidth: 300` (데스크톱 360)
+- 아이콘 박스: `34px → 28px`, margin-bottom `20px → 14px`
+- 본문 폰트: `16px → 14px`, 서브 `13px → 12px`
+- 버튼 위치: `top/right` 모바일 `10px` (데스크톱 `12px/14px`)
+
+#### 변경 2 — "다시 보지 않기" 버튼 레이스 컨디션 수정 (V77 Fix)
+
+- **문제**: `useScrollIdleNudge`가 `window` pointerdown으로 dismiss를 실행해 `pointerEvents: none`으로 전환 → 버튼의 `click`이 도달하지 못하는 레이스
+- **해결**: `onClick` → `onPointerDown` 교체 + `e.stopPropagation()` — 타깃 pointerdown이 window 리스너보다 먼저 실행되어 레이스 원천 차단
+
+#### 변경 3 — useScrollIdleNudge 활동 감지 기준 확장
+
+- 기존: `wheel`, `touchmove`만 활동으로 인정
+- 변경: `wheel`, `touchmove`, `pointerdown`, `keydown` — 캐러셀 클릭/드래그, 키보드 탐색까지 커버
+- `mousemove` 제외 유지 — 마우스 위치만으로 유휴 감지 무력화 방지
+
+#### 변경 4 — 빌더 `(as any)` 타입 캐스팅 제거
+
+- `builders/funnel.ts`: `(forwhoLayout as any).bgPos` → `forwhoLayout.bgPos`
+- `builders/hero.ts`: `(cfg.logo as any).shapes` → `cfg.logo.shapes` (3곳)
+- `builders/nemo.ts`: `(RESONANCE_MESSAGE as any).bridge` → `RESONANCE_MESSAGE.bridge`
+
+---
+
+### 수정 파일 목록 (V77)
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/ScrollOnboardingNudge.tsx` | 모바일 반응형 크기 조정 + onPointerDown 레이스 수정 |
+| `src/hooks/useScrollIdleNudge.ts` | 활동 감지 이벤트 4종으로 확장 |
+| `src/components/sections/home/builders/funnel.ts` | `as any` 제거 |
+| `src/components/sections/home/builders/hero.ts` | `as any` 3곳 제거 |
+| `src/components/sections/home/builders/nemo.ts` | `as any` 제거 |
+
+---
+
+## [이전] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화 완료
 
 ### 브랜치: `fix/mobile-scroll-bugs`
 

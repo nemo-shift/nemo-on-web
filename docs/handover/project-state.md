@@ -1,4 +1,16 @@
-## [최신] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화
+## [최신] ✅ 2026-07-08: 빌드 에러 수정 + V77 — 넛지 모바일 반응형·레이스 수정
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **빌드 에러(07-08)**: `FallingKeywordsStage` dynamic import에 `React.ForwardRefExoticComponent` 타입 캐스팅 추가 — TypeScript `ref` prop 미인식 빌드 실패 해소
+- **V77 모바일 반응형**: `ScrollOnboardingNudge` — `isMobileView` 분기 추가, 패딩·폭·폰트·아이콘 크기 축소
+- **V77 레이스 수정**: "다시 보지 않기" `onClick` → `onPointerDown` 교체 — window pointerdown dismiss와의 레이스 원천 차단
+- **V77 활동 감지 확장**: `useScrollIdleNudge` — `wheel`/`touchmove` → + `pointerdown`/`keydown`
+- **빌더 타입 정리**: `funnel.ts` / `hero.ts` / `nemo.ts` `(as any)` 캐스팅 제거
+
+---
+
+## [이전] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화
 
 **브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
 
