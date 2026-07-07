@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 const CHARS = '!@#$%^&*()_+{}:"<>?|~`-=[]\\\';,./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -35,6 +35,12 @@ export function useScramble() {
         onComplete?.();
       }
     }, 40); // 25fps 정도로 업데이트
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
 
   return { scrambledText, startScramble, setScrambledText };

@@ -11,6 +11,8 @@ import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 type HeroOffMobileViewProps = {
   isOn: boolean;
   isTransitioning: boolean;
+  isToggleHovered: boolean;
+  setIsToggleHovered: (val: boolean) => void;
   handleToggle: () => void;
 };
 
@@ -22,6 +24,8 @@ export default function HeroOffMobileView({
   isOn,
   handleToggle,
   isTransitioning,
+  isToggleHovered,
+  setIsToggleHovered,
 }: HeroOffMobileViewProps) {
 
   // [V11.17 Mobile Entry] - 모바일 전용 시네마틱 등장
@@ -51,10 +55,10 @@ export default function HeroOffMobileView({
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
       {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) */}
-      <div 
+      <div
         id="hero-mobile-central-action-group"
-        className="absolute flex flex-col items-center gap-[6vh] pointer-events-auto opacity-0"
-        style={{ 
+        className="absolute flex flex-col items-center gap-[6svh] pointer-events-auto opacity-0"
+        style={{
           top: '58%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
@@ -62,12 +66,14 @@ export default function HeroOffMobileView({
           padding: '0 24px',
           zIndex: INTERACTION_Z_INDEX.Z_CONTENT
         }}
+        onMouseEnter={() => setIsToggleHovered(true)}
+        onMouseLeave={() => setIsToggleHovered(false)}
       >
         <HeroSloganOff />
         
         <div 
           className="relative flex flex-col items-center gap-4"
-          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-7vh' }}
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-7svh' }} // [V67.ViewportFix] vh → svh
         >
           <HeroToggle
             isOn={isOn}
@@ -82,14 +88,14 @@ export default function HeroOffMobileView({
         id="hero-mobile-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '-28vh', 
+          bottom: '-28svh', // [V67.ViewportFix] vh → svh
           left: '50%', 
           transform: 'translateX(-50%)'
         }}
       >
-        <HeroOffCta 
-          isVisible={true} 
-          isToggleHovered={false}
+        <HeroOffCta
+          isVisible={true}
+          isToggleHovered={isToggleHovered}
           isTransitioning={isTransitioning}
           onToggle={handleToggle}
         />

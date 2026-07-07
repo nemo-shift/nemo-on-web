@@ -11,6 +11,7 @@ import OfferingsStudio from './studio/OfferingsStudio';
 import OfferingsLab from './lab/OfferingsLab';
 import OfferingsOutro from './outro/OfferingsOutro';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import SubpageScrollHint from '@/components/ui/SubpageScrollHint';
 import { OFFERINGS_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
 
 if (typeof window !== 'undefined') {
@@ -18,7 +19,7 @@ if (typeof window !== 'undefined') {
 }
 
 export default function OfferingsStage() {
-  const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const { toggle, setIsScrollable } = useHeroContext();
   const stageContainerRef = useRef<HTMLDivElement>(null); // 🆕 배경 전체를 감싸는 돔 참조용 ref 추가
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
@@ -183,6 +184,8 @@ export default function OfferingsStage() {
 
   return (
     <main id="offerings-stage" className="relative z-[1] w-full">
+      {/* [V75/STEP D] Offerings 전용 스크롤 힌트 — 하단 근접 시 자동 소멸 */}
+      <SubpageScrollHint />
       {/* 콘텐츠 전체 컨테이너 (여기에 ref를 걸어 스크롤 60% 시점마다 배경색이 스르륵 흐르도록 보장) */}
       <div 
         ref={stageContainerRef}
@@ -222,12 +225,6 @@ export default function OfferingsStage() {
         </div>
         
       </div>
-      
-      {/* 푸터 리빌을 위한 스페이서 */}
-      <div 
-        className="relative w-full bg-transparent pointer-events-none" 
-        style={{ height: footerHeight || '25vh' }}
-      />
     </main>
   );
 }

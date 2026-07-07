@@ -3,7 +3,630 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync 성료
+## [최신] ✅ 2026-07-08: 빌드 에러 수정 — FallingKeywordsStage TypeScript 타입 캐스팅
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**문제**: `next/dynamic` 래퍼는 TypeScript 타입상 `ref` prop을 지원하지 않아 빌드 실패.
+
+**원인**: `dynamic<FallingKeywordsStageProps>(...)` 반환 타입이 `ref`를 포함하지 않음.
+`FallingKeywordsStage` 자체는 `forwardRef`로 작성되어 런타임에는 정상 동작하지만, TypeScript가 타입 정보를 추적하지 못함.
+
+**해결**: `as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>` 타입 캐스팅 추가.
+
+**수정 파일**:
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `dynamic<>()` 반환 타입에 `ForwardRefExoticComponent` 캐스팅 추가 |
+
+---
+
+## [최신] ✅ 2026-07-07: V77 — ScrollOnboardingNudge 모바일 반응형 + 닫기 버튼 레이스 수정
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**커밋**: `1ea3414` (넛지 모바일 튜닝 + 빌더 as any 제거), `65626e0` (닫기 버튼 레이스 fix)
+
+---
+
+#### 변경 1 — ScrollOnboardingNudge 모바일 반응형
+
+- `useDevice`의 `isMobileView` 참조 추가
+- 컨테이너: `padding` 모바일 `24px 22px` (데스크톱 `34px 40px`), `width: calc(100vw - 56px)`, `maxWidth: 300` (데스크톱 360)
+- 아이콘 박스: `34px → 28px`, margin-bottom `20px → 14px`
+- 본문 폰트: `16px → 14px`, 서브 `13px → 12px`
+- 버튼 위치: `top/right` 모바일 `10px` (데스크톱 `12px/14px`)
+
+#### 변경 2 — "다시 보지 않기" 버튼 레이스 컨디션 수정 (V77 Fix)
+
+- **문제**: `useScrollIdleNudge`가 `window` pointerdown으로 dismiss를 실행해 `pointerEvents: none`으로 전환 → 버튼의 `click`이 도달하지 못하는 레이스
+- **해결**: `onClick` → `onPointerDown` 교체 + `e.stopPropagation()` — 타깃 pointerdown이 window 리스너보다 먼저 실행되어 레이스 원천 차단
+
+#### 변경 3 — useScrollIdleNudge 활동 감지 기준 확장
+
+- 기존: `wheel`, `touchmove`만 활동으로 인정
+- 변경: `wheel`, `touchmove`, `pointerdown`, `keydown` — 캐러셀 클릭/드래그, 키보드 탐색까지 커버
+- `mousemove` 제외 유지 — 마우스 위치만으로 유휴 감지 무력화 방지
+
+#### 변경 4 — 빌더 `(as any)` 타입 캐스팅 제거
+
+- `builders/funnel.ts`: `(forwhoLayout as any).bgPos` → `forwhoLayout.bgPos`
+- `builders/hero.ts`: `(cfg.logo as any).shapes` → `cfg.logo.shapes` (3곳)
+- `builders/nemo.ts`: `(RESONANCE_MESSAGE as any).bridge` → `RESONANCE_MESSAGE.bridge`
+
+---
+
+### 수정 파일 목록 (V77)
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/ScrollOnboardingNudge.tsx` | 모바일 반응형 크기 조정 + onPointerDown 레이스 수정 |
+| `src/hooks/useScrollIdleNudge.ts` | 활동 감지 이벤트 4종으로 확장 |
+| `src/components/sections/home/builders/funnel.ts` | `as any` 제거 |
+| `src/components/sections/home/builders/hero.ts` | `as any` 3곳 제거 |
+| `src/components/sections/home/builders/nemo.ts` | `as any` 제거 |
+
+---
+
+## [이전] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화 완료
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+**목표**: 초기 로딩 지연 + 커스텀 커서 지연의 근본 원인을 코드 레벨에서 제거.
+시각 결과물 100% 동일 유지 조건 하에 7단계 순차 완료.
+
+---
+
+### STEP 1 — PointRingCursor RAF 최적화
+
+- `sizeRef = useRef(50)` 추가 — `cursorType` 변경 시만 갱신 (RAF 루프 내 stale closure 수정)
+- ring half-offset 계산을 매 프레임 분기 제거 → `sizeRef.current / 2`로 교체
+- **버그 수정**: stale closure로 인해 ring 크기가 항상 25px으로 고정되던 문제 해결
+
+---
+
+### STEP 2 — useMousePosition useState → useRef
+
+- `src/hooks/useMousePosition.ts`: 반환값 `position`(state) → `positionRef`(ref) 전환
+- `mousemove` 이벤트마다 발생하던 컴포넌트 리렌더 완전 제거
+- `PointRingCursor`: 중간 ref + sync useEffect 제거 → `positionRef` 직접 수신
+
+---
+
+### STEP 3 — MutationObserver → 이벤트 위임
+
+- `PointRingCursor`: MutationObserver + 개별 mouseenter/mouseleave 제거
+- document-level `mouseover` 단일 리스너 + `closest(selectors)`로 교체
+- 자식 요소(`<span>`, `<i>` 등) 위에서도 부모 타깃을 정확히 잡아 커서 깜빡임 없음
+- 동적 DOM 변경에 영향받지 않는 구조
+
+---
+
+### STEP 4 — Matter.js 물리 엔진 게이트
+
+**Pain 구간 외에서 Runner + RAF 완전 정지** (CPU 절약)
+
+#### 구현
+- `FallingKeywordsStage.tsx`:
+  - `isRunningRef` 도입 — `pauseSimulation`/`resumeSimulation`이 `Matter.Runner.stop/run` + RAF cancel/재가동 양쪽 동시 제어
+  - 초기화 시 Runner 미가동 (처음부터 정지 상태)
+  - `addKeyword` / `magneticReset`: `resumeSimulation()` 안전장치 자동 호출
+  - RAF init useEffect: 자동 시작 제거, 재렌더 시 `isRunningRef`가 true면 재가동
+- `builders/nemo.ts`: `duration:0` 게이트 트윈 2개 제거 (scrub 모드에서 onStart 불안정)
+- `GlobalInteractionStage.tsx`:
+  - `ScrollTrigger.create` — `onEnter`/`onLeave`/`onEnterBack`/`onLeaveBack`으로 pain 구간 진입/이탈 콜백
+  - 타임라인 cleanup 시 `fallingRef.current?.pauseSimulation()` 호출
+
+#### 추가 버그 수정 (역스크롤 빠른 이탈 시 캔버스 잔상)
+- `pauseSimulation`에 `clearRect` 추가 — RAF 정지 시점 마지막 프레임 즉시 소거
+- `magneticProxiesRef` 도입 — 진행 중인 magneticReset GSAP 트윈 추적
+- `pauseSimulation` / `magneticReset` 재호출 시 이전 트윈 `gsap.killTweensOf()` 일괄 kill
+
+---
+
+### STEP 5 — Noto_Sans_KR dead import 제거
+
+- `src/app/layout.tsx`: `Noto_Sans_KR` import 제거 (인스턴스화·className 주입 없음 — 완전 미사용)
+- Next.js font: 인스턴스화된 폰트만 로드 → 레이아웃 변화 zero
+
+---
+
+### STEP 6 — next/dynamic 청크 분리
+
+- **FallingKeywordsStage** (Matter.js, ~500KB): `GlobalInteractionStage.tsx`에서 dynamic import, `ssr: false`
+  - `FallingKeywordsStageProps` export 추가
+  - `falling === null` 시 80ms 후 retry (`retryCountRef` 가드 포함)
+- **ForWhoCarousel** (Swiper): `ForWhoSection.tsx`에서 dynamic import, `ssr: false`
+- **offsetHeight 증명 완료**: `#section-forwho` early(7872) = build(7872), `#section-pain` build(7872) 동일 — CSS 고정 높이로 구조적 보장
+
+---
+
+### STEP 7 — syncNemoCoordinates write 최소화
+
+- `global-interaction-utils.ts`: module-level `_lastNemoRect` 캐시 추가
+- 0.1px epsilon 비교 — 4방향 모두 변화 없으면 `setProperty` 4회 전부 건너뜀
+- **효과 구간**: HERO_STILL / PAIN_STILL / CORE_FUNNEL_SNAP 등 정지 구간에서 CSS 뮤테이션 zero
+
+---
+
+### 수정 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/hooks/useMousePosition.ts` | useState → useRef, 리렌더 제거 |
+| `src/components/ui/PointRingCursor.tsx` | sizeRef 캐시, 이벤트 위임, positionRef 직접 수신 |
+| `src/components/sections/home/FallingKeywordsStage.tsx` | Runner+RAF 동시 제어, clearRect, magneticProxiesRef, FallingKeywordsStageProps export |
+| `src/components/sections/home/builders/nemo.ts` | duration:0 게이트 트윈 제거 |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | pain ScrollTrigger, falling dynamic import + retry, cleanup pauseSimulation |
+| `src/components/sections/home/forwho/ForWhoSection.tsx` | ForWhoCarousel dynamic import |
+| `src/components/sections/home/global-interaction-utils.ts` | _lastNemoRect 캐시, SYNC_EPS |
+| `src/app/layout.tsx` | Noto_Sans_KR import 제거 |
+
+---
+
+## [이전] ✅ 2026-07-07: V71~V75 — 뷰포트·내비게이션·스크롤 가이드 시스템 완성
+
+### 브랜치: `fix/mobile-scroll-bugs`
+
+---
+
+### V71 — 뷰포트 채움 dvh 전환
+
+- **ViewportFillFix** (`builders/scroll.ts`): `#home-stage` minHeight `svh→dvh` (CSS.supports 런타임 감지)
+- **CompositionBoxFix** (PainSection/MessageSection/ForWhoSection/BrandStorySection): 구도 상자 `h-[100svh]→h-[100dvh]` — 시각적 채움은 dvh, 측정/계산은 svh 유지
+- `globals.css`: `@supports not (height: 100dvh)` dvh 폴백 블록 추가
+
+---
+
+### V72 — 내비게이션 UX 개선
+
+- **SideMenu navigateTo()**: `lenis.start()` + `markPushNav()` + `setTimeout(router.push, 150ms)` — 메뉴 클로즈 애니메이션과 라우팅 충돌 해소
+- **LenisScrollRestoration**: `getNavigationType()` 제거 → `PUSH_NAV` sessionStorage 플래그 방식으로 교체 — 명시적 이동만 top:0, 뒤로가기는 위치 복원
+- **SideMenu 프리페치**: `isOpen` 시 모든 메뉴 항목 `router.prefetch()`
+
+---
+
+### V73 — 커서 라우트 리셋
+
+- **PointRingCursor**: `usePathname()` + `useEffect`로 라우트 변경 시 `setCursorType('default')` — 이전 페이지 커서 상태 잔류 버그 수정
+
+---
+
+### V74 — 스크롤 가이드 시스템 전면 개편
+
+**STEP 1**: `GlobalScrollHint` — SCROLL 텍스트·라인 제거, 인라인 SVG 꺾쇠 + sin 곡선 `translateY` 넛지 (0~6px)
+**STEP 2**: `useScrollIdleNudge` 훅 신설 — 3.5s/7s 유휴 타이머, wheel/touchmove 활동 초기화
+**STEP 3**: `ScrollOnboardingNudge` 컴포넌트 신설 — 화면 중앙 고정 오버레이, animate-nemo-pulse 아이콘
+**STEP 4**: `GlobalInteractionStage`에 createPortal로 마운트
+**STEP 5**: `CTASection` — `lenis.stop()` + `setIsTransitioning(true)` 버튼 클릭 시, `lenis.start()` + `markPushNav()` 리다이렉트 시
+**STEP 6**: `CTASection` IntersectionObserver — CTA 진입 즉시(클릭 전) 힌트 억제. `HomeStage` 마운트 시 `setIsTransitioning(false)` 리셋
+**STEP 7**: `lib/navigation.ts` 신설 — `markPushNav()` 공용 헬퍼. SideMenu·CTASection 인라인 sessionStorage → 함수 호출로 교체
+**STEP 8**: `SideMenu` 서브페이지 재클릭 — `duration: 0.8` → `immediate: true`, `behavior: smooth` → `auto`
+**STEP 9**: `useScrollIdleNudge` `{shouldShow, dismiss}` 반환. 배너 `onClick/onTouchStart={dismiss}`, `pointerEvents` 조건부
+
+**기타**:
+- `CTASection.handleAction`: `gsap.killTweensOf('#global-scroll-hint')` + `autoAlpha: 0` — GSAP 레벨 강제 은닉
+- `layout.tsx`: `<body>` 최상단 hidden span으로 ESAMANRU/GmarketSans 폰트 프리워밍
+- `layout.tsx`: `<head>` 로컬 폰트 2종 `<link rel="preload">` 추가
+- `Footer.tsx`: Contact `/contact` 재클릭 즉시 이동, 타 페이지 이동 시 PUSH_NAV 플래그
+
+---
+
+### V75 — 온보딩 배너 고도화 + 서브페이지 힌트
+
+**STEP A**: `useScrollIdleNudge` `isRepeat` 상태 추가 → `ScrollOnboardingNudge` 최초 "시작해보세요" / 재등장 "이어가보세요" 카피 분기
+**STEP B**: 배너 `background` 0.55→0.92, teal 테두리·드롭섀도 추가 (가독성 강화)
+**STEP C**: `Footer` Threads/Instagram 플레이스홀더 링크 제거
+**STEP D**:
+- `useNearPageBottom` 훅 신설 (RAF + passive scroll, 80px 임계값)
+- `SubpageScrollHint` 컴포넌트 신설 — About/Offerings 전용, 하단 근접 시 자동 소멸
+- `AboutStage` / `OfferingsStage`에만 마운트
+**STEP E**: `HeroContext`에 `hasDismissedScrollNudge` 상태 추가 (새로고침 시 자동 초기화, 페이지 이동 간 유지). 배너 크기 확대(padding 34/40, maxWidth 360), "다시 보지 않기" 텍스트 링크 버튼 추가
+
+### 수정/신규 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/lib/navigation.ts` | **신규** — `markPushNav()` 헬퍼 |
+| `src/lib/index.ts` | markPushNav export 추가 |
+| `src/hooks/useScrollIdleNudge.ts` | **신규** → isRepeat·dismiss 추가 |
+| `src/hooks/useNearPageBottom.ts` | **신규** — 하단 근접 감지 |
+| `src/hooks/index.ts` | useNearPageBottom export 추가 |
+| `src/components/sections/home/GlobalScrollHint.tsx` | SVG 꺾쇠 + translateY 넛지 |
+| `src/components/sections/home/ScrollOnboardingNudge.tsx` | **신규** → 카피 분기·배경 강화·dismiss·영구 닫기 |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | ScrollOnboardingNudge 포탈 마운트 |
+| `src/components/sections/home/cta/CTASection.tsx` | lenis 연동·IntersectionObserver·GSAP 힌트 은닉 |
+| `src/components/sections/home/HomeStage.tsx` | 마운트 시 isTransitioning 리셋 |
+| `src/components/ui/SubpageScrollHint.tsx` | **신규** — 서브페이지 스크롤 힌트 |
+| `src/components/ui/index.ts` | SubpageScrollHint export 추가 |
+| `src/components/sections/about/AboutStage.tsx` | SubpageScrollHint 마운트 |
+| `src/components/sections/offerings/OfferingsStage.tsx` | SubpageScrollHint 마운트 |
+| `src/components/layout/SideMenu.tsx` | navigateTo·markPushNav·immediate 점프 |
+| `src/components/layout/LenisScrollRestoration.tsx` | PUSH_NAV 플래그 방식 전환 |
+| `src/components/layout/Footer.tsx` | Contact 핸들러·SNS 제거 |
+| `src/components/ui/PointRingCursor.tsx` | 라우트 변경 시 커서 리셋 |
+| `src/context/HeroContext.tsx` | hasDismissedScrollNudge 상태 추가 |
+| `src/app/layout.tsx` | 폰트 preload·프리워밍 span |
+| `src/components/sections/home/builders/scroll.ts` | dvh CSS.supports 전환 |
+| PainSection/MessageSection/ForWhoSection/BrandStorySection | 구도 상자 svh→dvh |
+| `src/app/globals.css` | dvh 폴백 블록 추가 |
+
+---
+
+## [이전] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료 (STEP 1–9)
+
+### 💎 주요 달성 성과
+
+**P0 — 무음 데이터 손실 / 사용자 보호**
+
+- **[STEP 1] Contact Form → Resend API Route** (`src/app/api/contact/route.ts` 신규):
+  - 기존 `onSubmitSuccess(form)` 호출만 하고 실제로 데이터를 아무 곳에도 전송하지 않던 버그 수정.
+  - Next.js API Route + Resend SDK로 이메일 발송. 수신 주소: `turn.nemoon@gmail.com`.
+  - 서버 사이드: 허니팟(`_hp`), IP 기반 속도 제한(3회/분, in-memory Map), 필드 검증, 파일 첨부 처리.
+  - Resend 인스턴스를 핸들러 내부에서 지연 초기화 (빌드 타임 ByteString 오류 방지).
+  - `ContactForm.tsx` 전면 재작성: FormData POST, 로딩/에러 상태, 폴백 이메일 링크 포함.
+  - `.env.local`: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL` 추가.
+
+- **[STEP 2] 개인정보처리방침 페이지** (`src/app/privacy/page.tsx` 신규):
+  - SubPageLayout 래퍼, 수집 항목·목적·보유 기간 표, Resend 위탁 처리, 정보주체 권리, 문의처 포함.
+  - 서버 컴포넌트, `metadata` export. ⚠️ 배포 전 법무 검토 필수 주석 첨부.
+
+- **[STEP 3] Error Boundaries** (신규 3종):
+  - `src/app/error.tsx`: `'use client'`, reset() 버튼, 홈 링크, CSS vars 인라인 스타일.
+  - `src/app/not-found.tsx`: 서버 컴포넌트, metadata export, 홈 버튼.
+  - `src/app/global-error.tsx`: `'use client'`, `<html><body>` 포함, 외부 의존성 없는 순수 인라인 스타일.
+
+**P0 — SEO / 배포 필수**
+
+- **[STEP 4] 메타데이터 / OG / 사이트맵 / robots**:
+  - `layout.tsx`: `metadataBase`, `title.template`, `openGraph`(nemoon_og.png), `twitter: 'summary_large_image'`, favicon 배열.
+  - 9개 페이지(`/`, `/about`, `/offerings`, `/offerings/studio`, `/offerings/lab`, `/diagnosis`, `/showcase`, `/contact`, `/privacy`)에 고유 `metadata` export 추가.
+  - `src/app/sitemap.ts` + `src/app/robots.ts` 신규 생성.
+
+**P1 — 코드 품질**
+
+- **[STEP 5] 디버그 코드 제거**:
+  - `GlobalInteractionStage.tsx`: `DEBUG_CONFIG` import 제거, `InteractionDebugger` → dev-only `next/dynamic`, `console.log` 3곳 → `!== 'production'` 가드.
+  - `HeroContext.tsx`: `DEBUG_CONFIG` import 제거, `SHOULD_DEBUG`/`IS_DEV` 제거 → `useState(false)`.
+
+- **[STEP 6] 렌더 바디 사이드 이펙트 이동**:
+  - `GlobalInteractionStage.tsx` 렌더 바디 내 `initGlobalStyles(...)` 호출 → `useLayoutEffect`로 이동 (deps: `[mounted, isOn, isMobileView]`).
+  - FOUC 없음 실기기 확인 완료.
+
+- **[STEP 7] SVH 폴백 정리 + 자동화**:
+  - `globals.css` V68 블록에서 dead rule 8개 제거 (실제 마크업에 없는 bare 클래스).
+  - 반응형 프리픽스(`mobile:`, `tablet-p:`, `tablet:`, `desktop-wide:`) 변형 폴백을 `@supports` 내부 `@media` 블록으로 추가.
+  - `scripts/check-svh-fallback.sh` 신규 — tsx/ts에서 svh arbitrary value 클래스 추출 후 globals.css 폴백 존재 여부 검증. 32개 클래스 전수 통과.
+  - `package.json`: `"check:svh"` 스크립트 추가, `"build"` → `"pnpm run check:svh && next build"` 연결.
+
+- **[STEP 8] 히어로 인라인 svh 폴백**:
+  - `:root { --unit-svh: 1svh; }` 추가 (`globals.css`).
+  - `@supports not` 블록: `:root { --unit-svh: 1vh; }` 추가.
+  - `HeroSection.tsx`: `height: '100svh'` → `'calc(var(--unit-svh) * 100)'`, 램프 `60svh`/`90svh` → calc 패턴.
+
+- **[STEP 9] 잔여 정리**:
+  - `.gitattributes` 신규: `* text=auto eol=lf` (이후 커밋부터 LF 줄끝 강제).
+  - `KakaoTalkBanner.tsx`: UA 단독 감지 → UA + `CSS.supports('height', '100svh')` 조합으로 개선 (svh 지원 WebView 버전에서 자동 비노출).
+
+### 🔧 수정된 파일 목록
+
+| # | 파일 | 변경 내용 |
+|---|------|----------|
+| 1 | `src/app/api/contact/route.ts` | 신규 — Resend 발송, 허니팟, 속도 제한 |
+| 2 | `src/components/sections/contact/ContactForm.tsx` | 전면 재작성 — FormData POST, 에러 상태 |
+| 3 | `src/components/sections/contact/ContactContainer.tsx` | `any` → `ContactFormData \| null` |
+| 4 | `.env.local` | RESEND_API_KEY, CONTACT_RECEIVER_EMAIL, NEXT_PUBLIC_SITE_URL |
+| 5 | `src/app/privacy/page.tsx` | 신규 — 개인정보처리방침 |
+| 6 | `src/app/error.tsx` | 신규 — 에러 바운더리 |
+| 7 | `src/app/not-found.tsx` | 신규 — 404 페이지 |
+| 8 | `src/app/global-error.tsx` | 신규 — 루트 레이아웃 크래시 대응 |
+| 9 | `src/app/layout.tsx` | metadataBase, OG, twitter, favicon, KakaoTalkBanner |
+| 10 | `src/app/page.tsx` + 서브 8개 페이지 | 고유 metadata export 추가 |
+| 11 | `src/app/sitemap.ts` | 신규 — 9개 정적 라우트 |
+| 12 | `src/app/robots.ts` | 신규 |
+| 13 | `src/components/sections/home/GlobalInteractionStage.tsx` | 디버그 제거, useLayoutEffect 이동 |
+| 14 | `src/context/HeroContext.tsx` | DEBUG_CONFIG 의존성 제거 |
+| 15 | `src/app/globals.css` | dead svh rule 제거, @media 블록 추가, --unit-svh 변수 |
+| 16 | `src/components/sections/home/hero/HeroSection.tsx` | --unit-svh 인라인 폴백 |
+| 17 | `scripts/check-svh-fallback.sh` | 신규 — SVH 폴백 자동 검증 |
+| 18 | `package.json` | check:svh 스크립트, build 연결, resend 의존성 |
+| 19 | `.gitattributes` | 신규 — LF 줄끝 강제 |
+| 20 | `src/components/layout/KakaoTalkBanner.tsx` | CSS.supports 기능 감지 추가 |
+
+### 🧩 배포 전 체크리스트
+
+- [ ] Resend 대시보드에서 실제 이메일 수신 확인 (테스트 발송)
+- [ ] `src/app/privacy/page.tsx` 법무 검토 후 내용 확정
+- [ ] Vercel 환경변수: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL` 등록
+- [ ] OG 이미지(`/public/nemoon_og.png`) 실제 SNS 공유 미리보기 확인
+- [ ] `pnpm build` 최종 통과 확인 (check:svh 포함)
+
+---
+
+## ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + MAX_RETRY 폴백 강화 + 미사용 상수 정리
+
+### 💎 주요 달성 성과
+
+- **syncNemoCoordinates `--nemo-b` 오차 수정** (`global-interaction-utils.ts`):
+  - `stableVH?: number` 인자 추가. `window.innerHeight` → `stableVH ?? window.innerHeight`.
+  - `GlobalInteractionStage`의 onUpdate 클로저에서 `stableVH`를 전달하도록 수정.
+  - 효과: 모바일 크롬 접힌 상태(실사용 대부분)에서 MessageSection clip-path 기준값과 클리핑 대상(100svh)이 일치.
+
+- **nemo.ts vh2px 변환 헬퍼** (`builders/nemo.ts`):
+  - `svhPx` import 추가.
+  - `vh2px(v)` 헬퍼: `n >= 100`(풀블리드) → `stableLVH` 기준, 나머지 → `svhPx(n, stableVH)`.
+  - GSAP `tl.to` height 3곳(`sections.forEach`, `bridgeLayout.h`, `resonanceLayout.h`) 에 `vh2px` 적용.
+  - 효과: 빌드 시점 `window.innerHeight` 박제 제거 → 뷰포트 변화에 무관한 안정 px.
+
+- **`getStableLVH` + `stableLVH` 주입** (`GlobalInteractionStage.tsx`, `types.ts`):
+  - DOM probe div로 `100lvh` 실측하는 `getStableLVH()` 추가.
+  - `GlobalBuilderOptions`에 `stableLVH: number` 필드 추가.
+  - `runMeasurementAndBuild` 내부에서 `stableLVH` 계산 후 `builderOptions`에 주입.
+
+- **MAX_RETRY 폴백 강화** (`GlobalInteractionStage.tsx`):
+  - 기존: MAX_RETRY 초과 시 `setShowOverlay(false)`만.
+  - 추가: `setIsTimelineReady(true)` 동시 호출 → HomeStage opacity 가드 해제 + 내부 GSAP 요소 숨김 방지.
+
+- **히어로 뷰 `vh` → `svh` 잔여분 수정**:
+  - `HeroOffTabletView.tsx`: `bottom: '-30vh'` → `'-30svh'`
+  - `HeroOnMobileView.tsx`: `bottom: '16vh'` → `'16svh'`, `translate(40px, 1vh)` → `1svh`
+  - `HeroOnTabletView.tsx`: `bottom: '15vh'` → `'15svh'`, `translate(0px, -4vh)` → `-4svh`
+  - `HeroTabletView.tsx`: 스페이서 5곳 (`15/10vh`, `40vh`, `3vh`, `5vh`) → `svh`
+
+- **Footer 고정 높이 → 최소 높이** (`Footer.tsx`):
+  - `h-[450px]` 등 → `min-h-[450px]` (모든 브레이크포인트 동일 적용).
+  - 효과: `paddingBottom: calc(100lvh - 100svh + safe-area)` 가 최대 ~120px일 때 콘텐츠가 border-box 내에서 눌리지 않음.
+
+- **`minHeight: '100vh'` → `'100svh'`** (`builders/scroll.ts`):
+  - `gsap.set('#home-stage', { minHeight: '100svh' })` 로 정책 통일.
+
+- **`NEMO_SIZE` 미사용 vh 상수 삭제** (`constants/interaction.ts`):
+  - `BORDER_BOX_H: '48vh'`, `TEAL_BOX_H: '62vh'`, `IMAGE_H: '52vh'` 삭제 (grep 확인, 소비처 없음).
+
+### 🔧 수정된 파일 목록
+
+| # | 파일 | 변경 내용 |
+|---|------|----------|
+| 1 | `global-interaction-utils.ts` | `syncNemoCoordinates` `stableVH?` 인자, `--nemo-b` 수정 |
+| 2 | `types.ts` | `GlobalBuilderOptions`에 `stableLVH: number` 추가 |
+| 3 | `GlobalInteractionStage.tsx` | `getStableLVH`, `stableLVH` 주입, onUpdate stableVH 전달, MAX_RETRY setIsTimelineReady 추가 |
+| 4 | `builders/nemo.ts` | `svhPx` import, `vh2px` 헬퍼, height 트윈 3곳 적용 |
+| 5 | `hero/views/HeroOffTabletView.tsx` | `bottom: '-30svh'` |
+| 6 | `hero/views/HeroOnMobileView.tsx` | `16svh`, `1svh` |
+| 7 | `hero/views/HeroOnTabletView.tsx` | `15svh`, `-4svh` |
+| 8 | `hero/views/HeroTabletView.tsx` | 스페이서 5곳 `svh` |
+| 9 | `layout/Footer.tsx` | `h-[450px]` → `min-h-[450px]` (전 브레이크포인트) |
+| 10 | `builders/scroll.ts` | `minHeight: '100svh'` |
+| 11 | `constants/interaction.ts` | `NEMO_SIZE` 미사용 vh 상수 3개 삭제 |
+
+### 🧩 검증 항목
+
+- [ ] 실기기(iOS Safari, Android Chrome): 크롬 접힌 상태 새로고침 vs 최상단 새로고침 → 메시지 클립·네모 크기 동일성 확인
+- [ ] 히어로 태블릿 모드 레이아웃 스페이서 정상 동작 확인
+
+---
+
+## ✅ 2026-07-04: 코드 품질 — 무한 재시도 루프 방어, 인터벌 누수 수정, 주석 불일치 정리
+
+### 💎 주요 달성 성과
+
+- **무한 재시도 루프 방어** (`GlobalInteractionStage.tsx`):
+  - `MAX_RETRY = 5`, `retryCountRef` 추가.
+  - 외부 트리거(초기 마운트, 리사이즈)에서 카운터 리셋.
+  - 재시도 2곳(`footer height === 0`, `allRendered === false`)에 가드 적용: 5회 초과 시 `setRevision` 중단 + `setShowOverlay(false)` 강제 해제.
+  - 빌드 성공(`setIsTimelineReady(true)`) 시 카운터 리셋.
+  - 효과: 섹션 ID 오타 등 정적 오류로 영영 렌더되지 않아도 오버레이(z-index 9000)가 사용자 조작을 영구 차단하는 상황 방지.
+
+- **useScramble 인터벌 누수 수정** (`src/hooks/useScramble.ts`):
+  - `useEffect` cleanup에 `clearInterval(intervalRef.current)` 추가.
+  - 효과: 스크램블 도중 페이지 이동 시 인터벌이 언마운트된 컴포넌트의 state를 계속 업데이트하던 메모리 누수 차단.
+
+- **DeviceContext 주석 불일치 수정** (`src/context/DeviceContext.tsx`):
+  - `useDevice`가 실제로는 `throw`하는데 "Fallback 제공"이라고 잘못 기술된 주석 제거.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `MAX_RETRY=5`, `retryCountRef`, 재시도 가드 2곳, 오버레이 강제 해제 |
+| `src/hooks/useScramble.ts` | 언마운트 시 `clearInterval` cleanup 추가 |
+| `src/context/DeviceContext.tsx` | `throw`와 모순되는 "Fallback 제공" 주석 제거 |
+
+---
+
+## ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+
+### 💎 주요 달성 성과
+
+- **근본 원인 해결**: 모바일 브라우저 크롬(주소창/컨트롤바)이 등장/숨김에 따라 `window.innerHeight`가 변동하여 GSAP 타임라인 기하학이 흔들리는 문제를 `svh` 단위로 완전 고정.
+
+- **[STEP 1] CSS 뷰포트 단위 통일** (`h-screen`/`100vh` → `h-[100svh]`):
+  - `PainSection.tsx`: `h-screen` → `h-[100svh]`, `h-[1000vh]` → `h-[1000svh]`
+  - `MessageSection.tsx`, `ForWhoSection.tsx`, `BrandStorySection.tsx`: `h-screen` → `h-[100svh]`
+  - `CTASection.tsx`: `h-[100vh]` → `h-[100svh]`
+  - `HomeStage.tsx` (`#section-bridge`): `h-[100vh]` → `h-[100svh]`
+  - `HeroSection.tsx`: `min-h-screen` → `min-h-[100svh]`, 램프 `60vh`/`90vh` → `60svh`/`90svh`
+
+- **[STEP 2] `getStableVH` 헬퍼 + `stableVH` 주입** (`GlobalInteractionStage.tsx`):
+  - DOM probe div로 `100svh`를 px 실측하는 `getStableVH()` 함수 컴포넌트 외부에 추가
+  - `finalY = measuredTotalHeight - stableVH` (기존 `window.innerHeight` 교체)
+  - `builderOptions`에 `stableVH` 주입
+
+- **[STEP 3] 터치 기기 높이 변화 리사이즈 무시**:
+  - resize useEffect: 너비 변화 OR (마우스 기기 AND 높이 임계값 초과)만 재빌드
+  - `interactionMode` 의존성 추가
+
+- **[STEP 4] visualViewport 진행도 가드**:
+  - `masterTl.progress() > 0.9` 시 `ScrollTrigger.refresh()` 스킵
+
+- **[STEP 5] 푸터 하단 여백 보정** (`Footer.tsx`):
+  - `pb-[80px]` 제거 → `paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))'`
+
+- **[STEP 2-B-1] `svhPx` 헬퍼 + `GlobalBuilderOptions.stableVH`** (`types.ts`):
+  - `svhPx(n, stableVH)` 헬퍼 export — GSAP `'Nvh'` 문자열 대체용 안정 px 변환
+  - `GlobalBuilderOptions`에 `stableVH: number` 필드 추가
+
+- **[STEP 2-B-2] GSAP 빌더 `vh` 문자열 교체**:
+  - `story.ts`: 전체 재작성, 모든 `'Nvh'` → `svhPx(N, stableVH)` 숫자 px
+  - `message.ts`: `'120vh'`/`'-120vh'` → `svhPx(120/−120, stableVH)`
+  - `funnel.ts`: `'-8vh'`/`'-7vh'` → `svhPx` 변환
+
+- **[STEP 2-B-3] 빌더 내 `window.innerHeight` 교체**:
+  - `forwho.ts` `getSafePos`: `window.innerHeight` → `options.stableVH`, `%` 기준값도 교체
+  - `nemo.ts`: `const vh = window.innerHeight` → `const vh = options.stableVH`
+
+- **[STEP 2-B-4] UI 컴포넌트 `vh` → `svh` 교체**:
+  - `HeroOffPCView.tsx`: `80vh`/`15vh`/`-20vh`/`gap-[1vh]` → `svh`
+  - `HeroOffMobileView.tsx`: `gap-[6vh]`/`-7vh`/`-28vh` → `svh`
+  - `HeroOffTabletView.tsx`: `gap-[4vh]`/`-1vh` → `svh`
+  - `GlobalScrollHint.tsx`: `4vh` → `4svh`
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/types.ts` | `stableVH` 필드, `svhPx` 헬퍼 export |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `getStableVH()`, `finalY` 교체, resize 터치 무시, vP 가드, `stableVH` 주입 |
+| `src/components/sections/home/pain/PainSection.tsx` | `h-[1000svh]`, sticky `h-[100svh]` |
+| `src/components/sections/home/message/MessageSection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/forwho/ForWhoSection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/story/BrandStorySection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/cta/CTASection.tsx` | `h-[100svh]` |
+| `src/components/sections/home/HomeStage.tsx` | `#section-bridge h-[100svh]` |
+| `src/components/sections/home/hero/HeroSection.tsx` | `min-h-[100svh]`, 램프 `svh` |
+| `src/components/layout/Footer.tsx` | `paddingBottom: calc(100lvh - 100svh + ...)` |
+| `src/components/sections/home/builders/story.ts` | 전체 재작성 — 모든 `vh` → `svhPx` |
+| `src/components/sections/home/builders/message.ts` | `120vh` → `svhPx` |
+| `src/components/sections/home/builders/funnel.ts` | `-8vh`/`-7vh` → `svhPx` |
+| `src/components/sections/home/builders/forwho.ts` | `getSafePos` → `stableVH` 기준 |
+| `src/components/sections/home/builders/nemo.ts` | `window.innerHeight` → `stableVH` |
+| `src/components/sections/home/hero/views/HeroOffPCView.tsx` | 4곳 `vh` → `svh` |
+| `src/components/sections/home/hero/views/HeroOffMobileView.tsx` | 3곳 `vh` → `svh` |
+| `src/components/sections/home/hero/views/HeroOffTabletView.tsx` | 2곳 `vh` → `svh` |
+| `src/components/sections/home/GlobalScrollHint.tsx` | `4vh` → `4svh` |
+
+### 🧩 잔여 과제 / 확인 필요 사항
+
+- [ ] **실기기 검증**: 실제 iOS Safari, Android Chrome에서 컨트롤바 등장/숨김 시 레이아웃 안정성 확인
+- [ ] **CTA_STILL_TOUCH 4.0→8.0**: 역스크롤 완충 예정 (모바일 스크롤 버그 이슈 백로그)
+- [ ] **[V67.ViewportFix-검토필요] 태그 빌더**: `calculateLabels()` 등 일부 빌더에서 남은 `vh` 문자열 추가 점검 가능
+
+---
+
+## ✅ 2026-06-20: UI 폴리싱 - 푸터 리빌 완성, 사이드메뉴 홈버튼, 커서 개편, ForWho 터치 레이아웃
+
+### 💎 주요 달성 성과
+
+- **푸터 리빌 이중 스페이서 버그 수정**:
+  - `AboutStage` / `OfferingsStage` 내부에 `footerHeight` 스페이서가 자체 존재하고 있었고, `FooterRevealSpacer`(layout.tsx 전역)까지 추가되어 이중으로 스크롤 런웨이가 쌓이는 버그 수정.
+  - 두 컴포넌트 내부의 스페이서 div 제거. 전역 `FooterRevealSpacer`가 단일 책임.
+  - layout.tsx `<main className="flex-1">` → `<main>` 으로 변경 (flex-1 과잉 팽창 방지).
+  - 서브페이지 푸터 "Get in touch" 클릭 가능 + 리빌 효과 동시 완성.
+
+- **SideMenu 홈 아이콘 버튼 추가**:
+  - 메인 패널 좌상단에 `lucide-react`의 `Home` 아이콘 버튼 배치.
+  - Stagger 애니메이션에 포함 (`homeButtonRef`).
+  - **홈 페이지에서 클릭**: 메뉴만 닫기 (GSAP 상태 리셋 복잡성 방지).
+  - **다른 페이지에서 클릭**: `animateClose('/')` 라우팅.
+  - 아이콘 크기 브레이크포인트별 분기: 모바일 `w-6`, 744px `w-8`, 992px `w-11`.
+  - **같은 페이지 메뉴 클릭 시 스크롤 탑**: `animateClose(undefined, true)` → `lenis.scrollTo(0, { duration: 0.8 })`.
+
+- **PointRingCursor 커서 상태 교체**:
+  - 기존: 기본=크림/틸 원, 오버=주황 네모 → **변경: 기본=주황 네모(50px), 오버=주황 동그라미(30px)**.
+  - LERP 속도 향상: POINT `0.3→0.5`, RING `0.15→0.35` (더 빠른 추적).
+  - Contact 커서는 기존 유지 (80px 흰 원 + "Contact" 텍스트).
+
+- **ForWhoCarousel 커서 영역 수정**:
+  - `onMouseEnter`/`onMouseLeave`가 전체 컨테이너에 걸려있어 카드 밖 영역에서도 커서 변경되던 문제 수정.
+  - 이벤트를 각 카드 div로 이동하여 카드 위에서만 커서 변경.
+  - 포후 카드 내부 커서 텍스트 `View` → `Click` 변경.
+
+- **ForWhoCarousel 터치 모드 레이아웃 개편**:
+  - 터치 기기에서 click-to-expand 토글 제거. 모든 카드 정보 항상 노출.
+  - 카드별 피사체 위치를 분석하여 텍스트를 반대편에 배치 (`TOUCH_POSITIONS` 배열).
+    - id1(예비창업가): top-left / id2(성장모색): top-right / id3(확장준비): bottom-center
+    - id4(개인브랜드): bottom-left / id5(스타트업): top-left
+  - 그라디언트 스크림(상단/하단 방향 자동 결정) + 텍스트 레이어 (flow → target → description → 구분선 → 네모:ON의 역할 → philosophy).
+  - 마우스 모드: 기존 toggle 방식 완전 유지.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/about/AboutStage.tsx` | 내부 footerHeight 스페이서 제거 |
+| `src/components/sections/offerings/OfferingsStage.tsx` | 내부 footerHeight 스페이서 제거 |
+| `src/app/layout.tsx` | `<main>` flex-1 제거, FooterRevealSpacer 추가 |
+| `src/components/layout/FooterRevealSpacer.tsx` | 신규 생성 (전역 스페이서) |
+| `src/components/layout/index.ts` | FooterRevealSpacer export 추가 |
+| `src/components/layout/Footer.tsx` | 서브페이지 z-index: 0 |
+| `src/components/layout/SideMenu.tsx` | 홈 아이콘 버튼, scrollToTop 로직, homeButtonRef stagger |
+| `src/components/ui/PointRingCursor.tsx` | 기본/오버 커서 상태 교체, LERP 속도 향상 |
+| `src/components/sections/home/forwho/ForWhoCarousel.tsx` | 커서 영역 수정, 터치 모드 항상 노출 레이아웃 |
+| `src/data/home/forwho.ts` | 텍스트 단축 (투자자·고객, 설명/확장, 철학·전문성) |
+
+---
+
+## ✅ 2026-06-19: 히어로 슬로건 개편 + 배경 이미지 시스템 구축 성료
+
+히어로 ON 모드 슬로건 구조를 재편하고, 배경 이미지(조명/벽돌 배경)를 기반으로 한 **섹션별 조명 색상 오버레이 시스템**과 **포후 구간 배경 패닝**을 구축했습니다.
+
+### 💎 주요 달성 성과
+
+- **Hero OFF 모드 모바일 탭 버그 수정**:
+  - `HeroOffMobileView`에 `isToggleHovered` / `setIsToggleHovered` props가 전달되지 않아 모바일에서 탭해도 버튼 hover 상태가 변하지 않던 문제 해결.
+  - `HeroMobileView` 함수 시그니처의 구조 분해 누락(`isToggleHovered` not defined ReferenceError)도 동시 수정.
+  - 관련 파일: `HeroOffMobileView.tsx`, `HeroMobileView.tsx`
+
+- **Hero ON 슬로건 구조 개편 (전 기기)**:
+  - 기존 대형 슬로건 자리에 **"사업의 기준을 설계하고, 브랜드와 웹으로 구현합니다"** 새 메인 슬로건 배치.
+  - 기존 "불안을 끄고, 기준을 켭니다" + 포커스 블러 애니메이션은 그대로 유지하되, 소형(`isSmall`) 태그라인으로 상단에 재배치.
+  - `HeroSloganOn.tsx`에 `isSmall` prop 추가 (텍스트 크기, 코너 브래킷, 패딩 별도 계산).
+  - 관련 파일: `HeroSloganOn.tsx`, `HeroOnPCView.tsx`, `HeroOnMobileView.tsx`, `HeroOnTabletView.tsx`
+
+- **배경 이미지 레이어 시스템 구축** (`HomeStage.tsx`):
+  - Layer 1: 배경색 (`var(--bg)`) — 기존 유지
+  - Layer 2: `hero-bg.webp` 고정 이미지 레이어 (`id="hero-bg-layer"`, `bottom: -600px` 버퍼로 패닝 공간 확보)
+  - Layer 3: 색상 오버레이 div (`backgroundColor: 'rgb(0, 50, 130)'`, opacity는 CSS 변수 제어)
+
+- **파란 조명 오버레이 시스템** (`scroll.ts`):
+  - 히어로 → 페인 구간: `--light-overlay-opacity` 0 → 0.5 (서서히 파란 조명 등장)
+  - 페인 → 메시지 구간: 0.5 → 0 (원래 배경색으로 복귀)
+  - **핵심 버그 수정**: 조건 `label === STAGES.TO_PAIN` → `label === STAGES.START_TO_PAIN` 으로 수정 (`TO_PAIN`은 `LOGO_JOURNEY_SECTIONS`에 없어 영원히 실행되지 않던 dead code).
+  - `globals.css`에 `--light-overlay-opacity: 0` 변수 추가.
+  - 오버레이 색상 `rgb(20, 55, 140)` → `rgb(0, 50, 130)` (R=0으로 낮춰 따뜻한 배경과 섞여도 보라색 방지).
+
+- **포후 구간 배경 이미지 패닝** (`scroll.ts`):
+  - `backgroundPosition` 애니메이션은 이미지 오버플로우 없을 시 무효 → `translateY`(div 자체 이동) 방식으로 전환.
+  - `CORE_FUNNEL_EXPAND` → `TO_FORWHO`: `y: 0 → -500px` (램프가 화면 위로 상승)
+  - 카드 퇴장 시점(`exitStart`, forwho.ts 공식 그대로 재계산) → 원위치 복귀: `y: -500 → 0`
+  - `fwExitDuration * 0.5` 안에 복귀 완료 → "모든 대표님의 첫번째 파트너가 되겠습니다" 문구 등장 시 이미 제자리.
+
+- **브랜드스토리 구간 배경 이미지 페이드아웃** (`scroll.ts`):
+  - `STORY_ERASE` 시점(배경색 틸 → 다크 전환)에 `opacity: 1 → 0` (duration: `t * r ≈ 0.36`)
+
+### 🧩 잔여 과제 및 알려진 사항
+
+- [ ] **배경 이미지 노출 섹션 범위 최종 확정**: 현재 히어로~스토리이레이즈 구간 노출. 포후 이전 구간에서의 이미지 노출 여부 추가 검토 가능.
+- [ ] **오버레이 opacity 파인튜닝**: 현재 `0.5`. 기기/환경에 따라 조도 조정 필요 시 `scroll.ts` 두 곳 모두 수정.
+- [ ] **패닝 이동량 파인튜닝**: 현재 `-500px`. 디바이스 해상도에 따라 조정 가능.
+
+### 🔧 수정된 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/components/sections/home/hero/views/HeroOffMobileView.tsx` | `isToggleHovered` prop 추가, 탭 인터랙션 복구 |
+| `src/components/sections/home/hero/views/HeroMobileView.tsx` | `isToggleHovered` 구조 분해 누락 수정 |
+| `src/components/sections/home/hero/HeroSloganOn.tsx` | `isSmall` prop 추가 |
+| `src/components/sections/home/hero/views/HeroOnPCView.tsx` | 새 메인 슬로건 + 소형 태그라인 레이아웃 |
+| `src/components/sections/home/hero/views/HeroOnMobileView.tsx` | 동일 |
+| `src/components/sections/home/hero/views/HeroOnTabletView.tsx` | 동일 |
+| `src/components/sections/home/HomeStage.tsx` | 3레이어 배경 시스템 구축, `id="hero-bg-layer"` 추가 |
+| `src/components/sections/home/builders/scroll.ts` | 오버레이/패닝/페이드아웃 애니메이션 추가, dead code 버그 수정 |
+| `src/app/globals.css` | `--light-overlay-opacity: 0` 변수 추가 |
+
+---
+
+## ✅ 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync 성료
 
 ForWho 섹션의 반응형 아키텍처를 프로젝트 표준인 3단 분리 체계(Mobile/Tablet-P/Others)로 정규화하고, "눈에 보이면 즉시 조작 가능하다"는 UX 원칙에 따라 타이틀 안착, UI 노출, 드래그 허용 시점을 1ms의 오차 없이 동기화한 '삼위일체(Trinity) 동기화'를 완성했습니다.
 

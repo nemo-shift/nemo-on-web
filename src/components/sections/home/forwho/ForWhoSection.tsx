@@ -1,6 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { FOR_WHO_TOP_SENTENCE, FOR_WHO_PHILOSOPHY } from '@/data/home/forwho';
-import ForWhoCarousel, { ForWhoCarouselHandle } from './ForWhoCarousel';
+import type { ForWhoCarouselHandle } from './ForWhoCarousel';
+const ForWhoCarousel = dynamic(() => import('./ForWhoCarousel'), { ssr: false, loading: () => null });
 import { cn } from '@/lib/utils';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { useDevice } from '@/context';
@@ -39,7 +41,7 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
     <section 
       ref={containerRef} 
       id="section-forwho" 
-      className="relative w-full h-[1000vh]"
+      className="relative w-full h-[1000svh]"
       style={{ backgroundColor: 'transparent' }}
     >
 
@@ -48,8 +50,9 @@ export const ForWhoSection = forwardRef<ForWhoSectionHandle>((_, ref) => {
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: ForWho Section</span>
       </div>*/}
 
-      <div 
-        className="sticky top-0 left-0 w-full h-screen flex items-center justify-center overflow-hidden"
+      {/* [V71] 구도 상자는 측정에 미관여(외곽 트랙이 측정 담당) → 실시간 뷰포트 채움을 위해 dvh 사용. 외곽 트랙·finalY의 svh는 유지. */}
+      <div
+        className="sticky top-0 left-0 w-full h-[100dvh] flex items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
       >
         {/* 1. 시네마틱 인트로 문구 (Arrival Stage) */}

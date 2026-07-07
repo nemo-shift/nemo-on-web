@@ -60,7 +60,7 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
     <section 
       ref={containerRef} 
       id="section-pain" 
-      className="relative w-full h-[1000vh]"
+      className="relative w-full h-[1000svh]"
       style={{ backgroundColor: 'transparent' }}
     >
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}
@@ -68,8 +68,9 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
         <span className="absolute top-2 left-4 text-[10px] uppercase font-mono text-red-500/50">Start: Pain Section</span>
       </div>*/}
 
-      <div 
-        className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden"
+      {/* [V71] 구도 상자는 측정에 미관여(외곽 트랙이 측정 담당) → 실시간 뷰포트 채움을 위해 dvh 사용. 외곽 트랙·finalY의 svh는 유지. */}
+      <div
+        className="sticky top-0 left-0 w-full h-[100dvh] flex flex-col items-center justify-center overflow-hidden"
         style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
       >
         {/* [섹션명 표시]  */}
@@ -100,7 +101,9 @@ export const PainSection = React.forwardRef<PainSectionHandle, PainSectionProps>
                     'mb-32 tablet:mb-40'
                   )}
                 >
-                  <SplitText text={slide.text} innerRef={sRefs[idx]} />
+                  <div>
+                    <SplitText text={slide.text} innerRef={sRefs[idx]} />
+                  </div>
                 </div>
               </div>
             ))}

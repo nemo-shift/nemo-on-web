@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { STAGES } from '@/constants/interaction';
 import { ForWhoSectionHandle } from '../forwho/ForWhoSection';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 
 import { SharedNemoHandle } from '../SharedNemo';
 import { getForWhoTargetRect } from '../global-interaction-utils';
@@ -77,15 +77,16 @@ export function buildForWhoTimeline(
   const frame = FORWHO_FRAME[mode];
 
   // [V43.Fix] %, vw, vh 단위를 px 단위로 변환 (모바일/태블릿 픽셀 퍼펙트 대응)
+  // [V67.ViewportFix] vh 변환을 window.innerHeight 대신 svhPx(stableVH)로 교체
   const getSafePos = (val: string | number, isWidth: boolean) => {
     if (typeof val === 'number') return val;
     const str = val.toString();
-    const base = isWidth ? window.innerWidth : window.innerHeight;
-    
+    const base = isWidth ? window.innerWidth : options.stableVH;
+
     if (str.includes('%')) return base * (parseFloat(str) / 100);
     if (str.includes('vw')) return window.innerWidth * (parseFloat(str) / 100);
-    if (str.includes('vh')) return window.innerHeight * (parseFloat(str) / 100);
-    
+    if (str.includes('vh')) return svhPx(parseFloat(str), options.stableVH);
+
     return parseFloat(str) || 0;
   };
 

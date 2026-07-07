@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { SharedNemoHandle } from '../SharedNemo';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 
 /**
  * [V18.Phase2] buildCoreFunnelTimeline
@@ -95,7 +95,8 @@ export function buildCoreFunnelTimeline(
       {
         opacity: 1,
         scale: 1,
-        y: mode === 'MOBILE' ? '-8vh' : (mode === 'TABLET_P' ? '-7vh' : 0), // [V18.Exp5.FineTune] 모바일은 더 내림
+        // [V67.ViewportFix] '-8vh'/'-7vh' → svhPx(-8/-7, stableVH)
+        y: mode === 'MOBILE' ? svhPx(-8, options.stableVH) : (mode === 'TABLET_P' ? svhPx(-7, options.stableVH) : 0), // [V18.Exp5.FineTune] 모바일은 더 내림
         duration: moveDuration * 1.2,
         ease: 'power2.out',
       },
@@ -261,7 +262,7 @@ export function buildCoreFunnelTimeline(
   if (nemo.imageEl) {
     tl.to(nemo.imageEl, {
       opacity: 1,
-      backgroundPosition: (forwhoLayout as any).bgPos || 'center', // [V18.Phase5] 기기별 맞춤 구도 적용
+      backgroundPosition: forwhoLayout.bgPos || 'center', // [V18.Phase5] 기기별 맞춤 구도 적용
       duration: expandDuration,
       ease: 'power2.inOut'
     }, funnelExpand);

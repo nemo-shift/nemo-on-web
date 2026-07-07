@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useHeroContext } from '@/context';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { NemoIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,27 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
   const footerRef = useRef<HTMLElement>(null);
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === '/';
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    if (pathname === '/contact') {
+      // [Footer Fix] 같은 페이지로의 Link는 Next가 라우트 전환으로
+      // 인식하지 않아 LenisScrollRestoration의 pathname 감시 useEffect가
+      // 재실행되지 않는다 — 직접 최상단으로 이동시킨다.
+      e.preventDefault();
+      const lenis = (window as any).lenis;
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true }); // STEP8과 동일 정책: 즉시 이동
+      } else {
+        window.scrollTo(0, 0);
+      }
+    } else {
+      // [Footer Fix] 다른 페이지에서 이동하는 경우, 저장된 스크롤 위치로
+      // 잘못 복원되지 않도록 명시적 이동 플래그를 남긴다.
+      try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
+    }
+  };
   // [V11.34] ResizeObserver에 200ms 디바운스를 적용하여 리사이즈 중 부하 임계점 제어
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -55,7 +75,8 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
   }
 
   return (
-    <footer 
+    <footer
+      id="site-footer"
       ref={footerRef}
       /* 
        * [V11.33] 푸터 레이아웃 구조 정규화 (Final Tuning)
@@ -68,19 +89,22 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       className={cn(
         isHomeStage ? 'relative' : 'fixed bottom-0 left-0',
         'w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
-        'h-[450px] px-6 py-12 pb-[80px]',                 // Mobile (Safety Margin for Browser UI)
-        'tablet-p:h-[500px] tablet-p:px-8 tablet-p:py-14 tablet-p:pb-14',   // 744px
-        'tablet:h-[600px] tablet:px-10 tablet:py-8',        // 992px
-        'desktop-wide:h-[600px] desktop-wide:px-12 desktop-wide:py-12', // 1440px (User 기준)
-        'desktop-cap:h-[750px] desktop-cap:px-16 desktop-cap:py-16'   // 1920px (User 기준)
+        'min-h-[450px] px-6 py-12',                            // Mobile
+        'tablet-p:min-h-[500px] tablet-p:px-8 tablet-p:py-14 tablet-p:pb-14',   // 744px
+        'tablet:min-h-[600px] tablet:px-10 tablet:py-8',        // 992px
+        'desktop-wide:min-h-[600px] desktop-wide:px-12 desktop-wide:py-12', // 1440px (User 기준)
+        'desktop-cap:min-h-[750px] desktop-cap:px-16 desktop-cap:py-16'   // 1920px (User 기준)
       )}
-      style={{ 
-        backgroundColor: '#0a0a0a', 
-        zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : INTERACTION_Z_INDEX.Z_BEHIND_BG,
+      style={{
+        backgroundColor: '#0a0a0a',
+        zIndex: isHomeStage ? INTERACTION_Z_INDEX.Z_FOOTER_UNDER : 0,
         pointerEvents: 'auto',
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,
-        transition: 'opacity 0.3s'
+        transition: 'opacity 0.3s',
+        // [V67.ViewportFix] 모바일 크롬 높이만큼 정확히 보정 (데스크톱에선 0).
+        // lvh(주소창 접힘) - svh(주소창 펼침) = 해당 기기의 브라우저 크롬 높이.
+        paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))',
       }}
     >
       {/* [상부 그룹] 상단(Get in touch)과 중앙(로고)의 밀착된 리듬 제어 */}
@@ -94,9 +118,10 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       )}>
         {/* 1. 상단: Get in touch */}
         <div className="flex justify-end pt-4">
-          <Link 
+          <Link
             href="/contact"
             data-cursor="contact"
+            onClick={handleContactClick}
             className={cn(
               'font-medium tracking-tight hover:opacity-70 transition-all duration-500 leading-none',
               'text-lg tablet-p:text-xl tablet:text-2xl desktop-wide:text-3xl'
@@ -150,25 +175,8 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         )}
       >
         <div className="flex items-center gap-6 text-sm font-medium tracking-wide">
-          <a 
-            href="https://threads.net" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-[#0891b2] transition-colors"
-          >
-            Threads
-          </a>
-          <a 
-            href="https://instagram.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-[#0891b2] transition-colors"
-          >
-            Instagram
-          </a>
-          {/* [V11.33] 모바일에서 구분선 숨김 */}
-          <span className="w-[1px] h-3 bg-white/20 mx-1 hidden tablet:block" />
-          <Link 
+          {/* [V75/STEP C] Threads/Instagram 플레이스홀더 제거 — 실제 계정 확정 후 재추가 */}
+          <Link
             href="/privacy"
             className="hover:text-[#0891b2] transition-colors"
           >

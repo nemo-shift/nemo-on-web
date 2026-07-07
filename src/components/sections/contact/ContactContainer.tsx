@@ -1,16 +1,17 @@
 'use client';
 
+// [V69.LaunchReady] STEP 1 — any 타입 제거
 import React, { useState } from 'react';
-import ContactForm from './ContactForm';
+import ContactForm, { type ContactFormData } from './ContactForm';
 import ContactSuccess from './ContactSuccess';
 
 export type ContactStep = 'FORM' | 'SUCCESS';
 
 export default function ContactContainer() {
   const [step, setStep] = useState<ContactStep>('FORM');
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<ContactFormData | null>(null);
 
-  const handleSubmitSuccess = (data: any) => {
+  const handleSubmitSuccess = (data: ContactFormData) => {
     setFormData(data);
     setStep('SUCCESS');
     // 최상단으로 스크롤 이동하여 성공 문구가 잘 보이도록 처리

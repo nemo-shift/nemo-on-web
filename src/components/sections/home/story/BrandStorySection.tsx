@@ -6,10 +6,11 @@ export const BrandStorySection = () => {
   return (
     <section 
       id="section-brand-story"
-      className="relative w-full h-[400vh] overflow-visible"
+      className="relative w-full h-[400svh] overflow-visible"
       style={{ backgroundColor: 'transparent' }}
     >
-      <div className="sticky top-0 left-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
+      {/* [V71] 구도 상자는 측정에 미관여(외곽 트랙이 측정 담당) → 실시간 뷰포트 채움을 위해 dvh 사용. 외곽 트랙·finalY의 svh는 유지. */}
+      <div className="sticky top-0 left-0 w-full h-[100dvh] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--bg, #faf7f2)' }}>
         {/* [NEW] 물리적 분할 배경 패널 (화이트) */}
         <div 
           id="story-bg-white"
@@ -48,7 +49,7 @@ export const BrandStorySection = () => {
           </h2>
 
           {/* [NEW] 4단계 단락 콘텐츠 매핑 */}
-          <div className="relative w-full h-[40vh] flex items-center justify-center">
+          <div className="relative w-full h-[40svh] flex items-center justify-center">
             {BRAND_STORY_CONTENT.map((item, idx) => (
               <div
                 key={item.id}

@@ -4,10 +4,12 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Home } from 'lucide-react';
 import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
+import { markPushNav } from '@/lib/navigation';
 
 // ─────────────────────────────────────────────
 // 메뉴 항목 (기획서 기준 4개)
@@ -24,6 +26,8 @@ const LAYER_COLORS = {
   LAYER_2: COLORS.BRAND,      // #0891b2 (브랜드 틸)
   MAIN: COLORS.BG.CREAM,      // #f7f1e9 (크림)
 };
+
+const NAV_PUSH_DELAY = 150; // [V72] 메뉴가 화면을 덮은 뒤 교체가 일어나도록 하는 미세 지연
 
 // ─────────────────────────────────────────────
 // 애니메이션 타이밍
@@ -71,6 +75,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const dimRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const homeButtonRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const isAnimatingRef = useRef(false);
 
@@ -148,8 +153,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       );
     });
 
-    // 4) 3중 레이어 슬라이드인 (오른쪽 → 왼쪽)
-    const items = menuItemsRef.current.filter(Boolean);
+    // 4) 메뉴 텍스트 + 홈 버튼 Stagger 등장
+    const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     tl.fromTo(items,
       { y: 40, opacity: 0 },
       {
@@ -173,7 +178,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   // ─────────────────────────────────────────
   // 닫기 애니메이션
   // ─────────────────────────────────────────
-  const animateClose = useCallback((targetHref?: string) => {
+  const animateClose = useCallback((targetHref?: string, scrollToTop?: boolean) => {
     // 기존 진행 중인 애니메이션 강제 중단
     if (tlRef.current) {
       tlRef.current.kill();
@@ -200,15 +205,22 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         // 상태 초기화
         onClose();
 
-        // 라우팅: onComplete 안에서 실행 → 애니메이션 끊김 방지
-        if (targetHref) {
-          router.push(targetHref);
+        if (scrollToTop) {
+          // 같은 페이지 재클릭 시 최상단으로 스크롤
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (typeof window !== 'undefined' && (window as any).lenis) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // [V74.ScrollGuidance/STEP8] 서브페이지는 GSAP 핀과 무관하므로 즉시 점프
+            (window as any).lenis.scrollTo(0, { immediate: true });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+          }
         }
       },
     });
 
-    // 1) 메뉴 텍스트 & 모든 레이어 동시 슬라이드아웃 (All-at-once)
-    const items = menuItemsRef.current.filter(Boolean);
+    // 1) 메뉴 텍스트 & 홈 버튼 & 모든 레이어 동시 슬라이드아웃 (All-at-once)
+    const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     const layers = [mainPanelRef.current, layer2Ref.current, layer1Ref.current];
 
     tl.to(layers, {
@@ -240,7 +252,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         ease: 'power2.out',
       }, '-=0.3');
     }
-  }, [getDimTargets, onClose, router]);
+  }, [getDimTargets, onClose]);
 
   // ─────────────────────────────────────────
   // isOpen 변화 감지 → 열기 애니메이션
@@ -307,15 +319,46 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   }, [isOpen, getDimTargets, onClose]);
 
   // ─────────────────────────────────────────
-  // 메뉴 항목 클릭 핸들러 (onComplete 라우팅)
+  // 메뉴 열림 시 프리페치
   // ─────────────────────────────────────────
-  const handleItemClick = (href: string) => {
-    // 현재 페이지와 동일하면 그냥 닫기
-    if (pathname === href) {
+  useEffect(() => {
+    if (!isOpen) return;
+    MENU_ITEMS.forEach(({ href }) => router.prefetch(href));
+    router.prefetch('/');
+  }, [isOpen, router]);
+
+  // ─────────────────────────────────────────
+  // 메뉴 항목 클릭 핸들러
+  // ─────────────────────────────────────────
+
+  // ① 이동 전 Lenis 재가동 — 새 페이지 스크롤 복원이 무시되지 않도록
+  // ④ 메뉴 레이어가 덮은 뒤 교체 시작 (병렬 로딩은 프리페치가 담당)
+  const navigateTo = (href: string) => {
+    if (typeof window !== 'undefined' && (window as any).lenis) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).lenis.start();
+    }
+    // [V72/V74.STEP7] LenisScrollRestoration이 이 이동을 명시적 push로 인식해 top:0으로 처리하도록 플래그 심기
+    markPushNav();
+    setTimeout(() => router.push(href), NAV_PUSH_DELAY);
+  };
+
+  const handleHomeClick = () => {
+    if (isHome) {                    // ③ 기존 특례 유지
       animateClose();
+    } else {
+      navigateTo('/');
+      animateClose();                // targetHref 없이 — 순수 연출로만
+    }
+  };
+
+  const handleItemClick = (href: string) => {
+    if (pathname === href) {         // ② 같은 페이지: 기존 동작 그대로
+      animateClose(undefined, true);
       return;
     }
-    animateClose(href);
+    navigateTo(href);
+    animateClose();                  // targetHref 없이 — 순수 연출로만
   };
 
   // ─────────────────────────────────────────
@@ -370,6 +413,20 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         }}
       >
         <div className="flex flex-col h-full px-8 py-6 tablet-p:px-12 tablet-p:py-8">
+
+          {/* ── 홈 버튼 (좌상단) ── */}
+          <div ref={homeButtonRef} className="opacity-0 mt-3 tablet-p:mt-6 tablet:mt-8">
+            <button
+              type="button"
+              onClick={handleHomeClick}
+              className="group flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
+            >
+              <Home
+                className="transition-colors duration-300 group-hover:text-[var(--accent)] w-6 h-6 tablet-p:w-8 tablet-p:h-8 tablet:w-11 tablet:h-11"
+                style={{ color: COLORS.TEXT.DARK }}
+              />
+            </button>
+          </div>
 
           {/* ── 메뉴 항목 (Stagger 등장 대상) ── */}
           <nav className="flex-1 flex flex-col justify-center gap-8 tablet-p:gap-10">

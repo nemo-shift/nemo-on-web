@@ -124,17 +124,17 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
         style={{
           position: 'absolute',
           left: isCentered ? '50%' : 'auto',
-          right: isCentered ? 'auto' : (isMobile ? '8%' : '12%'),
-          top: isCentered ? '50%' : (isMobile ? '52%' : (isTabletPortrait ? '52%' : '45%')),
+          right: isCentered ? 'auto' : (isMobile ? '8%' : (isTabletPortrait ? '12%' : '28%')),
+          top: isCentered ? '50%' : (isMobile ? '52%' : (isTabletPortrait ? '52%' : '49%')),
           transform: isCentered 
             ? 'translate(-50%, -50%) scale(1.1)' 
             : 'translateY(-50%)',
           width: isMobile
             ? 'clamp(200px, 55vw, 320px)'
-            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(260px, 32vw, 500px)'),
+            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(220px, 27vw, 420px)'),
           height: isMobile
             ? 'clamp(200px, 55vw, 320px)'
-            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(260px, 32vw, 500px)'),
+            : (isTabletPortrait ? 'clamp(350px, 45vw, 600px)' : 'clamp(220px, 27vw, 420px)'),
           visibility: isOn ? 'visible' : 'hidden',
           opacity: isOn ? (isStepAll ? (onModeRevealed || isCentered ? 0.75 : 1) : 0.95) : 0,
           pointerEvents: isOn && (onModeRevealed || isCentered || sequenceStep > 0) ? 'auto' : 'none',
@@ -169,7 +169,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
               cx="250"
               cy="235"
               r="150"
-              fill={isMobile ? 'none' : (activeShape === 'circle' ? 'rgba(8, 145, 178, 0.12)' : 'rgba(8, 145, 178, 0.04)')}
+              fill="none"
               //fill={activeShape === 'circle' ? 'rgba(8, 145, 178, 0.22)' : 'rgba(8, 145, 178, 0.04)'}
               stroke="#0891b2"
               strokeWidth="1.2"
@@ -205,7 +205,7 @@ const HeroOnShapesStage = forwardRef<HTMLDivElement, ShapesStageProps>(
           <g ref={triangleRef} style={{ opacity: 0, transformOrigin: '250px 203px' }}>
             <polygon
               points="250,72 422,334 78,334"
-              fill={isMobile ? 'none' : (activeShape === 'triangle' ? 'rgba(14, 116, 144, 0.12)' : 'rgba(14, 116, 144, 0.03)')}
+              fill="none"
               //fill={activeShape === 'triangle' ? 'rgba(14, 116, 144, 0.12)' : 'rgba(14, 116, 144, 0.03)'}
               stroke="#0e7490"
               strokeWidth="1.2"

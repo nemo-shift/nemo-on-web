@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -8,7 +8,8 @@ import { useGSAP } from '@gsap/react';
 import { useHeroContext } from '@/context';
 import JourneyLogo, { JourneyLogoHandle } from './JourneyLogo';
 import SharedNemo, { SharedNemoHandle } from './SharedNemo';
-import FallingKeywordsStage, { FallingKeywordsHandle } from './FallingKeywordsStage';
+import type { FallingKeywordsHandle, FallingKeywordsStageProps } from './FallingKeywordsStage';
+const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null }) as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>;
 import {
   INTERACTION_Z_INDEX,
   STAGES,
@@ -17,13 +18,43 @@ import {
 import { GlobalInteractionStageProps, GlobalBuilderOptions } from './types';
 import { calculateLabels, initGlobalStyles, initLogoState, initNemoState, syncNemoCoordinates } from './global-interaction-utils';
 import GlobalScrollHint from './GlobalScrollHint';
+import ScrollOnboardingNudge from './ScrollOnboardingNudge';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
 import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
-import { DEBUG_CONFIG } from '@/constants/debug'; // [완성후-삭제]
-import InteractionDebugger from './InteractionDebugger'; // [완성후-삭제]
+// [V69.LaunchReady] STEP 5 — InteractionDebugger dev 전용 dynamic import (프로덕션 번들 제외)
+import dynamic from 'next/dynamic';
+const IS_DEV = process.env.NODE_ENV === 'development';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const InteractionDebugger: React.ComponentType<any> = IS_DEV
+  ? dynamic(() => import('./InteractionDebugger'), { ssr: false })
+  : () => null;
 
 import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
+
+// [V67.ViewportFix] 브라우저 크롬 상태와 무관한 안정 뷰포트 높이(100svh) 실측
+const getStableVH = (): number => {
+  if (typeof document === 'undefined') return 0;
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;height:100svh;width:0;visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h || window.innerHeight;
+};
+
+// [V67.ViewportFix] 풀블리드 커버용 안정 높이(100lvh) 실측 — 크롬 접힘 상태에서도 전체 덮음
+const getStableLVH = (): number => {
+  if (typeof document === 'undefined') return 0;
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;height:100lvh;width:0;visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h || window.innerHeight;
+};
 
 // [V66.Phase1] GSAP/ScrollTrigger 글로벌 설정
 if (typeof window !== 'undefined') {
@@ -65,15 +96,37 @@ export const GlobalInteractionStage = ({
 
   // [V11.Separation] 하이드레이션 오류 방지를 위한 마운트 상태 관리
   const [mounted, setMounted] = useState(false);
-  const [revision, setRevision] = useState(0); 
+  const [revision, setRevision] = useState(0);
+  // 타임라인 준비 전 터치 스크롤 차단용 투명 오버레이 상태
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  // 재시도 안전장치: 연속 재시도 횟수 추적 (MAX_RETRY 초과 시 오버레이 강제 해제)
+  const MAX_RETRY = 5;
+  const retryCountRef = useRef(0);
+  // [V68.Fix1] 마지막 빌드 시 footerHeight 기록 — 60px 게이트용
+  const lastBuiltFooterHeightRef = useRef(0);
+
   useEffect(() => {
     setMounted(true);
     lastWidthRef.current = window.innerWidth;
     lastHeightRef.current = window.innerHeight;
   }, []);
 
+  // 오버레이 해제:
+  // - 오프모드(!isScrollable): 마운트 직후 100ms 후 해제 (HeroContext overflow:hidden이 스크롤 담당)
+  // - 온모드(isScrollable): isTimelineReady까지 대기 후 500ms 해제
+  useEffect(() => {
+    if (!mounted) return;
+    if (!isScrollable || isTimelineReady) {
+      const delay = isTimelineReady ? 500 : 100;
+      const timer = setTimeout(() => setShowOverlay(false), delay);
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, isScrollable, isTimelineReady]);
+
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {
+      retryCountRef.current = 0;
       setRevision(prev => prev + 1);
     }
   }, [mounted]);
@@ -82,6 +135,43 @@ export const GlobalInteractionStage = ({
   const rawScrollYRef   = useRef<number>(0);
   const isRestoringRef  = useRef<boolean>(false); 
   const layoutTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null); 
+
+  // [Fix 4] 모바일 브라우저 컨트롤 바 등장/숨김 시 ScrollTrigger 좌표 동기화
+  // ignoreMobileResize:true 가 빈번한 갱신을 막으므로, visualViewport 기반으로
+  // 높이 변화가 50px 이상 안정된 후 1회만 refresh (300ms 디바운스)
+  // [V68.Fix2] svh 전환 이후 touch에서는 시각 뷰포트 높이 변화(크롬 제어 바)가
+  // ScrollTrigger 재빌드 트리거가 될 이유가 없음 — 터치에서는 핸들러 즉시 종료
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+    if (interactionMode === 'touch') return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastHeight = window.visualViewport.height;
+
+    const handleViewportResize = () => {
+      const currentHeight = window.visualViewport!.height;
+      const diff = Math.abs(currentHeight - lastHeight);
+      if (diff < 50) return; // 소소한 변화 무시, 컨트롤 바 수준만 감지
+
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        lastHeight = window.visualViewport!.height;
+        // [V67.ViewportFix] 핀 구간 후반(푸터 근처)에서는 refresh가 눈에 보이는
+        // 점프를 유발하므로 스킵. STEP 1~2로 기하학이 svh 고정이라 보정 불필요.
+        const progress = masterTl.current?.progress() ?? 0;
+        if (masterTl.current && progress <= 0.9) {
+          ScrollTrigger.refresh();
+        }
+        debounceTimer = null;
+      }, 300);
+    };
+
+    window.visualViewport.addEventListener('resize', handleViewportResize);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportResize);
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [interactionMode]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -93,26 +183,29 @@ export const GlobalInteractionStage = ({
   }, []);
 
   // [V66.Phase1] 지능형 리사이즈 감지 정책 적용
+  // [V67.ViewportFix] 터치 기기에서는 높이 변화(브라우저 크롬 등장/퇴장)를 무시.
+  // 화면 회전은 너비 변화(widthChanged)로 감지되므로 정상 커버됨.
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      
+
       // 너비가 변했거나 (가로/세로 전환), 높이 변화가 임계값(80px 또는 12%) 이상일 때만 엔진 재가동
       const widthChanged = Math.abs(w - lastWidthRef.current) > 2;
       const heightDiff = Math.abs(h - lastHeightRef.current);
       const heightThreshold = Math.max(80, lastHeightRef.current * 0.12);
-      
-      if (widthChanged || heightDiff > heightThreshold) {
+
+      if (widthChanged || (interactionMode !== 'touch' && heightDiff > heightThreshold)) {
         lastWidthRef.current = w;
         lastHeightRef.current = h;
+        retryCountRef.current = 0;
         setRevision(prev => prev + 1);
       }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [interactionMode]);
 
   useEffect(() => {
     if (isScrollable) {
@@ -123,10 +216,14 @@ export const GlobalInteractionStage = ({
     }
   }, [isScrollable]);
 
-  if (mounted) {
+  // [V69.LaunchReady] STEP 6 — 렌더 본문 DOM 조작 → useLayoutEffect 이동 (React 규칙 준수)
+  // ⚠️ 이동 후 홈 새로고침 시 첫 페인트 FOUC 발생 여부를 반드시 눈으로 확인할 것.
+  //    깜빡임 발생 시 이 블록을 되돌리고 원인 보고 후 중단한다.
+  useLayoutEffect(() => {
+    if (!mounted) return;
     const isRestoring = (currProgressRef.current || 0) > 0.001;
     initGlobalStyles(INTERACTION_REGISTRY, isOn, isMobileView, currProgressRef.current, isRestoring);
-  }
+  }, [mounted, isOn, isMobileView]);
 
   useGSAP(() => {
     const logo = logoHandle.current;
@@ -135,10 +232,18 @@ export const GlobalInteractionStage = ({
 
     let localTl: gsap.core.Timeline | null = null;
     let localTrigger: ScrollTrigger | null = null;
+    let localPainTrigger: ScrollTrigger | null = null;
 
     const ctx = gsap.context(() => {
       if (!isScrollable || !mounted) return;
-      if (!logo?.containerEl || !nemo?.nemoEl || !falling) return;
+      if (!logo?.containerEl || !nemo?.nemoEl || !falling) {
+        // [V76] FallingKeywordsStage dynamic import 미완료 시 재시도
+        if (!falling && retryCountRef.current < MAX_RETRY) {
+          retryCountRef.current += 1;
+          setTimeout(() => setRevision(prev => prev + 1), 80);
+        }
+        return;
+      }
 
       if (isMobile) {
         ScrollTrigger.normalizeScroll({
@@ -176,13 +281,27 @@ export const GlobalInteractionStage = ({
           // 푸터 높이가 아직 0이고 실기기 모바일인 경우, 정확한 측정을 위해 빌드를 한 차례 지연
           if (measuredFooterHeight === 0 && isMobile) {
             console.warn('[V66.Phase1] Footer height not ready, deferring build...');
-            setRevision(prev => prev + 1);
+            if (retryCountRef.current < MAX_RETRY) {
+              retryCountRef.current += 1;
+              setRevision(prev => prev + 1);
+            } else {
+              console.error('[V66.Phase1] Max retries exceeded (footer). Force-releasing overlay.');
+              setShowOverlay(false);
+              setIsTimelineReady(true);
+            }
             return;
           }
 
           if (!allRendered) {
             console.warn('[V66.Phase1] Some sections are missing or height is 0, retrying...');
-            setRevision(prev => prev + 1);
+            if (retryCountRef.current < MAX_RETRY) {
+              retryCountRef.current += 1;
+              setRevision(prev => prev + 1);
+            } else {
+              console.error('[V66.Phase1] Max retries exceeded (sections). Force-releasing overlay.');
+              setShowOverlay(false);
+              setIsTimelineReady(true);
+            }
             return;
           }
 
@@ -209,9 +328,12 @@ export const GlobalInteractionStage = ({
           // 포커싱용 상태 업데이트
           setOffsets(sectionOffsetsMap);
 
-          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom(80px)으로 대체되었습니다.
+          // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom으로 대체되었습니다.
           // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
-          const finalY = measuredTotalHeight - window.innerHeight;
+          // [V67.ViewportFix] innerHeight(크롬 상태에 따라 가변) 대신 svh/lvh 실측값 사용
+          const stableVH = getStableVH();
+          const stableLVH = getStableLVH();
+          const finalY = measuredTotalHeight - stableVH;
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
@@ -239,7 +361,7 @@ export const GlobalInteractionStage = ({
               const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
 
               if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
-                syncNemoCoordinates(nemoHandle.current?.nemoEl || null);
+                syncNemoCoordinates(nemoHandle.current?.nemoEl || null, stableVH);
               }
 
             }
@@ -252,17 +374,20 @@ export const GlobalInteractionStage = ({
             tl.addLabel(key, time);
           });
 
-          const builderOptions: GlobalBuilderOptions = { 
-            isMobile, 
-            isMobileView, 
-            isTabletPortrait, 
-            isOn, 
+          const builderOptions: GlobalBuilderOptions = {
+            isMobile,
+            isMobileView,
+            isTabletPortrait,
+            isOn,
             interactionMode,
             registry: INTERACTION_REGISTRY,
             // [V43] 실측된 동적 영점 데이터를 빌더들에게 보급합니다.
             initialNemoPos: measuredPos || undefined,
             // [V66.Phase3-2] 실측 오프셋 데이터를 엔진에 주입합니다.
-            sectionOffsets: sectionOffsetsMap
+            sectionOffsets: sectionOffsetsMap,
+            // [V67.ViewportFix] svh/lvh 실측값을 모든 빌더에 보급합니다.
+            stableVH,
+            stableLVH,
           };
 
 
@@ -326,6 +451,19 @@ export const GlobalInteractionStage = ({
           });
           keywordsTrigger.current = localTrigger;
 
+          // [V76] Pain 구간 물리 엔진 게이트 — ScrollTrigger onEnter/onLeave로 제어
+          // duration:0 tween onStart 방식은 scrub 모드에서 불안정 → 콜백 방식으로 교체
+          const painEnterScrollY = (L[STAGES.TO_PAIN] / totalDuration) * finalY;
+          const painLeaveScrollY = (L[STAGES.PAIN_TO_MSG] / totalDuration) * finalY;
+          localPainTrigger = ScrollTrigger.create({
+            start: painEnterScrollY,
+            end: painLeaveScrollY,
+            onEnter: () => fallingRef.current?.resumeSimulation(),
+            onLeave: () => fallingRef.current?.pauseSimulation(),
+            onEnterBack: () => fallingRef.current?.resumeSimulation(),
+            onLeaveBack: () => fallingRef.current?.pauseSimulation(),
+          });
+
           // [V23.Bulletproof] 물리적 높이 선점 (Height Pre-sync)
           ScrollTrigger.refresh();
 
@@ -348,7 +486,7 @@ export const GlobalInteractionStage = ({
 
               ScrollTrigger.refresh();
               isRestoringRef.current = false;
-              console.log('[Interaction/V33] Restoration Success');
+              if (process.env.NODE_ENV !== 'production') console.log('[Interaction/V33] Restoration Success');
             });
           } else {
             isRestoringRef.current = false;
@@ -357,6 +495,9 @@ export const GlobalInteractionStage = ({
           layoutTimerRef.current = setTimeout(() => {
             // [V23.Bulletproof] 모든 레이아웃 렌더링 및 스크롤 복구가 끝난 후 최종 정밀 리프레시
             ScrollTrigger.refresh();
+            retryCountRef.current = 0;
+            // [V68.Fix1] 빌드 완료 시점의 footerHeight 기록 (게이트 기준값)
+            lastBuiltFooterHeightRef.current = measuredFooterHeight;
             setIsTimelineReady(true);
           }, 200);
         }));
@@ -368,7 +509,7 @@ export const GlobalInteractionStage = ({
 
     return () => {
       setIsTimelineReady(false);
-      console.log('[Interaction/V33] Cleanup Context');
+      if (process.env.NODE_ENV !== 'production') console.log('[Interaction/V33] Cleanup Context');
 
       if (rafId.current) cancelAnimationFrame(rafId.current);
       if (layoutTimerRef.current) { 
@@ -385,7 +526,7 @@ export const GlobalInteractionStage = ({
         wrapper.style.transform = '';
       }
 
-      console.log('[Interaction/Debug] Cleanup - Triggering ctx.revert()');
+      if (process.env.NODE_ENV !== 'production') console.log('[Interaction/Debug] Cleanup - Triggering ctx.revert()');
       ctx.revert();
       gsap.set('#home-stage', { clearProps: 'transform,position' });
 
@@ -403,8 +544,16 @@ export const GlobalInteractionStage = ({
           keywordsTrigger.current = null;
         }
       }
+
+      if (localPainTrigger) {
+        localPainTrigger.kill();
+        localPainTrigger = null;
+      }
+
+      // [V76] 재빌드 시 물리 엔진 정지 (다음 ScrollTrigger onEnter가 재가동)
+      fallingRef.current?.pauseSimulation();
     };
-  }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode, footerHeight], revertOnUpdate: true });
+  }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode], revertOnUpdate: true });
 
   // [V66.Phase3.3] CTA 자동 포커스 이벤트 리스너 (최신 offsets 상태 반영)
   useEffect(() => {
@@ -425,6 +574,17 @@ export const GlobalInteractionStage = ({
     window.addEventListener('nemo:cta-focus', handleCtaFocus);
     return () => window.removeEventListener('nemo:cta-focus', handleCtaFocus);
   }, [offsets, mounted]);
+
+  // [V68.Fix1] footerHeight 변화 게이트 — 60px 이상 차이 시에만 재빌드 트리거
+  // useGSAP deps에서 footerHeight를 제거하고, 실제로 의미 있는 변화(레이아웃 영향 수준)만 반응.
+  // 모바일 컨트롤 바 전환으로 인한 calc() 미세 변화(~20-34px)는 차단됨.
+  useEffect(() => {
+    if (!masterTl.current) return;
+    if (Math.abs(footerHeight - lastBuiltFooterHeightRef.current) > 60) {
+      retryCountRef.current = 0;
+      setRevision(prev => prev + 1);
+    }
+  }, [footerHeight]);
 
   // [V11.11 Fix] 포탈 내 변수 소실을 차단하기 위해 데이터 시트에서 현재 환경의 색상을 직접 추출합니다.
   const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
@@ -554,6 +714,8 @@ export const GlobalInteractionStage = ({
                 fallingRef.current?.reset();
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if ((window as any).lenis) (window as any).lenis.scrollTo(0, { immediate: true });
+                // ScrollTrigger 캐시된 scroll position과 실제 위치 동기화
+                requestAnimationFrame(() => ScrollTrigger.refresh());
               }}
             />
           </div>
@@ -561,9 +723,13 @@ export const GlobalInteractionStage = ({
         document.body
       )}
       
-      {/* 3. Global Scroll Hint (통합 가이드) */}
+      {/* 3. Global Scroll Hint (통합 가이드) + 온보딩 넛지 배너 */}
       {mounted && typeof document !== 'undefined' && createPortal(
         <GlobalScrollHint />,
+        document.body
+      )}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <ScrollOnboardingNudge />,
         document.body
       )}
 
@@ -577,6 +743,23 @@ export const GlobalInteractionStage = ({
 
       {/* 5. Interaction Debugger (v11.Separation) [완성후-삭제] */}
       {mounted && <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />}
+
+      {/* 타임라인 준비 전 투명 오버레이 — iOS/Android 초기 터치 스크롤 차단 */}
+      {showOverlay && mounted && typeof document !== 'undefined' && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9000,
+            opacity: isTimelineReady ? 0 : 1,
+            transition: 'opacity 0.4s ease',
+            pointerEvents: isTimelineReady ? 'none' : 'all',
+            touchAction: isTimelineReady ? 'auto' : 'none',
+            backgroundColor: 'transparent',
+          }}
+        />,
+        document.body
+      )}
     </div>
   );
 };

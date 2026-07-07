@@ -1,14 +1,9 @@
+// [V69.LaunchReady] STEP 1 — fetch('/api/contact') 연동, honeypot, 로딩/에러 상태 추가
 'use client';
 
 import React, { useState, useRef } from 'react';
 
-interface ContactFormProps {
-  onSubmitSuccess: (data: any) => void;
-}
-
-type InquiryType = 'project' | 'webinar' | 'collaboration' | 'etc';
-
-interface FormState {
+export interface ContactFormData {
   company: string;
   name: string;
   inquiryType: InquiryType;
@@ -20,8 +15,16 @@ interface FormState {
   agreePrivacy: boolean;
 }
 
+interface ContactFormProps {
+  onSubmitSuccess: (data: ContactFormData) => void;
+}
+
+type InquiryType = 'project' | 'webinar' | 'collaboration' | 'etc';
+
+type SubmitStatus = 'idle' | 'loading' | 'error';
+
 export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<ContactFormData>({
     company: '',
     name: '',
     inquiryType: 'project',
@@ -34,6 +37,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
+  const [serverError, setServerError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -101,11 +106,46 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      // 실제 API 연동이 예정되어 있으나 우선 로컬 성공 상태로 전환
-      onSubmitSuccess(form);
+    if (!validate()) return;
+
+    setSubmitStatus('loading');
+    setServerError('');
+
+    const payload = new FormData();
+    payload.append('name', form.name);
+    payload.append('company', form.company);
+    payload.append('inquiryType', form.inquiryType);
+    payload.append('content', form.content);
+    payload.append('referenceUrl', form.referenceUrl);
+    payload.append('phone', form.phone);
+    payload.append('email', form.email);
+    // Honeypot — 사람은 비워둠
+    payload.append('_hp', '');
+    if (form.file) {
+      payload.append('file', form.file);
+    }
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        body: payload,
+      });
+
+      if (res.ok) {
+        setSubmitStatus('idle');
+        onSubmitSuccess(form);
+      } else {
+        const json = await res.json().catch(() => ({}));
+        setServerError(
+          json.error ?? '전송에 실패했습니다. 잠시 후 다시 시도해주세요.'
+        );
+        setSubmitStatus('error');
+      }
+    } catch {
+      setServerError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setSubmitStatus('error');
     }
   };
 
@@ -115,6 +155,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
     collaboration: '채용 / 협업 문의',
     etc: '기타 문의',
   };
+
+  const isLoading = submitStatus === 'loading';
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto py-8 sm:py-12 px-4 flex flex-col justify-between min-h-[580px] text-text-dark font-sans leading-relaxed">
@@ -129,7 +171,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
             value={form.company}
             onChange={handleInputChange}
             placeholder="회사명을 입력해주세요. (선택)"
-            className="inline-block text-left bg-transparent border-b border-text-dark/15 focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[220px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25"
+            disabled={isLoading}
+            className="inline-block text-left bg-transparent border-b border-text-dark/15 focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[220px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25 disabled:opacity-50"
           />{' '}
           의{' '}
           <div className="inline-block relative">
@@ -139,9 +182,10 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
               value={form.name}
               onChange={handleInputChange}
               placeholder="이름을 입력해주세요."
+              disabled={isLoading}
               className={`inline-block text-left bg-transparent border-b ${
                 errors.name ? 'border-red-500' : 'border-text-dark/15'
-              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[180px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25`}
+              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[180px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25 disabled:opacity-50`}
             />
             {errors.name && <span className="absolute left-0 -bottom-5 text-[10px] text-red-500 font-normal whitespace-nowrap">{errors.name}</span>}
           </div>{' '}
@@ -159,7 +203,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
                   key={type}
                   type="button"
                   onClick={() => handleTypeChange(type)}
-                  className={`px-4 py-2 border border-text-dark/10 text-xs sm:text-sm tracking-tight transition-all duration-300 cursor-pointer ${
+                  disabled={isLoading}
+                  className={`px-4 py-2 border border-text-dark/10 text-xs sm:text-sm tracking-tight transition-all duration-300 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
                     isSelected
                       ? 'bg-text-dark text-white font-bold border-text-dark'
                       : 'bg-transparent text-text-dark/60 hover:text-text-dark hover:border-text-dark/30'
@@ -185,9 +230,10 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
                 onChange={handleInputChange}
                 placeholder="내용을 입력해주세요."
                 rows={5}
+                disabled={isLoading}
                 className={`w-full bg-transparent border ${
                   errors.content ? 'border-red-500' : 'border-text-dark/15'
-                } focus:border-brand focus:outline-none transition-colors p-4 text-sm font-light placeholder-text-dark/25 resize-none leading-relaxed`}
+                } focus:border-brand focus:outline-none transition-colors p-4 text-sm font-light placeholder-text-dark/25 resize-none leading-relaxed disabled:opacity-50`}
               />
               {errors.content && <span className="absolute left-0 -bottom-5 text-[10px] text-red-500 font-normal">{errors.content}</span>}
             </div>
@@ -200,7 +246,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
               value={form.referenceUrl}
               onChange={handleInputChange}
               placeholder="참고사이트 주소를 입력해주세요. (선택)"
-              className="w-full bg-transparent border-b border-text-dark/15 focus:border-brand focus:outline-none transition-colors py-2 text-sm font-light placeholder-text-dark/25"
+              disabled={isLoading}
+              className="w-full bg-transparent border-b border-text-dark/15 focus:border-brand focus:outline-none transition-colors py-2 text-sm font-light placeholder-text-dark/25 disabled:opacity-50"
             />
           </div>
         </div>
@@ -212,7 +259,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
             <button
               type="button"
               onClick={triggerFileSelect}
-              className="px-4 py-2.5 border border-text-dark/20 hover:border-brand hover:text-brand text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer self-start"
+              disabled={isLoading}
+              className="px-4 py-2.5 border border-text-dark/20 hover:border-brand hover:text-brand text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer self-start disabled:cursor-not-allowed disabled:opacity-50"
             >
               ↓ 파일 첨부
             </button>
@@ -231,7 +279,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
                   <button
                     type="button"
                     onClick={handleRemoveFile}
-                    className="text-red-500 hover:text-red-700 ml-2 font-bold cursor-pointer"
+                    disabled={isLoading}
+                    className="text-red-500 hover:text-red-700 ml-2 font-bold cursor-pointer disabled:cursor-not-allowed"
                   >
                     ✕
                   </button>
@@ -254,9 +303,10 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
               value={form.phone}
               onChange={handleInputChange}
               placeholder="전화번호('-' 포함)"
+              disabled={isLoading}
               className={`inline-block text-left bg-transparent border-b ${
                 errors.phone ? 'border-red-500' : 'border-text-dark/15'
-              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[200px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25`}
+              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[200px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25 disabled:opacity-50`}
             />
             {errors.phone && <span className="absolute left-0 -bottom-5 text-[10px] text-red-500 font-normal whitespace-nowrap">{errors.phone}</span>}
           </div>
@@ -268,9 +318,10 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
               value={form.email}
               onChange={handleInputChange}
               placeholder="이메일 주소"
+              disabled={isLoading}
               className={`inline-block text-left bg-transparent border-b ${
                 errors.email ? 'border-red-500' : 'border-text-dark/15'
-              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[260px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25`}
+              } focus:border-brand focus:outline-none transition-colors px-2 py-0.5 max-w-[260px] text-base sm:text-lg font-medium text-brand placeholder-text-dark/25 disabled:opacity-50`}
             />
             {errors.email && <span className="absolute left-0 -bottom-5 text-[10px] text-red-500 font-normal whitespace-nowrap">{errors.email}</span>}
           </div>{' '}
@@ -285,6 +336,7 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
               id="agreePrivacy"
               name="agreePrivacy"
               checked={form.agreePrivacy}
+              disabled={isLoading}
               onChange={(e) => {
                 setForm((prev) => ({ ...prev, agreePrivacy: e.target.checked }));
                 if (errors.agreePrivacy && e.target.checked) {
@@ -295,24 +347,35 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
                   });
                 }
               }}
-              className="w-4 h-4 accent-brand rounded border-text-dark/15 focus:ring-brand cursor-pointer"
+              className="w-4 h-4 accent-brand rounded border-text-dark/15 focus:ring-brand cursor-pointer disabled:cursor-not-allowed"
             />
             <label htmlFor="agreePrivacy" className="text-xs sm:text-sm text-text-dark/60 cursor-pointer">
-              <span className="underline hover:text-brand transition-colors font-medium">개인정보처리방침</span>에 동의합니다.
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand transition-colors font-medium">개인정보처리방침</a>에 동의합니다.
               <span className="text-accent ml-1 font-semibold">(필수)</span>
             </label>
           </div>
           {errors.agreePrivacy && <p className="text-[10px] text-red-500 font-normal">{errors.agreePrivacy}</p>}
         </div>
+
+        {/* 서버 에러 메시지 */}
+        {submitStatus === 'error' && (
+          <div className="text-sm text-red-500 border border-red-200 bg-red-50 px-4 py-3 leading-relaxed">
+            <p>{serverError}</p>
+            <p className="mt-1 text-xs text-red-400">
+              문제가 지속되면 직접 연락해 주세요: <a href="mailto:turn.nemoon@gmail.com" className="underline">turn.nemoon@gmail.com</a>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 제출 버튼 */}
       <div className="mt-12 flex justify-end">
         <button
           type="submit"
-          className="px-8 py-3 bg-text-dark text-white font-semibold text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 hover:bg-brand hover:scale-[1.02] cursor-pointer"
+          disabled={isLoading}
+          className="px-8 py-3 bg-text-dark text-white font-semibold text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 hover:bg-brand hover:scale-[1.02] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 disabled:scale-100"
         >
-          문의하기 →
+          {isLoading ? '전송 중...' : '문의하기 →'}
         </button>
       </div>
     </form>

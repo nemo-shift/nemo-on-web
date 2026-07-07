@@ -9,9 +9,10 @@ import AboutPhilosophy from './philosophy/AboutPhilosophy';
 import AboutMeaning from './meaning/AboutMeaning';
 import AboutPromise from './promise/AboutPromise';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
+import SubpageScrollHint from '@/components/ui/SubpageScrollHint';
 
 export default function AboutStage() {
-  const { toggle, setIsScrollable, footerHeight } = useHeroContext();
+  const { toggle, setIsScrollable } = useHeroContext();
   const { interactionMode } = useDevice();
 
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function AboutStage() {
 
   return (
     <main id="about-stage" className="relative z-[1] w-full">
+      {/* [V75/STEP D] About 전용 스크롤 힌트 — 하단 근접 시 자동 소멸 */}
+      <SubpageScrollHint />
       {/* 콘텐츠 영역 (여기에만 배경색을 지정해야 하단 스페이서가 투명해집니다) */}
       <div className="relative w-full bg-[#f7f1e9]">
         
@@ -59,12 +62,6 @@ export default function AboutStage() {
         </div>
         
       </div>
-      
-      {/* 3. 푸터 리빌을 위한 투명 스페이서 (Native Reveal 런웨이) */}
-      <div 
-        className="relative w-full bg-transparent pointer-events-none" 
-        style={{ height: footerHeight || '25vh' }}
-      />
     </main>
   );
 }

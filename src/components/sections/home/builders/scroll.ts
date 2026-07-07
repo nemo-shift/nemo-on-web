@@ -27,7 +27,12 @@ export function buildSectionScrollTimeline(
   const offsets = options.sectionOffsets || {};
 
   // 1. 기초 레이아웃 영점 보정
-  gsap.set('#home-stage', { minHeight: '100vh' });
+  // [V71.ViewportFillFix] #home-stage는 finalY 계산에 관여하지 않는
+  // "실시간 뷰포트 창" 자체이므로 예외적으로 dvh 사용. svh는 측정용
+  // (finalY, 섹션 높이)에만 쓰고, 이 창의 시각적 채움에는 dvh가 맞다.
+  // 스크롤 중 주소창이 접히며 남던 하얀 공백(V71) 수정.
+  const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
+  gsap.set('#home-stage', { minHeight: supportsDvh ? '100dvh' : '100svh' });
   gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
   // 2. 히어로 콘텐츠 패러랙스 상승 (무대 비우기)
@@ -134,7 +139,8 @@ export function buildSectionScrollTimeline(
   tl.set(document.documentElement, {
     '--bg': lastEnv.bg,
     '--header-fg': lastEnv.fg,
-    '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)'
+    '--scroll-hint-fg': lastEnv.hintFg || 'rgba(240, 235, 227, 0.6)',
+    '--bg-img-opacity': options.isOn ? 1 : 0
   }, 0);
 
   LOGO_JOURNEY_SECTIONS.forEach(({ label, stage }: { label: string, stage: string }) => {
@@ -171,10 +177,83 @@ export function buildSectionScrollTimeline(
       }, 
       startTime
     );
+    
+    // [Background_Crossfade] 히어로 → 페인: 파란 이미지 크로스페이드 인
+    if (label === STAGES.START_TO_PAIN && options.isOn && typeof document !== 'undefined') {
+      const painBgLayer = document.querySelector('#pain-bg-layer');
+      if (painBgLayer) {
+        tl.fromTo(painBgLayer,
+          { opacity: 0 },
+          { opacity: 1, duration: transitionDuration, ease: 'none', immediateRender: false },
+          startTime
+        );
+      }
+    }
+
+    // [Background_Crossfade] 페인 → 메시지: 파란 이미지 크로스페이드 아웃
+    if (label === STAGES.PAIN_TO_MSG && options.isOn && typeof document !== 'undefined') {
+      const painBgLayer = document.querySelector('#pain-bg-layer');
+      if (painBgLayer) {
+        tl.fromTo(painBgLayer,
+          { opacity: 1 },
+          { opacity: 0, duration: transitionDuration, ease: 'none', immediateRender: false },
+          startTime
+        );
+      }
+    }
 
 
     lastEnv = { fg: targetEnv.fg!, bg: targetEnv.bg!, hintFg: targetEnv.hintFg };
   });
+
+  // 5.5 [Background_Pan] 배경 이미지 수직 패닝 (포후 구간)
+  // div 자체를 위로 밀어 하단 이미지를 노출 (backgroundPosition 대신 translateY 사용)
+  if (options.isOn && typeof document !== 'undefined') {
+    const bgLayer = document.querySelector('#hero-bg-layer');
+    if (bgLayer) {
+      // 버스 이미지 팽창 → 포후 도착: div를 위로 패닝 (램프 위로 상승)
+      tl.fromTo(bgLayer,
+        { y: 0 },
+        {
+          y: -500,
+          ease: 'power2.inOut',
+          duration: L[STAGES.TO_FORWHO] - L[STAGES.CORE_FUNNEL_EXPAND],
+        },
+        L[STAGES.CORE_FUNNEL_EXPAND]
+      );
+
+      // 포후 카드 퇴장 시점 계산 (forwho.ts와 동일한 공식)
+      const fwStart = L[STAGES.TO_FORWHO];
+      const fwEnd = L[STAGES.FW_TO_STORY];
+      const fwDuration = fwEnd - fwStart;
+      const fwEffectiveEnd = fwStart + fwDuration * (isTouch ? 0.35 : 0.6);
+      const fwTotalPhase = fwEnd - fwEffectiveEnd;
+      const fwExitStart = fwEffectiveEnd + fwTotalPhase * 0.25;
+      const fwExitDuration = fwTotalPhase * 0.45;
+
+      // 카드 올라가는 시점에 복귀 시작, 철학 문구 노출 완료 시점에 제자리
+      tl.fromTo(bgLayer,
+        { y: -500 },
+        {
+          y: 0,
+          ease: 'power2.inOut',
+          duration: fwExitDuration * 0.5,
+        },
+        fwExitStart
+      );
+
+      // [Background_FadeOut] 브랜드스토리 → 어두운 배경 전환 시점에 배경 이미지 페이드아웃
+      tl.fromTo(bgLayer,
+        { opacity: 1 },
+        {
+          opacity: 0,
+          ease: 'power2.inOut',
+          duration: t * r,
+        },
+        L[STAGES.STORY_ERASE]
+      );
+    }
+  }
 
   // 5. [V12 Dynamic Scroll Hint Pacing] 다이내믹 스크롤 힌트 노출 제어
   // 애니메이션이나 글씨에 집중해야 하는 구간에서는 힌트를 끄고, 전환 직전(휴식 구간)에만 켭니다.

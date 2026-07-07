@@ -1,4 +1,232 @@
-## [최신] 🚀 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync
+## [최신] ✅ 2026-07-08: 빌드 에러 수정 + V77 — 넛지 모바일 반응형·레이스 수정
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **빌드 에러(07-08)**: `FallingKeywordsStage` dynamic import에 `React.ForwardRefExoticComponent` 타입 캐스팅 추가 — TypeScript `ref` prop 미인식 빌드 실패 해소
+- **V77 모바일 반응형**: `ScrollOnboardingNudge` — `isMobileView` 분기 추가, 패딩·폭·폰트·아이콘 크기 축소
+- **V77 레이스 수정**: "다시 보지 않기" `onClick` → `onPointerDown` 교체 — window pointerdown dismiss와의 레이스 원천 차단
+- **V77 활동 감지 확장**: `useScrollIdleNudge` — `wheel`/`touchmove` → + `pointerdown`/`keydown`
+- **빌더 타입 정리**: `funnel.ts` / `hero.ts` / `nemo.ts` `(as any)` 캐스팅 제거
+
+---
+
+## [이전] ✅ 2026-07-07: V76.PerformanceFinal — 데스크톱 퍼포먼스 7단계 최적화
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **STEP 1**: `PointRingCursor` sizeRef 캐시 + stale closure 수정 (ring 크기 항상 25px 버그)
+- **STEP 2**: `useMousePosition` useState → useRef — mousemove 리렌더 완전 제거
+- **STEP 3**: MutationObserver → document-level `mouseover` 이벤트 위임 (`closest()`)
+- **STEP 4**: Matter.js 게이트 — `ScrollTrigger onEnter/onLeave`로 Runner+RAF 동시 제어. `pauseSimulation` clearRect + `magneticProxiesRef` tween kill (역스크롤 잔상 버그 수정)
+- **STEP 5**: `layout.tsx` `Noto_Sans_KR` dead import 제거
+- **STEP 6**: `next/dynamic` — FallingKeywordsStage(Matter.js) + ForWhoCarousel(Swiper) 청크 분리. offsetHeight 동일 증명 완료
+- **STEP 7**: `syncNemoCoordinates` `_lastNemoRect` 캐시 — 0.1px epsilon, 변화 없으면 setProperty 4회 건너뜀
+
+---
+
+## [이전] ✅ 2026-07-07: V71~V75 — 뷰포트·내비게이션·스크롤 가이드 완성
+
+**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+
+- **V71**: `#home-stage` dvh 채움, 구도 상자 4개 섹션 dvh 전환, dvh 폴백 블록
+- **V72**: SideMenu `navigateTo()` + PUSH_NAV 플래그, LenisScrollRestoration 방식 교체
+- **V73**: PointRingCursor 라우트 변경 시 커서 리셋
+- **V74**: GlobalScrollHint SVG 꺾쇠화, `useScrollIdleNudge` + `ScrollOnboardingNudge` 신설, CTA lenis 연동, `lib/navigation.ts` markPushNav(), SideMenu 즉시 점프, 배너 클릭 닫기, GSAP 레벨 힌트 강제 은닉
+- **V75**: 배너 카피 최초/재등장 분기(isRepeat), 배경 불투명도 강화, SNS 플레이스홀더 제거, About/Offerings 전용 SubpageScrollHint 신설, HeroContext 영구 닫기 상태(`hasDismissedScrollNudge`) 추가
+
+---
+
+## [이전] ✅ 2026-07-07: V69.LaunchReady — 배포 전 리팩토링 완료
+
+**브랜치**: `fix/mobile-scroll-bugs`
+**목표**: 배포 전 P0(무음 데이터 손실·SEO 부재)·P1(코드 품질) 항목 일괄 정리 — STEP 1~9 전체 완료.
+
+### STEP 1 — Contact Form 실제 발송 연결
+- `src/app/api/contact/route.ts` 신규: Resend SDK, 허니팟, IP 속도 제한(3/min), 파일 첨부 처리.
+- `ContactForm.tsx` 전면 재작성: FormData POST, 로딩/에러 상태, 폴백 이메일 링크.
+- `.env.local`: `RESEND_API_KEY`, `CONTACT_RECEIVER_EMAIL`, `NEXT_PUBLIC_SITE_URL`.
+
+### STEP 2 — 개인정보처리방침 페이지
+- `src/app/privacy/page.tsx` 신규 (서버 컴포넌트, SubPageLayout, metadata 포함).
+- ⚠️ 배포 전 법무 검토 필수.
+
+### STEP 3 — Error Boundaries 3종
+- `error.tsx` / `not-found.tsx` / `global-error.tsx` 신규 생성.
+
+### STEP 4 — SEO / OG / sitemap / robots
+- `layout.tsx` 루트 metadata 추가 (metadataBase, OG, twitter, favicon).
+- 9개 페이지 고유 metadata export 추가.
+- `sitemap.ts` + `robots.ts` 신규.
+
+### STEP 5 — 디버그 코드 제거
+- `GlobalInteractionStage.tsx`: `DEBUG_CONFIG` 제거, `InteractionDebugger` → dev-only dynamic import, `console.log` 3곳 → production 가드.
+- `HeroContext.tsx`: `DEBUG_CONFIG` / `SHOULD_DEBUG` 의존성 완전 제거.
+
+### STEP 6 — 렌더 바디 사이드 이펙트 → useLayoutEffect
+- `GlobalInteractionStage.tsx` 렌더 바디 내 `initGlobalStyles(...)` → `useLayoutEffect` (deps: `[mounted, isOn, isMobileView]`). FOUC 없음 확인.
+
+### STEP 7 — SVH 폴백 정리 + 자동화 스크립트
+- `globals.css` dead rule 8개 제거, 반응형 프리픽스 `@media` 블록 추가.
+- `scripts/check-svh-fallback.sh` 신규 — 32개 클래스 전수 검증.
+- `package.json` `build` → `pnpm run check:svh && next build` 연결.
+
+### STEP 8 — 히어로 인라인 svh 폴백
+- `--unit-svh: 1svh` (`:root`) + `--unit-svh: 1vh` (`@supports not`) 추가.
+- `HeroSection.tsx` 인라인 `100svh`/`60svh`/`90svh` → `calc(var(--unit-svh) * N)`.
+
+### STEP 9 — 잔여 정리
+- `.gitattributes` 신규 (`* text=auto eol=lf`).
+- `KakaoTalkBanner.tsx` UA + `CSS.supports('height', '100svh')` 조합 감지로 개선.
+
+---
+
+## ✅ 2026-07-04: V68.KakaoBanner — 카카오톡 인앱 브라우저 WebView 대응
+
+### 배경 및 원인
+카카오톡 인앱 브라우저(구형 WebView)는 `svh`/`lvh` CSS 단위(2022년 말 표준화)를 인식하지 못한다.
+V67.ViewportFix에서 전체 레이아웃을 `svh` 기반으로 전환했기 때문에, 카카오톡 인앱에서 접속 시
+히어로 섹션 컨테이너 높이 0 붕괴, 메시지·포후·스토리 섹션 요소 미표시 현상이 발생.
+
+CSS는 이해하지 못하는 단위의 선언을 통째로 무시하므로, `height: 100svh` 가 무시되면
+해당 요소는 높이 미지정 상태로 붕괴하고, 그 안의 `translate-y-[Nsvh]` 도 `transform: none`
+으로 무시되어 콘텐츠가 화면 밖으로 밀려남.
+
+**실기기 확인**: 카카오톡 인앱에서 직접 접속 → 섹션 요소 아예 미표시 확인됨.
+
+---
+
+### 구현 전략: 2-레이어 방어
+
+#### 레이어 1 — CSS `@supports` 폴백 (`src/app/globals.css` 최하단)
+
+`@supports not (height: 100svh)` 블록으로 svh를 모르는 환경에서만 vh로 자동 대체.
+svh 지원 브라우저(Safari/Chrome 등)는 이 블록을 평가조차 하지 않으므로 기존 동작 100% 유지.
+
+**대상 클래스 (그랩 시점 기준 21개)**:
+| 분류 | 클래스 | 폴백 값 |
+|------|--------|---------|
+| height | h-[100/40/48/54/60/400/800/1000svh] | 동일 숫자 vh |
+| min-height | min-h-[100svh] | 100vh |
+| bottom | bottom-[10/12/14/40svh] | 동일 숫자 vh |
+| gap | gap-[1/4/6svh] | 동일 숫자 vh |
+| margin-top | mt-[-0.1/-0.2/-0.5/-1svh] | 동일 숫자 vh |
+| translate-y | translate-y-[5/120svh] | `--tw-translate-y` 변수 재정의 |
+
+**STEP 3 — Footer paddingBottom 폴백**:
+- `footer` 요소에 `id="site-footer"` 추가 (`Footer.tsx` L58)
+- `#site-footer { padding-bottom: 80px !important; }` — V67의 `calc(100lvh - 100svh + ...)` 이
+  svh/lvh 미지원 환경에서 calc 전체 무효화되므로 80px 고정 여백으로 복귀.
+  (80px = 모바일 크롬 컨트롤 바 ~56px + safe-area ~20px 기준 추정값)
+
+**새 svh 클래스 추가 시 주의**: 코드에 새로운 Tailwind svh arbitrary value 클래스를 추가하면
+globals.css의 `@supports` 블록에도 대응 폴백을 추가해야 함. 아래 grep으로 전수 확인:
+```bash
+grep -rhoE "[a-z-]+-\[-?[0-9.]+svh\]" --include="*.tsx" --include="*.ts" \
+  src/components/sections/home | sort -u
+```
+
+**인라인 style={{ }} svh 값 (STEP 2 — 미구현, 배너로 대체)**:
+HeroSection, HeroOff/OnView 등에 `height: '100svh'`, `bottom: '-20svh'` 등 인라인 스타일이
+13곳 잔존. 이 값들은 CSS 셀렉터로 접근 불가능하다. 현재는 배너(레이어 2)로 카카오톡 사용자를
+외부 브라우저로 유도해 우회. 만약 배너를 비활성화하거나 더 완전한 폴백이 필요하면 STEP 2 구현 필요:
+→ `docs/troubleshooting/claude-code-prompt-svh-legacy-webview-fallback.md` STEP 2 참고
+→ 핵심: `:root { --unit-svh: 1svh; }` + `@supports not { --unit-svh: 1vh; }` → 인라인 값을
+  `'calc(var(--unit-svh) * N)'` 패턴으로 교체
+
+---
+
+#### 레이어 2 — 카카오톡 인앱 배너 (`src/components/layout/KakaoTalkBanner.tsx`)
+
+**동작**: `navigator.userAgent.includes('KAKAOTALK')` 로 인앱 브라우저 감지.
+감지 시 하단 고정 배너 표시. `✕` 버튼으로 세션 내 닫기 가능.
+
+**[왜 window.open()이 아닌 클립보드 복사인가]**
+카카오톡 WebView는 보안 정책상 `window.open()` 을 차단하거나 같은 인앱 브라우저 안에서 열어버림.
+프로그래밍으로 외부 브라우저를 강제 실행할 방법이 없어, URL 클립보드 복사 방식으로 대체.
+
+**UX 흐름**:
+1. 기본 상태: 안내 문구 + `[주소 복사]` 버튼
+2. 복사 클릭 시: `navigator.clipboard.writeText(url)` 실행 → 버튼 사라지고 안내 문구 전환
+   → "주소가 복사되었습니다. Chrome 또는 Safari를 열고 붙여넣어 주세요."
+3. `✕`: 양쪽 상태 모두에서 배너 닫기
+
+**등록 위치**: `src/app/layout.tsx` — `<body>` 최상단, `<LenisScrollRestoration />` 바로 위.
+
+**비활성화 방법 (WebView 업데이트 시)**:
+1. `KakaoTalkBanner.tsx` 상단 `const KAKAO_BANNER_ENABLED = true;` → `false` 로 변경 (즉시 배너 비노출)
+2. 완전 제거 시: `layout.tsx`에서 `<KakaoTalkBanner />` 제거 → `KakaoTalkBanner.tsx` 삭제
+   → `layout/index.ts` export 라인 삭제 → `globals.css`의 `[V68.LegacyWebViewFallback]`
+   `@supports` 블록 전체 삭제 → `Footer.tsx`의 `id="site-footer"` 제거 (선택)
+
+**시효성**: 카카오톡 WebView 버전이 올라갈수록 `KAKAOTALK` UA를 가진 환경에서도 svh가 정상
+동작하므로 배너가 자연스럽게 불필요해짐. 배너를 끄는 시점은 실기기(카카오톡 인앱) 테스트에서
+레이아웃이 정상임을 확인한 후.
+
+**UserAgent 감지 안정성**: `KAKAOTALK` 문자열은 오랫동안 유지된 카카오톡 UA 규약으로 안정적.
+다만 카카오톡이 UA 문자열을 변경하면 감지가 깨질 수 있음. 그 경우 CSS.supports 방식으로 전환:
+```ts
+// UserAgent 대신 기능 감지 방식으로 교체 가능:
+const supportsSvh = typeof CSS !== 'undefined' && CSS.supports('height', '100svh');
+setIsKakao(!supportsSvh);
+```
+
+---
+
+### 관련 파일 목록
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/app/globals.css` | `@supports not (height: 100svh)` 블록 추가 (최하단) |
+| `src/components/layout/Footer.tsx` | `<footer id="site-footer">` 추가 |
+| `src/components/layout/KakaoTalkBanner.tsx` | 신규 생성 |
+| `src/components/layout/index.ts` | KakaoTalkBanner export 추가 |
+| `src/app/layout.tsx` | `<KakaoTalkBanner />` 추가 |
+
+---
+
+## ✅ 2026-07-04: V68 — 모바일 정방향 스크롤 시 섹션 요소 미표시 버그 수정
+
+**증상**: 모바일 정방향 스크롤 시 공명 문장·메시지·포후 카드·스토리 텍스트/배경이 표시되지 않음. 역스크롤(컨트롤 바 등장) 시에는 정상.
+
+**근본 원인**: `footerHeight`가 `useGSAP` deps에 포함되어 있어, 모바일 크롬 컨트롤 바 전환 시 `paddingBottom: calc(100lvh - 100svh + ...)` 값이 미세하게 변동(~20-34px) → 스크롤 중 전체 타임라인 재빌드 발생 → 이미 지나간 GSAP 트윈이 초기 상태(opacity:0)로 리셋됨.
+
+**수정 내용** (`GlobalInteractionStage.tsx`):
+- **Fix 1 (근본)**: `footerHeight`를 `useGSAP` deps에서 제거. `lastBuiltFooterHeightRef`로 마지막 빌드 시 값 기록. 별도 게이트 이펙트(`>60px` 차이 시에만 재빌드)로 실제 레이아웃 변화만 반응.
+- **Fix 2 (보조)**: `visualViewport` resize 핸들러에서 `interactionMode === 'touch'` 시 즉시 리턴. V67 svh 전환 이후 터치에서 이 핸들러의 역할이 없어졌으므로 차단. deps `[]` → `[interactionMode]`.
+- **검증**: Eruda 진단 로그(`[V68.Diag] rebuild`)로 실기기에서 재빌드 횟수 확인 → 초기 1회만 발생 확인 후 로그 제거.
+
+---
+
+## ✅ 2026-07-04: V67 2차 보완 — 뷰포트 의존 잔여 버그 + 코드 품질
+
+- **`syncNemoCoordinates` `--nemo-b` 오차**: `stableVH?` 인자 추가, `window.innerHeight` → `stableVH ?? window.innerHeight`. MessageSection clip-path 기준 불일치 해소.
+- **`nemo.ts` vh2px 변환**: `vh2px(v)` 헬퍼 추가. `n≥100`(풀블리드) → `stableLVH`, else → `svhPx`. GSAP height 트윈 3곳 적용.
+- **`getStableLVH` + `stableLVH` 주입**: DOM probe로 `100lvh` 실측. `GlobalBuilderOptions`에 필드 추가. 모든 빌더에 보급.
+- **MAX_RETRY 폴백 강화**: `setShowOverlay(false)` 에 `setIsTimelineReady(true)` 추가 → HomeStage opacity 가드까지 해제.
+- **히어로 뷰 잔여 `vh` → `svh`**: `HeroOffTabletView` / `HeroOnMobileView` / `HeroOnTabletView` / `HeroTabletView` 총 8곳.
+- **Footer `h` → `min-h`**: `h-[450px]` 계열 전부 `min-h-[450px]`로 교체 — `paddingBottom` calc와 충돌 방지.
+- **`minHeight: '100svh'`**: `builders/scroll.ts` 정책 통일.
+- **`NEMO_SIZE` 미사용 상수 삭제**: `BORDER_BOX_H`, `TEAL_BOX_H`, `IMAGE_H` 제거 (소비처 없음 확인).
+- **코드 품질**: `MAX_RETRY=5` + `retryCountRef` 무한 재시도 방어, `useScramble` clearInterval cleanup, DeviceContext 주석 불일치 제거.
+
+## ✅ 2026-07-04: V67.ViewportFix — 모바일 뷰포트 기하학 전면 안정화
+
+- **핵심**: 모바일 브라우저 크롬(주소창/컨트롤바) 등장/숨김에 따른 `window.innerHeight` 변동이 GSAP 타임라인 기하학을 흔드는 근본 원인을 `svh` 단위로 봉쇄.
+- **CSS 통일**: `h-screen`/`100vh` → `h-[100svh]` (7개 섹션 파일 + HeroSection 램프)
+- **JS GSAP 통일**: `getStableVH()` DOM probe 헬퍼로 `svh` px 실측 → `GlobalInteractionStage` `finalY`, `builderOptions.stableVH` 주입
+- **빌더 통일**: `svhPx()` 헬퍼로 `story.ts`/`message.ts`/`funnel.ts`의 모든 `'Nvh'` 문자열 → 숫자 px 교체; `forwho.ts`/`nemo.ts` `window.innerHeight` → `stableVH`
+- **UI 컴포넌트**: `HeroOffPCView`/`HeroOffMobileView`/`HeroOffTabletView`/`GlobalScrollHint`의 `vh` → `svh`
+- **리사이즈 방어**: 터치 기기 높이 변화 시 타임라인 재빌드 차단; `visualViewport` 가드 (`progress > 0.9` 시 refresh 스킵)
+- **푸터 보정**: `paddingBottom: calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))`
+
+## ✅ 2026-06-20: UI 폴리싱 — 푸터/커서/사이드메뉴/ForWho 터치 개편
+
+- **푸터 리빌 완성**: 이중 스페이서 버그 수정 (`AboutStage`/`OfferingsStage` 내부 스페이서 제거), `FooterRevealSpacer` 전역 단일화, 서브페이지 클릭 + 리빌 동시 동작.
+- **SideMenu 홈 아이콘**: 패널 좌상단 `Home` 아이콘 버튼. 홈→홈은 메뉴 닫기만, 타 페이지→홈은 라우팅. 같은 페이지 재클릭 시 `lenis.scrollTo(0)`.
+- **PointRingCursor 개편**: 기본=주황 네모(50px), 오버=주황 동그라미(30px), LERP 가속(0.5/0.35).
+- **ForWho 터치 레이아웃**: 토글 제거, 카드 정보 항상 노출, 피사체 위치 반대편에 텍스트 고정 배치.
+
+## 🚀 2026-05-02: V63 ForWho Architecture Normalization & Trinity Sync
  
 - **ForWho Architecture Normalization**: 
   - ForWho 섹션의 모든 반응형 분기를 `isMobile`, `isTabletPortrait`, `!isMobileView`의 3단계로 정규화하여 시스템 무결성 확보.

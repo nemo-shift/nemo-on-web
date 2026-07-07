@@ -1,5 +1,13 @@
+// [V69.LaunchReady] STEP 4
+import { Metadata } from 'next';
 import SubPageLayout from "@/components/layout/SubPageLayout";
 import DiagnosisContainer from "@/components/sections/diagnosis/DiagnosisContainer";
+
+export const metadata: Metadata = {
+  title: '브랜드 진단',
+  description: '나의 브랜드는 지금 어떤 상태인가요? 간단한 진단으로 확인해보세요.',
+  openGraph: { url: '/diagnosis' },
+};
 
 /**
  * /diagnosis 페이지

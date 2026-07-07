@@ -57,7 +57,7 @@ export default function HeroOffTabletView({
       {/* 1. 중앙 액션 그룹 (로테이팅 프레이즈 + 토글) */}
       <div 
         id="hero-tablet-central-action-group"
-        className="absolute flex flex-col items-center gap-[4vh] pointer-events-auto opacity-0"
+        className="absolute flex flex-col items-center gap-[4svh] pointer-events-auto opacity-0"
         style={{ 
           top: '65%',
           left: '50%',
@@ -73,7 +73,7 @@ export default function HeroOffTabletView({
         
         <div 
           className="relative"
-          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-1vh' }}
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-1svh' }} // [V67.ViewportFix] vh → svh
         >
           <HeroToggle
             isOn={isOn}
@@ -88,7 +88,7 @@ export default function HeroOffTabletView({
         id="hero-tablet-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '-30vh', 
+          bottom: '-30svh',
           left: '50%', 
           transform: 'translateX(-50%)'
         }}

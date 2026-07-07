@@ -51,7 +51,7 @@ export const JOURNEY_MASTER_CONFIG: Record<string, StageState> = {
   // [1] 히어로 섹션 (네모:OFF/ON 스크램블)
   [STAGES.HERO]: {
     env: { bg: COLORS.BG.DARK_HERO, fg: COLORS.TEXT.LIGHT, hintFg: 'rgba(240, 235, 227, 0.6)' },
-    on: { env: { bg: COLORS.BG.CREAM, fg: COLORS.TEXT.DARK, hintFg: 'rgba(13, 26, 31, 0.4)' } },
+    on: { env: { bg: COLORS.HERO.ON.BG, fg: COLORS.TEXT.DARK, hintFg: 'rgba(13, 26, 31, 0.4)' } },
     logo: { nemoKr: true, shapes: true, status: true, rectangle: false, morph: 'T', logoMode: 'hero' },
     nemo: { borderRadius: 6, backgroundColor: 'transparent', border: 'none', opacity: 0 },
     mobile: {}

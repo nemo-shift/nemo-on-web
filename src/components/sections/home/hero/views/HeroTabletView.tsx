@@ -46,7 +46,7 @@ export default function HeroTabletView({
     <>
       {/* 1. 상단 스페이서 (공통 뼈대) */}
       <div style={{ 
-        minHeight: isOn ? '15vh' : '10vh', 
+        minHeight: isOn ? '15svh' : '10svh',
         flexShrink: 0, 
         order: 0,
         transition: 'min-height 0.7s ease',
@@ -76,7 +76,7 @@ export default function HeroTabletView({
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,
-            minHeight: '40vh',
+            minHeight: '40svh',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -110,8 +110,8 @@ export default function HeroTabletView({
         />
       )}
 
-      <div className="flex-1" style={{ order: 4, minHeight: '3vh' }} />
-      <div style={{ order: 11, flexShrink: 0, minHeight: '5vh' }} />
+      <div className="flex-1" style={{ order: 4, minHeight: '3svh' }} />
+      <div style={{ order: 11, flexShrink: 0, minHeight: '5svh' }} />
     </>
   );
 }

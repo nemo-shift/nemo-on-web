@@ -1,4 +1,12 @@
+// [V69.LaunchReady] STEP 4
+import { Metadata } from 'next';
 import SubPageLayout from '@/components/layout/SubPageLayout';
+
+export const metadata: Metadata = {
+  title: 'Lab',
+  description: '네모:ON의 자체 실험 레이블. 브랜드를 작동하게 만드는 새로운 가능성을 탐구합니다.',
+  openGraph: { url: '/offerings/lab' },
+};
 
 /**
  * /offerings/lab 페이지

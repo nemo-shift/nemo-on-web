@@ -37,6 +37,9 @@ html {
 /* --- CSS 변수 (디자인 토큰) --- */
 :root {
   color-scheme: only light;
+  /* [V69.LaunchReady] STEP 8 — 히어로 인라인 svh 폴백 단위 변수
+     svh 미지원 환경(카카오톡 인앱 등)에서 1vh로 자동 대체됩니다. */
+  --unit-svh: 1svh;
   --brand: #0891b2;
   --accent: #e8734a;
   --bg-dark: #0a0a0a;
@@ -47,6 +50,7 @@ html {
 
   /* 실시간 배경색 인터폴레이션을 위한 변수 */
   --bg: var(--bg-cream);
+  --bg-img-opacity: 0;
   --scroll-hint-fg: rgba(240, 235, 227, 0.6);
 }
 
@@ -77,7 +81,7 @@ html {
 
 /* --- 기본 스타일 --- */
 body {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text-dark);
   font-family: var(--font-suit);
   -webkit-font-smoothing: antialiased;
@@ -206,4 +210,73 @@ html.custom-cursor-active *::after {
 
 .animate-lamp-pulse-mobile {
   animation: lampPulseMobile 8s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   [V68.LegacyWebViewFallback] svh 미지원 구형 WebView(카카오톡 인앱 등) 안전망
+   [V69.LaunchReady] STEP 7 — dead rule 제거, 반응형 프리픽스 폴백 추가
+   svh를 지원하는 브라우저(Safari/Chrome 등)는 이 블록을 완전히 무시합니다.
+   카카오톡 WebView가 업데이트되어 svh 지원이 확인되면 이 블록 전체를 삭제할 것.
+   검증: pnpm check:svh (scripts/check-svh-fallback.sh)
+   ───────────────────────────────────────────────────────────────────────────── */
+@supports not (height: 100svh) {
+  /* [V69.LaunchReady] STEP 8 — --unit-svh 단위 변수 폴백 */
+  :root { --unit-svh: 1vh; }
+
+  /* ── 베이스 클래스 (브레이크포인트 프리픽스 없는 bare 클래스) ── */
+  /* height */
+  .h-\[100svh\]      { height: 100vh !important; }
+  .h-\[40svh\]       { height: 40vh !important; }
+  .h-\[48svh\]       { height: 48vh !important; }
+  .h-\[400svh\]      { height: 400vh !important; }
+  .h-\[800svh\]      { height: 800vh !important; }
+  .h-\[1000svh\]     { height: 1000vh !important; }
+  /* min-height */
+  .min-h-\[100svh\]  { min-height: 100vh !important; }
+  /* bottom */
+  .bottom-\[14svh\]  { bottom: 14vh !important; }
+  .bottom-\[40svh\]  { bottom: 40vh !important; }
+  /* gap */
+  .gap-\[1svh\]      { gap: 1vh !important; }
+  .gap-\[4svh\]      { gap: 4vh !important; }
+  .gap-\[6svh\]      { gap: 6vh !important; }
+  /* margin-top */
+  .mt-\[-0\.2svh\]   { margin-top: -0.2vh !important; }
+  /* translate-y — --tw-translate-y CSS 변수 재정의 */
+  .translate-y-\[120svh\]  { --tw-translate-y: 120vh !important; }
+
+  /* ── 반응형 프리픽스 변형 폴백 ── */
+  /* Tailwind config: mobile 480px */
+  @media (min-width: 480px) {
+    .mobile\:h-\[48svh\]      { height: 48vh !important; }
+    .mobile\:bottom-\[14svh\] { bottom: 14vh !important; }
+  }
+  /* Tailwind config: tablet-p 744px */
+  @media (min-width: 744px) {
+    .tablet-p\:h-\[54svh\]           { height: 54vh !important; }
+    .tablet-p\:bottom-\[10svh\]      { bottom: 10vh !important; }
+    .tablet-p\:mt-\[-0\.1svh\]       { margin-top: -0.1vh !important; }
+    .tablet-p\:translate-y-\[5svh\]  { --tw-translate-y: 5vh !important; }
+  }
+  /* Tailwind config: tablet 992px */
+  @media (min-width: 992px) {
+    .tablet\:h-\[60svh\]      { height: 60vh !important; }
+    .tablet\:bottom-\[12svh\] { bottom: 12vh !important; }
+    .tablet\:mt-\[-0\.5svh\]  { margin-top: -0.5vh !important; }
+  }
+  /* Tailwind config: desktop-wide 1440px */
+  @media (min-width: 1440px) {
+    .desktop-wide\:mt-\[-1svh\] { margin-top: -1vh !important; }
+  }
+
+  /* Footer 크롬 보정 패딩 폴백.
+     svh/lvh 미지원 환경에서는 calc()가 무효화되므로 고정 여백으로 복귀. */
+  #site-footer {
+    padding-bottom: 80px !important;
+  }
+}
+
+/* dvh와 svh는 같은 시기에 함께 지원되기 시작한 단위 — dvh 미지원 환경은 svh 미지원과 동일. */
+@supports not (height: 100dvh) {
+  .h-\[100dvh\] { height: 100vh !important; }
 }

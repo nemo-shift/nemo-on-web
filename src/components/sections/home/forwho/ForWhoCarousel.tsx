@@ -55,6 +55,15 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
   const isTouch = interactionMode === 'touch';
   const showArrow = true; // [V65] 터치 환경에서도 화살표 노출 (스타일로 분기)
 
+  // 터치 모드: 카드별 텍스트 위치 (피사체 반대편)
+  const TOUCH_POSITIONS = [
+    'top-left',     // id:1 - 피사체 오른쪽(67%) → 텍스트 좌상단
+    'top-right',    // id:2 - 피사체 왼쪽(41%)  → 텍스트 우상단
+    'bottom-center',// id:3 - 피사체 하단(70%)  → 텍스트 하단 중앙
+    'bottom-left',  // id:4 - 피사체 중앙        → 텍스트 좌하단
+    'top-left',     // id:5 - 피사체 왼쪽        → 텍스트 좌상단
+  ] as const;
+
   return (
     <div 
       ref={containerRef}
@@ -64,8 +73,6 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
         "flex-col tablet:flex-row items-center justify-center tablet:justify-end"
       )}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
     >
       {/* 1. 하이엔드 마그네틱 커서 (PC Only) */}
       {!isTouch && !isMobileView && isHovering && (
@@ -78,7 +85,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
           }}
         >
           <span className="text-white text-[10px] font-suit font-bold tracking-[0.2em] uppercase">
-            {expandedId ? 'Close' : 'View'}
+            {expandedId ? 'Close' : 'Click'}
           </span>
         </div>
       )}
@@ -90,7 +97,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             className={cn(
               "absolute z-50 cursor-pointer p-6 group swiper-button-prev-custom transition-all duration-500",
               // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
-              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              isTouch ? "top-auto bottom-[40svh]" : "top-1/2 -translate-y-1/2",
               // 수평 위치: 3단계 분기
               isMobile ? "left-1" : isTabletPortrait ? "left-[6%]" : "left-[35%]"
             )}
@@ -110,7 +117,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             className={cn(
               "absolute z-50 cursor-pointer p-6 group swiper-button-next-custom transition-all duration-500",
               // 수직 위치: 터치는 카드 중심부(하단 기준), PC는 중앙
-              isTouch ? "top-auto bottom-[40vh]" : "top-1/2 -translate-y-1/2",
+              isTouch ? "top-auto bottom-[40svh]" : "top-1/2 -translate-y-1/2",
               // 수평 위치: 3단계 분기
               isMobile ? "right-1" : isTabletPortrait ? "right-[6%]" : "right-[5%]"
             )}
@@ -152,89 +159,118 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
             }
           }}
         >
-          {FOR_WHO_LIST.map((item, index) => (
+          {FOR_WHO_LIST.map((item, index) => {
+            const touchPos = TOUCH_POSITIONS[index];
+            const isBottom = touchPos.startsWith('bottom');
+            const isRight = touchPos.endsWith('right');
+            const isCenterAlign = touchPos.endsWith('center');
+            return (
             <SwiperSlide key={`${item.id}-${index}`} className="pb-12">
-              <div 
-                onClick={() => toggleExpand(item.id)}
+              <div
+                onClick={isTouch ? undefined : () => toggleExpand(item.id)}
+                onMouseEnter={isTouch ? undefined : () => setIsHovering(true)}
+                onMouseLeave={isTouch ? undefined : () => setIsHovering(false)}
                 className={cn(
-                  "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer mx-auto",
-                  "h-[48vh] mobile:h-[48vh] tablet-p:h-[54vh] tablet:h-[60vh]",
-                  isMobile ? "w-[86%]" : isTabletPortrait ? "w-[85%]" : "tablet:w-[85%]", // [V65] 기기별 카드 폭 정밀 분기
-                  expandedId === item.id ? "scale-[1.01]" : "scale-100"
+                  "group relative overflow-hidden bg-[#1a1a1a] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] mx-auto",
+                  isTouch ? "" : "cursor-pointer",
+                  "h-[48svh] mobile:h-[48svh] tablet-p:h-[54svh] tablet:h-[60svh]",
+                  isMobile ? "w-[86%]" : isTabletPortrait ? "w-[85%]" : "tablet:w-[85%]",
+                  !isTouch && (expandedId === item.id ? "scale-[1.01]" : "scale-100")
                 )}
               >
-              {/* 카드 이미지 레이어 */}
-              <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <Image
-                  id={item.id === 1 ? "nemo-target-forwho-0" : undefined}
-                  src={item.image.src}
-                  alt={item.image.alt}
-                  fill
-                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 70vw, 65vw"
-                  className={cn(
-                    "object-cover transition-all duration-1000 ease-out",
-                    expandedId === item.id ? "scale-110 blur-xl opacity-40" : "scale-100 blur-0 opacity-80 group-hover:scale-105"
-                  )}
-                  style={{ 
-                    objectPosition: (isMobile && item.id === 1) 
-                      ? '60% center' // [V65] 모바일 첫 번째 카드 이미지 우측 이동 (시각적 균형)
-                      : item.image.objectPosition 
-                  }}
-                />
-                {/* 시네마틱 오버레이 제거 (깔끔한 배경 유도) */}
-              </div>
-
-              {/* 기본 노출 정보 (왼쪽 상단 배치 & 블랙 테마) */}
-              <div className={cn(
-                "absolute top-10 left-10 z-10 transition-all duration-500",
-                expandedId === item.id ? "opacity-0 -translate-y-4" : "opacity-100 translate-y-0"
-              )}>
-                <p className="text-white/50 text-[10px] tablet-p:text-[11px] tablet:text-xs font-suit mb-2 tracking-[0.2em] uppercase font-bold">{item.flow}</p>
-                <h4 className="text-white text-2xl tablet-p:text-3xl tablet:text-4xl font-suit font-bold tracking-tight leading-tight">
-                  {item.target}
-                </h4>
-              </div>
-
-              {/* [V11.85 Expansion] 상세 정보 레이어 (Click/Expand) */}
-              <div className={cn(
-                "absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center transition-all duration-700",
-                "bg-black/20 backdrop-blur-[2px]", // 글래스모피즘 베이스
-                expandedId === item.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12 pointer-events-none"
-              )}>
-                <div className="max-w-[80%] space-y-6">
-                  {/* 타겟 & 흐름 재강조 */}
-                  <div className="space-y-1">
-                    <p className="text-white/60 text-[10px] tracking-[.3em] uppercase">{item.flow}</p>
-                    <h5 className="text-white text-2xl tablet-p:text-[1.75rem] tablet:text-3xl font-suit font-bold">{item.target}</h5>
-                  </div>
-
-                  {/* 설명 */}
-                  <p className="text-white/90 text-sm tablet-p:text-[0.9375rem] tablet:text-base font-suit leading-relaxed break-keep">
-                    {item.description}
-                  </p>
-
-                  {/* 0.5px 초미세 구분선 */}
-                  <div className="w-12 h-[0.5px] bg-white/30 mx-auto" />
-
-                  {/* 네모:ON의 역할/철학 */}
-                  <div className="space-y-2">
-                    <p className="text-[10px] text-white/40 tracking-wider">네모:ON의 역할</p>
-                    <p className="text-white font-suit font-medium text-lg tablet-p:text-[1.125rem] tablet:text-xl">
-                      {item.philosophy}
-                    </p>
-                  </div>
+                {/* 카드 이미지 레이어 */}
+                <div className="absolute inset-0 w-full h-full overflow-hidden">
+                  <Image
+                    id={item.id === 1 ? "nemo-target-forwho-0" : undefined}
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    fill
+                    sizes="(max-width: 768px) 90vw, (max-width: 1200px) 70vw, 65vw"
+                    className={cn(
+                      "object-cover transition-all duration-1000 ease-out",
+                      isTouch
+                        ? "scale-100 blur-0 opacity-80"
+                        : (expandedId === item.id ? "scale-110 blur-xl opacity-40" : "scale-100 blur-0 opacity-80 group-hover:scale-105")
+                    )}
+                    style={{
+                      objectPosition: (isMobile && item.id === 1)
+                        ? '60% center'
+                        : item.image.objectPosition
+                    }}
+                  />
                 </div>
 
-                {/* 닫기 힌트 (모바일 전용) */}
-                {isMobileView && (
-                  <button className="absolute bottom-6 text-white/40 text-[10px] font-mono tracking-widest uppercase">
-                    Tap to close
-                  </button>
+                {/* Touch: 위치별 항상 노출 컨텐츠 */}
+                {isTouch && (
+                  <>
+                    <div
+                      className="absolute inset-0 z-10 pointer-events-none"
+                      style={{
+                        background: isBottom
+                          ? 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 65%)'
+                          : 'linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, transparent 65%)',
+                      }}
+                    />
+                    <div
+                      className={cn(
+                        "absolute z-20 p-5",
+                        isBottom ? "bottom-0" : "top-0",
+                        isCenterAlign
+                          ? "left-1/2 -translate-x-1/2 text-center w-[85%]"
+                          : isRight ? "right-0 text-right" : "left-0 text-left"
+                      )}
+                    >
+                      <p className="text-white/50 text-[9px] tracking-[.25em] uppercase font-bold mb-1.5">{item.flow}</p>
+                      <h5 className="text-white text-lg font-suit font-bold leading-tight mb-2">{item.target}</h5>
+                      <p className="text-white/80 text-[11px] font-suit leading-relaxed break-keep mb-2">{item.description}</p>
+                      <div className={cn("w-7 h-[0.5px] bg-white/30 mb-2", isRight && "ml-auto", isCenterAlign && "mx-auto")} />
+                      <p className="text-white/70 text-[9px] tracking-wider mb-1">네모:ON의 역할</p>
+                      <p className="text-white/95 font-suit font-medium text-[11px]">{item.philosophy}</p>
+                    </div>
+                  </>
+                )}
+
+                {/* Non-touch: 기존 toggle 방식 */}
+                {!isTouch && (
+                  <>
+                    <div className={cn(
+                      "absolute top-10 left-10 z-10 transition-all duration-500",
+                      expandedId === item.id ? "opacity-0 -translate-y-4" : "opacity-100 translate-y-0"
+                    )}>
+                      <p className="text-white/50 text-[10px] tablet-p:text-[11px] tablet:text-xs font-suit mb-2 tracking-[0.2em] uppercase font-bold">{item.flow}</p>
+                      <h4 className="text-white text-2xl tablet-p:text-3xl tablet:text-4xl font-suit font-bold tracking-tight leading-tight">
+                        {item.target}
+                      </h4>
+                    </div>
+
+                    <div className={cn(
+                      "absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center transition-all duration-700",
+                      "bg-black/20 backdrop-blur-[2px]",
+                      expandedId === item.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12 pointer-events-none"
+                    )}>
+                      <div className="max-w-[80%] space-y-6">
+                        <div className="space-y-1">
+                          <p className="text-white/60 text-[10px] tracking-[.3em] uppercase">{item.flow}</p>
+                          <h5 className="text-white text-2xl tablet-p:text-[1.75rem] tablet:text-3xl font-suit font-bold">{item.target}</h5>
+                        </div>
+                        <p className="text-white/90 text-sm tablet-p:text-[0.9375rem] tablet:text-base font-suit leading-relaxed break-keep">
+                          {item.description}
+                        </p>
+                        <div className="w-12 h-[0.5px] bg-white/30 mx-auto" />
+                        <div className="space-y-2">
+                          <p className="text-[10px] text-white/40 tracking-wider">네모:ON의 역할</p>
+                          <p className="text-white font-suit font-medium text-lg tablet-p:text-[1.125rem] tablet:text-xl">
+                            {item.philosophy}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
 

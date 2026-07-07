@@ -1,5 +1,13 @@
+// [V69.LaunchReady] STEP 4
+import { Metadata } from 'next';
 import React from 'react';
 import AboutStage from '@/components/sections/about/AboutStage';
+
+export const metadata: Metadata = {
+  title: '네모:ON 소개',
+  description: '네모:ON이 추구하는 브랜드 철학과 비전을 소개합니다. 불안한 안녕, 기준은 언제나 당신.',
+  openGraph: { url: '/about' },
+};
 
 /**
  * /about 페이지

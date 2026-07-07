@@ -70,9 +70,9 @@ export default function HeroOffPCView({
         className="absolute pointer-events-none opacity-0"
         style={{
           width: '100vw',
-          height: '80vh',
+          height: '80svh', // [V67.ViewportFix] vh → svh
           background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)',
-          transform: 'translateY(15vh)',
+          transform: 'translateY(15svh)', // [V67.ViewportFix] vh → svh
           filter: 'blur(60px)',
           zIndex: INTERACTION_Z_INDEX.Z_BEHIND_BG
         }}
@@ -83,12 +83,12 @@ export default function HeroOffPCView({
         {/* 1. 중앙 액션 그룹 (로테이팅 슬로건 + 토글) - 화면 정중앙 45% 정박 */}
         <div 
           id="hero-central-action-group"
-          className="absolute flex flex-col items-center gap-[1vh] pointer-events-auto opacity-0"
+          className="absolute flex flex-col items-center gap-[1svh] pointer-events-auto opacity-0"
           style={{ 
             top: '56%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            marginTop: '0vh' 
+            marginTop: '0'
           }}
           onMouseEnter={() => setIsToggleHovered(true)}
           onMouseLeave={() => setIsToggleHovered(false)}
@@ -111,7 +111,7 @@ export default function HeroOffPCView({
           id="hero-bottom-message-layer"
           className="absolute flex flex-col items-center pointer-events-auto opacity-0"
           style={{ 
-            bottom: '-20vh', 
+            bottom: '-20svh', // [V67.ViewportFix] vh → svh
             left: '50%', 
             transform: 'translateX(-50%)'
           }}

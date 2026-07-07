@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import { SharedNemoHandle } from '../SharedNemo';
 import { FallingKeywordsHandle } from '../FallingKeywordsStage';
 import { PainSectionHandle } from '../pain/PainSection';
-import { GlobalBuilderOptions } from '../types';
+import { GlobalBuilderOptions, svhPx } from '../types';
 
 /**
  * [V11.55] buildNemoTimeline (Nemo Master Engine)
@@ -38,6 +38,18 @@ export function buildNemoTimeline(
   const isTouch = options.interactionMode === 'touch';
   const sections = NEMO_JOURNEY_SECTIONS;
 
+  // [V67.ViewportFix] vh 문자열 → 안정 px 변환 헬퍼
+  // n >= 100 (풀블리드 커버) → lvh 기준, else → svh 기준
+  const vh2px = (v: string | number): string | number => {
+    if (typeof v === 'string' && v.endsWith('vh')) {
+      const n = parseFloat(v);
+      return n >= 100
+        ? (n / 100) * options.stableLVH
+        : svhPx(n, options.stableVH);
+    }
+    return v;
+  };
+
   // 마스터 시트에 정의된 네모의 여정(Journey) 순차 실행
   // [V11.Macro_Final] ForWho 인트로 이미지는 해당 섹션 전까진 절대 노출되지 않도록 강제 초기화
   tl.set(nemo.imageEl, { opacity: 0 }, 0);
@@ -67,7 +79,8 @@ export function buildNemoTimeline(
       // [V43.PathFix] 히어로 박스가 50%가 아닌 다른 곳에 있다면, 다음 지점도 그만큼 시프트하여 경로의 일관성을 유지합니다.
       let adjustedTop = layout.top;
       if (initial && typeof heroLayout.top === 'string' && heroLayout.top.endsWith('%')) {
-        const vh = window.innerHeight;
+        // [V67.ViewportFix] window.innerHeight → options.stableVH (브라우저 크롬 상태 무관)
+        const vh = options.stableVH;
         const heroConstantPx = (parseFloat(heroLayout.top) * vh) / 100;
         const offsetPx = initial.top - heroConstantPx;
         
@@ -111,7 +124,7 @@ export function buildNemoTimeline(
 
     tl.to(el, {
       width: cfg.width,
-      height: cfg.height,
+      height: vh2px(cfg.height),
       borderRadius: cfg.borderRadius,
       backgroundColor: cfg.backgroundColor,
       border: cfg.border,
@@ -126,9 +139,8 @@ export function buildNemoTimeline(
     }, time);
   });
 
-  // (중간 로직 유지: 각 페인 포인트 애니메이션 및 물리 엔진 연동...)
   const step = nemo.stepEl, line = nemo.lineEl, content = nemo.contentEl;
-  
+
   const waitOffset = 0.4 * r;
   const painDuration = (L[STAGES.PAIN_CONTENT] - (L[STAGES.TO_PAIN] + waitOffset));
   const itemGap = painDuration / PAIN_POINTS.length;
@@ -161,7 +173,7 @@ export function buildNemoTimeline(
     if (i < PAIN_POINTS.length - 1) tl.to(line, { opacity: 0, duration: 0.2 }, startTime + itemGap - 0.2);
   });
 
-  const bridgeItems = (RESONANCE_MESSAGE as any).bridge;
+  const bridgeItems = RESONANCE_MESSAGE.bridge;
   const bridgeDelay = 1.2;
   const bridgeDuration = L[STAGES.PAIN_SHIFT] - (L[STAGES.PAIN_CONTENT] + bridgeDelay);
   const bridgeGap = bridgeDuration / bridgeItems.length;
@@ -170,7 +182,7 @@ export function buildNemoTimeline(
 
   bridgeItems.forEach((text: string, i: number) => {
     const startTime = L[STAGES.PAIN_CONTENT] + bridgeDelay + (i * bridgeGap);
-    tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, opacity: 0 }, startTime);
+    tl.set(content, { textContent: text, color: COLORS.TEXT.DARK, textShadow: 'none', opacity: 0 }, startTime);
     tl.to(content, { opacity: 1, duration: 0.2 }, startTime);
     tl.to(content, { opacity: 0, duration: 0.1 }, startTime + bridgeGap - 0.1);
   });
@@ -185,7 +197,7 @@ export function buildNemoTimeline(
   const bridgeLayout = NEMO_RESPONSIVE_LAYOUT.BRIDGE[mode];
   tl.to(el, {
     width: bridgeLayout.w,
-    height: bridgeLayout.h,
+    height: vh2px(bridgeLayout.h),
     left: bridgeLayout.left,
     top: bridgeLayout.top,
     backgroundColor: '#F7F4F0',
@@ -200,7 +212,7 @@ export function buildNemoTimeline(
   
   tl.to(el, {
     width: resonanceLayout.w,
-    height: resonanceLayout.h,
+    height: vh2px(resonanceLayout.h),
     left: resonanceLayout.left,
     top: resonanceLayout.top,
     backgroundColor: COLORS.TEXT.LIGHT,

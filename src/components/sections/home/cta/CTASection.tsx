@@ -1,8 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
+import { markPushNav } from '@/lib/navigation';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DIAGNOSIS_SECTION_CONTENT } from '@/data/home/diagnosis';
 
 export const CTASection = () => {
@@ -10,12 +13,38 @@ export const CTASection = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'complete'>('idle');
   const [activeLogs, setActiveLogs] = useState<string[]>([]);
   const router = useRouter();
+  const { setIsTransitioning } = useHeroContext();
+
+  // [V74.ScrollGuidance/STEP6] CTA 섹션 진입 즉시(클릭 전) 힌트/배너 억제.
+  // CTASection은 항상 DOM에 마운트되어 있으므로 IntersectionObserver로 뷰포트 진입 감지.
+  // 리셋은 홈 재진입(HomeStage 마운트) 시점에서 처리한다.
+  useEffect(() => {
+    const el = document.getElementById('section-cta');
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsTransitioning(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [setIsTransitioning]);
 
   // [Step 9-3] 최종 리다이렉트 실행 함수
   const performRedirect = useCallback(() => {
     setStatus('complete');
-    // 스크롤 잠금 해제 후 이동
+    // [V74] Lenis 재가동 — 전 사이트 공유 인스턴스이므로 목적지 페이지 스크롤 정상화 필수
+    const lenis = (window as any).lenis;
+    if (lenis) lenis.start();
+    // 재활성화 — 옵션은 GlobalInteractionStage 터치 모드와 동일하게
+    ScrollTrigger.normalizeScroll({ allowNestedScroll: true, momentum: 0 });
     document.body.style.overflow = 'auto';
+    // [V72/V74] 명시적 이동 표시 — 진단 페이지가 최상단에서 시작하도록
+    markPushNav();
     router.push('/diagnosis');
   }, [router]);
 
@@ -99,6 +128,12 @@ export const CTASection = () => {
   const handleAction = useCallback((type: 'yes' | 'no') => {
     if (status !== 'idle') return;
 
+    // [힌트 강제 은닉] GSAP 스크럽 타임라인이 나중에 다시 보이게 만들 수
+    // 있으므로, React 상태(isTransitioning)와 별개로 GSAP 레벨에서도
+    // 직접 죽여서 이후 어떤 개입도 못 이기게 고정한다.
+    gsap.killTweensOf('#global-scroll-hint');
+    gsap.set('#global-scroll-hint', { autoAlpha: 0 });
+
     // [V66.Phase3.3] 자동 포커싱 트리거 발송
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('nemo:cta-focus'));
@@ -123,9 +158,15 @@ export const CTASection = () => {
   useEffect(() => {
     if (status !== 'idle' && status !== 'complete') {
       const type = status === 'loading' ? 'yes' : 'no';
-      
-      // [Step 9-3] 스크롤 잠금 활성화
+
+      // [V74] 실제 스크롤 잠금 — Lenis는 body overflow를 무시하므로 lenis.stop()으로 입력 차단
+      const lenis = (window as any).lenis;
+      if (lenis) lenis.stop();
+      // [터치 스크롤 이중 잠금] Lenis와 별개로 GSAP의 터치 정규화 레이어도
+      // 모바일에서 독자적으로 스크롤을 처리하므로 함께 비활성화해야 함.
+      ScrollTrigger.normalizeScroll(false);
       document.body.style.overflow = 'hidden';
+      setIsTransitioning(true);
 
       const timeout = setTimeout(() => {
         gsap.to('#cta-terminal-logs', {
@@ -137,16 +178,17 @@ export const CTASection = () => {
 
       return () => {
         clearTimeout(timeout);
-        // 컴포넌트 언마운트 시(이동 시) 스크롤 잠금 확실히 해제
+        // 컴포넌트 언마운트 시 body overflow만 해제 — lenis.start()는 performRedirect에서 처리
         document.body.style.overflow = 'auto';
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, startLogSequence]);
 
   return (
     <section 
       id="section-cta"
-      className="relative w-full h-[100vh] flex flex-col items-center justify-center overflow-hidden bg-[#0D1A1F]"
+      className="relative w-full h-[100svh] flex flex-col items-center justify-center overflow-hidden bg-[#0D1A1F]"
     >
 
       {/* 섹션 안내 가이드 : 섹션 별 구분 원할때 주석 해제 */}

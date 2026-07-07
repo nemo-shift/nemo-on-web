@@ -1,4 +1,12 @@
+// [V69.LaunchReady] STEP 4
+import { Metadata } from 'next';
 import SubPageLayout from '@/components/layout/SubPageLayout';
+
+export const metadata: Metadata = {
+  title: '쇼케이스',
+  description: '네모:ON이 만들어온 브랜드와 프로젝트들을 소개합니다.',
+  openGraph: { url: '/showcase' },
+};
 
 export default function ShowcasePage() {
   return (

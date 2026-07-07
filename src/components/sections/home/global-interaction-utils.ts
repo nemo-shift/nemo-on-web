@@ -301,15 +301,38 @@ export function getForWhoTargetRect(): { left: number; top: number; width: numbe
   };
 }
 
-export function syncNemoCoordinates(nemoEl: HTMLElement | null): void {
+// [V76] syncNemoCoordinates write 최소화 — 이전 값과 동일하면 CSS 뮤테이션 건너뜀
+let _lastNemoRect: { t: number; r: number; b: number; l: number } | null = null;
+const SYNC_EPS = 0.1; // 0.1px 이하 변화는 시각적으로 무의미 → 스킵
+
+export function syncNemoCoordinates(nemoEl: HTMLElement | null, stableVH?: number): void {
   if (!nemoEl) return;
-  
+
   const rect = nemoEl.getBoundingClientRect();
+  // [V67.ViewportFix] innerHeight(크롬 접힘 = lvh) 대신 stableVH(svh) 사용
+  // MessageSection clip-path(--nemo-b 기반)가 100svh 기준이므로 일치시킴
+  const vh = stableVH ?? window.innerHeight;
+
+  const t = rect.top;
+  const r = window.innerWidth - rect.right;
+  const b = vh - rect.bottom;
+  const l = rect.left;
+
+  // [V76] 값이 바뀌지 않았으면 4회 setProperty 전부 건너뜀
+  if (_lastNemoRect &&
+      Math.abs(_lastNemoRect.t - t) < SYNC_EPS &&
+      Math.abs(_lastNemoRect.r - r) < SYNC_EPS &&
+      Math.abs(_lastNemoRect.b - b) < SYNC_EPS &&
+      Math.abs(_lastNemoRect.l - l) < SYNC_EPS) {
+    return;
+  }
+
+  _lastNemoRect = { t, r, b, l };
+
   const root = document.documentElement;
-  
-  root.style.setProperty('--nemo-t', `${rect.top}px`);
-  root.style.setProperty('--nemo-r', `${window.innerWidth - rect.right}px`);
-  root.style.setProperty('--nemo-b', `${window.innerHeight - rect.bottom}px`);
-  root.style.setProperty('--nemo-l', `${rect.left}px`);
+  root.style.setProperty('--nemo-t', `${t}px`);
+  root.style.setProperty('--nemo-r', `${r}px`);
+  root.style.setProperty('--nemo-b', `${b}px`);
+  root.style.setProperty('--nemo-l', `${l}px`);
 }
 
