@@ -3,7 +3,17 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-08: 빌드 에러 수정 — FallingKeywordsStage TypeScript 타입 캐스팅
+## [최신] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
+
+### 브랜치: `main`
+
+- **머지 커밋**: `f0d3c8d`
+- **롤백 태그**: `v-pre-merge-fix-mobile-scroll-bugs` (머지 직전 main 상태)
+- **롤백 명령**: `git revert -m 1 HEAD` (안전) 또는 `git reset --hard v-pre-merge-fix-mobile-scroll-bugs` (force push 필요)
+
+---
+
+## [이전] ✅ 2026-07-08: 빌드 에러 수정 — FallingKeywordsStage TypeScript 타입 캐스팅
 
 ### 브랜치: `fix/mobile-scroll-bugs`
 

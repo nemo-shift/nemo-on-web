@@ -1,6 +1,16 @@
-## [최신] ✅ 2026-07-08: 빌드 에러 수정 + V77 — 넛지 모바일 반응형·레이스 수정
+## [최신] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
 
-**브랜치**: `fix/mobile-scroll-bugs` | 상세: `docs/handover/current-task.md`
+**브랜치**: `main` (머지 완료) | 롤백 태그: `v-pre-merge-fix-mobile-scroll-bugs`
+
+- **머지 커밋**: `f0d3c8d` — V67~V77 전체 + 빌드 에러 수정 포함
+- **롤백 방법**: `git checkout v-pre-merge-fix-mobile-scroll-bugs` 또는 `git revert -m 1 HEAD`
+- 이하 작업 내용 상세는 `fix/mobile-scroll-bugs` 브랜치 커밋 히스토리 및 아래 항목 참조
+
+---
+
+## [이전] ✅ 2026-07-08: 빌드 에러 수정 + V77 — 넛지 모바일 반응형·레이스 수정
+
+**브랜치**: `fix/mobile-scroll-bugs` (→ main 머지됨) | 상세: `docs/handover/current-task.md`
 
 - **빌드 에러(07-08)**: `FallingKeywordsStage` dynamic import에 `React.ForwardRefExoticComponent` 타입 캐스팅 추가 — TypeScript `ref` prop 미인식 빌드 실패 해소
 - **V77 모바일 반응형**: `ScrollOnboardingNudge` — `isMobileView` 분기 추가, 패딩·폭·폰트·아이콘 크기 축소
