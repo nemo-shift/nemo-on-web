@@ -2,7 +2,6 @@
 
 import React, { useEffect } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SmoothScroll from '@/components/layout/SmoothScroll';
 import { useHeroContext, useDevice } from '@/context';
 import AboutHero from './hero/AboutHero';
 import AboutPhilosophy from './philosophy/AboutPhilosophy';
