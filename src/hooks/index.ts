@@ -7,3 +7,4 @@ export * from './useScramble';
 export * from './useHeroState';
 export * from './useMousePosition';
 export * from './useDeviceDetection';
+export * from './useHeaderTheme';

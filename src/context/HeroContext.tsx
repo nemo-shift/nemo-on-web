@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useDevice } from './DeviceContext';
 // [V69.LaunchReady] STEP 5 — DEBUG_CONFIG 참조 제거 (USE_DEBUG: false 고정값이었음)
@@ -43,16 +43,15 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
   const [footerHeight, setFooterHeight] = useState(0);
   const [hasDismissedScrollNudge, setHasDismissedScrollNudge] = useState(false); // [V75/STEP E]
   const pathname = usePathname();
+  const isOnRef = useRef(isOn);
+  useEffect(() => { isOnRef.current = isOn; }, [isOn]);
 
   // 전역 토글 핸들러 (일방향: OFF -> ON만 허용)
+  // [③ Fix] isOnRef로 현재값을 동기적으로 읽어 업데이터 안의 중첩 setState 제거
   const toggle = useCallback(() => {
-    setIsOn((prev) => {
-      if (prev) return prev; // 이미 ON이면 리턴값 유지 (변경 없음)
-      
-      // 처음 ON으로 전환될 때만 실행
-      setIsScrollable(false); // 인트로 시퀀스 완료 전까지 스크롤 잠금
-      return true;
-    });
+    if (isOnRef.current) return; // 이미 ON이면 완전히 무시 (순수함수 보장)
+    setIsOn(true);
+    setIsScrollable(false); // 인트로 시퀀스 완료 전까지 스크롤 잠금
   }, []);
 
   /* [v26.34] 지능형 자동 ON 엔진 영구 제거 (사용자 요청: 수동 진입만 허용) */

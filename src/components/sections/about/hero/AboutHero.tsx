@@ -126,8 +126,6 @@ export default function AboutHero() {
     },
   );
 
-  if (!isInitialized) return null;
-
   return (
     <section
       ref={containerRef}
@@ -144,10 +142,11 @@ export default function AboutHero() {
         {ABOUT_HERO_DATA.title}
       </h1>
 
-      {/* 팽창하는 네모 컨테이너 */}
+      {/* 팽창하는 네모 컨테이너 — isInitialized 전까지 숨김 (GSAP 초기값 적용 전 노출 방지) */}
       <div
         ref={nemoRef}
         className="absolute flex items-center justify-center overflow-hidden will-change-transform shadow-2xl z-10"
+        style={{ visibility: isInitialized ? 'visible' : 'hidden' }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
           {ABOUT_HERO_DATA.keywords.map((kw, i) => (

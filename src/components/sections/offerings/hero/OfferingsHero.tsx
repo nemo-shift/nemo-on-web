@@ -112,8 +112,6 @@ export default function OfferingsHero() {
     },
   );
 
-  if (!isInitialized) return null;
-
   return (
     <section
       ref={containerRef}
@@ -130,10 +128,11 @@ export default function OfferingsHero() {
         OFFERINGS
       </h1>
 
-      {/* 팽창하는 브랜드 네모 */}
+      {/* 팽창하는 브랜드 네모 — isInitialized 전까지 숨김 (GSAP 초기값 적용 전 노출 방지) */}
       <div
         ref={nemoRef}
         className="absolute flex items-center justify-center overflow-hidden will-change-transform shadow-2xl z-10"
+        style={{ visibility: isInitialized ? 'visible' : 'hidden' }}
       >
         <div className="relative w-full h-full flex items-center justify-center">
           {OFFERINGS_DATA.hero.keywords.map((kw, i) => (

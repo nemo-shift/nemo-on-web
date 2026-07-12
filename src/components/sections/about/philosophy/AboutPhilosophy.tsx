@@ -123,12 +123,13 @@ export default function AboutPhilosophy() {
             </span>
           </div>
 
-          {/* absolute 겹침을 위한 고정 높이 래퍼 컨테이너 (정중앙 밸런스 래퍼) */}
-          <div className="relative w-full h-[280px] sm:h-[220px] tablet:h-[240px] flex justify-center">
+          {/* [grid 듀얼 레이어] 래퍼 높이 = max(phase1, phase2) 자동 결정 */}
+          <div className="grid w-full justify-items-center">
             {/* Phase 1 Box */}
-            <div 
+            <div
               ref={phase1Ref}
-              className={`absolute top-0 left-1/2 -translate-x-1/2 flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
+              style={{ gridArea: '1/1' }}
+              className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase1.map((p, idx) => (
                 <p 
@@ -141,9 +142,10 @@ export default function AboutPhilosophy() {
             </div>
 
             {/* Phase 2 Box */}
-            <div 
+            <div
               ref={phase2Ref}
-              className={`absolute top-0 left-1/2 -translate-x-1/2 flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
+              style={{ gridArea: '1/1' }}
+              className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase2.map((p, idx) => (
                 <p 

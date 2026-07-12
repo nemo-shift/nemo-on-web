@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { cn } from '@/lib/utils';
+import { useHeaderTheme } from '@/hooks';
 
 /**
  * Header 컴포넌트 [V13.0 MenuToggle 분리]
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 export default function Header(): React.ReactElement {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const headerTheme = useHeaderTheme();
 
   return (
     <header 
@@ -42,8 +44,9 @@ export default function Header(): React.ReactElement {
           className="pointer-events-auto no-underline translate-y-[0px] tablet-p:translate-y-[2px] tablet:translate-y-[4px]"
         >
           <span className={cn(
-            'font-syne transition-all duration-500 text-[#0d1a1f] tracking-normal font-[350] tablet-p:font-[450]',
-            'text-[26px] tablet-p:text-[38px] tablet:text-[48px] desktop-wide:text-[50px] desktop-cap:text-[56px]'
+            'font-syne transition-colors duration-300 tracking-normal font-[350] tablet-p:font-[450]',
+            'text-[26px] tablet-p:text-[38px] tablet:text-[48px] desktop-wide:text-[50px] desktop-cap:text-[56px]',
+            headerTheme === 'light' ? 'text-white' : 'text-[#0d1a1f]'
           )}>
             nemo<span style={{ fontSize: '0.75em', display: 'inline-block', transform: 'translateY(-0.08em)' }}>:</span>on
           </span>

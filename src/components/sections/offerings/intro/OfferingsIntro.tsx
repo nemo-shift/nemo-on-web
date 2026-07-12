@@ -87,7 +87,7 @@ export default function OfferingsIntro() {
       className="relative w-full bg-transparent text-[#0d1a1f]"
     >
       {/* 1. PRELUDE 핵심 슬로건 */}
-      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
+      <section className="relative w-full min-h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
         <div className="max-w-5xl mx-auto w-full flex flex-col gap-8">
           <span className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600 intro-prelude-label">
             01 / PRELUDE
@@ -112,7 +112,7 @@ export default function OfferingsIntro() {
       </div>
 
       {/* 2. WHAT WE DO 상세 영역 */}
-      <section className="relative w-full h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
+      <section className="relative w-full min-h-[100dvh] tablet:h-auto tablet:min-h-screen py-16 tablet:py-32 px-6 tablet-p:px-24 tablet:px-48 flex flex-col justify-center bg-transparent">
         <div className="max-w-5xl mx-auto w-full flex flex-col gap-12">
           <div className="flex flex-col gap-4">
             <span className="text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600 intro-wwd-label">

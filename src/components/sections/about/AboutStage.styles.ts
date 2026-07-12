@@ -24,7 +24,7 @@ export const ABOUT_STAGE_STYLES = {
       // 🆕 뷰포트 너비(vw)에 철저하게 맞춘 유동적 max-w 선언
       maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
-      yOffset: "translate-y-[5vh] tablet-p:translate-y-[2vh] tablet:translate-y-0",
+      yOffset: "",
       // 🆕 오직 모바일 환경(default pl- 값)에서만 본문 콘텐츠의 정렬선을 더 우측으로 이동합니다.
       // pl-8 -> pl-12
       paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
@@ -33,16 +33,18 @@ export const ABOUT_STAGE_STYLES = {
   },
   meaning: {
     bgTitle: {
-      size: "text-[36px] tablet-p:text-[64px] tablet:text-[110px] desktop-wide:text-[130px]",
+      // [장문 타이틀 별도 사이즈] "The Architecture of Name" 24자는 타 섹션 기준으로 잡은 110px에서 데스크톱 overflow 발생
+      // → 24자 + tracking 기준 계산값: tablet 992px 내 55px, desktop-wide 1440px 내 80px
+      size: "text-[36px] tablet-p:text-[64px] tablet:text-[55px] desktop-wide:text-[80px]",
       top: "top-[22%] tablet-p:top-[26%] tablet:top-[28%]",
-      tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.2em]"
+      tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.1em]"
     },
     content: {
       fontSize: "text-[15px] tablet-p:text-[18px] tablet:text-[20px]",
       leading: "leading-[1.7] tablet-p:leading-[1.8] tablet:leading-[1.9]",
       maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
-      yOffset: "translate-y-[5vh] tablet-p:translate-y-[2vh] tablet:translate-y-0",
+      yOffset: "",
       paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
       labelPaddingLeft: "pl-4 tablet-p:pl-32 tablet:pl-24"
     }
@@ -58,7 +60,7 @@ export const ABOUT_STAGE_STYLES = {
       leading: "leading-[1.7] tablet-p:leading-[1.8] tablet:leading-[1.9]",
       maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
-      yOffset: "translate-y-[5vh] tablet-p:translate-y-[2vh] tablet:translate-y-0",
+      yOffset: "",
       paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
       labelPaddingLeft: "pl-4 tablet-p:pl-32 tablet:pl-24"
     }

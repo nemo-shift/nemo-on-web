@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { useHeroContext, useDevice } from '@/context';
+import { useHeaderTheme } from '@/hooks';
 import { usePathname } from 'next/navigation';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { cn } from '@/lib/utils';
@@ -61,6 +62,7 @@ interface MenuToggleProps {
 export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React.ReactElement | null {
   const { isOn, isScrollable } = useHeroContext();
   const { isMobile, isTabletPortrait, interactionMode } = useDevice();
+  const headerTheme = useHeaderTheme();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
@@ -155,9 +157,11 @@ export default function MenuToggle({ isOpen, onToggle }: MenuToggleProps): React
   // ─────────────────────────────────────────
   // 버튼 컬러 — 홈/서브페이지 분기 및 열림 상태 고속
   // ─────────────────────────────────────────
-  const strokeColor = isOpen 
+  const strokeColor = isOpen
     ? '#0d1a1f' // 메뉴 열림 시: 항상 어두운 색 (크림색 배경 대비)
-    : (isHome ? 'var(--header-fg, #f0ebe3)' : '#0d1a1f');
+    : headerTheme === 'light'
+      ? '#ffffff' // 어두운 배경(Studio) 구간: 흰색
+      : (isHome ? 'var(--header-fg, #f0ebe3)' : '#0d1a1f');
 
   if (!isVisible) return null;
 

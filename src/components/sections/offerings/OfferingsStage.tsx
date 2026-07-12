@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { useHeroContext } from '@/context';
+import { useHeroContext, useDevice } from '@/context';
 import OfferingsHero from './hero/OfferingsHero';
 import OfferingsIntro from './intro/OfferingsIntro';
 import OfferingsStudio from './studio/OfferingsStudio';
@@ -20,6 +20,7 @@ if (typeof window !== 'undefined') {
 
 export default function OfferingsStage() {
   const { toggle, setIsScrollable } = useHeroContext();
+  const { interactionMode } = useDevice();
   const stageContainerRef = useRef<HTMLDivElement>(null); // 🆕 배경 전체를 감싸는 돔 참조용 ref 추가
   const horizontalWrapperRef = useRef<HTMLDivElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
@@ -29,11 +30,24 @@ export default function OfferingsStage() {
     toggle();
     setIsScrollable(true);
 
+    // [⑤ Fix] About과 동일하게 터치 환경에서 핀 꼬임 방어
+    if (interactionMode === 'touch') {
+      ScrollTrigger.normalizeScroll({
+        allowNestedScroll: true,
+        momentum: 0
+      });
+    }
+
     // 컴포넌트 마운트 직후 ScrollTrigger 좌표 측정 갱신
     requestAnimationFrame(() => {
       ScrollTrigger.refresh();
     });
-  }, [toggle, setIsScrollable]);
+
+    return () => {
+      ScrollTrigger.normalizeScroll(false);
+      delete document.body.dataset.headerTheme; // 페이지 이탈 시 헤더 테마 초기화
+    };
+  }, [toggle, setIsScrollable, interactionMode]);
 
   useGSAP(() => {
     if (!stageContainerRef.current || !horizontalWrapperRef.current || !horizontalContainerRef.current) return;
@@ -43,7 +57,7 @@ export default function OfferingsStage() {
     // ─────────────────────────────────────────────
     
     // 0. 초기화: PRELUDE는 가장 정갈한 퓨어 흰색으로 시작
-    gsap.set(stageContainerRef.current, { backgroundColor: '#ffffff', transition: 'background-color 0.8s ease-out' });
+    gsap.set(stageContainerRef.current, { backgroundColor: '#ffffff' });
 
     // 1. WHAT WE DO 섹션 진입 시 (60% 영역 확보 시): 소프트 아이보리로 서서히 페이드
     ScrollTrigger.create({
@@ -78,6 +92,8 @@ export default function OfferingsStage() {
           ease: 'power2.out',
           overwrite: 'auto'
         });
+        // 어두운 배경 진입 → 헤더 흰색 전환
+        document.body.dataset.headerTheme = 'light';
       },
       onLeaveBack: () => {
         gsap.to(stageContainerRef.current, {
@@ -86,6 +102,8 @@ export default function OfferingsStage() {
           ease: 'power2.out',
           overwrite: 'auto'
         });
+        // 밝은 배경 복귀 → 헤더 어두운 색 복원
+        delete document.body.dataset.headerTheme;
       }
     });
 
@@ -103,6 +121,8 @@ export default function OfferingsStage() {
           ease: 'power2.out',
           overwrite: 'auto'
         });
+        // Outro(흰 배경) 진입 → 헤더 어두운 색 복원
+        delete document.body.dataset.headerTheme;
       },
       onLeaveBack: () => {
         gsap.to(stageContainerRef.current, {
@@ -141,6 +161,14 @@ export default function OfferingsStage() {
         pin: true,
         scrub: true,
         invalidateOnRefresh: true, // 리사이즈 시 좌표 보정
+        // [헤더 테마] Studio(dark, 0~0.60) → 헤더 흰색 / Lab(light-gray, 0.60~1.0) → 헤더 어두운 색
+        onUpdate: (self) => {
+          if (self.progress < 0.60) {
+            document.body.dataset.headerTheme = 'light';
+          } else {
+            delete document.body.dataset.headerTheme;
+          }
+        },
       }
     });
 
@@ -152,12 +180,13 @@ export default function OfferingsStage() {
       duration: 0.3,
     }, 0.35);
 
-    // 🆕 횡이동이 시작되면서 가로 스크롤 타임라인 중반부에 도달하면 배경색을 LAB의 원래 고유 아이덴티티 색상인 뚜렷한 스토니 그레이(#e2e8f0)로 선명하게 모핑 전이
+    // [명도 충돌 수정] Studio 흰 텍스트 퇴장 완료(~0.54) 이후 배경 모핑 시작
+    // 0.35 → 0.50으로 늦춰 흰 텍스트가 밝은 배경에 씻겨 보이는 구간(0.45~0.54) 제거
     tl.to(stageContainerRef.current, {
       backgroundColor: '#e2e8f0',
       duration: 0.15,
       ease: 'power2.inOut',
-    }, 0.35);
+    }, 0.50);
 
     // 2. Studio 텍스트 등장 모션 (0.0 ~ 0.25 구간)
     tl.to('.studio-header', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0)
@@ -190,7 +219,6 @@ export default function OfferingsStage() {
       <div 
         ref={stageContainerRef}
         className="relative w-full text-[#0d1a1f]"
-        style={{ transition: 'background-color 0.8s ease-out' }}
       >
         
         {/* 1. Hero Section */}
