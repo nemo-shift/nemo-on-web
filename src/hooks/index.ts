@@ -8,3 +8,4 @@ export * from './useHeroState';
 export * from './useMousePosition';
 export * from './useDeviceDetection';
 export * from './useHeaderTheme';
+export * from './useHeaderThemeSync';

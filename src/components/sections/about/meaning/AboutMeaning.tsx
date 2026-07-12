@@ -5,27 +5,30 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_MEANING_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
 import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
-import { renderBrandText } from '@/lib/renderBrandText';
+import { renderParagraph } from '@/lib/renderParagraph';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutMeaning() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
+  const borderRef = useRef<HTMLDivElement>(null);
   const phase1Ref = useRef<HTMLDivElement>(null);
   const phase2Ref = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null); // 🆕 메타 라벨용 ref 추가
+  const labelRef = useRef<HTMLDivElement>(null);
 
   // [Zero-Gap Sync] 스크롤 여유 및 관성 방어를 위한 가중치 배율 (상수 파일 sub-interaction.ts 연동)
   const scrollMultiplier = ABOUT_SCROLL_MULTIPLIERS.MEANING;
 
   useGSAP(() => {
-    if (!containerRef.current || !titleRef.current || !phase1Ref.current || !phase2Ref.current || !labelRef.current) return;
+    if (!containerRef.current || !titleRef.current || !borderRef.current || !phase1Ref.current || !phase2Ref.current || !labelRef.current) return;
 
-    // 본문 콘텐츠 및 메타 라벨 초기 은폐 (오직 거대 타이틀만 선명하게 보이도록 방어)
-    gsap.set(phase1Ref.current, { opacity: 0, y: 30, x: 0 }); // 1번은 수직 상승 진입
-    gsap.set(phase2Ref.current, { opacity: 0, y: 0, x: -40 });  // 2번은 왼쪽(x: -40)에서 대기 (일방향 가로 진입용)
-    gsap.set(labelRef.current, { opacity: 0, y: 20 }); // 라벨 초기 은폐
+    // 본문 콘텐츠 및 메타 라벨 초기 은폐 (오직 거대 타이틀 + 네모 테두리만 선명하게 보이도록 방어)
+    gsap.set(phase1Ref.current, { opacity: 0, y: 30, x: 0 });
+    gsap.set(phase2Ref.current, { opacity: 0, y: 0, x: -40 });
+    gsap.set(labelRef.current, { opacity: 0, y: 20 });
+    gsap.set('.meaning-triad-chip', { opacity: 0, y: 12 });
+    gsap.set(borderRef.current, { opacity: 0, scale: 0.92 }); // 네모 테두리 초기 은폐
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -41,7 +44,16 @@ export default function AboutMeaning() {
       }
     });
 
+    // 0. 네모 테두리: 타이틀과 함께 등장 (scale-up + fade-in)
+    tl.to(borderRef.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.15,
+      ease: 'power2.out'
+    }, 0);
+
     // 1. 거대 타이틀: 0%에서 20% 지점까지 오파시티 옅어지며 단독 퇴장 (지속시간 0.2)
+    // ⚠️ 네모 테두리는 영향 없이 찐하게 유지됨
     tl.to(titleRef.current, {
       opacity: 0.04,
       duration: 0.2,
@@ -81,6 +93,11 @@ export default function AboutMeaning() {
       ease: 'power2.out'
     }, 0.53); // 1번이 사라진 후 빈 공간 대기하다가 58% 지점부터 2번이 진입 시작
 
+    // Triad 칩 개별 stagger (phase2 블록 진입 직후)
+    tl.to('.meaning-triad-chip', {
+      opacity: 1, y: 0, duration: 0.06, stagger: 0.05, ease: 'power2.out'
+    }, 0.56);
+
     // 5. [Phase 2 정독 구간 극대화] 60%부터 98% 지점까지 스크롤 내리는 내내 완전 고정 (지속시간 0.38)
     tl.to({}, { duration: 0.38 }, 0.6); // 30% 휠 거리에 달하는 넓은 정독 존 확보!
 
@@ -94,21 +111,7 @@ export default function AboutMeaning() {
 
   }, { scope: containerRef });
 
-  const renderParagraph = (text: string) => {
-    // **text** 패턴을 찾아 <strong> 태그로 분할 렌더링하여 고품격 두께를 줍니다.
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        const cleanText = part.slice(2, -2);
-        return (
-          <strong key={index} className="font-extrabold text-[#0d1a1f]">
-            {cleanText}
-          </strong>
-        );
-      }
-      return <React.Fragment key={index}>{renderBrandText(part)}</React.Fragment>;
-    });
-  };
+
 
   return (
     <section
@@ -119,13 +122,26 @@ export default function AboutMeaning() {
     >
       {/* 100vh 풀스크린 뷰포트 영역 (pin 대상) */}
       <div className="w-full h-screen flex flex-col items-center justify-center relative">
-        
+
+        {/* 큰 네모 테두리 — 콘텐츠를 감싸는 프레임 */}
+        <div
+          ref={borderRef}
+          className="absolute inset-x-8 inset-y-12 tablet-p:inset-x-16 tablet-p:inset-y-16 tablet:inset-x-24 tablet:inset-y-20 border-2 border-[#0d1a1f] z-[1] pointer-events-none"
+        />
+
         {/* 거대 배경 타이틀 (선명한 검은색에서 시작) */}
-        <span 
+        <span
           ref={titleRef}
-          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none text-center leading-none z-0 ${ABOUT_STAGE_STYLES.meaning.bgTitle.size} ${ABOUT_STAGE_STYLES.meaning.bgTitle.top} ${ABOUT_STAGE_STYLES.meaning.bgTitle.tracking}`}
+          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none leading-[0.9] z-0 ${ABOUT_STAGE_STYLES.meaning.bgTitle.size} ${ABOUT_STAGE_STYLES.meaning.bgTitle.tracking}`}
+          style={{
+            top: '50%',
+            left: '80px',
+            transform: 'rotate(-90deg) translateX(-50%)',
+            transformOrigin: 'top left',
+            textAlign: 'center',
+          }}
         >
-          {ABOUT_MEANING_DATA.bgTitle}
+          The Architecture<br />of Name
         </span>
 
         {/* 전면 본문 콘텐츠 레이어 */}
@@ -135,7 +151,7 @@ export default function AboutMeaning() {
           {/* 메타 라벨 (상시 고정 및 정밀 세로 정렬선 확보) */}
           <div ref={labelRef} className={`relative mx-auto flex flex-col text-left mb-6 tablet:mb-8 ${ABOUT_STAGE_STYLES.meaning.content.maxWidth} ${ABOUT_STAGE_STYLES.meaning.content.labelPaddingLeft}`}>
             <span className="text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600">
-              02 / REC+ANGLE
+              03 / REC+ANGLE
             </span>
           </div>
 
@@ -163,10 +179,27 @@ export default function AboutMeaning() {
               style={{ gridArea: '1/1' }}
               className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.meaning.content.maxWidth} ${ABOUT_STAGE_STYLES.meaning.content.paddingLeft} ${ABOUT_STAGE_STYLES.meaning.content.gap}`}
             >
-              {ABOUT_MEANING_DATA.phase2.map((p, idx) => (
-                <p 
-                   key={idx} 
-                   className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}
+              <p className={`font-suit font-normal whitespace-pre-line text-[#0d1a1f] ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}>
+                {ABOUT_MEANING_DATA.phase2Intro}
+              </p>
+
+              {/* REC / Angle / + 삼분할 — 가로 카드형 (모바일은 세로 스택) */}
+              <div className="flex flex-col tablet:flex-row gap-4 tablet:gap-6 my-2">
+                {ABOUT_MEANING_DATA.phase2Triad.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="meaning-triad-chip flex flex-col gap-1 border-l-2 border-cyan-500/40 pl-4 tablet:pl-0 tablet:border-l-0 tablet:border-t-2 tablet:pt-3"
+                  >
+                    <span className="font-suit font-bold text-[#0d1a1f] text-2xl tablet:text-3xl">{item.label}</span>
+                    <span className="font-suit font-light text-[#0d1a1f]/70 text-sm tablet:text-base">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+
+              {ABOUT_MEANING_DATA.phase2Outro.map((p, idx) => (
+                <p
+                  key={idx}
+                  className={`font-suit font-normal whitespace-pre-line text-[#0d1a1f] ${ABOUT_STAGE_STYLES.meaning.content.fontSize} ${ABOUT_STAGE_STYLES.meaning.content.leading}`}
                 >
                   {renderParagraph(p)}
                 </p>

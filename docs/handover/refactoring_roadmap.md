@@ -3,6 +3,18 @@
 
 # [Roadmap] 프로젝트 기술 진화 실행 로드맵
 
+### [x] [8A] About 페이지 코드 품질 정리 (2026-07-13 완료)
+
+- **대상**: `AboutPhilosophy.tsx`, `AboutMeaning.tsx`, `AboutPromise.tsx`, `AboutFoundersNote.tsx`, `AboutPrinciples.tsx`, `AboutStage.styles.ts`, `data/about.ts`
+- **내용**:
+  - `renderParagraph` 공용 함수 추출 (`lib/renderParagraph.tsx`) — 3곳 로컬 중복 제거
+  - `useHeaderThemeSync` 커스텀 훅 추출 (`hooks/useHeaderThemeSync.ts`) — 다크 섹션 헤더 테마 전환 2곳 중복 제거
+  - 죽은 데이터 필드 삭제 (`ABOUT_MEANING_DATA.bgTitle`, `ABOUT_PROMISE_DATA.bgTitle`)
+  - 무효화 스타일 토큰 삭제 (`promise.bgTitle.size/top`, `meaning.bgTitle.top`)
+- **성과**: About 페이지 유지보수 단일 지점 확보. 향후 다크 섹션 추가 시 1줄 훅 호출로 헤더 전환 완료.
+
+---
+
 ### [ ] [7B] V64 Fluid Typography System (유동적 폰트 시스템)
 
 - **대상**: `ForWhoSection.tsx`, `builders/forwho.ts`

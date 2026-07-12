@@ -33,10 +33,7 @@ export const ABOUT_STAGE_STYLES = {
   },
   meaning: {
     bgTitle: {
-      // [장문 타이틀 별도 사이즈] "The Architecture of Name" 24자는 타 섹션 기준으로 잡은 110px에서 데스크톱 overflow 발생
-      // → 24자 + tracking 기준 계산값: tablet 992px 내 55px, desktop-wide 1440px 내 80px
       size: "text-[36px] tablet-p:text-[64px] tablet:text-[55px] desktop-wide:text-[80px]",
-      top: "top-[22%] tablet-p:top-[26%] tablet:top-[28%]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.1em]"
     },
     content: {
@@ -51,8 +48,6 @@ export const ABOUT_STAGE_STYLES = {
   },
   promise: {
     bgTitle: {
-      size: "text-[42px] tablet-p:text-[76px] tablet:text-[130px] desktop-wide:text-[150px]",
-      top: "top-[24%] tablet-p:top-[28%] tablet:top-[30%]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.2em]"
     },
     content: {

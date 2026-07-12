@@ -3,7 +3,123 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] 🚧 2026-07-12: Zone 4 JourneyLogo 리브랜딩 + 히어로 섹션 UI 튜닝
+## [최신] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
+
+### 브랜치: `main`
+
+---
+
+### 1. About 페이지 섹션 구조 변경
+
+**변경 전**: Philosophy → Meaning → Promise (3섹션, 전부 핀 고정)
+**변경 후**: Philosophy → FoundersNote → Meaning → Principles → Promise (5섹션, 핀/자유스크롤 교대)
+
+| 섹션 | 타입 | 배경 | z-index | 특징 |
+|---|---|---|---|---|
+| Philosophy | 핀(scrub) | 흰색 | 10 | 기존 유지 |
+| FoundersNote | 자유스크롤 | 다크(`#0d1a1f`) | 15 | 신규. once→반복 재생 |
+| Meaning | 핀(scrub) | 크림(`#f7f1e9`) | 20 | 기존 확장. 네모 테두리 추가 |
+| Principles | 자유스크롤 | 다크(`#0d1a1f`) | 25 | 신규. 반복 재생 |
+| Promise | 핀(scrub) | 흰색 | 30 | 기존 확장. 텍스트 중앙 정렬 |
+
+---
+
+### 2. 신규 섹션 상세
+
+**FoundersNote** (`src/components/sections/about/founders-note/AboutFoundersNote.tsx`):
+- 라벨: `02 / FOUNDER'S NOTE`
+- 본문 stagger fade-up 진입 (매 섹션 진입 시 재생)
+- `signatureEmphasis` ("의미를 구조화하는 사람이고 싶습니다"): 별도 scale-up 애니메이션 (scale 0.88→1, 뷰포트 80% 깊이 진입 시)
+- `useHeaderThemeSync` 훅으로 헤더 테마 전환
+
+**Principles** (`src/components/sections/about/principles/AboutPrinciples.tsx`):
+- 라벨: `04 / WHAT WE DON'T DO`
+- 5개 항목 번호 매김 (01~05), `border-l-2 border-cyan-400/40`
+- stagger 좌→우 슬라이드 진입, `start: 'top 40%'` (핀 섹션 뒤에서 제대로 보이도록)
+- 매 진입/역진입 시 재생 (once 아님)
+
+---
+
+### 3. 기존 섹션 변경사항
+
+**Meaning**:
+- 큰 네모 테두리 (`borderRef`) 추가: 타이틀과 함께 scale 0.92→1 등장, 타이틀 페이드아웃 후에도 찐한 상태 유지
+- bgTitle "The Architecture of Name": `rotate(-90deg)` 왼쪽 세로 배치, 두 줄, `left: 80px`
+- phase2 triad 라벨: `text-2xl/3xl`로 확대
+- phase2 텍스트: `font-light` → `font-normal`
+- `ABOUT_SCROLL_MULTIPLIERS.MEANING`: 3.5 → 4.5
+
+**Promise**:
+- 텍스트 중앙 정렬 (`text-center`, `items-center`)
+- bgTitle "What We / Turn ON": 하단 배치, 두 줄, `text-[72px]~[200px]`
+- `**선명함**`, `**설명 가능함**`, `**작동하는 구조**`: 틸색 (`cyan-600`) 강조
+- `__**의미를 켜서, 구조가 작동하도록.**__`: 볼드 + 틸색 밑줄 애니메이션 (73% 지점 scrub)
+- 콘텐츠 위치: `pt-[32vh] tablet:pt-[30vh]`
+
+**Philosophy**:
+- `**선명하게,**`, `**이해되게,**`, `**작동하게.**`: 틸색 강조
+
+---
+
+### 4. StickyContactNemo 공용 컴포넌트
+
+**파일**: `src/components/ui/StickyContactNemo.tsx` (신규)
+**데이터**: `src/data/shared.ts` (신규) — `STICKY_CONTACT_DATA`
+
+- `fixed bottom-6 right-6`, L자형 확장 (Contact 왼쪽, 브랜드진단 위쪽)
+- 메인 버튼: 56×56 `rounded-lg`, "on"/"off" 토글
+- 옵션 버튼: 48×48 `rounded-lg`
+  - 다크 배경: `#E8734A/80` (주황)
+  - 밝은 배경: `#9ca3af/80` (회색)
+- `useHeaderTheme` 훅으로 배경 감지
+- GSAP 확장 애니메이션 (좌측: x 슬라이드, 상단: y 슬라이드)
+- CTA 섹션 삭제됨 (이 컴포넌트로 대체)
+
+---
+
+### 5. 배경색 전환 (scrub)
+
+두 곳의 다크→라이트 경계에서 `scrub: true` 배경색 트윈:
+- FoundersNote(`#0d1a1f`) → Meaning(`#f7f1e9`): `bottom 80%` ~ `bottom 20%`
+- Principles(`#0d1a1f`) → Promise(`#ffffff`): 동일 범위
+- 양방향 (역스크롤 시 자동 복원)
+
+---
+
+### 6. 코드 품질 정리 (4건)
+
+| 항목 | 변경 내용 |
+|---|---|
+| `renderParagraph` 통합 | `lib/renderParagraph.tsx` 신규. Philosophy/Promise/Meaning 로컬 함수 제거 → 공용 import |
+| `useHeaderThemeSync` 훅 | `hooks/useHeaderThemeSync.ts` 신규. FoundersNote/Principles 8줄 블록 → 1줄 호출 |
+| 죽은 데이터 삭제 | `ABOUT_MEANING_DATA.bgTitle`, `ABOUT_PROMISE_DATA.bgTitle` 제거 (JSX 하드코딩으로 대체됨) |
+| 스타일 토큰 정리 | `AboutStage.styles.ts`: `promise.bgTitle.size/top`, `meaning.bgTitle.top` 삭제 (미사용) |
+
+---
+
+### 신규/변경 파일 목록
+
+| 파일 | 상태 |
+|---|---|
+| `src/components/sections/about/founders-note/AboutFoundersNote.tsx` | 신규 |
+| `src/components/sections/about/principles/AboutPrinciples.tsx` | 신규 |
+| `src/components/ui/StickyContactNemo.tsx` | 신규 |
+| `src/data/shared.ts` | 신규 |
+| `src/lib/renderParagraph.tsx` | 신규 |
+| `src/hooks/useHeaderThemeSync.ts` | 신규 |
+| `src/data/about.ts` | 변경 |
+| `src/constants/sub-interaction.ts` | 변경 |
+| `src/components/sections/about/AboutStage.tsx` | 변경 |
+| `src/components/sections/about/AboutStage.styles.ts` | 변경 |
+| `src/components/sections/about/meaning/AboutMeaning.tsx` | 변경 |
+| `src/components/sections/about/promise/AboutPromise.tsx` | 변경 |
+| `src/components/sections/about/philosophy/AboutPhilosophy.tsx` | 변경 |
+| `src/hooks/index.ts` | 변경 |
+| `src/components/sections/about/cta/AboutCTA.tsx` | 삭제 |
+
+---
+
+## [이전] 🚧 2026-07-12: Zone 4 JourneyLogo 리브랜딩 + 히어로 섹션 UI 튜닝
 
 ### 브랜치: `main`
 

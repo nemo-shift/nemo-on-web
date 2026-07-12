@@ -1,4 +1,18 @@
-## [최신] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
+## [최신] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
+
+**브랜치**: `main` | 상세: `docs/handover/current-task.md`
+
+- **About 5섹션 체계**: Philosophy → FoundersNote(신규) → Meaning → Principles(신규) → Promise — 핀/자유스크롤 교대 리듬
+- **StickyContactNemo**: CTA 섹션 대체 → 고정 버튼 (L자 확장, 배경 감지 색상 전환)
+- **타이포 강조**: Philosophy/Promise에 틸색(`cyan-600`) 키워드 강조, Promise 밑줄 애니메이션
+- **Meaning 네모 테두리**: 타이틀과 함께 등장, 타이틀 페이드 후에도 유지
+- **배경색 전환**: FoundersNote→Meaning, Principles→Promise scrub 트윈
+- **코드 정리**: `renderParagraph` 공용화, `useHeaderThemeSync` 훅 추출, 죽은 데이터/토큰 삭제
+- **신규 파일**: `AboutFoundersNote.tsx`, `AboutPrinciples.tsx`, `StickyContactNemo.tsx`, `shared.ts`, `renderParagraph.tsx`, `useHeaderThemeSync.ts`
+
+---
+
+## [이전] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
 
 **브랜치**: `main` (머지 완료) | 롤백 태그: `v-pre-merge-fix-mobile-scroll-bugs`
 

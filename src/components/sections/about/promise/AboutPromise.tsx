@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_PROMISE_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
 import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
-import { renderBrandText } from '@/lib/renderBrandText';
+import { renderParagraph } from '@/lib/renderParagraph';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,7 +25,8 @@ export default function AboutPromise() {
     // 본문 콘텐츠 및 메타 라벨 초기 은폐 (오직 거대 타이틀만 선명하게 보이도록 방어)
     gsap.set(phase1Ref.current, { opacity: 0, y: 30, x: 0 }); // 1번은 수직 상승 진입
     gsap.set(phase2Ref.current, { opacity: 0, y: 0, x: -40 });  // 2번은 왼쪽(x: -40)에서 대기 (일방향 가로 진입용)
-    gsap.set(labelRef.current, { opacity: 0, y: 20 }); // 라벨 초기 은폐
+    gsap.set(labelRef.current, { opacity: 0, y: 20 });
+    gsap.set('.promise-underline-bar', { width: '0%' }); // 밑줄 초기화
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -81,8 +82,15 @@ export default function AboutPromise() {
       ease: 'power2.out'
     }, 0.53); // 1번이 사라진 후 빈 공간 대기하다가 58% 지점부터 2번이 진입 시작
 
-    // 5. [Phase 2 정독 구간 극대화] 60%부터 98% 지점까지 스크롤 내리는 내내 완전 고정 (지속시간 0.38)
-    tl.to({}, { duration: 0.38 }, 0.6); // 30% 휠 거리에 달하는 넓은 정독 존 확보!
+    // 5. 밑줄 애니메이션: phase2 정독 후 왼쪽에서 오른쪽으로 밑줄 그어짐
+    tl.to('.promise-underline-bar', {
+      width: '100%',
+      duration: 0.1,
+      ease: 'power2.out',
+    }, 0.73);
+
+    // 6. [Phase 2 정독 구간 극대화] 83%부터 98% 지점까지 완전 고정
+    tl.to({}, { duration: 0.15 }, 0.83); // 30% 휠 거리에 달하는 넓은 정독 존 확보!
 
     // 6. [오버레이 지연 마감 대기] 98%부터 100% 지점까지 비로소 다음 카드를 위해 대기 (지속시간 0.02)
     tl.to({}, { duration: 0.02 }, 0.98);
@@ -94,22 +102,6 @@ export default function AboutPromise() {
 
   }, { scope: containerRef });
 
-  const renderParagraph = (text: string) => {
-    // **text** 패턴을 찾아 <strong> 태그로 분할 렌더링하여 고품격 두께를 줍니다.
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        const cleanText = part.slice(2, -2);
-        return (
-          <strong key={index} className="font-extrabold text-[#0d1a1f]">
-            {cleanText}
-          </strong>
-        );
-      }
-      return <React.Fragment key={index}>{renderBrandText(part)}</React.Fragment>;
-    });
-  };
-
   return (
     <section
       ref={containerRef}
@@ -118,24 +110,24 @@ export default function AboutPromise() {
       style={{ height: `${scrollMultiplier * 100}vh` }}
     >
       {/* 100vh 풀스크린 뷰포트 영역 (pin 대상) */}
-      <div className="w-full h-screen flex flex-col items-center justify-center relative">
+      <div className="w-full h-screen flex flex-col items-center justify-start pt-[32vh] tablet:pt-[30vh] relative">
         
         {/* 거대 배경 타이틀 (선명한 검은색에서 시작) */}
-        <span 
+        <span
           ref={titleRef}
-          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none text-center leading-none z-0 ${ABOUT_STAGE_STYLES.promise.bgTitle.size} ${ABOUT_STAGE_STYLES.promise.bgTitle.top} ${ABOUT_STAGE_STYLES.promise.bgTitle.tracking}`}
+          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none text-center leading-[0.9] z-0 bottom-[18%] tablet-p:bottom-[20%] tablet:bottom-[22%] text-[72px] tablet-p:text-[130px] tablet:text-[170px] desktop-wide:text-[200px] ${ABOUT_STAGE_STYLES.promise.bgTitle.tracking}`}
         >
-          {ABOUT_PROMISE_DATA.bgTitle}
+          What We<br />Turn ON
         </span>
 
         {/* 전면 본문 콘텐츠 레이어 */}
         <div 
           className={`relative z-10 container mx-auto px-6 text-center text-[#0d1a1f] ${ABOUT_STAGE_STYLES.promise.content.maxWidth} ${ABOUT_STAGE_STYLES.promise.content.yOffset}`}
         >
-          {/* 메타 라벨 (상시 고정 및 정밀 세로 정렬선 확보) */}
-          <div ref={labelRef} className={`relative mx-auto flex flex-col text-left mb-6 tablet:mb-8 ${ABOUT_STAGE_STYLES.promise.content.maxWidth} ${ABOUT_STAGE_STYLES.promise.content.labelPaddingLeft}`}>
+          {/* 메타 라벨 */}
+          <div ref={labelRef} className="mb-6 tablet:mb-8">
             <span className="text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-600">
-              03 / OUR PROMISE
+              05 / OUR PROMISE
             </span>
           </div>
 
@@ -145,11 +137,11 @@ export default function AboutPromise() {
             <div
               ref={phase1Ref}
               style={{ gridArea: '1/1' }}
-              className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.promise.content.maxWidth} ${ABOUT_STAGE_STYLES.promise.content.paddingLeft} ${ABOUT_STAGE_STYLES.promise.content.gap}`}
+              className={`flex flex-col items-center text-center w-full ${ABOUT_STAGE_STYLES.promise.content.gap}`}
             >
               {ABOUT_PROMISE_DATA.phase1.map((p, idx) => (
-                <p 
-                   key={idx} 
+                <p
+                   key={idx}
                    className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.promise.content.fontSize} ${ABOUT_STAGE_STYLES.promise.content.leading}`}
                 >
                   {renderParagraph(p)}
@@ -161,12 +153,12 @@ export default function AboutPromise() {
             <div
               ref={phase2Ref}
               style={{ gridArea: '1/1' }}
-              className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.promise.content.maxWidth} ${ABOUT_STAGE_STYLES.promise.content.paddingLeft} ${ABOUT_STAGE_STYLES.promise.content.gap}`}
+              className={`flex flex-col items-center text-center w-full ${ABOUT_STAGE_STYLES.promise.content.gap}`}
             >
               {ABOUT_PROMISE_DATA.phase2.map((p, idx) => (
-                <p 
-                   key={idx} 
-                   className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.promise.content.fontSize} ${ABOUT_STAGE_STYLES.promise.content.leading}`}
+                <p
+                   key={idx}
+                   className={`font-suit font-normal whitespace-pre-line text-[#0d1a1f] ${ABOUT_STAGE_STYLES.promise.content.fontSize} ${ABOUT_STAGE_STYLES.promise.content.leading}`}
                 >
                   {renderParagraph(p)}
                 </p>

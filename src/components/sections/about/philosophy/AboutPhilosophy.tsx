@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_PHILOSOPHY_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
 import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
-import { renderBrandText } from '@/lib/renderBrandText';
+import { renderParagraph } from '@/lib/renderParagraph';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -132,11 +132,11 @@ export default function AboutPhilosophy() {
               className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase1.map((p, idx) => (
-                <p 
-                   key={idx} 
+                <p
+                   key={idx}
                    className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
-                  {renderBrandText(p)}
+                  {renderParagraph(p)}
                 </p>
               ))}
             </div>
@@ -148,11 +148,11 @@ export default function AboutPhilosophy() {
               className={`flex flex-col text-left ${ABOUT_STAGE_STYLES.philosophy.content.maxWidth} ${ABOUT_STAGE_STYLES.philosophy.content.paddingLeft} ${ABOUT_STAGE_STYLES.philosophy.content.gap}`}
             >
               {ABOUT_PHILOSOPHY_DATA.phase2.map((p, idx) => (
-                <p 
-                   key={idx} 
-                   className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
+                <p
+                   key={idx}
+                   className={`font-suit font-normal whitespace-pre-line text-[#0d1a1f] ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
-                  {renderBrandText(p)}
+                  {renderParagraph(p)}
                 </p>
               ))}
             </div>

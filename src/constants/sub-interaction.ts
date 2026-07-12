@@ -11,7 +11,7 @@
  */
 export const ABOUT_SCROLL_MULTIPLIERS = {
   PHILOSOPHY: 3.5,
-  MEANING: 3.5,
+  MEANING: 4.5,
   PROMISE: 1.8, // 스크롤 낭비 방지를 위해 1.4배로 축소 조정된 값
 } as const;
 

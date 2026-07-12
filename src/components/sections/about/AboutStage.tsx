@@ -5,8 +5,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useHeroContext, useDevice } from '@/context';
 import AboutHero from './hero/AboutHero';
 import AboutPhilosophy from './philosophy/AboutPhilosophy';
+import AboutFoundersNote from './founders-note/AboutFoundersNote';
 import AboutMeaning from './meaning/AboutMeaning';
+import AboutPrinciples from './principles/AboutPrinciples';
 import AboutPromise from './promise/AboutPromise';
+import StickyContactNemo from '@/components/ui/StickyContactNemo';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import SubpageScrollHint from '@/components/ui/SubpageScrollHint';
 
@@ -33,9 +36,10 @@ export default function AboutStage() {
       ScrollTrigger.refresh();
     });
 
-    // [Side-effect Free] 어바웃 페이지 이탈 시 전역 터치 정규화 설정을 해제하여 타 페이지로의 전염을 원천 차단
+    // [Side-effect Free] 페이지 이탈 시 전역 설정 해제
     return () => {
       ScrollTrigger.normalizeScroll(false);
+      delete document.body.dataset.headerTheme; // 다크 섹션 위치에서 이탈 시 헤더 테마 복원
     };
   }, [toggle, setIsScrollable, interactionMode]);
 
@@ -43,20 +47,24 @@ export default function AboutStage() {
     <div id="about-stage" className="relative z-[1] w-full">
       {/* [V75/STEP D] About 전용 스크롤 힌트 — 하단 근접 시 자동 소멸 */}
       <SubpageScrollHint />
+      {/* 스티키 문의 버튼 — fixed 오버레이, wrapper 밖 */}
+      <StickyContactNemo />
       {/* 콘텐츠 영역 (여기에만 배경색을 지정해야 하단 스페이서가 투명해집니다) */}
       <div className="relative w-full bg-[#f7f1e9]">
-        
+
         {/* 1. Hero Section */}
         <AboutHero />
 
         {/* 2. Sections Wrapper (For Stacking Overlay) */}
-        <div 
-          id="about-sections-wrapper" 
+        <div
+          id="about-sections-wrapper"
           className="relative w-full"
           style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT }}
         >
           <AboutPhilosophy />
+          <AboutFoundersNote />
           <AboutMeaning />
+          <AboutPrinciples />
           <AboutPromise />
         </div>
 
