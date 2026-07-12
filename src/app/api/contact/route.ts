@@ -9,6 +9,15 @@ const RECEIVER_EMAIL = process.env.CONTACT_RECEIVER_EMAIL ?? 'turn.nemoon@gmail.
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'zip'];
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (Vercel 서버리스 요청 본문 한계 4.5MB 대응)
 const MAX_CONTENT_LENGTH = 5000;
 
@@ -98,14 +107,14 @@ export async function POST(req: NextRequest) {
   const htmlBody = `
     <h2 style="color:#E8734A;margin-bottom:24px;">nemo:on 새 문의가 도착했습니다</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;width:120px;">이름</td><td style="padding:8px 12px;">${name}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">회사명</td><td style="padding:8px 12px;">${company || '—'}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">문의 유형</td><td style="padding:8px 12px;">${inquiryLabel}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">전화번호</td><td style="padding:8px 12px;">${phone}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">이메일</td><td style="padding:8px 12px;">${email}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">참고사이트</td><td style="padding:8px 12px;">${referenceUrl || '—'}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;vertical-align:top;">문의 내용</td><td style="padding:8px 12px;white-space:pre-wrap;">${content}</td></tr>
-      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">첨부파일</td><td style="padding:8px 12px;">${file && file.size > 0 ? file.name : '없음'}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;width:120px;">이름</td><td style="padding:8px 12px;">${escapeHtml(name)}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">회사명</td><td style="padding:8px 12px;">${company ? escapeHtml(company) : '—'}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">문의 유형</td><td style="padding:8px 12px;">${escapeHtml(inquiryLabel)}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">전화번호</td><td style="padding:8px 12px;">${escapeHtml(phone)}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">이메일</td><td style="padding:8px 12px;">${escapeHtml(email)}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">참고사이트</td><td style="padding:8px 12px;">${referenceUrl ? escapeHtml(referenceUrl) : '—'}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;vertical-align:top;">문의 내용</td><td style="padding:8px 12px;white-space:pre-wrap;">${escapeHtml(content)}</td></tr>
+      <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">첨부파일</td><td style="padding:8px 12px;">${file && file.size > 0 ? escapeHtml(file.name) : '없음'}</td></tr>
     </table>
   `;
 

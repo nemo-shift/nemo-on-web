@@ -44,12 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    {
-      url: `${siteUrl}/showcase`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
+    // showcase: 준비 중인 페이지 — 완성 전까지 sitemap 제외
     {
       url: `${siteUrl}/contact`,
       lastModified: now,

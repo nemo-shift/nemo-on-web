@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function StoryPage() {
-  // 諛고룷 ?섍꼍(production)?먯꽌???섏씠吏瑜??④? 泥섎━ (404 ?꾩옣)
+  // production 환경에서는 페이지를 숨김 처리 (404 반환)
   if (process.env.NODE_ENV === 'production') {
     notFound();
   }
@@ -20,7 +20,7 @@ export default function StoryPage() {
       <h1 className="text-4xl font-suit font-bold uppercase tracking-tighter">
         STORY
       </h1>
-      <p className="text-brand font-medium">(鍮꾧났媛??섏씠吏: 媛쒕컻 ?섍꼍?먯꽌留?蹂댁엯?덈떎)</p>
+      <p className="text-brand font-medium">(준비 중인 페이지: 개발 환경에서만 보입니다)</p>
     </SubPageLayout>
   );
 }
