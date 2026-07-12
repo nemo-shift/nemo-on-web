@@ -62,7 +62,7 @@ export default function HeroOnMobileView({
             <div
               className={cn(
                 'font-bold tracking-tight leading-[1.1] select-none pointer-events-none',
-                'text-[1.5rem] tablet-p:text-[2.5rem] tablet:text-[3.0rem] desktop-wide:text-[3.6rem] desktop-cap:text-[4.0rem]'
+                'text-[1.2rem] tablet-p:text-[2.5rem] tablet:text-[3.0rem] desktop-wide:text-[3.6rem] desktop-cap:text-[4.0rem]'
               )}
               style={{ fontFamily: 'var(--font-suit), sans-serif', color: COLORS.TEXT.DARK, whiteSpace: 'nowrap' }}
             >
@@ -75,8 +75,7 @@ export default function HeroOnMobileView({
 
       {/* [V11.41 Separation] 레이어 2: 중앙 컨텐츠 레이어 (프레이즈, 도형) */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        {/* [V11.51 Fix] 프레이즈 단독 상향 및 미세 우측 이동 (-4vh, +5px) */}
-        <div id="hero-on-center-stage" style={{ transform: 'translate(40px, 1svh)', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div id="hero-on-center-stage" style={{ transform: 'translate(0px, 1svh)', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <HeroOnPhraseLayer
             isOn={isOn}
             visible={!showCenteredShapes}
@@ -89,7 +88,7 @@ export default function HeroOnMobileView({
 
         <HeroOnShapesStage
           ref={shapesStageRef}
-          isOn={isOn} 
+          isOn={isOn}
           onModeRevealed={shapesOnRevealed}
           isCentered={showCenteredShapes}
           sequenceStep={sequenceStep}

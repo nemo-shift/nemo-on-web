@@ -63,12 +63,15 @@ export function buildLogoTimeline(
   if (!logo.containerEl) return;
   
   const bigScale = isMobile ? LOGO_SIZE.BIG_SCALE_MOBILE : LOGO_SIZE.BIG_SCALE;
-  const headerScale = isMobile 
-    ? LOGO_SIZE.HEADER_SCALE_MOBILE 
+  const headerScale = isMobile
+    ? LOGO_SIZE.HEADER_SCALE_MOBILE
     : (isTabletPortrait ? LOGO_SIZE.HEADER_SCALE_TABLET : LOGO_SIZE.HEADER_SCALE);
+  const heroYOffset = isMobile
+    ? LOGO_SIZE.HERO_Y_OFFSET_MOBILE
+    : (isTabletPortrait ? LOGO_SIZE.HERO_Y_OFFSET_TABLET : LOGO_SIZE.HERO_Y_OFFSET);
 
-  // 1. 초기 상태 영점 고정
-  tl.set(logo.containerEl, { scale: bigScale, x: 0, y: 0 }, 0);
+  // 1. 초기 상태 영점 고정 (y: heroYOffset — HERO_STILL_CONTENT_RISE에서 y:0 복귀)
+  tl.set(logo.containerEl, { scale: bigScale, x: 0, y: heroYOffset }, 0);
 
   // 2. 히어로 요소(△/○, ON) 상승 퇴장
   tl.to([logo.shapesEl, logo.statusEl], { 
@@ -87,35 +90,46 @@ export function buildLogoTimeline(
 
     // [V11.65 Cinematic Morph] Nemo -> RECTANGLE 정밀 오버랩 시퀀스
     if (label === STAGES.PAIN_TO_MSG) {
-      tl.to(logo.nemoKrEl, { 
-        opacity: 0, 
-        scale: LAYOUT_SPEC.LOGO.MORPH_SCALE, 
+      // 안전장치 — 역스크럽 복원 시 nemoEn이 남아있지 않도록 명시적으로 끈다
+      tl.set(logo.nemoEnEl, { opacity: 0, visibility: 'hidden' }, time);
+
+      tl.to(logo.nemoKrEl, {
+        opacity: 0,
+        scale: LAYOUT_SPEC.LOGO.MORPH_SCALE,
         filter: `blur(${LAYOUT_SPEC.LOGO.MORPH_BLUR}px)`,
         duration: ANIMS_CFG.LOGO_MORPH * 2.5,
         ease: 'power2.inOut'
       }, time);
 
-      tl.fromTo(logo.rectangleEl, 
+      tl.fromTo(logo.rectangleEl,
         { opacity: 0, letterSpacing: `${LAYOUT_SPEC.LOGO.RECT_LETTER_GAP}em`, visibility: 'visible', filter: 'blur(6px)', scale: 0.95 },
-        { opacity: 1, letterSpacing: '0.02em', filter: 'blur(0px)', scale: 1, duration: ANIMS_CFG.LOGO_MORPH * 3, ease: 'power3.out', immediateRender: false }, 
+        { opacity: 1, letterSpacing: '0.02em', filter: 'blur(0px)', scale: 1, duration: ANIMS_CFG.LOGO_MORPH * 3, ease: 'power3.out', immediateRender: false },
         time
       );
     } else {
       // 일반 상태 전이
-      tl.to(logo.nemoKrEl, { 
-        opacity: cfg.logo.nemoKr ? 1 : 0, 
+      tl.to(logo.nemoEnEl, {
+        opacity: cfg.logo.nemoEn ? 1 : 0,
+        visibility: cfg.logo.nemoEn ? 'visible' : 'hidden',
+        pointerEvents: cfg.logo.nemoEn ? 'auto' : 'none',
+        filter: 'blur(0px)',
+        duration: ANIMS_CFG.LOGO_MORPH
+      }, time);
+
+      tl.to(logo.nemoKrEl, {
+        opacity: cfg.logo.nemoKr ? 1 : 0,
         visibility: cfg.logo.nemoKr ? 'visible' : 'hidden',
         pointerEvents: cfg.logo.nemoKr ? 'auto' : 'none',
         filter: 'blur(0px)',
-        duration: ANIMS_CFG.LOGO_MORPH 
+        duration: ANIMS_CFG.LOGO_MORPH
       }, time);
-      
-      tl.to(logo.rectangleEl, { 
-        opacity: cfg.logo.rectangle ? 1 : 0, 
-        visibility: cfg.logo.rectangle ? 'visible' : 'hidden', 
+
+      tl.to(logo.rectangleEl, {
+        opacity: cfg.logo.rectangle ? 1 : 0,
+        visibility: cfg.logo.rectangle ? 'visible' : 'hidden',
         pointerEvents: cfg.logo.rectangle ? 'auto' : 'none',
         filter: 'blur(0px)',
-        duration: ANIMS_CFG.LOGO_MORPH 
+        duration: ANIMS_CFG.LOGO_MORPH
       }, time);
     }
 
@@ -144,11 +158,27 @@ export function buildLogoTimeline(
   });
 
   // 4. 헤더 사이즈 최종 안착
+  const riseDuration = TIMING_CFG.TRANSITION_WEIGHT * TIMING_CFG.TRANSITION_FINISH_RATIO;
   tl.to(logo.containerEl, {
-    scale: headerScale, 
-    x: 0, 
-    y: 0, 
-    duration: TIMING_CFG.TRANSITION_WEIGHT * TIMING_CFG.TRANSITION_FINISH_RATIO, 
+    scale: headerScale,
+    x: 0,
+    y: 0,
+    duration: riseDuration,
+    ease: EASE.TRANSITION
+  }, L[STAGES.HERO_STILL_CONTENT_RISE]);
+
+  // 축소와 동시에 nemo(영어) → 네모(한글) 크로스페이드
+  tl.to(logo.nemoEnEl, {
+    opacity: 0,
+    visibility: 'hidden',
+    duration: riseDuration,
+    ease: EASE.TRANSITION
+  }, L[STAGES.HERO_STILL_CONTENT_RISE]);
+
+  tl.to(logo.nemoKrEl, {
+    opacity: 1,
+    visibility: 'visible',
+    duration: riseDuration,
     ease: EASE.TRANSITION
   }, L[STAGES.HERO_STILL_CONTENT_RISE]);
 }

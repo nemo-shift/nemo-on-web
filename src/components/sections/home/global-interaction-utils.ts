@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { InteractionRegistry } from './types';
 import { JourneyLogoHandle } from './JourneyLogo';
 import { SharedNemoHandle } from './SharedNemo';
+import { LOGO_SIZE } from '@/constants/interaction';
 
 /**
  * [V11.31 Knowledge Transfer] calculateLabels
@@ -160,7 +161,7 @@ export function initLogoState(
 ): void {
   const { STAGES } = registry.constants;
   const { JOURNEY_MASTER_CONFIG } = registry.data;
-  const { isOn, isMobile, progress = 0 } = options;
+  const { isOn, isMobile, isTabletPortrait, progress = 0 } = options;
   const container = logo.containerEl;
   if (!container) return;
 
@@ -174,9 +175,12 @@ export function initLogoState(
   }
 
   // [V11.19 Fix] 레이아웃 기준점(Anchor) 설정은 리사이즈 대응을 위해 항상 실행
+  const heroYOffset = isMobile
+    ? LOGO_SIZE.HERO_Y_OFFSET_MOBILE
+    : (isTabletPortrait ? LOGO_SIZE.HERO_Y_OFFSET_TABLET : LOGO_SIZE.HERO_Y_OFFSET);
   gsap.set(container, {
     x: 0,
-    y: 0,
+    y: heroYOffset,
     scale: 1, 
     height: 'auto', // 초기에는 자동 높이 (히어로 빅 타이포 대응)
     transformOrigin: 'top left',
@@ -196,6 +200,7 @@ export function initLogoState(
   if (progress > 0.001) return;
 
   // 하위 엘리먼트 가시성 설정
+  gsap.set(logo.nemoEnEl, { opacity: logoCfg.nemoEn ? 1 : 0, visibility: logoCfg.nemoEn ? 'visible' : 'hidden' });
   gsap.set(logo.nemoKrEl, { opacity: logoCfg.nemoKr ? 1 : 0, visibility: logoCfg.nemoKr ? 'visible' : 'hidden' });
   gsap.set(logo.shapesEl, { opacity: logoCfg.shapes ? 0.8 : 0, visibility: logoCfg.shapes ? 'visible' : 'hidden' });
   gsap.set(logo.statusEl, { opacity: logoCfg.status ? 1 : 0, visibility: logoCfg.status ? 'visible' : 'hidden' });

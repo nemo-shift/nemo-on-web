@@ -12,6 +12,7 @@ import type { FallingKeywordsHandle, FallingKeywordsStageProps } from './Falling
 const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null }) as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>;
 import {
   INTERACTION_Z_INDEX,
+  LOGO_SIZE,
   STAGES,
   TIMING_CFG
 } from '@/constants/interaction';
@@ -111,6 +112,16 @@ export const GlobalInteractionStage = ({
     lastWidthRef.current = window.innerWidth;
     lastHeightRef.current = window.innerHeight;
   }, []);
+
+  // 히어로 초기 Y 오프셋 — isScrollable 이전 다크/라이트 진입 시점에도 적용
+  useEffect(() => {
+    const el = logoHandle.current?.containerEl;
+    if (!el || !mounted) return;
+    const offset = isMobile
+      ? LOGO_SIZE.HERO_Y_OFFSET_MOBILE
+      : (isTabletPortrait ? LOGO_SIZE.HERO_Y_OFFSET_TABLET : LOGO_SIZE.HERO_Y_OFFSET);
+    gsap.set(el, { y: offset });
+  }, [mounted, isMobile, isTabletPortrait]);
 
   // 오버레이 해제:
   // - 오프모드(!isScrollable): 마운트 직후 100ms 후 해제 (HeroContext overflow:hidden이 스크롤 담당)

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-const CHARS = '!@#$%^&*()_+{}:"<>?|~`-=[]\\\';,./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const CHARS = '!@#$%^&*()_+{}:"<>?|~`-=[]\\\';,./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
  * useScramble: 텍스트 스크램블 효과를 구현하는 커스텀 훅

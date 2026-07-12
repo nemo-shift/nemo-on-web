@@ -15,20 +15,11 @@ export function buildWarmupTimeline(
   options: GlobalBuilderOptions,
   L: Record<string, number>
 ) {
-  const { isMobile, isTabletPortrait, registry } = options;
-  const { constants, data } = options.registry;
+  const { isMobile, isTabletPortrait } = options;
+  const { constants } = options.registry;
   const { STAGES, HEADER_POS } = constants;
-  const { JOURNEY_MASTER_CONFIG } = data;
 
-  // 1. 모바일 환경 로고 Y 오프셋 보정
-  if (isMobile && logo.containerEl) {
-    tl.to(logo.containerEl, { 
-      y: -JOURNEY_MASTER_CONFIG[STAGES.HERO].logo.y,
-      duration: 0 
-    }, L[STAGES.HERO_STILL_START]);
-  }
-
-  // 2. Nemo 초기 형태(헤더 위치/크기) 리셋
+  // 1. Nemo 초기 형태(헤더 위치/크기) 리셋
   if (nemo.nemoEl) {
     tl.to(nemo.nemoEl, { 
       borderRadius: isMobile 

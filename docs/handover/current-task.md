@@ -3,7 +3,116 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
+## [최신] 🚧 2026-07-12: Zone 4 JourneyLogo 리브랜딩 + 히어로 섹션 UI 튜닝
+
+### 브랜치: `main`
+
+---
+
+### 1. JourneyLogo 리브랜딩 (Zone 4)
+
+**핵심 변경**: 히어로/브랜드스토리 ↔ 페인 섹션 간 브랜드명 크로스페이드
+
+| 요소 | 변경 내용 |
+|---|---|
+| `nemoEn` (영문) | CSS Grid stack Layer A-1. font-syne. HERO·BRAND STORY 구간 표시 |
+| `nemoKr` (한글) | CSS Grid stack Layer A-2. font-esamanru. PAIN 구간 크로스페이드 |
+| `on/off` | 소문자 전환 (`ON/OFF` → `on/off`). font-gmarket |
+| useScramble | 소문자 지원을 위해 CHARS pool에 `a-z` 추가 |
+
+**CSS Grid 스택 원리**: `gridArea: '1 / 1'`로 두 레이어가 같은 셀 공유 → 레이아웃 이동 없이 크로스페이드 가능. nemoKr 초기값 `opacity-0 invisible` (GSAP이 PAIN 진입 시 override).
+
+**journey.ts 스키마**: `StageState.logo`에 `nemoEn: boolean` 필드 추가. HERO·STORY → nemoEn:true, PAIN → nemoKr:true.
+
+**hero.ts 빌더**: nemoEn tween 추가 (opacity/visibility). HERO_STILL_CONTENT_RISE에서 nemoEn→fadeout, nemoKr→fadein.
+
+**global-interaction-utils.ts**: `initLogoState`에 nemoEn/nemoKr 초기화 추가.
+
+---
+
+### 2. 히어로 로고 반응형 튜닝 (전 브레이크포인트)
+
+**핵심 개선**: 기존 flat clamp(preferred가 min/max에 항상 막힘) → 급경사 vw 공식으로 교체하여 뷰포트 전 구간 활용
+
+| 브레이크포인트 | nemo | on/off | 비고 |
+|---|---|---|---|
+| mobile (~743px) | `clamp(58px, calc(-22px+25vw), 84px)` | `clamp(60px, calc(-32px+25vw), 82px)` | 360px 기준 유지, 430px까지 스케일 |
+| tablet-p (744~991px) | `clamp(134px, calc(2px+18vw), 200px)` | `clamp(128px, calc(-43px+23vw), 200px)` | 18~23vw로 전 구간 고르게 사용 |
+| tablet (992~1439px) | `clamp(190px, calc(105px+8.5vw), 205px)` | `clamp(165px, calc(85px+8vw), 183px)` | 새로 조정 |
+| desktop-wide | 기존 유지 | 기존 유지 | |
+| desktop-cap | 기존 유지 | 기존 유지 | |
+
+**font-weight**: mobile·tablet-p·tablet 전 구간 `font-bold` → `font-light` (nemo, on/off 동일)
+
+**HERO_Y_OFFSET** (`constants/interaction.ts`):
+- PC (992px+): `-40 → -90`
+- tablet-p (744~991px): `-30 → -65`
+- mobile: `-28` (유지)
+
+**on/off translate-y 베이스라인 보정**:
+- mobile: `-translate-y-[6px]`
+- tablet-p: `-translate-y-[8px]`
+- tablet: `-translate-y-[18px]`
+- desktop-wide: `-translate-y-[14px]`
+
+**도형 크기** (NemoIcon em 단위):
+- mobile: triangle `0.22em/0.35em`, circle `0.35em`
+- tablet-p: triangle `0.45em/0.7em`, circle `0.7em`
+- desktop-wide: triangle `0.38em/0.6em` (축소), circle `0.6em`, triangle `+translate-y-[0.05em]` (살짝 아래)
+
+---
+
+### 3. JourneyLogo.tsx 주석 정비
+
+각 파트별 역할, GSAP 제어 시점, CSS Grid 원리, 크기 시스템을 상세 주석으로 문서화.
+
+---
+
+### 4. 히어로 섹션 콘텐츠 용어 정의
+
+| 용어 | 텍스트 |
+|---|---|
+| **태그라인** | `"불안을 끄고, 기준을 켭니다"` |
+| **히어로 카피** | `"감성 위에 구조를 더해 당신의 결로 브랜드를 켭니다"` (도형 인라인) |
+| **서비스 디스크립션** | `"사업의 기준을 설계하고, 브랜드와 웹으로 구현합니다"` |
+| **로테이팅 슬로건** | OFF 상태 회전 문구 |
+| **캐치프레이즈** | `"브랜드를 켜다"` |
+
+---
+
+### 5. 히어로 카피 수평 중앙 정렬 (HeroOnMobileView)
+
+**문제**: `HeroOnPhraseLayer`의 `-translate-x-[20%]`(왼쪽 치우침) + `hero-on-center-stage`의 `translate(40px)`(오른쪽 보정)이 상쇄되지 않아 왼쪽 치우침 발생.
+
+**핵심 발견**: CSS `transform`이 설정된 요소는 자식 `absolute` 요소의 containing block이 됨. `hero-on-center-stage`의 transform을 완전 제거하면 `HeroOnPhraseLayer`의 `absolute inset-0` 기준점이 다른 조상으로 바뀌어 pre/post scroll 위치 어긋남 발생.
+
+**해결**:
+- `HeroOnPhraseLayer`: `-translate-x-[20%]` → `translate-x-0`
+- `hero-on-center-stage`: `translate(40px, 1svh)` → `translate(0px, 1svh)` (transform 유지하여 containing block 보존)
+
+---
+
+### 6. 서비스 디스크립션 크기 조정
+
+- 모바일: `1.5rem → 1.2rem` (`HeroOnMobileView.tsx`)
+
+---
+
+### 7. GlobalScrollHint 복원
+
+- `visible = false` (임시) → `visible = isOn && isScrollable && !isTransitioning` (원래 조건)
+
+---
+
+### 다음 작업
+
+- 히어로 ON 상태 콘텐츠 tablet-p / tablet / desktop-wide / desktop-cap 브레이크포인트별 튜닝
+- 히어로 카피 / 서비스 디스크립션 clamp 전환 검토
+- PAIN 섹션 → nemoKr 전환 확인 (결 네모 morphing 좌표 정합성)
+
+---
+
+## [이전] ✅ 2026-07-08: fix/mobile-scroll-bugs → main 머지 완료
 
 ### 브랜치: `main`
 
