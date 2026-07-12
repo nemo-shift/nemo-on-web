@@ -49,7 +49,7 @@ export default function HeroOnMobileView({
             style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
-              bottom: '16svh',
+              bottom: '10svh',
               left: '50%',
               transform: 'translateX(-50%)',
               display: 'flex',

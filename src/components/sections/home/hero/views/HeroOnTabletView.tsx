@@ -49,7 +49,7 @@ export default function HeroOnTabletView({
             style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
-              bottom: '15svh',
+              bottom: '10svh',
               left: '50%',
               transform: 'translateX(-50%)',
               display: 'flex',
@@ -62,7 +62,7 @@ export default function HeroOnTabletView({
             <div
               className={cn(
                 'font-bold tracking-tight leading-[1.1] select-none pointer-events-none',
-                'text-[1.5rem] tablet-p:text-[2.5rem] tablet:text-[3.0rem] desktop-wide:text-[3.6rem] desktop-cap:text-[4.0rem]'
+                'text-[1.5rem] tablet-p:text-[1.8rem] tablet:text-[2.2rem] desktop-wide:text-[2.6rem] desktop-cap:text-[3.0rem]'
               )}
               style={{ fontFamily: 'var(--font-suit), sans-serif', color: COLORS.TEXT.DARK, whiteSpace: 'nowrap' }}
             >
