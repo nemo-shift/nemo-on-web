@@ -32,11 +32,19 @@ export default function HeroToggle({
         }
       `}</style>
 
-      <div
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isOn}
+        aria-label="브랜드 경험 켜기/끄기"
+        aria-disabled={isTransitioning}
         onClick={isTransitioning ? undefined : onToggle}
         data-cursor="pointer"
         className="flex items-center gap-3 mt-5 select-none"
         style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
           cursor: isTransitioning ? 'default' : 'pointer',
           width: 'fit-content',
           pointerEvents: isTransitioning ? 'none' : 'auto',
@@ -102,7 +110,7 @@ export default function HeroToggle({
         >
           ON
         </span>
-      </div>
+      </button>
     </>
   );
 }

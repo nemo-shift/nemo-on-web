@@ -183,7 +183,7 @@ export default function OfferingsStage() {
   }, { scope: stageContainerRef }); // 🆕 돔 스코프를 전체 배경 컨테이너로 매핑
 
   return (
-    <main id="offerings-stage" className="relative z-[1] w-full">
+    <div id="offerings-stage" className="relative z-[1] w-full">
       {/* [V75/STEP D] Offerings 전용 스크롤 힌트 — 하단 근접 시 자동 소멸 */}
       <SubpageScrollHint />
       {/* 콘텐츠 전체 컨테이너 (여기에 ref를 걸어 스크롤 60% 시점마다 배경색이 스르륵 흐르도록 보장) */}
@@ -223,8 +223,8 @@ export default function OfferingsStage() {
           {/* Outro Section */}
           <OfferingsOutro />
         </div>
-        
+
       </div>
-    </main>
+    </div>
   );
 }

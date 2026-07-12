@@ -38,7 +38,7 @@ export default function HomeStage(): React.ReactElement {
   // [v16.3] 'isScrollable'은 HeroContext에서 전역 관리됩니다.
 
   return (
-    <main className="relative w-full overflow-x-hidden">
+    <div className="relative w-full overflow-x-hidden">
       {/* 0.1 베이스 고정 배경색 레이어 */}
       <div
         className="fixed inset-0 pointer-events-none"
@@ -144,6 +144,6 @@ export default function HomeStage(): React.ReactElement {
         {/* [v5.3 Fix] 홈페이지(Pinned) 한정: 물리적 스페이서 대신 GSAP pinSpacing이 공간을 확보하므로 높이를 0으로 격리 */}
         <div className="h-0 pointer-events-none" />
       </div>
-    </main>
+    </div>
   );
 }

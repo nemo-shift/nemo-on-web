@@ -24,7 +24,7 @@ export default function SubPageLayout({
   const { footerHeight } = useHeroContext();
 
   return (
-    <main className="relative z-[1] w-full">
+    <div className="relative z-[1] w-full">
       {/* 1. 실제 서브 페이지 컨텐츠 (배경색 격리 레이어 + 컨텐츠 스타일 적용) */}
       <div
         /*
@@ -48,6 +48,6 @@ export default function SubPageLayout({
       >
         {children}
       </div>
-    </main>
+    </div>
   );
 }

@@ -120,7 +120,14 @@ const JourneyLogo = forwardRef<JourneyLogoHandle, JourneyLogoProps>(
               HERO · BRAND STORY → nemoEn(영문) 표시
               PAIN               → nemoKr(한글) 표시
         ─────────────────────────────────────────────────────────────────── */}
-        <div className="inline-grid cursor-pointer" onClick={_props.onLogoClick}>
+        <div
+          className="inline-grid cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label="로고 클릭"
+          onClick={_props.onLogoClick}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _props.onLogoClick?.(); } }}
+        >
           {/* nemoEn — 초기 표시 레이어 */}
           <div
             ref={nemoEnRef}

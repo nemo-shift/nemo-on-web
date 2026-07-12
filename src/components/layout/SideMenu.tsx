@@ -78,6 +78,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const homeButtonRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const isAnimatingRef = useRef(false);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   // ─────────────────────────────────────────
   // 딤 처리 대상 수집 (경로별 분기)
@@ -268,6 +269,57 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       }
     }
   }, [isOpen, animateOpen, animateClose]);
+
+  // ─────────────────────────────────────────
+  // 접근성: Escape 닫기 + 포커스 트랩 + 포커스 저장/복원
+  // ─────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen) {
+      // 메뉴 열릴 때: 현재 포커스 저장 → 닫힌 후 복원용
+      returnFocusRef.current = document.activeElement as HTMLElement;
+
+      // 초기 포커스: 오픈 애니메이션 완료 후 홈 버튼에 포커스
+      const focusTimer = setTimeout(() => {
+        const firstBtn = homeButtonRef.current?.querySelector<HTMLElement>('button');
+        firstBtn?.focus();
+      }, (TIMING.LAYER_DURATION + TIMING.TEXT_STAGGER * MENU_ITEMS.length + TIMING.TEXT_DURATION) * 1000 + 100);
+
+      // Escape 닫기 + Tab 포커스 트랩
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          animateClose();
+          return;
+        }
+        if (e.key === 'Tab' && mainPanelRef.current) {
+          const focusables = Array.from(
+            mainPanelRef.current.querySelectorAll<HTMLElement>('button:not([disabled])')
+          );
+          if (focusables.length === 0) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        clearTimeout(focusTimer);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      // 메뉴 닫힐 때: 이전 포커스 복원 (닫기 애니 완료 후)
+      const restoreTimer = setTimeout(() => {
+        returnFocusRef.current?.focus();
+      }, TIMING.CLOSE_DURATION * 1000 + 50);
+      return () => clearTimeout(restoreTimer);
+    }
+  }, [isOpen, animateClose]);
 
   // ─────────────────────────────────────────
   // 엣지케이스: 브라우저 뒤로가기 (popstate)
