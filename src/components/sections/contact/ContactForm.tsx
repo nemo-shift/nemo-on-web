@@ -53,6 +53,35 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
     }
   };
 
+  const formatPhoneNumber = (digits: string): string => {
+    if (digits.startsWith('02')) {
+      // 서울 지역번호: 02-XXXX-XXXX 또는 02-XXX-XXXX
+      if (digits.length <= 2) return digits;
+      if (digits.length <= 5) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+      if (digits.length <= 9) return `${digits.slice(0, 2)}-${digits.slice(2, 5)}-${digits.slice(5)}`;
+      return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+    } else {
+      // 일반 번호: 010/031/etc — XXX-XXXX-XXXX
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      if (digits.length <= 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+      return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+    const formatted = formatPhoneNumber(digits);
+    setForm((prev) => ({ ...prev, phone: formatted }));
+    if (errors.phone) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.phone;
+        return next;
+      });
+    }
+  };
+
   const handleTypeChange = (type: InquiryType) => {
     setForm((prev) => ({ ...prev, inquiryType: type }));
   };
@@ -90,8 +119,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
     }
     if (!form.phone.trim()) {
       newErrors.phone = '전화번호를 입력해주세요.';
-    } else if (!/^\d{2,3}-\d{3,4}-\d{4}$/.test(form.phone)) {
-      newErrors.phone = '올바른 전화번호 형식(예: 010-0000-0000)으로 입력해주세요.';
+    } else if (form.phone.replace(/\D/g, '').length < 9) {
+      newErrors.phone = '전화번호를 끝까지 입력해주세요.';
     }
     if (!form.email.trim()) {
       newErrors.email = '이메일 주소를 입력해주세요.';
@@ -298,11 +327,11 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
           답변은{' '}
           <div className="inline-block relative align-middle">
             <input
-              type="text"
+              type="tel"
               name="phone"
               value={form.phone}
-              onChange={handleInputChange}
-              placeholder="전화번호('-' 포함)"
+              onChange={handlePhoneChange}
+              placeholder="전화번호"
               disabled={isLoading}
               className={`inline-block text-left bg-transparent border-b ${
                 errors.phone ? 'border-red-500' : 'border-text-dark/15'
