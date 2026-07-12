@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '페이지를 찾을 수 없습니다 | 네모:ON',
+  title: '페이지를 찾을 수 없습니다 | nemo:on',
 };
 
 export default function NotFound() {

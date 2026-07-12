@@ -60,7 +60,7 @@ export const MESSAGE_COLORS = {
 /**
  * [V11.88] Core Funnel 데이터
  */
-export const CORE_FUNNEL_TITLE = "네모:ON Driven Core Funnel";
+export const CORE_FUNNEL_TITLE = "nemo:on Driven Core Funnel";
 
 export const CORE_FUNNEL_DATA = [
   { id: 1, label: '브랜딩', order: '01' },

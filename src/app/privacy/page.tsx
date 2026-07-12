@@ -5,8 +5,8 @@ import { Metadata } from 'next';
 import SubPageLayout from '@/components/layout/SubPageLayout';
 
 export const metadata: Metadata = {
-  title: '개인정보처리방침 | 네모:ON',
-  description: '네모:ON의 개인정보 수집·이용·처리에 관한 방침을 안내합니다.',
+  title: '개인정보처리방침 | nemo:on',
+  description: 'nemo:on의 개인정보 수집·이용·처리에 관한 방침을 안내합니다.',
 };
 
 export default function PrivacyPage() {
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="text-base sm:text-lg font-bold text-text-dark">1. 개인정보처리자 정보</h2>
             <p>
-              네모:ON(이하 &quot;회사&quot;)은 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수합니다.
+              nemo:on(이하 &quot;회사&quot;)은 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수합니다.
               본 방침은 회사가 운영하는 웹사이트(<strong>nemo-on.com</strong>)를 통해 수집되는
               개인정보의 처리에 관한 사항을 규정합니다.
             </p>
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="text-base sm:text-lg font-bold text-text-dark">7. 개인정보 보호책임자</h2>
             <div className="bg-text-dark/3 border border-text-dark/10 px-5 py-4 space-y-1">
-              <p><span className="font-semibold">책임자:</span> 네모:ON 대표</p>
+              <p><span className="font-semibold">책임자:</span> nemo:on 대표</p>
               <p>
                 <span className="font-semibold">이메일:</span>{' '}
                 <a href="mailto:turn.nemoon@gmail.com" className="underline hover:text-brand transition-colors">

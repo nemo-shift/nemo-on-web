@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_PHILOSOPHY_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
 import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
+import { renderBrandText } from '@/lib/renderBrandText';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -134,7 +135,7 @@ export default function AboutPhilosophy() {
                    key={idx} 
                    className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
-                  {p}
+                  {renderBrandText(p)}
                 </p>
               ))}
             </div>
@@ -149,7 +150,7 @@ export default function AboutPhilosophy() {
                    key={idx} 
                    className={`font-suit font-light whitespace-pre-line text-[#0d1a1f]/90 ${ABOUT_STAGE_STYLES.philosophy.content.fontSize} ${ABOUT_STAGE_STYLES.philosophy.content.leading}`}
                 >
-                  {p}
+                  {renderBrandText(p)}
                 </p>
               ))}
             </div>

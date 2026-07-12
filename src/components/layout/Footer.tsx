@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { NemoIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { renderBrandText } from '@/lib/renderBrandText';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 
 /**
@@ -89,11 +90,11 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       className={cn(
         isHomeStage ? 'relative' : 'fixed bottom-0 left-0',
         'w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
-        'min-h-[450px] px-6 py-12',                            // Mobile
+        'min-h-[340px] px-6 pt-6 pb-8',                        // Mobile
         'tablet-p:min-h-[500px] tablet-p:px-8 tablet-p:py-14 tablet-p:pb-14',   // 744px
-        'tablet:min-h-[600px] tablet:px-10 tablet:py-8',        // 992px
-        'desktop-wide:min-h-[600px] desktop-wide:px-12 desktop-wide:py-12', // 1440px (User 기준)
-        'desktop-cap:min-h-[750px] desktop-cap:px-16 desktop-cap:py-16'   // 1920px (User 기준)
+        'tablet:min-h-[420px] tablet:px-10 tablet:py-2',        // 992px
+        'desktop-wide:min-h-[420px] desktop-wide:px-12 desktop-wide:py-4', // 1440px (User 기준)
+        'desktop-cap:min-h-[550px] desktop-cap:px-16 desktop-cap:py-6'   // 1920px (User 기준)
       )}
       style={{
         backgroundColor: '#0a0a0a',
@@ -107,71 +108,75 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))',
       }}
     >
-      {/* [상부 그룹] 상단(Get in touch)과 중앙(로고)의 밀착된 리듬 제어 */}
+      {/* [상부 그룹] 브랜드 빅타이포 */}
       <div className={cn(
         'flex flex-col transition-all duration-500',
-        'gap-2',                              // Mobile: leading-none과 조합하여 초밀착
-        'tablet-p:gap-3',                     // 744px
-        'tablet:gap-4',                       // 992px
-        'desktop-wide:gap-2',                 // 1440px: 사용자 미학적 기준 역계산
-        'desktop-cap:gap-3'                   // 1920px: 사용자 미학적 기준 역계산
+        'gap-2',
+        'tablet-p:gap-3',
+        'tablet:gap-4',
+        'desktop-wide:gap-2',
+        'desktop-cap:gap-3'
       )}>
-        {/* 1. 상단: Get in touch */}
-        <div className="flex justify-end pt-4">
+        <div className="absolute top-[92px] right-6 tablet-p:absolute tablet-p:top-[140px] tablet-p:right-8 tablet:absolute tablet:top-[60px] tablet:right-10 desktop-wide:top-[70px] desktop-wide:right-12 desktop-cap:top-[220px] flex justify-end">
           <Link
             href="/contact"
             data-cursor="contact"
             onClick={handleContactClick}
             className={cn(
               'font-medium tracking-tight hover:opacity-70 transition-all duration-500 leading-none',
-              'text-lg tablet-p:text-xl tablet:text-2xl desktop-wide:text-3xl'
+              'text-lg tablet-p:text-2xl tablet:text-2xl desktop-wide:text-3xl'
             )}
           >
             Get in touch
           </Link>
         </div>
 
-        {/* 2. 중앙: 네모:ON 빅타이포 (정석적인 패딩 조절로 밀착 유지) */}
+        {/* 브랜드 빅타이포 */}
         <div className={cn(
           'flex items-center justify-center pointer-events-none transition-all duration-500',
-          'pt-2',                             // Mobile: 마이너스 마진 제거 후 보정
-          'tablet-p:pt-3',                    // 744px
-          'tablet:pt-4',                      // 992px
-          'desktop-wide:pt-2',                // 1440px
-          'desktop-cap:pt-0'                  // 1920px
+          'pt-24',                            // Mobile
+          'tablet-p:pt-20',                   // 744px
+          'tablet:mt-8 tablet:pt-4',             // 992px
+          'desktop-wide:-mt-20 desktop-wide:pt-2',
+          'desktop-cap:mt-16 desktop-cap:pt-0'
         )}>
-          <h2 
-            /* [V11.33] 메가 타이포그래피 정교화: leading-none으로 폰트 박스 최적화 */
+          <h2
             className={cn(
               'font-bold leading-none tracking-tighter whitespace-nowrap overflow-visible transition-all duration-500',
-              'text-[clamp(60px,18vw,200px)]',             // Mobile
-              'tablet-p:text-[clamp(100px,20vw,300px)]',     // 744px
-              'tablet:text-[clamp(120px,22vw,450px)]',       // 992px
-              'desktop-wide:text-[clamp(100px,18vw,450px)]',   // 1440px
-              'desktop-cap:text-[clamp(120px,20vw,480px)]'   // 1920px
+              'text-[clamp(70px,20vw,220px)]',
+              'tablet-p:text-[clamp(100px,20vw,290px)]',
+              'tablet:text-[clamp(120px,20vw,320px)]',
+              'desktop-wide:text-[clamp(110px,20vw,480px)]',
+              'desktop-cap:text-[clamp(130px,22vw,480px)]'
             )}
           >
-            <span className="font-esamanru">네모</span>
-            <NemoIcon 
-              style={{ transform: 'translateY(-5vw)' }}
+            <span className="font-syne">nemo</span>
+            <NemoIcon
+              style={{ transform: 'translateY(-3vw)' }}
               gapClassName="gap-[0.5vw]"
               className="px-[2vw] mb-[2vw]"
-              triangleClassName="border-l-[clamp(15px,3vw,60px)] border-r-[clamp(15px,3vw,60px)] border-b-[clamp(22.5px,4.5vw,90px)]"
+              triangleClassName="border-l-[clamp(12px,2.5vw,50px)] border-r-[clamp(12px,2.5vw,50px)] border-b-[clamp(18px,3.8vw,75px)] tablet-p:border-l-[clamp(8px,1.6vw,32px)] tablet-p:border-r-[clamp(8px,1.6vw,32px)] tablet-p:border-b-[clamp(12px,2.4vw,48px)]"
               triangleStyle={{ transform: 'translateY(-2vw)' }}
               circleClassName={cn(
-                'w-[clamp(22.5px,4.5vw,90px)] h-[clamp(22.5px,4.5vw,90px)] border-[0.6vw] transition-all duration-500',
+                'w-[clamp(18px,3.8vw,75px)] h-[clamp(18px,3.8vw,75px)] tablet-p:w-[clamp(12px,2.4vw,48px)] tablet-p:h-[clamp(12px,2.4vw,48px)] border-[0.5vw] transition-all duration-500',
                 '-translate-y-[1.2vw] tablet-p:translate-y-0'
               )}
             />
-            <span className="font-gmarket">ON</span>
+            <span className="font-syne">on</span>
           </h2>
         </div>
       </div>
 
-      {/* 3. 하단: 소셜 및 저작권 (mt-auto를 통해 바닥에 완전히 고착) */}
-      <div 
+
+      {/* 3. 하단: 소셜 및 저작권 */}
+      <div
         className={cn(
-          'flex flex-col tablet:flex-row justify-between items-end tablet:items-center gap-6 mt-auto border-t border-white/10 pt-8 transition-all duration-500'
+          'flex flex-row justify-between items-center gap-4 border-t border-white/10 pt-4 transition-all duration-500',
+          'mt-4',                                                                    // Mobile
+          'tablet-p:absolute tablet-p:bottom-[24px] tablet-p:left-8 tablet-p:right-8', // Tablet-P
+          'tablet:bottom-[12px] tablet:left-10 tablet:right-10',                   // Tablet
+          'desktop-wide:bottom-[12px] desktop-wide:left-12 desktop-wide:right-12',
+          'desktop-cap:bottom-[16px] desktop-cap:left-16 desktop-cap:right-16',
         )}
       >
         <div className="flex items-center gap-6 text-sm font-medium tracking-wide">
@@ -191,7 +196,7 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
             'text-[10px] tablet-p:text-[11px] tablet:text-xs'
           )}
         >
-          © {currentYear} 네모:ON All rights reserved.
+          © {currentYear} {renderBrandText('nemo:on')} All rights reserved.
         </p>
       </div>
     </footer>

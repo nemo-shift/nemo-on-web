@@ -6,6 +6,8 @@ import {
   Bebas_Neue,
   IBM_Plex_Sans_KR,
   EB_Garamond,
+  Syne,
+  Space_Grotesk,
 } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
@@ -54,6 +56,28 @@ const suit = localFont({
   variable: '--font-suit',
 });
 
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-syne',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-space-grotesk',
+});
+
+const clash = localFont({
+  src: '../../public/fonts/ClashDisplay-Variable.woff2',
+  variable: '--font-clash',
+});
+
+const satoshi = localFont({
+  src: '../../public/fonts/Satoshi-Variable.woff2',
+  variable: '--font-satoshi',
+});
+
 const bebasNeue = Bebas_Neue({
   subsets: ['latin'],
   weight: '400',
@@ -66,12 +90,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nemo-on.vercel.app'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: '네모:ON — 브랜드를 켜다',
-    template: '%s | 네모:ON',
+    default: 'nemo:on — 브랜드를 켜다',
+    template: '%s | nemo:on',
   },
   description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오',
   openGraph: {
-    siteName: '네모:ON',
+    siteName: 'nemo:on',
     locale: 'ko_KR',
     type: 'website',
     images: [
@@ -79,7 +103,7 @@ export const metadata: Metadata = {
         url: '/nemoon_og.png',
         width: 1200,
         height: 630,
-        alt: '네모:ON — 브랜드를 켜다',
+        alt: 'nemo:on — 브랜드를 켜다',
       },
     ],
   },
@@ -112,7 +136,7 @@ export default function RootLayout({
     <html
       lang="ko"
       style={{ colorScheme: 'only light' }}
-      className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable}`}
+      className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable} ${clash.variable} ${satoshi.variable} ${syne.variable} ${spaceGrotesk.variable}`}
     >
       <head>
         <link rel="preload" href="/fonts/ESAMANRU%20OTF%20LIGHT.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />

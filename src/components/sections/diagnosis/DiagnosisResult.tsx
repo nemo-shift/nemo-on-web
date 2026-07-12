@@ -87,7 +87,7 @@ export default function DiagnosisResult({ answers, onRestart }: DiagnosisResultP
               1:1 맞춤 브랜딩 솔루션이 필요하신가요?
             </h4>
             <p className="text-xs text-text-dark/50 mt-1 max-w-sm">
-              네모ON 전문가팀이 진단 데이터를 바탕으로 실질적인 컨설팅 방안을 도출해 드립니다.
+              진단 데이터를 바탕으로 실질적인 컨설팅 방안을 도출해 드립니다.
             </p>
           </div>
           <Link

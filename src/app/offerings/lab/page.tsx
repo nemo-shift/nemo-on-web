@@ -4,7 +4,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 
 export const metadata: Metadata = {
   title: 'Lab',
-  description: '네모:ON의 자체 실험 레이블. 브랜드를 작동하게 만드는 새로운 가능성을 탐구합니다.',
+  description: 'nemo:on의 자체 실험 레이블. 브랜드를 작동하게 만드는 새로운 가능성을 탐구합니다.',
   openGraph: { url: '/offerings/lab' },
 };
 
@@ -19,7 +19,7 @@ export default function LabPage() {
         <h1 className="text-4xl tablet-p:text-6xl font-bold mb-8">Lab.</h1>
         <p className="text-xl tablet-p:text-2xl leading-relaxed opacity-80">
           브랜드를 작동하게 만드는 실험실입니다. <br />
-          네모:ON의 가능성을 직접 증명하고 확장합니다.
+          nemo:on의 가능성을 직접 증명하고 확장합니다.
         </p>
         <div className="mt-20 py-10 border-t border-black/10">
           <p className="text-sm uppercase tracking-widest opacity-40">Coming Soon</p>

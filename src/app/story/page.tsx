@@ -5,7 +5,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 
 export const metadata: Metadata = {
   title: '스토리',
-  description: '네모:ON의 브랜드 여정과 이야기를 담았습니다.',
+  description: 'nemo:on의 브랜드 여정과 이야기를 담았습니다.',
   openGraph: { url: '/story' },
 };
 

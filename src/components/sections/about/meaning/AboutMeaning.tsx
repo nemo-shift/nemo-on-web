@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ABOUT_MEANING_DATA } from '@/data/about';
 import { ABOUT_STAGE_STYLES } from '../AboutStage.styles';
 import { ABOUT_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
+import { renderBrandText } from '@/lib/renderBrandText';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -105,12 +106,12 @@ export default function AboutMeaning() {
           </strong>
         );
       }
-      return part;
+      return <React.Fragment key={index}>{renderBrandText(part)}</React.Fragment>;
     });
   };
 
   return (
-    <section 
+    <section
       ref={containerRef}
       id="about-meaning"
       className="relative w-full bg-[#f7f1e9] z-20 overflow-hidden"

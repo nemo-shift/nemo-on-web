@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { NemoIcon } from '@/components/ui';
 import { usePathname } from 'next/navigation';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import { cn } from '@/lib/utils';
@@ -40,28 +39,13 @@ export default function Header(): React.ReactElement {
       {!isHome && (
         <Link
           href="/"
-          className="pointer-events-auto no-underline flex items-baseline group gap-1.5 tablet-p:gap-2 tablet:gap-[0.6vw]"
+          className="pointer-events-auto no-underline translate-y-[0px] tablet-p:translate-y-[2px] tablet:translate-y-[4px]"
         >
           <span className={cn(
-            'font-esamanru font-light transition-all duration-500 text-[#0d1a1f] tracking-tight',
-            'text-[20px] tablet-p:text-[24px] tablet:text-[28px] desktop-wide:text-[32px] desktop-cap:text-[36px]'
+            'font-syne transition-all duration-500 text-[#0d1a1f] tracking-normal font-[350] tablet-p:font-[450]',
+            'text-[26px] tablet-p:text-[38px] tablet:text-[48px] desktop-wide:text-[50px] desktop-cap:text-[56px]'
           )}>
-            네모
-          </span>
-          <NemoIcon 
-            className="opacity-90 transition-transform group-hover:scale-110"
-            style={{ transform: 'translateY(-0.4vw)' }}
-            triangleColor="#0891b2"
-            circleColor="#0e7490"
-            triangleClassName="animate-nemo-pulse border-l-[clamp(3px,0.25vw,4.5px)] border-r-[clamp(3px,0.25vw,4.5px)] border-b-[clamp(4.5px,0.4vw,6.5px)]"
-            circleClassName="animate-nemo-pulse-delay w-[clamp(4.5px,0.4vw,6.5px)] h-[clamp(4.5px,0.4vw,6.5px)] border-[1.2px]"
-            gapClassName="gap-[0.15vw]"
-          />
-          <span className={cn(
-            'font-gmarket font-medium transition-all duration-500 text-[#0d1a1f] tracking-tighter',
-            'text-[19px] tablet-p:text-[22px] tablet:text-[26px] desktop-wide:text-[30px] desktop-cap:text-[32px]'
-          )}>
-            ON
+            nemo<span style={{ fontSize: '0.75em', display: 'inline-block', transform: 'translateY(-0.08em)' }}>:</span>on
           </span>
         </Link>
       )}

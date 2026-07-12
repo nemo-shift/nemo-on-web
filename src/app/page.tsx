@@ -4,11 +4,11 @@ import React from 'react';
 import HomeStage from '@/components/sections/home/HomeStage';
 
 export const metadata: Metadata = {
-  title: '네모:ON — 브랜드를 켜다',
-  description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오. 네모:ON이 함께합니다.',
+  title: 'nemo:on — 브랜드를 켜다',
+  description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오. nemo:on이 함께합니다.',
   openGraph: {
-    title: '네모:ON — 브랜드를 켜다',
-    description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오. 네모:ON이 함께합니다.',
+    title: 'nemo:on — 브랜드를 켜다',
+    description: '감성 위에 구조를 더해 당신의 브랜드를 단단하게 만드는 스튜디오. nemo:on이 함께합니다.',
     url: '/',
   },
 };

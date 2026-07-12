@@ -37,6 +37,10 @@ const config: Config = {
         mono: ['var(--font-mono)', 'monospace'],
         esamanru: ['var(--font-esamanru)', 'sans-serif'],
         gmarket: ['var(--font-gmarket)', 'sans-serif'],
+        clash: ['var(--font-clash)', 'sans-serif'],
+        satoshi: ['var(--font-satoshi)', 'sans-serif'],
+        syne: ['var(--font-syne)', 'sans-serif'],
+        'space-grotesk': ['var(--font-space-grotesk)', 'sans-serif'],
       },
       zIndex: {
         'bg-box': '1',

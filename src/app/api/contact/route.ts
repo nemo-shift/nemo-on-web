@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   // 이메일 본문 구성
   const inquiryLabel = INQUIRY_TYPE_LABELS[inquiryType] ?? inquiryType;
   const htmlBody = `
-    <h2 style="color:#E8734A;margin-bottom:24px;">네모:ON 새 문의가 도착했습니다</h2>
+    <h2 style="color:#E8734A;margin-bottom:24px;">nemo:on 새 문의가 도착했습니다</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
       <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;width:120px;">이름</td><td style="padding:8px 12px;">${name}</td></tr>
       <tr><td style="padding:8px 12px;background:#f5f5f5;font-weight:bold;">회사명</td><td style="padding:8px 12px;">${company || '—'}</td></tr>
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       from: 'onboarding@resend.dev',
       to: RECEIVER_EMAIL,
       replyTo: email,
-      subject: `[네모:ON 문의] ${inquiryLabel} — ${name}`,
+      subject: `[nemo:on 문의] ${inquiryLabel} — ${name}`,
       html: htmlBody,
       attachments,
     });

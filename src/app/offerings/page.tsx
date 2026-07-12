@@ -5,7 +5,7 @@ import OfferingsStage from '@/components/sections/offerings/OfferingsStage';
 
 export const metadata: Metadata = {
   title: '서비스',
-  description: '브랜딩부터 개발까지, 네모:ON Studio와 Lab의 서비스를 만나보세요.',
+  description: '브랜딩부터 개발까지, nemo:on Studio와 Lab의 서비스를 만나보세요.',
   openGraph: { url: '/offerings' },
 };
 

@@ -21,7 +21,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>오류 발생 | 네모:ON</title>
+        <title>오류 발생 | nemo:on</title>
         <style>{`
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body {

@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, EffectCoverflow } from 'swiper/modules';
 import { FOR_WHO_LIST, ForWhoItem } from '@/data/home/forwho';
 import { cn } from '@/lib/utils';
+import { renderBrandText } from '@/lib/renderBrandText';
 import { useDevice } from '@/context';
 import ForWhoScrollHint from './ForWhoScrollHint';
 
@@ -224,7 +225,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                       <h5 className="text-white text-lg font-suit font-bold leading-tight mb-2">{item.target}</h5>
                       <p className="text-white/80 text-[11px] font-suit leading-relaxed break-keep mb-2">{item.description}</p>
                       <div className={cn("w-7 h-[0.5px] bg-white/30 mb-2", isRight && "ml-auto", isCenterAlign && "mx-auto")} />
-                      <p className="text-white/70 text-[9px] tracking-wider mb-1">네모:ON의 역할</p>
+                      <p className="text-white/70 text-[9px] tracking-wider mb-1">{renderBrandText('nemo:on')} 의 역할</p>
                       <p className="text-white/95 font-suit font-medium text-[11px]">{item.philosophy}</p>
                     </div>
                   </>
@@ -258,7 +259,7 @@ const ForWhoCarousel = React.forwardRef<ForWhoCarouselHandle, {}>((_, ref) => {
                         </p>
                         <div className="w-12 h-[0.5px] bg-white/30 mx-auto" />
                         <div className="space-y-2">
-                          <p className="text-[10px] text-white/40 tracking-wider">네모:ON의 역할</p>
+                          <p className="text-[10px] text-white/40 tracking-wider">{renderBrandText('nemo:on')} 의 역할</p>
                           <p className="text-white font-suit font-medium text-lg tablet-p:text-[1.125rem] tablet:text-xl">
                             {item.philosophy}
                           </p>
