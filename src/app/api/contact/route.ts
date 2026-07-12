@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
   if (!name) errors.push('이름이 누락되었습니다.');
   if (!content) errors.push('문의 내용이 누락되었습니다.');
-  if (!phone || !/^\d{2,3}-\d{3,4}-\d{4}$/.test(phone)) errors.push('전화번호 형식이 올바르지 않습니다.');
+  if (!phone || phone.replace(/\D/g, '').length < 9) errors.push('전화번호 형식이 올바르지 않습니다.');
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('이메일 형식이 올바르지 않습니다.');
   if (!['project', 'webinar', 'collaboration', 'etc'].includes(inquiryType)) errors.push('문의 유형이 올바르지 않습니다.');
   if (content.length > MAX_CONTENT_LENGTH) errors.push(`문의 내용은 ${MAX_CONTENT_LENGTH}자 이내로 입력해주세요.`);
