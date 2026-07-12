@@ -9,7 +9,7 @@ const RECEIVER_EMAIL = process.env.CONTACT_RECEIVER_EMAIL ?? 'turn.nemoon@gmail.
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'zip'];
-const MAX_FILE_SIZE = 40 * 1024 * 1024; // 40MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (Vercel 서버리스 요청 본문 한계 4.5MB 대응)
 const MAX_CONTENT_LENGTH = 5000;
 
 function checkRateLimit(ip: string): boolean {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
   if (file && file.size > 0) {
     const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
     if (!ALLOWED_EXTENSIONS.includes(ext)) errors.push('허용되지 않는 파일 형식입니다. (jpg/png/pdf/zip)');
-    if (file.size > MAX_FILE_SIZE) errors.push('파일 크기는 최대 40MB까지 허용됩니다.');
+    if (file.size > MAX_FILE_SIZE) errors.push('파일 크기는 최대 4MB까지 허용됩니다. 큰 파일은 참고 URL란에 링크로 공유해주세요.');
   }
 
   if (errors.length > 0) {

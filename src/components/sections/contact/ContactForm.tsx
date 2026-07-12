@@ -60,8 +60,8 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
     if (selectedFile) {
-      if (selectedFile.size > 40 * 1024 * 1024) {
-        alert('파일 용량은 최대 40MB까지 첨부할 수 있습니다.');
+      if (selectedFile.size > 4 * 1024 * 1024) {
+        alert('파일 용량은 최대 4MB까지 첨부할 수 있습니다.\n큰 파일은 Google Drive나 WeTransfer 링크를 참고 URL에 붙여넣어 주세요.');
         return;
       }
       setForm((prev) => ({ ...prev, file: selectedFile }));
@@ -286,7 +286,7 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
                   </button>
                 </div>
               ) : (
-                <span className="text-xs text-text-dark/40">관련 파일을 첨부합니다. (최대 40MB, jpg/jpeg/png/pdf/zip 등)</span>
+                <span className="text-xs text-text-dark/40">관련 파일을 첨부합니다. (최대 4MB, jpg/jpeg/png/pdf/zip) · 큰 파일은 참고 URL란에 링크로 공유해주세요.</span>
               )}
             </div>
           </div>
