@@ -85,7 +85,7 @@ const bebasNeue = Bebas_Neue({
 });
 
 // [V69.LaunchReady] STEP 4 — SEO 메타데이터 / OG / sitemap / robots
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nemo-on.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nemoon.co';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
