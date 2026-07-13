@@ -18,6 +18,8 @@ type HeroContextType = {
   setFooterHeight: (val: number) => void;
   hasDismissedScrollNudge: boolean;         // [V75/STEP E] X 버튼으로 영구 닫기 여부
   setHasDismissedScrollNudge: (val: boolean) => void;
+  isCtaFocused: boolean;                    // CTA 섹션 뷰포트 진입 여부 (스크롤 힌트 억제 전용)
+  setIsCtaFocused: (val: boolean) => void;
 };
 
 const HeroContext = createContext<HeroContextType>({
@@ -33,6 +35,8 @@ const HeroContext = createContext<HeroContextType>({
   setFooterHeight: () => {},
   hasDismissedScrollNudge: false,
   setHasDismissedScrollNudge: () => {},
+  isCtaFocused: false,
+  setIsCtaFocused: () => {},
 });
 
 export function HeroProvider({ children }: { children: React.ReactNode }): React.ReactElement {
@@ -42,6 +46,7 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
   const [isTimelineReady, setIsTimelineReady] = useState(false);
   const [footerHeight, setFooterHeight] = useState(0);
   const [hasDismissedScrollNudge, setHasDismissedScrollNudge] = useState(false); // [V75/STEP E]
+  const [isCtaFocused, setIsCtaFocused] = useState(false);
   const pathname = usePathname();
   const isOnRef = useRef(isOn);
   useEffect(() => { isOnRef.current = isOn; }, [isOn]);
@@ -117,6 +122,8 @@ export function HeroProvider({ children }: { children: React.ReactNode }): React
       setFooterHeight,
       hasDismissedScrollNudge,
       setHasDismissedScrollNudge,
+      isCtaFocused,
+      setIsCtaFocused,
     }}>
       {children}
     </HeroContext.Provider>

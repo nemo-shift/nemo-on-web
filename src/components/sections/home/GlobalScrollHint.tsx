@@ -12,11 +12,11 @@ import { INTERACTION_Z_INDEX } from '@/constants/interaction';
  * - '--scroll-hint-fg' 전역 변수를 구독하여 배경에 맞춰 색상 자동 반전
  */
 export default function GlobalScrollHint(): React.ReactElement {
-  const { isOn, isScrollable, isTransitioning } = useHeroContext();
+  const { isOn, isScrollable, isCtaFocused } = useHeroContext();
   const { isMobileView, isTabletPortrait } = useDevice();
-  
-  // 노출 조건: 히어로 온(ON) 모드 안착 + 스크롤 가능 상태
-  const visible = isOn && isScrollable && !isTransitioning;
+
+  // 노출 조건: 히어로 온(ON) 모드 안착 + 스크롤 가능 상태 + CTA 미진입
+  const visible = isOn && isScrollable && !isCtaFocused;
   
   // [V12] 기기별 스타일 최적화 매트릭스
   // 태블릿 세로는 PC와 동일한 크기를 선호하시므로 분기 유지, 모바일만 축소

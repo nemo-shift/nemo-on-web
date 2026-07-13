@@ -175,13 +175,13 @@ export default function AboutMeaning() {
         {/* 큰 네모 테두리 — 콘텐츠를 감싸는 프레임 */}
         <div
           ref={borderRef}
-          className="absolute inset-x-8 top-[38%] bottom-12 tablet-p:inset-x-16 tablet-p:bottom-16 tablet:inset-x-24 tablet:bottom-20 desktop-wide:bottom-24 border-[3px] border-[#0d1a1f] z-[1] pointer-events-none"
+          className="absolute inset-x-8 top-[30%] bottom-12 tablet-p:inset-x-16 tablet-p:top-[38%] tablet-p:bottom-16 tablet:inset-x-24 tablet:bottom-20 desktop-wide:bottom-24 border-[3px] border-[#0d1a1f] z-[1] pointer-events-none"
         />
 
         {/* 거대 배경 타이틀 (선명한 검은색에서 시작) */}
         <span
           ref={titleRef}
-          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none leading-[0.9] z-0 text-left tablet-p:text-center tablet:text-left top-[67%] tablet-p:top-[50%] left-[12px] tablet-p:left-[80px] ${ABOUT_STAGE_STYLES.meaning.bgTitle.size} ${ABOUT_STAGE_STYLES.meaning.bgTitle.tracking}`}
+          className={`absolute font-dm font-black uppercase text-[#0d1a1f] select-none leading-[0.9] z-0 text-left tablet-p:text-center tablet:text-left top-[58%] tablet-p:top-[50%] left-[12px] tablet-p:left-[80px] ${ABOUT_STAGE_STYLES.meaning.bgTitle.size} ${ABOUT_STAGE_STYLES.meaning.bgTitle.tracking}`}
           style={{
             transform: "rotate(-90deg) translateX(-50%)",
             transformOrigin: "top left",

@@ -13,7 +13,7 @@ export const CTASection = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'complete'>('idle');
   const [activeLogs, setActiveLogs] = useState<string[]>([]);
   const router = useRouter();
-  const { setIsTransitioning } = useHeroContext();
+  const { setIsTransitioning, setIsCtaFocused } = useHeroContext();
 
   // [V74.ScrollGuidance/STEP6] CTA 섹션 진입 즉시(클릭 전) 힌트/배너 억제.
   // CTASection은 항상 DOM에 마운트되어 있으므로 IntersectionObserver로 뷰포트 진입 감지.
@@ -23,16 +23,13 @@ export const CTASection = () => {
     if (!el) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsTransitioning(true);
-          observer.disconnect();
-        }
+        setIsCtaFocused(entries[0].isIntersecting);
       },
       { threshold: 0.1 }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [setIsTransitioning]);
+  }, [setIsCtaFocused]);
 
   // [Step 9-3] 최종 리다이렉트 실행 함수
   const performRedirect = useCallback(() => {

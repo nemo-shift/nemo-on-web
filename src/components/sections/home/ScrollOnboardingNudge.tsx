@@ -73,13 +73,13 @@ export default function ScrollOnboardingNudge(): React.ReactElement | null {
   const {
     isOn,
     isScrollable,
-    isTransitioning,
+    isCtaFocused,
     hasDismissedScrollNudge,
     setHasDismissedScrollNudge,
   } = useHeroContext();
   const { isMobileView, isTabletPortrait, interactionMode } = useDevice();
 
-  const active = isOn && isScrollable && !isTransitioning && !hasDismissedScrollNudge;
+  const active = isOn && isScrollable && !isCtaFocused && !hasDismissedScrollNudge;
   const { shouldShow, dismiss } = useScrollIdleNudge({ active });
 
   const isTouch = interactionMode === 'touch';
