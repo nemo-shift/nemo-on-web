@@ -35,7 +35,7 @@ export default function AboutPromise() {
         trigger: containerRef.current,
         start: 'top top',
         // [Zero-Gap Sync] 섹션의 물리적 높이 동안 완벽하게 핀 고정 유지 (독서 버퍼 보증)
-        end: () => `+=${window.innerHeight * scrollMultiplier}`,
+        end: () => `+=${containerRef.current!.offsetHeight}`,
         scrub: true,
         pin: true,
         pinSpacing: true, // 마지막 섹션이므로 spacing을 활성화하여 푸터가 자연스럽게 리빌되도록 유도

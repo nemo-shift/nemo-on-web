@@ -22,28 +22,28 @@ export const ABOUT_STAGE_STYLES = {
       fontSize: "text-[15px] tablet-p:text-[18px] tablet:text-[20px]",
       leading: "leading-[1.7] tablet-p:leading-[1.8] tablet:leading-[1.9]",
       // 🆕 뷰포트 너비(vw)에 철저하게 맞춘 유동적 max-w 선언
-      maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
+      maxWidth: "w-[66vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[66vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
       yOffset: "",
       // 🆕 오직 모바일 환경(default pl- 값)에서만 본문 콘텐츠의 정렬선을 더 우측으로 이동합니다.
       // pl-8 -> pl-12
-      paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
-      labelPaddingLeft: "pl-4 tablet-p:pl-32 tablet:pl-24"
+      paddingLeft: "pl-4 tablet-p:pl-44 tablet:pl-32",
+      labelPaddingLeft: "pl-0 tablet-p:pl-32 tablet:pl-24"
     }
   },
   meaning: {
     bgTitle: {
-      size: "text-[36px] tablet-p:text-[64px] tablet:text-[55px] desktop-wide:text-[80px]",
+      size: "text-[42px] tablet-p:text-[64px] tablet:text-[75px] desktop-wide:text-[95px]",
       tracking: "tracking-[0.1em] tablet-p:tracking-[0.15em] tablet:tracking-[0.1em]"
     },
     content: {
       fontSize: "text-[15px] tablet-p:text-[18px] tablet:text-[20px]",
       leading: "leading-[1.7] tablet-p:leading-[1.8] tablet:leading-[1.9]",
-      maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
+      maxWidth: "w-[66vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[66vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
       yOffset: "",
-      paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
-      labelPaddingLeft: "pl-4 tablet-p:pl-32 tablet:pl-24"
+      paddingLeft: "pl-4 tablet-p:pl-44 tablet:pl-32",
+      labelPaddingLeft: "pl-0 tablet-p:pl-32 tablet:pl-24"
     }
   },
   promise: {
@@ -53,11 +53,11 @@ export const ABOUT_STAGE_STYLES = {
     content: {
       fontSize: "text-[15px] tablet-p:text-[18px] tablet:text-[20px]",
       leading: "leading-[1.7] tablet-p:leading-[1.8] tablet:leading-[1.9]",
-      maxWidth: "w-[90vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[90vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
+      maxWidth: "w-[66vw] tablet-p:w-[70vw] tablet:w-[50vw] max-w-[66vw] tablet-p:max-w-[580px] tablet:max-w-[700px]",
       gap: "gap-5 tablet-p:gap-7 tablet:gap-8",
       yOffset: "",
-      paddingLeft: "pl-12 tablet-p:pl-44 tablet:pl-32",
-      labelPaddingLeft: "pl-4 tablet-p:pl-32 tablet:pl-24"
+      paddingLeft: "pl-4 tablet-p:pl-44 tablet:pl-32",
+      labelPaddingLeft: "pl-0 tablet-p:pl-32 tablet:pl-24"
     }
   }
 };

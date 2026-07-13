@@ -18,55 +18,36 @@ export default function AboutFoundersNote() {
   useGSAP(() => {
     if (!sectionRef.current || !emphasisRef.current) return;
 
-    // 콘텐츠 초기 은폐
-    gsap.set('.fnote-line', { opacity: 0, y: 24 });
+    const items = gsap.utils.toArray<HTMLElement>('.fnote-line');
+    gsap.set(items, { opacity: 0, y: 24 });
     gsap.set(emphasisRef.current, { opacity: 0, scale: 0.88, y: 16 });
 
-    // 본문 stagger 진입 (매 진입마다 재생)
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top 70%',
-      end: 'bottom 30%',
-      onEnter: () => {
-        gsap.to('.fnote-line', {
-          opacity: 1, y: 0, duration: 0.9, stagger: 0.18, ease: 'power2.out',
-        });
-      },
-      onLeave: () => {
-        gsap.set('.fnote-line', { opacity: 0, y: 24 });
-        gsap.set(emphasisRef.current, { opacity: 0, scale: 0.88, y: 16 });
-      },
-      onEnterBack: () => {
-        gsap.to('.fnote-line', {
-          opacity: 1, y: 0, duration: 0.9, stagger: 0.18, ease: 'power2.out',
-        });
-      },
-      onLeaveBack: () => {
-        gsap.set('.fnote-line', { opacity: 0, y: 24 });
-        gsap.set(emphasisRef.current, { opacity: 0, scale: 0.88, y: 16 });
-      },
+    // 각 라인 개별 ScrollTrigger
+    items.forEach((item) => {
+      gsap.to(item, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+      });
     });
 
-    // signatureEmphasis: 뷰포트 깊이 진입 시 scale-up 애니메이션 (매 진입마다 재생)
-    ScrollTrigger.create({
-      trigger: emphasisRef.current,
-      start: 'top 80%',
-      end: 'bottom 20%',
-      onEnter: () => {
-        gsap.to(emphasisRef.current, {
-          opacity: 1, scale: 1, y: 0, duration: 1, ease: 'power2.out',
-        });
-      },
-      onLeave: () => {
-        gsap.set(emphasisRef.current, { opacity: 0, scale: 0.88, y: 16 });
-      },
-      onEnterBack: () => {
-        gsap.to(emphasisRef.current, {
-          opacity: 1, scale: 1, y: 0, duration: 1, ease: 'power2.out',
-        });
-      },
-      onLeaveBack: () => {
-        gsap.set(emphasisRef.current, { opacity: 0, scale: 0.88, y: 16 });
+    // 강조 문장 스케일업
+    gsap.to(emphasisRef.current, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      duration: 1,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: emphasisRef.current,
+        start: 'top 82%',
+        toggleActions: 'play none none reverse',
       },
     });
 
@@ -87,23 +68,54 @@ export default function AboutFoundersNote() {
     <section
       ref={sectionRef}
       id="about-founders-note"
-      className="relative w-full min-h-[100svh] z-[15] bg-[#0d1a1f] text-[#f0ebe3] flex flex-col items-center justify-center px-6 tablet-p:px-24 tablet:px-48 overflow-hidden"
+      className="relative w-full min-h-[calc(100svh+60px)] tablet:min-h-[calc(100svh+80px)] z-[15] bg-[#0d1a1f] text-[#f0ebe3] flex flex-col items-center justify-center px-6 tablet-p:px-24 tablet:px-48 overflow-hidden"
     >
-      <div className="max-w-2xl mx-auto w-full flex flex-col gap-8 tablet:gap-10">
-        <span className="fnote-line text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-400/80">
+      <div className="max-w-2xl mx-auto w-full">
+
+        {/* 라벨 */}
+        <span className="fnote-line block text-xs tablet:text-sm font-semibold tracking-[0.2em] uppercase text-cyan-400/80 mb-10 tablet:mb-14">
           {ABOUT_FOUNDERS_NOTE_DATA.label}
         </span>
-        {ABOUT_FOUNDERS_NOTE_DATA.lines.map((line, i) => (
-          <p key={i} className="fnote-line font-suit font-light whitespace-pre-line leading-[1.9] text-[19px] tablet:text-[24px] text-[#f0ebe3]/90">
-            {line}
+
+        {/* 큰 인용부호 장식 */}
+        <div className="fnote-line mb-6 tablet:mb-8">
+          <span className="font-suit text-[48px] tablet:text-[72px] leading-none text-cyan-400/15 select-none">
+            &ldquo;
+          </span>
+        </div>
+
+        {/* 본문 단락들 — 왼쪽 세로선으로 서신 느낌 */}
+        <div className="border-l border-[#f0ebe3]/10 pl-6 tablet:pl-8 flex flex-col gap-6 tablet:gap-8">
+          {ABOUT_FOUNDERS_NOTE_DATA.lines.map((line, i) => (
+            <p
+              key={i}
+              className="fnote-line font-suit font-light whitespace-pre-line leading-[1.7] tablet-p:leading-[1.9] text-[15px] tablet-p:text-[19px] tablet:text-[21px] text-[#f0ebe3]/80"
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+
+        {/* 구분선 */}
+        <div className="fnote-line my-8 tablet:my-12 ml-6 tablet:ml-8">
+          <div className="h-[1px] w-16 bg-cyan-400/20" />
+        </div>
+
+        {/* 강조 문장 — 중앙 정렬, 크고 선명하게 */}
+        <div className="ml-6 tablet:ml-8">
+          <p
+            ref={emphasisRef}
+            className="font-suit font-medium text-[20px] tablet-p:text-[28px] tablet:text-[36px] leading-tight text-[#f0ebe3] origin-left"
+          >
+            {ABOUT_FOUNDERS_NOTE_DATA.signatureEmphasis}
           </p>
-        ))}
-        <p ref={emphasisRef} className="font-suit font-medium text-[28px] tablet:text-[36px] leading-tight text-[#f0ebe3] mt-4 origin-left">
-          {ABOUT_FOUNDERS_NOTE_DATA.signatureEmphasis}
-        </p>
-        <p className="fnote-line font-suit font-light text-sm text-[#f0ebe3]/50 mt-1">
+        </div>
+
+        {/* 서명 */}
+        <p className="fnote-line font-suit font-light text-sm text-[#f0ebe3]/40 mt-6 tablet:mt-8 ml-6 tablet:ml-8">
           {ABOUT_FOUNDERS_NOTE_DATA.signature}
         </p>
+
       </div>
     </section>
   );

@@ -34,7 +34,7 @@ export default function AboutPhilosophy() {
         trigger: containerRef.current,
         start: 'top top',                
         // [Zero-Gap Sync] 섹션의 물리적 높이 동안 완벽하게 핀 고정 유지 (Meaning이 100% 덮을 때까지)
-        end: () => `+=${window.innerHeight * scrollMultiplier}`,
+        end: () => `+=${containerRef.current!.offsetHeight}`,
         scrub: true,
         pin: true,
         pinSpacing: false, // 다음 섹션 카드가 위로 덮어씌울 수 있도록 spacing 비활성화

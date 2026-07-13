@@ -156,32 +156,44 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
                       handleSingleSelect(option);
                     }
                   }}
-                  className={`w-full text-left py-4.5 border-b border-text-dark/10 transition-all duration-300 flex items-center justify-between group cursor-pointer ${
-                    isSelected ? 'translate-x-2' : 'hover:translate-x-2'
-                  }`}
+                  className={`w-full text-left border-b border-text-dark/10 transition-all duration-300 flex items-center justify-between group cursor-pointer ${
+                    currentIdx === 0 ? 'py-3 tablet-p:py-4.5' : 'py-4.5'
+                  } ${isSelected ? 'translate-x-2' : 'hover:translate-x-2'}`}
                 >
                   <div className="flex items-center gap-3">
-                    {/* 선택 인디케이터 (미니멀 도트) */}
-                    <span 
-                      className={`w-1.5 h-1.5 rounded-full bg-brand transition-all duration-300 shrink-0 ${
-                        isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-50 group-hover:opacity-50'
-                      }`}
-                    />
+                    {/* 선택 인디케이터: 단일=도트, 다중=체크박스 */}
+                    {currentQuestion.type === 'multiple' ? (
+                      <span className={`w-4 h-4 rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-brand border-brand'
+                          : 'border-text-dark/20 group-hover:border-text-dark/40'
+                      }`}>
+                        <span className={`text-[10px] font-bold text-white transition-all duration-200 ${
+                          isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                        }`}>✓</span>
+                      </span>
+                    ) : (
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full bg-brand transition-all duration-300 shrink-0 ${
+                          isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-50 group-hover:opacity-50'
+                        }`}
+                      />
+                    )}
                     <span className={`text-base tracking-tight transition-colors duration-300 ${
-                      isSelected 
-                        ? 'text-brand font-bold' 
+                      isSelected
+                        ? 'text-brand font-bold'
                         : 'text-text-dark/60 group-hover:text-text-dark'
                     }`}>
                       {option}
                     </span>
                   </div>
 
-                  {/* 세련된 화살표 표식 */}
+                  {/* 단일 선택: 체크 표식 */}
                   {currentQuestion.type === 'single' && (
-                    <span className={`text-xs font-mono tracking-widest transition-opacity duration-300 ${
-                      isSelected ? 'text-brand opacity-100' : 'opacity-0 group-hover:opacity-100 text-text-dark/40'
+                    <span className={`text-sm font-bold transition-all duration-300 ${
+                      isSelected ? 'text-brand opacity-100 scale-100' : 'opacity-0 scale-75'
                     }`}>
-                      SELECT →
+                      ✓
                     </span>
                   )}
                 </button>

@@ -1,4 +1,17 @@
-## [최신] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
+## [최신] ✅ 2026-07-13: Offerings 6단계 업데이트 + About/Diagnosis UI 개선
+
+**브랜치**: `main` | 상세: `docs/handover/current-task.md`
+
+- **Offerings 6단계 오버홀**: Process 섹션 신규(타임라인 UI), Studio/Lab 패널 정리(배지·CTA 삭제, 장식선 추가), 뷰포트 fix, StickyContactNemo 마운트, 배경색 모핑 6단계
+- **About FoundersNote 리디자인**: 큰 인용부호 + 왼쪽 세로선 프레이밍 + 개별 ScrollTrigger
+- **About Principles 리디자인**: ✕ 마크 + CSS line-through 취소선 애니메이션 (stagger 순차)
+- **Diagnosis 개선**: DE:FINE 실서비스 링크 연결, 듀얼 버튼(BASIC+웨비나), 선택 인디케이터 분리(단일=✓/다중=체크박스), Q1 모바일 간격 축소
+- **Footer**: DE:FINE 외부 링크 추가
+- **ContactForm**: 웨비나 선택 시 조건부 DE:FINE 안내 블록
+
+---
+
+## [이전] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
 
 **브랜치**: `main` | 상세: `docs/handover/current-task.md`
 

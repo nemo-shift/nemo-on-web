@@ -34,6 +34,7 @@ export default function AboutStage() {
     // 브라우저의 ScrollTrigger 물리 좌표 측정을 한 번 더 갱신하여 레이아웃 꼬임을 완벽 예방합니다.
     requestAnimationFrame(() => {
       ScrollTrigger.refresh();
+
     });
 
     // [Side-effect Free] 페이지 이탈 시 전역 설정 해제
@@ -49,7 +50,7 @@ export default function AboutStage() {
       <SubpageScrollHint />
       {/* 스티키 문의 버튼 — fixed 오버레이, wrapper 밖 */}
       <StickyContactNemo />
-      {/* 콘텐츠 영역 (여기에만 배경색을 지정해야 하단 스페이서가 투명해집니다) */}
+      {/* 콘텐츠 영역 — 섹션 사이 미세 틈에서 고정 Footer 비침 방지용 안전 배경 */}
       <div className="relative w-full bg-[#f7f1e9]">
 
         {/* 1. Hero Section */}

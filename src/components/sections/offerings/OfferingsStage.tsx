@@ -10,8 +10,10 @@ import OfferingsIntro from './intro/OfferingsIntro';
 import OfferingsStudio from './studio/OfferingsStudio';
 import OfferingsLab from './lab/OfferingsLab';
 import OfferingsOutro from './outro/OfferingsOutro';
+import OfferingsProcess from './process/OfferingsProcess';
 import { INTERACTION_Z_INDEX } from '@/constants/interaction';
 import SubpageScrollHint from '@/components/ui/SubpageScrollHint';
+import StickyContactNemo from '@/components/ui/StickyContactNemo';
 import { OFFERINGS_SCROLL_MULTIPLIERS } from '@/constants/sub-interaction';
 
 if (typeof window !== 'undefined') {
@@ -107,9 +109,31 @@ export default function OfferingsStage() {
       }
     });
 
-    // 3. LAB 가로 섹션 진입 시 (가로 타임라인의 스크롤 중반부 이후 횡이동이 시작된 지점): 퓨어 라이트 그레이
+    // 3. LAB 가로 섹션 진입 시: 퓨어 라이트 그레이
     // Studio & Lab 가로 스위칭 타임라인에 직접 연동하여 횡이동이 가동되는 시점(0.35 근방)에 동시 변환하도록 엮음
-    
+
+    // 3.5. PROCESS 섹션 진입 시: Lab 그레이 → 크림 전환
+    ScrollTrigger.create({
+      trigger: '.process-section',
+      start: 'top 60%',
+      onEnter: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#f7f1e9', // 크림
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(stageContainerRef.current, {
+          backgroundColor: '#e2e8f0', // 롤백 시 다시 LAB 스토니 그레이 복원
+          duration: 0.8,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      }
+    });
+
     // 4. OUTRO 섹션 진입 시 (아웃트로 헤더가 화면의 60%에 도달 시): 정갈한 퓨어 화이트 회귀
     ScrollTrigger.create({
       trigger: '.outro-label',
@@ -126,7 +150,7 @@ export default function OfferingsStage() {
       },
       onLeaveBack: () => {
         gsap.to(stageContainerRef.current, {
-          backgroundColor: '#e2e8f0', // 롤백 시 다시 LAB 뚜렷한 스토니 그레이(#e2e8f0) 복원
+          backgroundColor: '#f7f1e9', // 롤백 시 다시 Process 크림(#f7f1e9) 복원
           duration: 0.8,
           ease: 'power2.out',
           overwrite: 'auto'
@@ -139,13 +163,15 @@ export default function OfferingsStage() {
     // ─────────────────────────────────────────────
     
     // Studio 가로 진입용 초깃값 설정 (왼쪽 -40px 대기)
-    gsap.set(['.studio-header', '.studio-title', '.studio-content', '.studio-caps', '.studio-cta'], {
+    // studio-header와 studio-title은 같은 요소 (세로선+타이틀 블록)
+    gsap.set(['.studio-header', '.studio-content', '.studio-caps'], {
       opacity: 0,
       x: -40,
     });
 
     // Lab 가로 진입용 초깃값 설정 (오른쪽 40px 대기)
-    gsap.set(['.lab-header', '.lab-title', '.lab-content-left', '.lab-content-right', '.lab-cta'], {
+    // lab-header와 lab-title은 같은 요소 (세로선+타이틀 블록)
+    gsap.set(['.lab-header', '.lab-content-left', '.lab-content-right'], {
       opacity: 0,
       x: 40,
     });
@@ -188,26 +214,20 @@ export default function OfferingsStage() {
       ease: 'power2.inOut',
     }, 0.50);
 
-    // 2. Studio 텍스트 등장 모션 (0.0 ~ 0.25 구간)
+    // 2. Studio 등장 모션 (0.0 ~ 0.25 구간)
     tl.to('.studio-header', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0)
-      .to('.studio-title', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.05)
       .to('.studio-content', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.1)
-      .to('.studio-caps', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.1)
-      .to('.studio-cta', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.15);
+      .to('.studio-caps', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.1);
 
-    // Studio 퇴장 모션 (0.35 ~ 0.5 구간 - 횡이동이 시작되면서 스크롤에 맞춰 왼쪽으로 사라짐)
+    // Studio 퇴장 모션 (0.35 ~ 0.5 구간)
     tl.to('.studio-header', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.35)
-      .to('.studio-title', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.38)
       .to('.studio-content', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.41)
-      .to('.studio-caps', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.41)
-      .to('.studio-cta', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.44);
+      .to('.studio-caps', { opacity: 0, x: -60, ease: 'power2.in', duration: 0.1 }, 0.41);
 
-    // 3. Lab 등장 모션 (0.65 ~ 0.85 구간 - 횡이동 완료 후 정지된 상태에서 서서히 안착)
+    // 3. Lab 등장 모션 (0.65 ~ 0.85 구간)
     tl.to('.lab-header', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.65)
-      .to('.lab-title', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.7)
       .to('.lab-content-left', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.75)
-      .to('.lab-content-right', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.75)
-      .to('.lab-cta', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.8);
+      .to('.lab-content-right', { opacity: 1, x: 0, ease: 'power2.out', duration: 0.1 }, 0.75);
 
   }, { scope: stageContainerRef }); // 🆕 돔 스코프를 전체 배경 컨테이너로 매핑
 
@@ -215,6 +235,7 @@ export default function OfferingsStage() {
     <div id="offerings-stage" className="relative z-[1] w-full">
       {/* [V75/STEP D] Offerings 전용 스크롤 힌트 — 하단 근접 시 자동 소멸 */}
       <SubpageScrollHint />
+      <StickyContactNemo />
       {/* 콘텐츠 전체 컨테이너 (여기에 ref를 걸어 스크롤 60% 시점마다 배경색이 스르륵 흐르도록 보장) */}
       <div 
         ref={stageContainerRef}
@@ -241,12 +262,15 @@ export default function OfferingsStage() {
           >
             <div 
               ref={horizontalContainerRef}
-              className="flex flex-row w-[200vw] h-screen overflow-hidden bg-transparent" // 🆕 투명화
+              className="flex flex-row w-[200vw] h-[100svh] overflow-hidden bg-transparent" // 🆕 투명화
             >
               <OfferingsStudio />
               <OfferingsLab />
             </div>
           </div>
+
+          {/* Process Section */}
+          <OfferingsProcess />
 
           {/* Outro Section */}
           <OfferingsOutro />

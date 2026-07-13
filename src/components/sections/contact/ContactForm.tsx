@@ -247,6 +247,27 @@ export default function ContactForm({ onSubmitSuccess }: ContactFormProps) {
           <span className="text-xl sm:text-2xl font-light tracking-tight">를 하고 싶습니다.</span>
         </div>
 
+        {/* 웨비나 선택 시 조건부 안내 */}
+        {form.inquiryType === 'webinar' && (
+          <div className="text-left border-l-2 border-brand/30 pl-5 py-1 space-y-1.5">
+            <p className="text-sm text-text-dark/70 leading-relaxed">
+              웨비나에 대한 자세한 내용은{' '}
+              <a
+                href="https://define.nemoon.co/webinar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-brand underline underline-offset-2 hover:text-brand/80 transition-colors"
+              >
+                DE:FINE
+              </a>
+              에서 확인하실 수 있습니다.
+            </p>
+            <p className="text-sm text-text-dark/50 leading-relaxed">
+              신청·일정 문의는 아래에 남겨주세요.
+            </p>
+          </div>
+        )}
+
         {/* 문장 3: 문의 내용 및 참고사이트 */}
         <div className="text-left space-y-6">
           <div>

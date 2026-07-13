@@ -3,7 +3,105 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
+## [최신] ✅ 2026-07-13: Offerings 페이지 6단계 업데이트 + About/Diagnosis UI 개선
+
+### 브랜치: `main`
+
+---
+
+### 1. Offerings 페이지 6단계 오버홀
+
+| Step | 내용 | 파일 |
+|------|------|------|
+| 4 | 모바일 뷰포트 `h-screen` → `h-[100svh]` | OfferingsStage, Studio, Lab |
+| 2 | Studio 패널: 배지/CTA 삭제, works 8개 교체, 죽은 브레이크포인트(`sm:`/`md:`) 수정 | OfferingsStudio, offerings.ts |
+| 3 | Lab 패널: 배지/CTA 삭제, experiments 태그 추가, 죽은 브레이크포인트 수정 | OfferingsLab, offerings.ts |
+| 1 | Process 섹션 신규 추가 (공감 pill 카드 + 전환 문장 + 타임라인 8단계 + 마무리) | OfferingsProcess(신규), offerings.ts |
+| 5 | StickyContactNemo 마운트 | OfferingsStage |
+| 6 | 라벨 넘버링 확인 (변경 없음) | — |
+
+**배경색 모핑 순서**: 흰색 → 크림(Intro) → 딥다크(Studio) → 그레이(Lab) → 크림(Process) → 흰색(Outro)
+
+**Studio 장식**: "STUDIO" 라벨 제거 → 타이틀 왼쪽 세로 장식선 (`2px cyan-400/60`)
+**Lab 장식**: "LAB." 라벨 제거 → 타이틀 위 가로 장식선 (`w-16 h-[2px] slate-400/60`)
+
+**Process 섹션 UI** (`src/components/sections/offerings/process/OfferingsProcess.tsx`):
+- 공감 목록: pill 형태 인용 카드 (둥근 테두리 + 반투명 배경 + 따옴표)
+- 전환 문장: 상단 가로 장식선 + 볼드 타이포
+- 8단계: 수직 타임라인 — 왼쪽 큰 반투명 번호 + 세로 연결선(스크롤 드로잉), 산출물 배지 태그
+- 각 `.process-item` 개별 ScrollTrigger (`toggleActions: 'play none none reverse'`)
+
+---
+
+### 2. About 페이지 UI 개선 (2개 섹션 리디자인)
+
+**AboutFoundersNote** (서신 스타일 리디자인):
+- 큰 인용부호(`"`, 72px, cyan-400/15) 추가
+- 왼쪽 세로선 프레이밍 (`border-l border-[#f0ebe3]/10`)
+- 본문과 강조 문장 사이 가로 액센트 라인
+- 기존 섹션 전체 트리거 → 각 라인 개별 ScrollTrigger
+
+**AboutPrinciples** ("하지 않는 것" 시각 표현):
+- 번호(01~05) → ✕ 마크(red-400/30)로 "거부" 의미 강화
+- CSS `line-through` + GSAP `textDecorationColor` 애니메이션 (두 줄 텍스트 대응)
+- 마스터 타임라인 + 0.35초 stagger 순차 등장 → 텍스트 0.5초 후 취소선 드로잉
+
+**AboutStage**: wrapper `bg-[#f7f1e9]` 복원 (섹션 틈 Footer 비침 방지 안전장치)
+
+---
+
+### 3. Diagnosis 페이지 개선
+
+**DiagnosisResult.tsx**:
+- 링크 수정: `define-zeta.vercel.app/` → `define.nemoon.co/basic` (실서비스 도메인)
+- CTA 카피 4줄 블록 (가운데 정렬, 작은 텍스트)
+- 듀얼 버튼: BASIC(블랙, 호버 다크 틸 `#1a3a4a`) + 웨비나(아웃라인, 호버 브랜드)
+  - 각 버튼 2줄 구조 (캡션 + 액션)
+- 1:1 상담 보조 배너 유지
+- "Restart Diagnosis" → "진단 다시하기"
+
+**DiagnosisWizard.tsx**:
+- 선택 인디케이터 분리: 단일=도트+✓체크 / 다중=체크박스(사각, 브랜드 배경+✓)
+- "SELECT →" 화살표 제거 → 단일 선택 시 ✓ 체크 표시
+- Q1(첫 질문) 모바일 항목 간격 축소 (`py-4.5` → `py-3`) — 하단 버튼 노출 개선
+
+---
+
+### 4. Footer DE:FINE 링크 추가
+
+`Footer.tsx`: "DE:FINE · 개인정보처리방침" 순서로 배치. 외부 링크 `<a>`, `target="_blank"`.
+
+---
+
+### 5. ContactForm 웨비나 조건부 안내
+
+`ContactForm.tsx`: `inquiryType === 'webinar'` 선택 시에만 폼 위에 안내 블록 노출:
+- "웨비나에 대한 자세한 내용은 DE:FINE에서 확인하실 수 있습니다" (링크)
+- "신청·일정 문의는 아래에 남겨주세요."
+- 왼쪽 브랜드 컬러 보더 강조
+
+---
+
+### 신규/변경 파일 목록
+
+| 파일 | 상태 |
+|---|---|
+| `src/components/sections/offerings/process/OfferingsProcess.tsx` | 신규 |
+| `src/components/sections/offerings/OfferingsStage.tsx` | 변경 |
+| `src/components/sections/offerings/studio/OfferingsStudio.tsx` | 변경 |
+| `src/components/sections/offerings/lab/OfferingsLab.tsx` | 변경 |
+| `src/data/offerings.ts` | 변경 |
+| `src/components/sections/about/founders-note/AboutFoundersNote.tsx` | 변경 |
+| `src/components/sections/about/principles/AboutPrinciples.tsx` | 변경 |
+| `src/components/sections/about/AboutStage.tsx` | 변경 |
+| `src/components/sections/diagnosis/DiagnosisResult.tsx` | 변경 |
+| `src/components/sections/diagnosis/DiagnosisWizard.tsx` | 변경 |
+| `src/components/sections/contact/ContactForm.tsx` | 변경 |
+| `src/components/layout/Footer.tsx` | 변경 |
+
+---
+
+## [이전] ✅ 2026-07-13: About 페이지 풀 리디자인 + 코드 품질 정리
 
 ### 브랜치: `main`
 

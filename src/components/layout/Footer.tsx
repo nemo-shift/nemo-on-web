@@ -180,7 +180,14 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         )}
       >
         <div className="flex items-center gap-6 text-sm font-medium tracking-wide">
-          {/* [V75/STEP C] Threads/Instagram 플레이스홀더 제거 — 실제 계정 확정 후 재추가 */}
+          <a
+            href="https://define.nemoon.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-[#0891b2] transition-colors"
+          >
+            DE:FINE
+          </a>
           <Link
             href="/privacy"
             className="hover:text-[#0891b2] transition-colors"
