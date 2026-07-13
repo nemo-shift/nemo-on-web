@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { DIAGNOSIS_QUESTIONS, DiagnosisQuestion } from '@/data/diagnosis-page';
 
 interface DiagnosisWizardProps {
@@ -16,6 +16,15 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
 
   // 최초 마운트(진입) 시 스크롤이 상단으로 튀어 올라가는 현상을 차단하기 위한 플래그
   const isMounted = React.useRef(false);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
+
+  // 모바일에서 선택 완료 시 Next 버튼으로 자동 스크롤
+  const scrollToNext = useCallback(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 744) return;
+    setTimeout(() => {
+      nextBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, []);
 
   // 질문 번호(currentIdx)가 변경될 때마다 화면 스크롤을 즉시 최상단으로 초기화 (질문 전환 전용)
   React.useEffect(() => {
@@ -43,12 +52,13 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
     }, 200);
   };
 
-  // 단일 선택 응답 처리 (자동 이동 제거)
+  // 단일 선택 응답 처리
   const handleSingleSelect = (option: string) => {
     setAnswers({
       ...answers,
       [currentQuestion.id]: option
     });
+    scrollToNext();
   };
 
   const handleMultipleSelect = (option: string) => {
@@ -73,6 +83,11 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
       ...answers,
       [currentQuestion.id]: updatedSelections
     });
+
+    // 최대 선택 수 도달 시 Next 버튼으로 스크롤
+    if (updatedSelections.length >= maxSelect) {
+      scrollToNext();
+    }
   };
 
   // [다음/제출] 버튼 클릭 처리
@@ -214,6 +229,7 @@ export default function DiagnosisWizard({ onComplete, onCancel }: DiagnosisWizar
 
         {/* 항상 버튼 노출, 답변이 선택되었을 때만 활성화 (단일/다중 공통) */}
         <button
+          ref={nextBtnRef}
           onClick={handleNext}
           disabled={
             currentQuestion.type === 'multiple'

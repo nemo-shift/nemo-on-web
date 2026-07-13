@@ -59,6 +59,15 @@
       **현상**: 초기 로딩 공백의 적막함과 키워드 충돌 시의 시각적 무게감 결여.
       **방안**: 서사적 프리로더 연출과 키워드 투하 시 바닥 충격에 따른 미세한 화면 진동(Shake)을 추가하여 객체의 물리적 실재감 극대화.
 
+### 🔗 [Migration] 링크 마이그레이션
+
+- [ ] **[Webinar Link Migration]**: 무료웨비나 링크 `define.nemoon.co/webinar` → `opeace.nemoon.co/webinar` 전환
+      **배경**: 현재 DE:FINE 도메인 하위에 웨비나 페이지가 위치하지만, 향후 opeace 도메인으로 이전 예정.
+      **영향 파일**:
+      - `src/components/sections/diagnosis/DiagnosisResult.tsx` — 웨비나 CTA 버튼 href
+      - `src/components/sections/contact/ContactForm.tsx` — 웨비나 문의 안내 링크
+      **시점**: opeace 도메인 세팅 완료 후
+
 ### 🛡️ [UX & Optimization] 안정성 및 편의성
 
 - [ ] **[Hitbox Sync]**: 로고 클릭 영역(Hitbox) 시각적 동기화. (로고가 축소됨에 따라 클릭 범위도 물리적으로 자동 리사이징) >>>>>>> 꼭 해야할 것

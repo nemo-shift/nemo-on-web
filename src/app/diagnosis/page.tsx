@@ -19,6 +19,8 @@ export default function DiagnosisPage() {
       <div className="max-w-4xl mx-auto py-10">
         <DiagnosisContainer />
       </div>
+      {/* 콘텐츠 끝과 Footer reveal 사이 여유 공간 */}
+      <div className="h-[30vh] tablet-p:h-[10vh] tablet:h-[50vh]" />
     </SubPageLayout>
   );
 }

@@ -52,7 +52,7 @@ export default function DiagnosisResult({ answers, onRestart }: DiagnosisResultP
         
         <div className="flex flex-col">
           {resultData.directions.map((direction, idx) => (
-            <div 
+            <div
               key={idx}
               className="py-4 border-b border-text-dark/10 flex items-start gap-4"
             >
@@ -64,6 +64,16 @@ export default function DiagnosisResult({ answers, onRestart }: DiagnosisResultP
               </span>
             </div>
           ))}
+        </div>
+
+        {/* 진단 다시하기 — Core Directions 직후 배치 */}
+        <div className="mt-4">
+          <button
+            onClick={onRestart}
+            className="text-[10px] font-bold text-text-dark/30 hover:text-text-dark tracking-widest transition-all uppercase underline underline-offset-4 cursor-pointer"
+          >
+            진단 다시하기
+          </button>
         </div>
       </div>
 
@@ -131,15 +141,6 @@ export default function DiagnosisResult({ answers, onRestart }: DiagnosisResultP
           </Link>
         </div>
 
-        {/* 4. 다시 진단하기 */}
-        <div className="text-center mt-2">
-          <button
-            onClick={onRestart}
-            className="text-[10px] font-bold text-text-dark/30 hover:text-text-dark tracking-widest transition-all uppercase underline underline-offset-4 cursor-pointer"
-          >
-            진단 다시하기
-          </button>
-        </div>
       </div>
     </div>
   );
