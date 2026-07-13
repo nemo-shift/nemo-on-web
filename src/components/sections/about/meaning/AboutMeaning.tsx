@@ -65,13 +65,22 @@ export default function AboutMeaning() {
         0,
       );
 
-      // 1. 거대 타이틀: 0%에서 20% 지점까지 오파시티 옅어지며 단독 퇴장 (지속시간 0.2)
-      // ⚠️ 네모 테두리는 영향 없이 찐하게 유지됨
+      // 1. 거대 타이틀 + 네모 테두리: 0%에서 20% 지점까지 함께 흐려짐
       tl.to(
         titleRef.current,
         {
           color: "#ffffff",
           opacity: 0.3,
+          duration: 0.2,
+          ease: "none",
+        },
+        0,
+      );
+
+      tl.to(
+        borderRef.current,
+        {
+          borderColor: "rgba(255, 255, 255, 0.35)",
           duration: 0.2,
           ease: "none",
         },
@@ -166,7 +175,7 @@ export default function AboutMeaning() {
         {/* 큰 네모 테두리 — 콘텐츠를 감싸는 프레임 */}
         <div
           ref={borderRef}
-          className="absolute inset-x-8 inset-y-24 tablet-p:inset-x-16 tablet-p:inset-y-24 tablet:inset-x-24 tablet:inset-y-28 desktop-wide:inset-y-32 border-2 border-[#0d1a1f] z-[1] pointer-events-none"
+          className="absolute inset-x-8 top-[38%] bottom-12 tablet-p:inset-x-16 tablet-p:bottom-16 tablet:inset-x-24 tablet:bottom-20 desktop-wide:bottom-24 border-[3px] border-[#0d1a1f] z-[1] pointer-events-none"
         />
 
         {/* 거대 배경 타이틀 (선명한 검은색에서 시작) */}

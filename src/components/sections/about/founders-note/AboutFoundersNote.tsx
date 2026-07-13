@@ -68,7 +68,7 @@ export default function AboutFoundersNote() {
     <section
       ref={sectionRef}
       id="about-founders-note"
-      className="relative w-full min-h-[calc(100svh+60px)] tablet:min-h-[calc(100svh+80px)] z-[15] bg-[#0d1a1f] text-[#f0ebe3] flex flex-col items-center justify-center px-6 tablet-p:px-24 tablet:px-48 overflow-hidden"
+      className="relative w-full min-h-[calc(100svh+60px)] tablet:min-h-[calc(100svh+80px)] z-[15] bg-[#0d1a1f] text-[#f0ebe3] flex flex-col items-center justify-center py-16 tablet-p:py-20 px-6 tablet-p:px-24 tablet:px-48 overflow-hidden"
     >
       <div className="max-w-2xl mx-auto w-full">
 
@@ -78,7 +78,7 @@ export default function AboutFoundersNote() {
         </span>
 
         {/* 큰 인용부호 장식 */}
-        <div className="fnote-line mb-6 tablet:mb-8">
+        <div className="fnote-line mb-3 tablet:mb-8">
           <span className="font-suit text-[48px] tablet:text-[72px] leading-none text-cyan-400/15 select-none">
             &ldquo;
           </span>

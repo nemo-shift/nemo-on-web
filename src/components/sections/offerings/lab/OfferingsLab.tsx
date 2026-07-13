@@ -42,11 +42,11 @@ export default function OfferingsLab() {
             <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">
               Currently Experimenting
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 tablet-p:gap-3">
               {data.experiments.map((exp, idx) => (
                 <div
                   key={idx}
-                  className="px-4 py-2 rounded-lg bg-slate-800/5 border border-slate-300 text-sm font-light text-slate-700 transition-all hover:bg-slate-800/10"
+                  className="px-3 py-1.5 tablet-p:px-4 tablet-p:py-2 rounded-lg bg-slate-800/5 border border-slate-300 text-xs tablet-p:text-sm font-light text-slate-700 transition-all hover:bg-slate-800/10"
                 >
                   {exp}
                 </div>
