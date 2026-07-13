@@ -49,7 +49,7 @@ export default function OfferingsOutro() {
     <section 
       ref={sectionRef}
       id="offerings-outro"
-      className="relative w-full min-h-screen pb-[40vh] tablet-p:pb-[50vh] tablet:pb-[60vh] pt-32 px-6 tablet-p:px-12 tablet:px-24 flex flex-col justify-center bg-transparent text-[#0d1a1f]"
+      className="relative w-full min-h-screen pb-[40vh] tablet-p:pb-[50vh] tablet:pb-[60vh] pt-[40vh] px-6 tablet-p:px-12 tablet:px-24 flex flex-col justify-start bg-transparent text-[#0d1a1f]"
     >
       <div className="max-w-4xl mx-auto w-full text-center flex flex-col gap-12">
         

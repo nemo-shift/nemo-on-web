@@ -20,7 +20,7 @@ export default function ContactPage() {
         <ContactContainer />
       </div>
       {/* 콘텐츠 끝과 Footer reveal 사이 여유 공간 */}
-      <div className="h-[40vh] tablet-p:h-[40vh] tablet:h-[30vh]" />
+      <div className="h-[50vh] tablet-p:h-[40vh] tablet:h-[40vh]" />
     </SubPageLayout>
   );
 }
