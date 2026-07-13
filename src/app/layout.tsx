@@ -3,21 +3,11 @@ import type { Metadata, Viewport } from 'next';
 import {
   DM_Sans,
   DM_Mono,
-  Bebas_Neue,
-  IBM_Plex_Sans_KR,
-  EB_Garamond,
   Syne,
-  Space_Grotesk,
 } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
 
-const ebGaramond = EB_Garamond({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-eb-garamond',
-});
 
 import {
   Header,
@@ -33,11 +23,6 @@ import {
 import { PointRingCursor } from '@/components/ui';
 import { HeroProvider, DeviceProvider } from '@/context';
 
-const ibmPlex = IBM_Plex_Sans_KR({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-ibm-plex',
-});
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -62,27 +47,6 @@ const syne = Syne({
   variable: '--font-syne',
 });
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-space-grotesk',
-});
-
-const clash = localFont({
-  src: '../../public/fonts/ClashDisplay-Variable.woff2',
-  variable: '--font-clash',
-});
-
-const satoshi = localFont({
-  src: '../../public/fonts/Satoshi-Variable.woff2',
-  variable: '--font-satoshi',
-});
-
-const bebasNeue = Bebas_Neue({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-bebas',
-});
 
 // [V69.LaunchReady] STEP 4 — SEO 메타데이터 / OG / sitemap / robots
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nemoon.co';
@@ -136,7 +100,7 @@ export default function RootLayout({
     <html
       lang="ko"
       style={{ colorScheme: 'only light' }}
-      className={`${ibmPlex.variable} ${dmSans.variable} ${dmMono.variable} ${bebasNeue.variable} ${suit.variable} ${ebGaramond.variable} ${clash.variable} ${satoshi.variable} ${syne.variable} ${spaceGrotesk.variable}`}
+      className={`${dmSans.variable} ${dmMono.variable} ${suit.variable} ${syne.variable}`}
     >
       <head>
         <link rel="preload" href="/fonts/ESAMANRU%20OTF%20LIGHT.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />

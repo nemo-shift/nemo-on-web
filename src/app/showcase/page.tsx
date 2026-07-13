@@ -1,5 +1,6 @@
 // [V69.LaunchReady] STEP 4
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import SubPageLayout from '@/components/layout/SubPageLayout';
 
 export const metadata: Metadata = {
@@ -9,6 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function ShowcasePage() {
+  if (process.env.NODE_ENV === 'production') {
+    notFound();
+  }
+
   return (
     <SubPageLayout className="pt-24 pb-12 px-6 flex items-center justify-center">
       <h1 className="text-4xl font-suit font-bold uppercase tracking-tighter">

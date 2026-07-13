@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { GlobalBuilderOptions } from '../types';
+import { BRAND_STORY_CONTENT } from '@/data/home/story';
 
 /**
  * 섹션 스크롤링 타임라인 빌더
@@ -92,7 +93,7 @@ export function buildSectionScrollTimeline(
   
   // [V11.4] 4.5단계: 백스페이스 삭제 브릿지 연출
   // 스크롤에 따라 글자가 뒤에서부터 한 글자씩 지워지는 물리적 효과를 구현합니다.
-  const fullText = '불안을 끄고, 기준을 켭니다.\n\n이제 브랜드를 켤 차례입니다.';
+  const fullText = BRAND_STORY_CONTENT.find(p => p.id === 6)!.content;
   const eraseState = { length: fullText.length };
  
   // [Tuning] 커서 등장 후 충분히 머물렀다가 삭제가 시작되도록 지연 시간(Offset) 추가

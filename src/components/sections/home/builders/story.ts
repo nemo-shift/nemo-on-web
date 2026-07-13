@@ -28,7 +28,7 @@ export const buildStoryTimeline = (
   const p1Pos = isTabletPortrait
     ? { x: '-2vw', y: svhPx(-14, stableVH) } // 태블릿 세로: 중앙 정렬
     : isMobileView
-      ? { x: 0, y: svhPx(-14, stableVH) }
+      ? { x: 0, y: svhPx(-18, stableVH) }
       : { x: '-5vw', y: svhPx(-12, stableVH) };
 
   tl.fromTo('#story-paragraph-1',
@@ -45,7 +45,7 @@ export const buildStoryTimeline = (
   const p2Pos = isTabletPortrait
     ? { x: '2vw', y: svhPx(3, stableVH) } // 태블릿 세로: 중앙 정렬 및 상향 배치
     : isMobileView
-      ? { x: 0, y: svhPx(10, stableVH) }
+      ? { x: 0, y: svhPx(14, stableVH) }
       : { x: '5vw', y: svhPx(8, stableVH) };
 
   tl.fromTo('#story-paragraph-2',

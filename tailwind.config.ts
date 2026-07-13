@@ -33,14 +33,10 @@ const config: Config = {
       fontFamily: {
         suit: ['var(--font-suit)', 'sans-serif'],
         dm: ['var(--font-dm-sans)', 'sans-serif'],
-        bebas: ['var(--font-bebas)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
         esamanru: ['var(--font-esamanru)', 'sans-serif'],
         gmarket: ['var(--font-gmarket)', 'sans-serif'],
-        clash: ['var(--font-clash)', 'sans-serif'],
-        satoshi: ['var(--font-satoshi)', 'sans-serif'],
         syne: ['var(--font-syne)', 'sans-serif'],
-        'space-grotesk': ['var(--font-space-grotesk)', 'sans-serif'],
       },
       zIndex: {
         'bg-box': '1',
