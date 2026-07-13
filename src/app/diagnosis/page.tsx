@@ -20,7 +20,7 @@ export default function DiagnosisPage() {
         <DiagnosisContainer />
       </div>
       {/* 콘텐츠 끝과 Footer reveal 사이 여유 공간 */}
-      <div className="h-[30vh] tablet-p:h-[10vh] tablet:h-[50vh]" />
+      <div className="h-[30vh] tablet-p:h-[30vh] tablet:h-[50vh]" />
     </SubPageLayout>
   );
 }
