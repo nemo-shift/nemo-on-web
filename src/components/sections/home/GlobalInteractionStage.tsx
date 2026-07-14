@@ -184,6 +184,30 @@ export const GlobalInteractionStage = ({
     };
   }, [interactionMode]);
 
+  // [Kakao Diagnostic - 검증 후 제거 예정] visualViewport 변화 시 svh/lvh 실측값 추적
+  // 목적: 컨트롤 바 접힘/펼침 시 getStableVH·getStableLVH 값이 변하는지 확인
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+    if (!navigator.userAgent.includes('KAKAOTALK')) return;
+
+    const KTAG = '[Kakao Diagnostic - 검증 후 제거 예정]';
+
+    const handleDiagnosticResize = () => {
+      const vpHeight = window.visualViewport!.height;
+      const svh = getStableVH();
+      const lvh = getStableLVH();
+      const ts = new Date().toISOString().slice(11, 23); // HH:mm:ss.mmm
+      console.log(
+        `${KTAG} 뷰포트 변화 감지 — ${ts} / visualViewport.height: ${vpHeight}px / stableVH(100svh): ${svh}px / stableLVH(100lvh): ${lvh}px / 두 값 동일 여부: ${svh === lvh}`
+      );
+    };
+
+    window.visualViewport.addEventListener('resize', handleDiagnosticResize);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleDiagnosticResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.history.scrollRestoration = 'manual';
