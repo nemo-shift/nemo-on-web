@@ -70,9 +70,9 @@ export default function HeroOffPCView({
         className="absolute pointer-events-none opacity-0"
         style={{
           width: '100vw',
-          height: '80svh', // [V67.ViewportFix] vh → svh
+          height: 'calc(var(--unit-svh) * 80)', // [KakaoFix] svh → CSS var
           background: 'radial-gradient(circle at center, rgba(240, 235, 227, 0.04) 0%, rgba(240, 235, 227, 0.01) 40%, transparent 75%)',
-          transform: 'translateY(15svh)', // [V67.ViewportFix] vh → svh
+          transform: 'translateY(calc(var(--unit-svh) * 15))', // [KakaoFix] svh → CSS var
           filter: 'blur(60px)',
           zIndex: INTERACTION_Z_INDEX.Z_BEHIND_BG
         }}
@@ -111,7 +111,7 @@ export default function HeroOffPCView({
           id="hero-bottom-message-layer"
           className="absolute flex flex-col items-center pointer-events-auto opacity-0"
           style={{ 
-            bottom: '-20svh', // [V67.ViewportFix] vh → svh
+            bottom: 'calc(var(--unit-svh) * -20)', // [KakaoFix] svh → CSS var
             left: '50%', 
             transform: 'translateX(-50%)'
           }}

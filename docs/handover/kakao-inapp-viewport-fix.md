@@ -44,40 +44,82 @@ V68에서 CSS `@supports not (height: 100svh)` 폴백으로 1차 대응했다.
 
 ---
 
-## 수정 내용
+## 시도한 수정 및 결과
 
-**파일**: `src/components/sections/home/GlobalInteractionStage.tsx`
+### 시도 1 — ScrollTrigger.refresh() 예외 허용 (롤백됨)
 
-### 핵심 변경
+**접근**: 카카오 인앱 UA 감지 시 visualViewport resize 핸들러에서
+`ScrollTrigger.refresh()`를 허용 (일반 터치 기기는 기존대로 차단 유지).
 
-기존 visualViewport 리사이즈 핸들러는 터치 기기 전체를 차단하고 있었다:
-```ts
-if (interactionMode === 'touch') return;
+**구현 과정에서 발생한 버그**: `useRef`로 구현했을 때 deps 미등록으로 리스너가
+아예 등록되지 않는 문제 발생 → `useState`로 교체 + deps에 `isKakao` 추가로 수정.
+
+**실기기 로그 결과**:
+```
+[Kakao Verify] 리스너 등록됨 — interactionMode: touch, isKakao: true
+[Kakao Verify] refresh 실행 — 현재 높이: 768.0px, progress: 0.295
+[Kakao Verify] refresh 실행 — 현재 높이: 641.0px, progress: 0.227
 ```
 
-카카오 인앱만 예외적으로 허용하도록 조건 수정:
-```ts
-if (interactionMode === 'touch' && !isKakaoRef.current) return;
-```
+리스너 등록과 refresh 실행 자체는 정상 작동했으나, **새로운 부작용 발생**:
+- `ScrollTrigger.refresh()` 실행 시 svh 기반 트랙 길이가 재측정됨
+- 스크롤 위치는 그대로인데 타임라인 진행률이 0.295 → 0.227로 뒤로 밀림
+- 사용자가 스크롤하지 않았는데 화면이 되감기는 증상
 
-`isKakaoRef`는 마운트 시 한 번만 UA를 확인해서 저장:
-```ts
-const isKakaoRef = useRef(false);
-useEffect(() => {
-  isKakaoRef.current = navigator.userAgent.includes('KAKAOTALK');
-}, []);
-```
+원래 증상(콘텐츠 안 보임)도 미해결 상태이므로 **순수 마이너스** → 롤백.
 
-### 유지된 기존 로직
+**결론**: `ScrollTrigger.refresh()` 방식은 카카오 인앱 컨트롤 바 문제에 적합하지 않다.
+refresh가 타임라인 좌표 전체를 재계산하기 때문에, svh가 변하는 환경에서는
+오히려 진행률 점프를 유발한다.
 
-- 디바운스 300ms — 실기기 로그 기준 컨트롤 바 1회 토글이 300ms 이내에 끝남
-- 임계값 50px — 컨트롤 바 높이 변화가 이 범위 내에 있음
-- `progress <= 0.9` 가드 — 타임라인 끝(푸터 근처)에서 refresh 시 점프 방지
+---
 
-### 일반 모바일 영향 없음
+### 시도 2 — CSS Variable 고정 (현재 적용)
 
-`isKakaoRef.current`가 false인 일반 Safari/Chrome 터치 기기는
-기존과 완전히 동일하게 핸들러가 즉시 종료된다.
+**접근**: svh 값을 페이지 로드 시점에 한 번만 px로 측정해 CSS 변수에 고정.
+컨트롤 바가 움직여도 측정값은 변하지 않으므로 레이아웃/스크롤 좌표가 안정됨.
+
+**구현 내용**:
+
+1. **`layout.tsx` `<head>` 인라인 스크립트** (블로킹 실행, 첫 렌더 이전):
+   - UA에서 `KAKAOTALK` 감지
+   - probe div(`height:100svh`)의 `offsetHeight`로 100svh를 px 측정
+   - `document.documentElement.style.setProperty('--kakao-vh-unit', h/100 + 'px')`
+   - `document.documentElement.classList.add('kakao-fixed-vh')`
+
+2. **`globals.css` `.kakao-fixed-vh` 블록**:
+   - `.kakao-fixed-vh { --unit-svh: var(--kakao-vh-unit); }`
+     → 기존 인라인 style `calc(var(--unit-svh) * N)` 값들이 자동으로 고정값 사용
+   - Tailwind arbitrary class 오버라이드 (`h-[1000svh]`, `h-[800svh]` 등)
+
+3. **홈 뷰 파일 인라인 style 변환** (범위: home 한정):
+   - `'80svh'` → `'calc(var(--unit-svh) * 80)'` 패턴으로 전부 변환
+   - 대상 파일: `HeroOffPCView`, `HeroMobileView`, `HeroOffMobileView`,
+     `HeroOffTabletView`, `HeroOnMobileView`, `HeroOnPCView`, `HeroOnTabletView`,
+     `HeroPCView`, `HeroTabletView`, `GlobalScrollHint` (clamp 내부 포함)
+
+**왜 `--kakao-vh-unit`에 `window.innerHeight`가 아닌 probe div `offsetHeight`를 쓰나**:
+- `window.innerHeight`는 정수 반올림 없이 소수점을 포함할 수 있음
+- `getStableVH()`도 probe div `offsetHeight`를 사용 → 동일 기준으로 GSAP과 CSS가 일치함
+- 실측 로그: `visualViewport.height: 699.33`, `stableVH: 699` (offsetHeight 정수 반올림)
+
+**GSAP 좌표와의 정합성**:
+- GSAP 빌더는 `getStableVH()` → `svhPx(N, stableVH)` 경로로 px 값을 계산
+- CSS는 `--kakao-vh-unit` = `getStableVH() / 100` 이므로 동일 기준
+- 컨트롤 바가 움직여도 CSS/GSAP 모두 로드 시점 스냅샷 값을 유지 → 좌표 일치
+
+**남은 한계**:
+- `builders/scroll.ts:36`의 `#home-stage minHeight: '100dvh'` — `dvh`는 스펙상 동적이므로
+  카카오에서도 변할 수 있으나, pinSpacing이 실제 길이를 제어하므로 영향 미미
+
+---
+
+## 현재 상태 (시도 2 적용 완료)
+
+**적용된 방어 코드 전체**:
+- `KakaoTalkBanner.tsx` — 인앱 감지 시 "기본 브라우저로 열기" 배너 표시
+- `globals.css` — `@supports not (height: 100svh)` 폴백 (svh 미지원 구형 WebView)
+- `layout.tsx` + `globals.css` — `--kakao-vh-unit` / `.kakao-fixed-vh` 고정 (시도 2)
 
 ---
 
@@ -87,19 +129,11 @@ Instagram, 네이버, 라인 등 다른 인앱 브라우저에서 동일 증상�
 
 1. **DebugConsole 활성화** (`docs/handover/debug-console.md` 참고)
 2. **진단 로그 추가** — 위 1단계/2단계 방식 그대로 재사용
-3. **UA 감지 조건 확장**:
-```ts
-// GlobalInteractionStage.tsx — isKakaoRef 초기화 부분
-isKakaoRef.current = (
-  navigator.userAgent.includes('KAKAOTALK') ||
-  navigator.userAgent.includes('Instagram') ||
-  navigator.userAgent.includes('NAVER')
-  // 필요한 인앱 UA 추가
-);
-```
-4. `isKakaoRef` → `isProblematicInAppRef` 등으로 이름 변경 권장
+3. UA 감지: `navigator.userAgent.includes('Instagram')` 등으로 확인
+4. **ScrollTrigger.refresh() 방식은 시도하지 말 것** — 시도 1의 부작용 참고
+5. `layout.tsx` 인라인 스크립트의 UA 조건에 해당 UA 문자열 추가하는 것으로 확장 가능
 
-> **주의**: 인앱 UA 문자열은 앱 업데이트로 변경될 수 있으므로, 실기기 로그로 먼저 UA를 확인하고 추가할 것.
+> **주의**: 인앱 UA 문자열은 앱 업데이트로 변경될 수 있으므로, 실기기 로그로 먼저 UA를 확인할 것.
 
 ---
 
@@ -107,9 +141,11 @@ isKakaoRef.current = (
 
 | 항목 | 경로 |
 |------|------|
-| 수정 파일 | `src/components/sections/home/GlobalInteractionStage.tsx` |
+| 핵심 파일 | `src/components/sections/home/GlobalInteractionStage.tsx` |
 | CSS 폴백 (V68) | `src/app/globals.css` — `[V68.LegacyWebViewFallback]` 블록 |
+| CSS 고정 (KakaoFix) | `src/app/globals.css` — `[KakaoFix]` 블록 |
 | 카카오 배너 | `src/components/layout/KakaoTalkBanner.tsx` |
+| 인라인 스크립트 | `src/app/layout.tsx` — `<head>` KakaoFix script |
 | svh 폴백 배경 | `docs/troubleshooting/claude-code-prompt-svh-legacy-webview-fallback.md` |
 | vh→svh 전환 배경 | `docs/troubleshooting/claude-code-prompt-mobile-viewport-fix.md` |
 | 디버그 콘솔 사용법 | `docs/handover/debug-console.md` |

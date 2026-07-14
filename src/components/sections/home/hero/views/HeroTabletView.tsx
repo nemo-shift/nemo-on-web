@@ -46,7 +46,7 @@ export default function HeroTabletView({
     <>
       {/* 1. 상단 스페이서 (공통 뼈대) */}
       <div style={{ 
-        minHeight: isOn ? '15svh' : '10svh',
+        minHeight: isOn ? 'calc(var(--unit-svh) * 15)' : 'calc(var(--unit-svh) * 10)', // [KakaoFix]
         flexShrink: 0, 
         order: 0,
         transition: 'min-height 0.7s ease',
@@ -76,7 +76,7 @@ export default function HeroTabletView({
             width: '100%', 
             flexShrink: 1,
             flexGrow: 1,
-            minHeight: '40svh',
+            minHeight: 'calc(var(--unit-svh) * 40)', // [KakaoFix]
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -110,8 +110,8 @@ export default function HeroTabletView({
         />
       )}
 
-      <div className="flex-1" style={{ order: 4, minHeight: '3svh' }} />
-      <div style={{ order: 11, flexShrink: 0, minHeight: '5svh' }} />
+      <div className="flex-1" style={{ order: 4, minHeight: 'calc(var(--unit-svh) * 3)' }} /> {/* [KakaoFix] */}
+      <div style={{ order: 11, flexShrink: 0, minHeight: 'calc(var(--unit-svh) * 5)' }} /> {/* [KakaoFix] */}
     </>
   );
 }

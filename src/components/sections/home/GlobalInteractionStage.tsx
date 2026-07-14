@@ -34,8 +34,13 @@ const InteractionDebugger: React.ComponentType<any> = IS_DEV
 import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
 // [V67.ViewportFix] 브라우저 크롬 상태와 무관한 안정 뷰포트 높이(100svh) 실측
+// [KakaoFix] 카카오 인앱일 때는 <head> 스크립트가 측정한 __kakaoStableVH를 반환.
+//   → CSS --kakao-vh-unit과 GSAP stableVH가 동일 측정값 사용 (좌표 일치 보장)
 const getStableVH = (): number => {
-  if (typeof document === 'undefined') return 0;
+  if (typeof window === 'undefined') return 0;
+  if ((window as { __kakaoStableVH?: number }).__kakaoStableVH) {
+    return (window as { __kakaoStableVH?: number }).__kakaoStableVH!;
+  }
   const probe = document.createElement('div');
   probe.style.cssText =
     'position:fixed;top:0;left:0;height:100svh;width:0;visibility:hidden;pointer-events:none;';
@@ -46,8 +51,13 @@ const getStableVH = (): number => {
 };
 
 // [V67.ViewportFix] 풀블리드 커버용 안정 높이(100lvh) 실측 — 크롬 접힘 상태에서도 전체 덮음
+// [KakaoFix] 카카오 인앱일 때는 svh와 동일하게 __kakaoStableVH 반환.
+//   lvh도 동적으로 변하는 환경이므로 로드 시점 스냅샷 고정값으로 통일.
 const getStableLVH = (): number => {
-  if (typeof document === 'undefined') return 0;
+  if (typeof window === 'undefined') return 0;
+  if ((window as { __kakaoStableVH?: number }).__kakaoStableVH) {
+    return (window as { __kakaoStableVH?: number }).__kakaoStableVH!;
+  }
   const probe = document.createElement('div');
   probe.style.cssText =
     'position:fixed;top:0;left:0;height:100lvh;width:0;visibility:hidden;pointer-events:none;';

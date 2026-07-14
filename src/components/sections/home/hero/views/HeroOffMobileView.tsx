@@ -73,7 +73,7 @@ export default function HeroOffMobileView({
         
         <div 
           className="relative flex flex-col items-center gap-4"
-          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-7svh' }} // [V67.ViewportFix] vh → svh
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: 'calc(var(--unit-svh) * -7)' }} // [KakaoFix]
         >
           <HeroToggle
             isOn={isOn}
@@ -88,7 +88,7 @@ export default function HeroOffMobileView({
         id="hero-mobile-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '-28svh', // [V67.ViewportFix] vh → svh
+          bottom: 'calc(var(--unit-svh) * -28)', // [KakaoFix]
           left: '50%', 
           transform: 'translateX(-50%)'
         }}

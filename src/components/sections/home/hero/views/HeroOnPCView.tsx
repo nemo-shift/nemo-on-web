@@ -54,7 +54,7 @@ export default function HeroOnPCView({
             style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: "auto",
-              bottom: "10svh",
+              bottom: "calc(var(--unit-svh) * 10)", // [KakaoFix]
               left: "50%",
               transform: "translateX(-50%)",
               display: "flex",
@@ -88,7 +88,7 @@ export default function HeroOnPCView({
         <div
           id="hero-on-center-stage"
           style={{
-            transform: "translate(50px, -7svh)",
+            transform: "translate(50px, calc(var(--unit-svh) * -7))", // [KakaoFix]
             width: "100%",
             display: "flex",
             flexDirection: "column",

@@ -73,7 +73,7 @@ export default function HeroOffTabletView({
         
         <div 
           className="relative"
-          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: '-1svh' }} // [V67.ViewportFix] vh → svh
+          style={{ zIndex: INTERACTION_Z_INDEX.Z_CONTENT, marginTop: 'calc(var(--unit-svh) * -1)' }} // [KakaoFix]
         >
           <HeroToggle
             isOn={isOn}
@@ -88,7 +88,7 @@ export default function HeroOffTabletView({
         id="hero-tablet-bottom-message-layer"
         className="absolute flex flex-col items-center pointer-events-auto opacity-0"
         style={{ 
-          bottom: '-30svh',
+          bottom: 'calc(var(--unit-svh) * -30)', // [KakaoFix]
           left: '50%', 
           transform: 'translateX(-50%)'
         }}

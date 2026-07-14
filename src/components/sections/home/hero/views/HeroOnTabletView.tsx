@@ -49,7 +49,7 @@ export default function HeroOnTabletView({
             style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
-              bottom: '10svh',
+              bottom: 'calc(var(--unit-svh) * 10)', // [KakaoFix]
               left: '50%',
               transform: 'translateX(-50%)',
               display: 'flex',
@@ -76,7 +76,7 @@ export default function HeroOnTabletView({
       {/* [V11.41 Separation] 레이어 2: 중앙 컨텐츠 레이어 (프레이즈, 도형) */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
         {/* [V11.51 Fix] 프레이즈 단독 상향 및 미세 우측 이동 조절 핸들 (기본값) */}
-        <div style={{ transform: 'translate(0px, -4svh)', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ transform: 'translate(0px, calc(var(--unit-svh) * -4))', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}> {/* [KakaoFix] */}
           <HeroOnPhraseLayer
             isOn={isOn}
             visible={!showCenteredShapes}

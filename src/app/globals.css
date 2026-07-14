@@ -280,3 +280,56 @@ html.custom-cursor-active *::after {
 @supports not (height: 100dvh) {
   .h-\[100dvh\] { height: 100vh !important; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   [KakaoFix] 카카오톡 인앱 WebView svh 동적 변화 방지
+   카카오 WebView는 svh를 지원하지만 컨트롤 바 토글 시 lvh처럼 동적으로 재계산함.
+   layout.tsx <head> 스크립트가 --kakao-vh-unit(px 고정값)을 설정하고
+   .kakao-fixed-vh 클래스를 <html>에 부여한다.
+   이 블록은 Kakao 감지 시에만 활성화되므로 일반 브라우저에는 영향 없음.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* 인라인 style calc(var(--unit-svh) * N) 값들이 자동으로 고정값 사용 */
+.kakao-fixed-vh {
+  --unit-svh: var(--kakao-vh-unit);
+}
+
+/* Tailwind arbitrary class 오버라이드 — 홈 페이지 스크롤 트랙 높이 */
+.kakao-fixed-vh .h-\[1000svh\]    { height: calc(var(--unit-svh) * 1000); }
+.kakao-fixed-vh .h-\[800svh\]     { height: calc(var(--unit-svh) * 800); }
+.kakao-fixed-vh .h-\[400svh\]     { height: calc(var(--unit-svh) * 400); }
+.kakao-fixed-vh .h-\[100svh\]     { height: calc(var(--unit-svh) * 100); }
+.kakao-fixed-vh .h-\[40svh\]      { height: calc(var(--unit-svh) * 40); }
+.kakao-fixed-vh .h-\[48svh\]      { height: calc(var(--unit-svh) * 48); }
+.kakao-fixed-vh .min-h-\[100svh\] { min-height: calc(var(--unit-svh) * 100); }
+/* 포지셔닝 */
+.kakao-fixed-vh .bottom-\[40svh\] { bottom: calc(var(--unit-svh) * 40); }
+.kakao-fixed-vh .bottom-\[14svh\] { bottom: calc(var(--unit-svh) * 14); }
+/* 초기 off-screen 위치 (GSAP 덮어쓰기 전 순간 렌더링) */
+.kakao-fixed-vh .translate-y-\[120svh\] { --tw-translate-y: calc(var(--unit-svh) * 120); }
+/* 간격 */
+.kakao-fixed-vh .gap-\[1svh\]     { gap: calc(var(--unit-svh) * 1); }
+.kakao-fixed-vh .gap-\[4svh\]     { gap: calc(var(--unit-svh) * 4); }
+.kakao-fixed-vh .gap-\[6svh\]     { gap: calc(var(--unit-svh) * 6); }
+/* 마진 */
+.kakao-fixed-vh .mt-\[-0\.2svh\]  { margin-top: calc(var(--unit-svh) * -0.2); }
+
+/* 반응형 변형 */
+@media (min-width: 480px) {
+  .kakao-fixed-vh .mobile\:h-\[48svh\]      { height: calc(var(--unit-svh) * 48); }
+  .kakao-fixed-vh .mobile\:bottom-\[14svh\] { bottom: calc(var(--unit-svh) * 14); }
+}
+@media (min-width: 744px) {
+  .kakao-fixed-vh .tablet-p\:h-\[54svh\]           { height: calc(var(--unit-svh) * 54); }
+  .kakao-fixed-vh .tablet-p\:bottom-\[10svh\]      { bottom: calc(var(--unit-svh) * 10); }
+  .kakao-fixed-vh .tablet-p\:mt-\[-0\.1svh\]       { margin-top: calc(var(--unit-svh) * -0.1); }
+  .kakao-fixed-vh .tablet-p\:translate-y-\[5svh\]  { --tw-translate-y: calc(var(--unit-svh) * 5); }
+}
+@media (min-width: 992px) {
+  .kakao-fixed-vh .tablet\:h-\[60svh\]      { height: calc(var(--unit-svh) * 60); }
+  .kakao-fixed-vh .tablet\:bottom-\[12svh\] { bottom: calc(var(--unit-svh) * 12); }
+  .kakao-fixed-vh .tablet\:mt-\[-0\.5svh\]  { margin-top: calc(var(--unit-svh) * -0.5); }
+}
+@media (min-width: 1440px) {
+  .kakao-fixed-vh .desktop-wide\:mt-\[-1svh\] { margin-top: calc(var(--unit-svh) * -1); }
+}

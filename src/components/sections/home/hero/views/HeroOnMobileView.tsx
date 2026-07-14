@@ -49,7 +49,7 @@ export default function HeroOnMobileView({
             style={{
               zIndex: INTERACTION_Z_INDEX.Z_CONTENT,
               top: 'auto',
-              bottom: '10svh',
+              bottom: 'calc(var(--unit-svh) * 10)', // [KakaoFix]
               left: '50%',
               transform: 'translateX(-50%)',
               display: 'flex',
@@ -75,7 +75,7 @@ export default function HeroOnMobileView({
 
       {/* [V11.41 Separation] 레이어 2: 중앙 컨텐츠 레이어 (프레이즈, 도형) */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div id="hero-on-center-stage" style={{ transform: 'translate(0px, 1svh)', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div id="hero-on-center-stage" style={{ transform: 'translate(0px, calc(var(--unit-svh) * 1))', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}> {/* [KakaoFix] */}
           <HeroOnPhraseLayer
             isOn={isOn}
             visible={!showCenteredShapes}
