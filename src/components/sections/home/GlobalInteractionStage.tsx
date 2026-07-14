@@ -106,11 +106,14 @@ export const GlobalInteractionStage = ({
   const retryCountRef = useRef(0);
   // [V68.Fix1] 마지막 빌드 시 footerHeight 기록 — 60px 게이트용
   const lastBuiltFooterHeightRef = useRef(0);
+  // 카카오톡 인앱 감지 — 마운트 시점에 한 번만 확인
+  const isKakaoRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
     lastWidthRef.current = window.innerWidth;
     lastHeightRef.current = window.innerHeight;
+    isKakaoRef.current = navigator.userAgent.includes('KAKAOTALK');
   }, []);
 
   // 히어로 초기 Y 오프셋 — isScrollable 이전 다크/라이트 진입 시점에도 적용
@@ -154,7 +157,9 @@ export const GlobalInteractionStage = ({
   // ScrollTrigger 재빌드 트리거가 될 이유가 없음 — 터치에서는 핸들러 즉시 종료
   useEffect(() => {
     if (typeof window === 'undefined' || !window.visualViewport) return;
-    if (interactionMode === 'touch') return;
+    // 일반 터치 기기(Safari/Chrome)는 svh가 스펙대로 고정이므로 리프레시 불필요.
+    // 카카오 인앱은 svh가 컨트롤 바에 따라 변하므로 예외적으로 리프레시 허용.
+    if (interactionMode === 'touch' && !isKakaoRef.current) return;
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     let lastHeight = window.visualViewport.height;
