@@ -47,6 +47,36 @@ export default function KakaoTalkBanner() {
     setCopied(true);
   };
 
+  /**
+   * 비공식 스킴으로 외부 브라우저 열기 시도 — 카카오톡 앱 업데이트 시 재검증 필요
+   * 성공: 외부 브라우저로 전환 (document.hidden = true)
+   * 실패: 1500ms 후 자동으로 handleCopy 폴백 실행
+   */
+  const handleOpenExternal = () => {
+    const schemeUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(window.location.href);
+
+    let timer: ReturnType<typeof setTimeout>;
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        // 외부 브라우저로 전환 성공
+        clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.location.href = schemeUrl;
+
+    timer = setTimeout(() => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (!document.hidden) {
+        // 스킴 실패 — 복사 폴백
+        handleCopy();
+      }
+    }, 1500);
+  };
+
   return (
     <div
       style={{
@@ -78,7 +108,7 @@ export default function KakaoTalkBanner() {
         }}
       >
         {copied ? (
-          <>주소가 복사되었습니다.<br />Chrome 또는 Safari를 열고 붙여넣어 주세요.</>
+          <>자동으로 열리지 않아 주소를 복사했어요.<br />브라우저 주소창에 붙여넣기 해주세요.</>
         ) : (
           <>인앱 브라우저에서는 일부 화면이<br />올바르게 표시되지 않을 수 있습니다.</>
         )}
@@ -86,7 +116,7 @@ export default function KakaoTalkBanner() {
       <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
         {!copied && (
           <button
-            onClick={handleCopy}
+            onClick={handleOpenExternal}
             style={{
               backgroundColor: '#e8734a',
               color: '#fff',
@@ -100,7 +130,7 @@ export default function KakaoTalkBanner() {
               whiteSpace: 'nowrap',
             }}
           >
-            주소 복사
+            기본 브라우저로 열기
           </button>
         )}
         <button
