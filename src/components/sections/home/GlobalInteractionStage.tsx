@@ -106,14 +106,11 @@ export const GlobalInteractionStage = ({
   const retryCountRef = useRef(0);
   // [V68.Fix1] 마지막 빌드 시 footerHeight 기록 — 60px 게이트용
   const lastBuiltFooterHeightRef = useRef(0);
-  // 카카오톡 인앱 감지 — useState로 관리해야 visualViewport useEffect가 재실행됨
-  const [isKakao, setIsKakao] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     lastWidthRef.current = window.innerWidth;
     lastHeightRef.current = window.innerHeight;
-    setIsKakao(navigator.userAgent.includes('KAKAOTALK'));
   }, []);
 
   // 히어로 초기 Y 오프셋 — isScrollable 이전 다크/라이트 진입 시점에도 적용
@@ -157,16 +154,9 @@ export const GlobalInteractionStage = ({
   // ScrollTrigger 재빌드 트리거가 될 이유가 없음 — 터치에서는 핸들러 즉시 종료
   useEffect(() => {
     if (typeof window === 'undefined' || !window.visualViewport) return;
-    // 일반 터치 기기(Safari/Chrome)는 svh가 스펙대로 고정이므로 리프레시 불필요.
-    // 카카오 인앱은 svh가 컨트롤 바에 따라 변하므로 예외적으로 리프레시 허용.
-    if (interactionMode === 'touch' && !isKakao) {
-      // [Kakao Verify - 검증 후 제거 예정] 리스너 등록 안 됨
-      if (process.env.NODE_ENV !== 'production') console.log(`[Kakao Verify] 리스너 등록 안 됨 — interactionMode: ${interactionMode}, isKakao: ${isKakao}`);
-      return;
-    }
-
-    // [Kakao Verify - 검증 후 제거 예정] 리스너 등록 확인
-    if (isKakao) console.log(`[Kakao Verify] 리스너 등록됨 — interactionMode: ${interactionMode}, isKakao: ${isKakao}`);
+    // [V68.Fix2] svh 전환 이후 touch에서는 시각 뷰포트 높이 변화(크롬 제어 바)가
+    // ScrollTrigger 재빌드 트리거가 될 이유가 없음 — 터치에서는 핸들러 즉시 종료
+    if (interactionMode === 'touch') return;
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     let lastHeight = window.visualViewport.height;
@@ -174,11 +164,7 @@ export const GlobalInteractionStage = ({
     const handleViewportResize = () => {
       const currentHeight = window.visualViewport!.height;
       const diff = Math.abs(currentHeight - lastHeight);
-      if (diff < 50) {
-        // [Kakao Verify - 검증 후 제거 예정] 임계값 미달 무시
-        if (isKakao) console.log(`[Kakao Verify] 변화 무시됨 — diff: ${diff.toFixed(1)}px`);
-        return;
-      }
+      if (diff < 50) return;
 
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
@@ -187,8 +173,6 @@ export const GlobalInteractionStage = ({
         // 점프를 유발하므로 스킵. STEP 1~2로 기하학이 svh 고정이라 보정 불필요.
         const progress = masterTl.current?.progress() ?? 0;
         if (masterTl.current && progress <= 0.9) {
-          // [Kakao Verify - 검증 후 제거 예정] refresh 실행 확인
-          if (isKakao) console.log(`[Kakao Verify] refresh 실행 — 현재 높이: ${currentHeight.toFixed(1)}px, progress: ${progress.toFixed(3)}`);
           ScrollTrigger.refresh();
         }
         debounceTimer = null;
@@ -200,7 +184,7 @@ export const GlobalInteractionStage = ({
       window.visualViewport?.removeEventListener('resize', handleViewportResize);
       if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, [interactionMode, isKakao]);
+  }, [interactionMode]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
