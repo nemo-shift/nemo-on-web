@@ -6,7 +6,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 export const metadata: Metadata = {
   title: '쇼케이스',
   description: 'nemo:on이 만들어온 브랜드와 프로젝트들을 소개합니다.',
-  openGraph: { url: '/showcase' },
+  // TODO: 페이지 활성화 시 추가 → alternates: { canonical: 'https://www.nemoon.co/showcase' },
 };
 
 export default function ShowcasePage() {

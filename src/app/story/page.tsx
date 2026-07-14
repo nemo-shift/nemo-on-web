@@ -6,7 +6,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 export const metadata: Metadata = {
   title: '스토리',
   description: 'nemo:on의 브랜드 여정과 이야기를 담았습니다.',
-  openGraph: { url: '/story' },
+  // TODO: 페이지 활성화 시 추가 → alternates: { canonical: 'https://www.nemoon.co/story' },
 };
 
 export default function StoryPage() {

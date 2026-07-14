@@ -265,23 +265,9 @@ export const GlobalInteractionStage = ({
       
       // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
       const runMeasurementAndBuild = async () => {
-        // [Kakao Diagnostic - 검증 후 제거 예정] UA·환경 체크
-        const isKakao = navigator.userAgent.includes('KAKAOTALK');
-        const KTAG = '[Kakao Diagnostic - 검증 후 제거 예정]';
-        if (isKakao) {
-          console.log(`${KTAG} UA: ${navigator.userAgent.slice(0, 300)}`);
-          console.log(`${KTAG} CSS dvh: ${CSS.supports('height','1dvh')} / svh: ${CSS.supports('height','1svh')} / lvh: ${CSS.supports('height','1lvh')}`);
-          console.log(`${KTAG} innerHeight: ${window.innerHeight}px / innerWidth: ${window.innerWidth}px`);
-        }
-
-        const _fontStart = Date.now();
         if (typeof document !== 'undefined' && (document as any).fonts) {
-          await Promise.race([
-            (document as any).fonts.ready,
-            new Promise<void>(r => setTimeout(r, 3000))
-          ]);
+          await (document as any).fonts.ready;
         }
-        if (isKakao) console.log(`${KTAG} fonts.ready: ${Date.now() - _fontStart}ms`);
 
         rafId.current = requestAnimationFrame(() => ctx.add(() => {
           // [V66.Phase1] 모든 섹션 ID 정의
@@ -306,13 +292,11 @@ export const GlobalInteractionStage = ({
           // 푸터 높이가 아직 0이고 실기기 모바일인 경우, 정확한 측정을 위해 빌드를 한 차례 지연
           if (measuredFooterHeight === 0 && isMobile) {
             console.warn('[V66.Phase1] Footer height not ready, deferring build...');
-            if (isKakao) console.log(`${KTAG} 푸터 높이 0 → 재시도 (${retryCountRef.current + 1}/${MAX_RETRY})`);
             if (retryCountRef.current < MAX_RETRY) {
               retryCountRef.current += 1;
               setRevision(prev => prev + 1);
             } else {
               console.error('[V66.Phase1] Max retries exceeded (footer). Force-releasing overlay.');
-              if (isKakao) console.log(`${KTAG} MAX_RETRY 초과 (footer) — 강제 해제`);
               setShowOverlay(false);
               setIsTimelineReady(true);
             }
@@ -321,16 +305,11 @@ export const GlobalInteractionStage = ({
 
           if (!allRendered) {
             console.warn('[V66.Phase1] Some sections are missing or height is 0, retrying...');
-            if (isKakao) {
-              const missing = sectionIds.filter(id => !document.getElementById(id) || (document.getElementById(id)?.offsetHeight ?? 0) === 0);
-              console.log(`${KTAG} 섹션 미렌더링 → 재시도 (${retryCountRef.current + 1}/${MAX_RETRY}) missing: ${JSON.stringify(missing)}`);
-            }
             if (retryCountRef.current < MAX_RETRY) {
               retryCountRef.current += 1;
               setRevision(prev => prev + 1);
             } else {
               console.error('[V66.Phase1] Max retries exceeded (sections). Force-releasing overlay.');
-              if (isKakao) console.log(`${KTAG} MAX_RETRY 초과 (sections) — 강제 해제`);
               setShowOverlay(false);
               setIsTimelineReady(true);
             }
@@ -366,13 +345,6 @@ export const GlobalInteractionStage = ({
           const stableVH = getStableVH();
           const stableLVH = getStableLVH();
           const finalY = measuredTotalHeight - stableVH;
-
-          // [Kakao Diagnostic - 검증 후 제거 예정] 측정값 출력
-          if (isKakao) {
-            console.log(`${KTAG} stableVH(100svh): ${stableVH}px / stableLVH(100lvh): ${stableLVH}px`);
-            console.log(`${KTAG} finalY: ${finalY}px / totalHeight: ${measuredTotalHeight}px / footer: ${measuredFooterHeight}px`);
-            console.log(`${KTAG} 섹션 높이: ${JSON.stringify(sectionHeightsMap)}`);
-          }
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
@@ -538,8 +510,6 @@ export const GlobalInteractionStage = ({
             // [V68.Fix1] 빌드 완료 시점의 footerHeight 기록 (게이트 기준값)
             lastBuiltFooterHeightRef.current = measuredFooterHeight;
             setIsTimelineReady(true);
-            // [Kakao Diagnostic - 검증 후 제거 예정] 빌드 성공 확인
-            if (isKakao) console.log(`${KTAG} 타임라인 빌드 성공 ✓ (retries: ${retryCountRef.current})`);
           }, 200);
         }));
       };

@@ -6,7 +6,7 @@ import DiagnosisContainer from "@/components/sections/diagnosis/DiagnosisContain
 export const metadata: Metadata = {
   title: '브랜드 진단',
   description: '나의 브랜드는 지금 어떤 상태인가요? 간단한 진단으로 확인해보세요.',
-  openGraph: { url: '/diagnosis' },
+  alternates: { canonical: 'https://www.nemoon.co/diagnosis' },
 };
 
 /**

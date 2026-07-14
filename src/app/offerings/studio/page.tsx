@@ -5,7 +5,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 export const metadata: Metadata = {
   title: 'Studio',
   description: '브랜드 기획부터 앱 개발까지. nemo:on Studio가 당신의 브랜드를 구조화합니다.',
-  openGraph: { url: '/offerings/studio' },
+  // TODO: 페이지 활성화 시 추가 → alternates: { canonical: 'https://www.nemoon.co/offerings/studio' },
 };
 
 /**

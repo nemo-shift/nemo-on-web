@@ -5,7 +5,7 @@ import SubPageLayout from '@/components/layout/SubPageLayout';
 export const metadata: Metadata = {
   title: 'Lab',
   description: 'nemo:on의 자체 실험 레이블. 브랜드를 작동하게 만드는 새로운 가능성을 탐구합니다.',
-  openGraph: { url: '/offerings/lab' },
+  // TODO: 페이지 활성화 시 추가 → alternates: { canonical: 'https://www.nemoon.co/offerings/lab' },
 };
 
 /**
