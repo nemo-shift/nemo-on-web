@@ -41,6 +41,11 @@ export function buildSectionScrollTimeline(
     const minHeightValue = (options.stableVH + KAKAO_VIEWPORT_SAFETY_MARGIN) + 'px';
     document.documentElement.style.setProperty('--kakao-stage-min-height', minHeightValue);
     console.log('[KakaoDebug] --kakao-stage-min-height set to:', minHeightValue);
+    // 한 프레임 뒤 getComputedStyle로 실제 반영 여부 확인
+    requestAnimationFrame(() => {
+      const el = document.getElementById('home-stage');
+      console.log('[KakaoDebug] getComputedStyle minHeight:', el ? getComputedStyle(el).minHeight : 'element not found');
+    });
   } else {
     const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
     gsap.set('#home-stage', { minHeight: supportsDvh ? '100dvh' : '100svh' });
