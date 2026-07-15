@@ -10,8 +10,8 @@
  * About 페이지 스태킹 오버레이 가중치 배율 (scrollMultiplier)
  */
 export const ABOUT_SCROLL_MULTIPLIERS = {
-  PHILOSOPHY: 5,
-  MEANING: 4.6,
+  PHILOSOPHY: 4.8,
+  MEANING: 4.5,
   PROMISE: 1.8, // 스크롤 낭비 방지를 위해 1.4배로 축소 조정된 값
 } as const;
 
@@ -20,5 +20,5 @@ export const ABOUT_SCROLL_MULTIPLIERS = {
  */
 export const OFFERINGS_SCROLL_MULTIPLIERS = {
   INTRO_TRANSITION_DURATION: 0.8,
-  HORIZONTAL_SCROLL_END: 2.5, // 횡이동 가로 스크롤 범위 (window.innerWidth * 2.5)
+  HORIZONTAL_SCROLL_END: 3.2, // 횡이동 가로 스크롤 범위 (window.innerWidth * N) — 2.5 → 3.2로 증가 (Lab 정지 홀딩 체감 개선)
 } as const;

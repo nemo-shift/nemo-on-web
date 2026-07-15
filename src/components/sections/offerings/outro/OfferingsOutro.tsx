@@ -59,8 +59,9 @@ export default function OfferingsOutro() {
         </span>
 
         {/* 메인 슬로건 */}
-        <h3 className="text-[clamp(28px,4.5vw,56px)] font-bold leading-tight tracking-tight text-[#0d1a1f] whitespace-pre-line outro-title">
-          {data.mainCopy}
+        <h3 className="text-[clamp(24px,3.2vw,48px)] font-bold leading-tight tracking-tight text-[#0d1a1f] outro-title">
+          보여지는 브랜드만으로는<br className="tablet-p:hidden" />충분하지 않습니다.<br />
+          작동하는 브랜드가 되어야 합니다.
         </h3>
 
         {/* 구분 바 */}
