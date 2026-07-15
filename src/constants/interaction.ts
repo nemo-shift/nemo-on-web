@@ -56,7 +56,7 @@ export const INTERACTION_Z_INDEX = {
 // #home-stage minHeight에 +150, finalY에 -150을 동시 적용하여
 // (a) CTA가 잘리지 않고, (b) 스크롤 끝에서 되감기 현상이 없도록 한다.
 // DOM 총 높이는 변하지 않으므로 ScrollTrigger 진행률에 영향 없음.
-export const KAKAO_VIEWPORT_SAFETY_MARGIN = 150;
+export const KAKAO_VIEWPORT_SAFETY_MARGIN = 120;
 
 // ─────────────────────────────────────────────
 // 1.5. 물리 인터랙션 수칙 (V16 Layout Specs)
