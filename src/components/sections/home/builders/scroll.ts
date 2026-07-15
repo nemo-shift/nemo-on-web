@@ -44,7 +44,12 @@ export function buildSectionScrollTimeline(
     // 한 프레임 뒤 getComputedStyle로 실제 반영 여부 확인
     requestAnimationFrame(() => {
       const el = document.getElementById('home-stage');
-      console.log('[KakaoDebug] getComputedStyle minHeight:', el ? getComputedStyle(el).minHeight : 'element not found');
+      if (!el) { console.log('[KakaoDebug] #home-stage not found'); return; }
+      const cs = getComputedStyle(el);
+      console.log('[KakaoDebug] computedStyle.minHeight:', cs.minHeight);
+      console.log('[KakaoDebug] computedStyle.height:', cs.height);
+      console.log('[KakaoDebug] inline style.minHeight:', el.style.minHeight);
+      console.log('[KakaoDebug] inline style.height:', el.style.height);
     });
   } else {
     const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
