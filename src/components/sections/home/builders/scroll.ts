@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 import { GlobalBuilderOptions } from '../types';
 import { BRAND_STORY_CONTENT } from '@/data/home/story';
+import { KAKAO_VIEWPORT_SAFETY_MARGIN } from '@/constants/interaction';
 
 /**
  * 섹션 스크롤링 타임라인 빌더
@@ -35,7 +36,7 @@ export function buildSectionScrollTimeline(
   //   stableVH는 이미 __kakaoStableVH 기준으로 고정됐으므로 그대로 px로 지정.
   const isKakaoFixed = typeof document !== 'undefined' && document.documentElement.classList.contains('kakao-fixed-vh');
   if (isKakaoFixed) {
-    gsap.set('#home-stage', { minHeight: options.stableVH + 'px' });
+    gsap.set('#home-stage', { minHeight: (options.stableVH + KAKAO_VIEWPORT_SAFETY_MARGIN) + 'px' });
   } else {
     const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
     gsap.set('#home-stage', { minHeight: supportsDvh ? '100dvh' : '100svh' });

@@ -12,6 +12,7 @@ import type { FallingKeywordsHandle, FallingKeywordsStageProps } from './Falling
 const FallingKeywordsStage = dynamic<FallingKeywordsStageProps>(() => import('./FallingKeywordsStage'), { ssr: false, loading: () => null }) as React.ForwardRefExoticComponent<FallingKeywordsStageProps & React.RefAttributes<FallingKeywordsHandle>>;
 import {
   INTERACTION_Z_INDEX,
+  KAKAO_VIEWPORT_SAFETY_MARGIN,
   LOGO_SIZE,
   STAGES,
   TIMING_CFG
@@ -356,7 +357,11 @@ export const GlobalInteractionStage = ({
           // [V67.ViewportFix] innerHeight(크롬 상태에 따라 가변) 대신 svh/lvh 실측값 사용
           const stableVH = getStableVH();
           const stableLVH = getStableLVH();
-          const finalY = measuredTotalHeight - stableVH;
+          // [KakaoFix] 카카오 인앱에서 스크롤 끝에서 되감기 현상 방지.
+          // #home-stage가 +KAKAO_VIEWPORT_SAFETY_MARGIN만큼 늘어났으므로
+          // finalY도 같은 값만큼 줄여 ScrollTrigger 핀 종료 지점을 맞춤.
+          const isKakaoFixed = !!(window as { __kakaoStableVH?: number }).__kakaoStableVH;
+          const finalY = measuredTotalHeight - stableVH - (isKakaoFixed ? KAKAO_VIEWPORT_SAFETY_MARGIN : 0);
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
