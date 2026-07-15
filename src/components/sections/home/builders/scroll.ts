@@ -35,19 +35,16 @@ export function buildSectionScrollTimeline(
   //   CSS.supports()로는 카카오를 거를 수 없으므로 .kakao-fixed-vh 클래스로 분기.
   //   stableVH는 이미 __kakaoStableVH 기준으로 고정됐으므로 그대로 px로 지정.
   const isKakaoFixed = typeof document !== 'undefined' && document.documentElement.classList.contains('kakao-fixed-vh');
-  // [KakaoDebug] scroll.ts 진입 시점 로그 — 진단 완료 후 삭제
-  const homeStageEl = typeof document !== 'undefined' ? document.getElementById('home-stage') : null;
-  console.log('[scroll.ts] isKakaoFixed:', isKakaoFixed);
-  console.log('[scroll.ts] options.stableVH:', options.stableVH);
-  console.log('[scroll.ts] #home-stage exists:', !!homeStageEl);
-  console.log('[scroll.ts] minHeight to set:', isKakaoFixed ? (options.stableVH + KAKAO_VIEWPORT_SAFETY_MARGIN) + 'px' : 'dvh/svh');
   if (isKakaoFixed) {
-    gsap.set('#home-stage', { minHeight: (options.stableVH + KAKAO_VIEWPORT_SAFETY_MARGIN) + 'px' });
+    // [KakaoFix] gsap.set()으로 minHeight를 직접 넣으면 React 리렌더 시 style prop이 덮어써 사라짐.
+    // CSS 변수를 :root에 설정하고 globals.css의 .kakao-fixed-vh #home-stage에서 소비하는 방식으로 전환.
+    const minHeightValue = (options.stableVH + KAKAO_VIEWPORT_SAFETY_MARGIN) + 'px';
+    document.documentElement.style.setProperty('--kakao-stage-min-height', minHeightValue);
+    console.log('[KakaoDebug] --kakao-stage-min-height set to:', minHeightValue);
   } else {
     const supportsDvh = typeof CSS !== 'undefined' && CSS.supports('height', '100dvh');
     gsap.set('#home-stage', { minHeight: supportsDvh ? '100dvh' : '100svh' });
   }
-  console.log('[scroll.ts] #home-stage minHeight after set:', homeStageEl?.style.minHeight);
   gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
   // 2. 히어로 콘텐츠 패러랙스 상승 (무대 비우기)

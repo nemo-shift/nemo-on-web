@@ -305,6 +305,14 @@ html.custom-cursor-active *::after {
 /* 인라인 style calc(var(--unit-svh) * N) 값들이 자동으로 고정값 사용 */
 .kakao-fixed-vh {
   --unit-svh: var(--kakao-vh-unit);
+  /* [KakaoFix] #home-stage minHeight — GSAP imperative set은 React 리렌더 시 덮어써짐.
+     CSS 변수(--kakao-stage-min-height)를 scroll.ts에서 :root에 설정하고 여기서 소비. */
+  --kakao-stage-min-height: 0px; /* 초기값; scroll.ts가 실제 값으로 갱신 */
+}
+
+/* [KakaoFix] React style prop 충돌 방지: minHeight를 CSS로 관리 */
+.kakao-fixed-vh #home-stage {
+  min-height: var(--kakao-stage-min-height) !important;
 }
 
 /* Tailwind arbitrary class 오버라이드 — 홈 페이지 스크롤 트랙 높이 */
