@@ -484,6 +484,21 @@ export const GlobalInteractionStage = ({
           });
           keywordsTrigger.current = localTrigger;
 
+          // [KakaoDebug] 핀 생성 직후 — pin-spacer 크기 + #home-stage BoundingClientRect 확인
+          if (document.documentElement.classList.contains('kakao-fixed-vh')) {
+            requestAnimationFrame(() => {
+              const el = document.getElementById('home-stage');
+              const spacer = el?.parentElement?.classList.contains('gsap-pin-spacer')
+                ? el.parentElement
+                : document.querySelector('.gsap-pin-spacer');
+              console.log('[KakaoDebug] pin 생성 후 #home-stage BCR.height:', el?.getBoundingClientRect().height);
+              console.log('[KakaoDebug] pin 생성 후 #home-stage offsetHeight:', el?.offsetHeight);
+              console.log('[KakaoDebug] pin-spacer exists:', !!spacer);
+              console.log('[KakaoDebug] pin-spacer height:', spacer ? (spacer as HTMLElement).offsetHeight : 'N/A');
+              console.log('[KakaoDebug] pin-spacer style.height:', spacer ? (spacer as HTMLElement).style.height : 'N/A');
+            });
+          }
+
           // [V76] Pain 구간 물리 엔진 게이트 — ScrollTrigger onEnter/onLeave로 제어
           // duration:0 tween onStart 방식은 scrub 모드에서 불안정 → 콜백 방식으로 교체
           const painEnterScrollY = (L[STAGES.TO_PAIN] / totalDuration) * finalY;
