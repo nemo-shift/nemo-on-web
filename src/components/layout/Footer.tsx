@@ -89,7 +89,7 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
       //푸터 높이 안에서의 패딩등 조절
       className={cn(
         isHomeStage ? 'relative' : 'fixed bottom-0 left-0',
-        'w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
+        'footer-pb w-full flex flex-col transition-all duration-500 text-[#f0ebe3] select-none overflow-hidden',
         'min-h-[340px] px-6 pt-6 pb-8',                        // Mobile
         'tablet-p:min-h-[500px] tablet-p:px-8 tablet-p:py-14 tablet-p:pb-14',   // 744px
         'tablet:min-h-[420px] tablet:px-10 tablet:py-2',        // 992px
@@ -103,9 +103,9 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         // [V5.4 Fix] 홈페이지 진입 시 타임라인/레이아웃 준비 전 푸터 노출(Flash) 증상 차단
         opacity: isHome && !isTimelineReady ? 0 : 1,
         transition: 'opacity 0.3s',
-        // [V67.ViewportFix] 모바일 크롬 높이만큼 정확히 보정 (데스크톱에선 0).
-        // lvh(주소창 접힘) - svh(주소창 펼침) = 해당 기기의 브라우저 크롬 높이.
-        paddingBottom: 'calc(100lvh - 100svh + env(safe-area-inset-bottom, 0px))',
+        // [V67.ViewportFix] paddingBottom은 .footer-pb 클래스로 이동 (globals.css).
+        // 카카오 인앱 분기를 인라인 style이 아닌 CSS 클래스로 처리해야
+        // 첫 렌더부터 적용되어 footerHeight 60px 게이트(재빌드) 트리거를 방지할 수 있음.
       }}
     >
       {/* [상부 그룹] 브랜드 빅타이포 */}
