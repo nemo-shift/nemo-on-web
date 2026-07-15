@@ -362,6 +362,12 @@ export const GlobalInteractionStage = ({
           // finalY도 같은 값만큼 줄여 ScrollTrigger 핀 종료 지점을 맞춤.
           const isKakaoFixed = !!(window as { __kakaoStableVH?: number }).__kakaoStableVH;
           const finalY = measuredTotalHeight - stableVH - (isKakaoFixed ? KAKAO_VIEWPORT_SAFETY_MARGIN : 0);
+          // [KakaoDebug] 실기기 DebugConsole 확인용 — 진단 완료 후 삭제
+          console.log('[KakaoDebug] kakao-fixed-vh:', document.documentElement.classList.contains('kakao-fixed-vh'));
+          console.log('[KakaoDebug] __kakaoStableVH:', (window as {__kakaoStableVH?: number}).__kakaoStableVH);
+          console.log('[KakaoDebug] #home-stage minHeight:', document.getElementById('home-stage')?.style.minHeight);
+          console.log('[KakaoDebug] KAKAO_VIEWPORT_SAFETY_MARGIN:', KAKAO_VIEWPORT_SAFETY_MARGIN);
+          console.log('[KakaoDebug] finalY:', finalY);
 
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
