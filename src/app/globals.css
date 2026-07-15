@@ -305,24 +305,29 @@ html.custom-cursor-active *::after {
 /* 인라인 style calc(var(--unit-svh) * N) 값들이 자동으로 고정값 사용 */
 .kakao-fixed-vh {
   --unit-svh: var(--kakao-vh-unit);
-  /* [KakaoFix] #home-stage minHeight — GSAP imperative set은 React 리렌더 시 덮어써짐.
-     CSS 변수(--kakao-stage-min-height)를 scroll.ts에서 :root에 설정하고 여기서 소비. */
-  --kakao-stage-min-height: 0px; /* 초기값; scroll.ts가 실제 값으로 갱신 */
+  /* [KakaoFix] 전체 화면 섹션 공용 높이 변수.
+     <head> 스크립트가 stableVH + 120(KAKAO_VIEWPORT_SAFETY_MARGIN)으로 설정.
+     스크립트 미실행 시 CSS fallback 사용.
+     이 변수를 바꾸면 #home-stage / h-[100svh] / min-h-[100svh] 전부 자동 반영. */
+  --kakao-stage-height: calc(var(--kakao-vh-unit) * 100 + 120px);
 }
 
-/* [KakaoFix] React style prop 충돌 방지: minHeight를 CSS로 관리 */
+/* [KakaoFix] #home-stage + 전체 화면 섹션(CTA, bridge, Hero)을 같은 변수로 통일.
+   React style prop 충돌 방지: CSS 규칙이 inline style 바깥에서 적용됨. */
 .kakao-fixed-vh #home-stage {
-  min-height: var(--kakao-stage-min-height) !important;
+  min-height: var(--kakao-stage-height) !important;
 }
 
 /* Tailwind arbitrary class 오버라이드 — 홈 페이지 스크롤 트랙 높이 */
 .kakao-fixed-vh .h-\[1000svh\]    { height: calc(var(--unit-svh) * 1000); }
 .kakao-fixed-vh .h-\[800svh\]     { height: calc(var(--unit-svh) * 800); }
 .kakao-fixed-vh .h-\[400svh\]     { height: calc(var(--unit-svh) * 400); }
-.kakao-fixed-vh .h-\[100svh\]     { height: calc(var(--unit-svh) * 100); }
+/* h-[100svh]: 전체 화면 섹션(CTA, section-bridge) — #home-stage window와 동일 크기로 맞춤 */
+.kakao-fixed-vh .h-\[100svh\]     { height: var(--kakao-stage-height); }
 .kakao-fixed-vh .h-\[40svh\]      { height: calc(var(--unit-svh) * 40); }
 .kakao-fixed-vh .h-\[48svh\]      { height: calc(var(--unit-svh) * 48); }
-.kakao-fixed-vh .min-h-\[100svh\] { min-height: calc(var(--unit-svh) * 100); }
+/* min-h-[100svh]: Hero 섹션 — 동일 변수 참조 */
+.kakao-fixed-vh .min-h-\[100svh\] { min-height: var(--kakao-stage-height); }
 /* 포지셔닝 */
 .kakao-fixed-vh .bottom-\[40svh\] { bottom: calc(var(--unit-svh) * 40); }
 .kakao-fixed-vh .bottom-\[14svh\] { bottom: calc(var(--unit-svh) * 14); }

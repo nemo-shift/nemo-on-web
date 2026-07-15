@@ -104,7 +104,7 @@ export default function RootLayout({
     >
       <head>
         {/* [KakaoFix] 카카오톡 인앱 WebView: 로드 시점에 100svh를 px로 스냅샷 → 컨트롤 바 토글 시 재계산 방지 */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){if(navigator.userAgent.indexOf('KAKAOTALK')===-1)return;var p=document.createElement('div');p.style.cssText='position:fixed;top:0;left:0;height:100svh;width:0;visibility:hidden;pointer-events:none;';document.documentElement.appendChild(p);var h=p.offsetHeight||window.innerHeight;p.remove();window.__kakaoStableVH=h;document.documentElement.style.setProperty('--kakao-vh-unit',(h/100)+'px');document.documentElement.classList.add('kakao-fixed-vh');})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){if(navigator.userAgent.indexOf('KAKAOTALK')===-1)return;var p=document.createElement('div');p.style.cssText='position:fixed;top:0;left:0;height:100svh;width:0;visibility:hidden;pointer-events:none;';document.documentElement.appendChild(p);var h=p.offsetHeight||window.innerHeight;p.remove();window.__kakaoStableVH=h;var m=120;/* KAKAO_VIEWPORT_SAFETY_MARGIN — constants/interaction.ts와 동기화 필요 */document.documentElement.style.setProperty('--kakao-vh-unit',(h/100)+'px');document.documentElement.style.setProperty('--kakao-stage-height',(h+m)+'px');document.documentElement.classList.add('kakao-fixed-vh');})();` }} />
         <link rel="preload" href="/fonts/ESAMANRU%20OTF%20LIGHT.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/GmarketSansMedium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
