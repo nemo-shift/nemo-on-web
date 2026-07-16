@@ -394,6 +394,9 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     // AboutHero/OfferingsHero의 ScrollTrigger onLeave가 즉시 발동해 두 번째 섹션으로 점프.
     // setTimeout 안에서 실행해야 사이드바가 화면을 덮은 뒤 스크롤 리셋 → 시각적 점프 방지.
     setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lenis = (window as any).lenis;
+      if (lenis) lenis.scrollTo(0, { immediate: true });
       window.scrollTo(0, 0);
       router.push(href);
     }, NAV_PUSH_DELAY);
