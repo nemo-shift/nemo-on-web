@@ -11,7 +11,6 @@ import { CTASection } from "./cta/CTASection";
 import { Footer } from "@/components/layout";
 import GlobalInteractionStage from "./GlobalInteractionStage";
 import { INTERACTION_Z_INDEX } from "@/constants/interaction";
-import DebugConsole from "@/components/ui/DebugConsole";
 
 /**
  * HomeStage 컴포넌트: 전체 페이지의 섹션 스택 관리
@@ -40,7 +39,6 @@ export default function HomeStage(): React.ReactElement {
 
   return (
     <div className="relative w-full overflow-x-hidden">
-      <DebugConsole />
       {/* 0.1 베이스 고정 배경색 레이어 */}
       <div
         className="fixed inset-0 pointer-events-none"

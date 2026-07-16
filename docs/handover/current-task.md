@@ -3,7 +3,38 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] ✅ 2026-07-13: Offerings 페이지 6단계 업데이트 + About/Diagnosis UI 개선
+## [최신] 🧹 2026-07-16: 카카오 인앱 뷰포트 버그 수정 (디버그 정리 후 머지 예정)
+
+### 브랜치: `fix/kakao-vh-fix`
+
+**상세 기록**: `docs/troubleshooting/kakao-inapp-viewport-fix_2026-07.md`
+
+### 해결 완료 ✅
+- [x] CTA 진입 시 footer 조기 노출 → 해소
+- [x] 스크롤 끝에서 되감기 → 해소
+- [x] 실기기 `--kakao-stage-height: 714px` 확인
+
+**방법**: `--kakao-stage-height = __kakaoStableVH + 120px` 단일 CSS 변수로 `#home-stage` + 전체화면 섹션(CTA, section-bridge, Hero) 통일. `<head>` 블로킹 스크립트에서 React 첫 렌더 전에 설정. GSAP `finalY`도 동일 마진 차감으로 스크롤 종착점 정렬.
+
+### 남은 정리 항목 (머지 전 필수)
+- [ ] `HomeStage.tsx`: `import DebugConsole` + `<DebugConsole />` 제거
+- [ ] `GlobalInteractionStage.tsx`: `[KakaoDebug]` console.log (5줄 + pin-spacer 로그) 제거
+- [ ] `scroll.ts`: `[KakaoDebug]` console.log 제거
+- [ ] `fix/kakao-vh-fix` → `main` PR 생성 및 머지
+
+### 수정된 파일
+| 파일 | 변경 내용 |
+|------|---------|
+| `src/app/layout.tsx` | `<head>` 블로킹 스크립트: `--kakao-stage-height = stableVH + 120` 추가 |
+| `src/app/globals.css` | `.kakao-fixed-vh #home-stage`, `.h-[100svh]`, `.min-h-[100svh]` → `--kakao-stage-height` 통일 |
+| `src/constants/interaction.ts` | `KAKAO_VIEWPORT_SAFETY_MARGIN = 120` 추가 |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | `finalY` 카카오 분기 (`-KAKAO_VIEWPORT_SAFETY_MARGIN`), KakaoDebug 로그 |
+| `src/components/sections/home/builders/scroll.ts` | CSS 변수 방식 전환, KakaoDebug 로그 |
+| `src/components/sections/home/HomeStage.tsx` | `<DebugConsole />` 마운트 (진단용, 완료 후 제거) |
+
+---
+
+## ✅ 2026-07-13: Offerings 페이지 6단계 업데이트 + About/Diagnosis UI 개선
 
 ### 브랜치: `main`
 

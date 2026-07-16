@@ -135,16 +135,40 @@ export const GlobalInteractionStage = ({
   }, [mounted, isMobile, isTabletPortrait]);
 
   // 오버레이 해제:
-  // - 오프모드(!isScrollable): 마운트 직후 100ms 후 해제 (HeroContext overflow:hidden이 스크롤 담당)
+  // - 오프모드(!isScrollable): 오버레이 유지 (isScrollable이 true로 전환될 때까지)
   // - 온모드(isScrollable): isTimelineReady까지 대기 후 500ms 해제
   useEffect(() => {
     if (!mounted) return;
-    if (!isScrollable || isTimelineReady) {
-      const delay = isTimelineReady ? 500 : 100;
-      const timer = setTimeout(() => setShowOverlay(false), delay);
+    if (isScrollable && isTimelineReady) {
+      const timer = setTimeout(() => setShowOverlay(false), 500);
       return () => clearTimeout(timer);
     }
+    // isScrollable이 true로 바뀌는 순간 showOverlay를 다시 true로 복원
+    // (오프→온 전환 시 타임라인 준비 전 구간도 오버레이 유지)
+    if (isScrollable && !isTimelineReady) {
+      setShowOverlay(true);
+    }
   }, [mounted, isScrollable, isTimelineReady]);
+
+  // iOS Safari 스크롤 차단:
+  // - 오프모드(!isScrollable): touchmove preventDefault + lenis.stop()
+  // - 온모드: touchmove 리스너 제거 + lenis.start()
+  useEffect(() => {
+    if (!mounted) return;
+    const preventTouchMove = (e: TouchEvent) => e.preventDefault();
+    if (!isScrollable) {
+      document.addEventListener('touchmove', preventTouchMove, { passive: false });
+      const lenis = (window as { lenis?: { stop: () => void; start: () => void } }).lenis;
+      if (lenis) lenis.stop();
+    }
+    return () => {
+      document.removeEventListener('touchmove', preventTouchMove);
+      if (isScrollable) {
+        const lenis = (window as { lenis?: { stop: () => void; start: () => void } }).lenis;
+        if (lenis) lenis.start();
+      }
+    };
+  }, [mounted, isScrollable]);
 
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {
@@ -362,13 +386,6 @@ export const GlobalInteractionStage = ({
           // finalY도 같은 값만큼 줄여 ScrollTrigger 핀 종료 지점을 맞춤.
           const isKakaoFixed = !!(window as { __kakaoStableVH?: number }).__kakaoStableVH;
           const finalY = measuredTotalHeight - stableVH - (isKakaoFixed ? KAKAO_VIEWPORT_SAFETY_MARGIN : 0);
-          // [KakaoDebug] 진단용 — 완료 후 삭제
-          console.log('[KakaoDebug] kakao-fixed-vh:', document.documentElement.classList.contains('kakao-fixed-vh'));
-          console.log('[KakaoDebug] __kakaoStableVH:', (window as {__kakaoStableVH?: number}).__kakaoStableVH);
-          console.log('[KakaoDebug] --kakao-stage-height:', getComputedStyle(document.documentElement).getPropertyValue('--kakao-stage-height').trim());
-          console.log('[KakaoDebug] KAKAO_VIEWPORT_SAFETY_MARGIN:', KAKAO_VIEWPORT_SAFETY_MARGIN);
-          console.log('[KakaoDebug] finalY:', finalY);
-
           ScrollTrigger.refresh();
           const isRestoringNow = isRestoringRef.current;
           
@@ -484,21 +501,6 @@ export const GlobalInteractionStage = ({
             }
           });
           keywordsTrigger.current = localTrigger;
-
-          // [KakaoDebug] 핀 생성 직후 — pin-spacer 크기 + #home-stage BoundingClientRect 확인
-          if (document.documentElement.classList.contains('kakao-fixed-vh')) {
-            requestAnimationFrame(() => {
-              const el = document.getElementById('home-stage');
-              const spacer = el?.parentElement?.classList.contains('gsap-pin-spacer')
-                ? el.parentElement
-                : document.querySelector('.gsap-pin-spacer');
-              console.log('[KakaoDebug] pin 생성 후 #home-stage BCR.height:', el?.getBoundingClientRect().height);
-              console.log('[KakaoDebug] pin 생성 후 #home-stage offsetHeight:', el?.offsetHeight);
-              console.log('[KakaoDebug] pin-spacer exists:', !!spacer);
-              console.log('[KakaoDebug] pin-spacer height:', spacer ? (spacer as HTMLElement).offsetHeight : 'N/A');
-              console.log('[KakaoDebug] pin-spacer style.height:', spacer ? (spacer as HTMLElement).style.height : 'N/A');
-            });
-          }
 
           // [V76] Pain 구간 물리 엔진 게이트 — ScrollTrigger onEnter/onLeave로 제어
           // duration:0 tween onStart 방식은 scrub 모드에서 불안정 → 콜백 방식으로 교체
@@ -793,7 +795,9 @@ export const GlobalInteractionStage = ({
       {/* 5. Interaction Debugger (v11.Separation) [완성후-삭제] */}
       {mounted && <InteractionDebugger masterTl={masterTl.current} registry={INTERACTION_REGISTRY} />}
 
-      {/* 타임라인 준비 전 투명 오버레이 — iOS/Android 초기 터치 스크롤 차단 */}
+      {/* 투명 오버레이 — iOS Safari 터치 스크롤 차단 (touchmove 리스너와 이중 방어)
+          pointerEvents: 'none' → 클릭/탭은 하위 요소(토글, 메뉴)로 통과
+          touchAction: 'none' → 오프모드 동안 CSS 레벨 터치 스크롤 차단 */}
       {showOverlay && mounted && typeof document !== 'undefined' && createPortal(
         <div
           style={{
@@ -802,8 +806,8 @@ export const GlobalInteractionStage = ({
             zIndex: 9000,
             opacity: isTimelineReady ? 0 : 1,
             transition: 'opacity 0.4s ease',
-            pointerEvents: isTimelineReady ? 'none' : 'all',
-            touchAction: isTimelineReady ? 'auto' : 'none',
+            pointerEvents: 'none',
+            touchAction: isScrollable && isTimelineReady ? 'auto' : 'none',
             backgroundColor: 'transparent',
           }}
         />,
