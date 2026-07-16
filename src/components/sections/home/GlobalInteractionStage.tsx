@@ -158,13 +158,15 @@ export const GlobalInteractionStage = ({
     const preventTouchMove = (e: TouchEvent) => e.preventDefault();
     if (!isScrollable) {
       document.addEventListener('touchmove', preventTouchMove, { passive: false });
-      const lenis = (window as { lenis?: { stop: () => void; start: () => void } }).lenis;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lenis = (window as any).lenis;
       if (lenis) lenis.stop();
     }
     return () => {
       document.removeEventListener('touchmove', preventTouchMove);
       if (isScrollable) {
-        const lenis = (window as { lenis?: { stop: () => void; start: () => void } }).lenis;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const lenis = (window as any).lenis;
         if (lenis) lenis.start();
       }
     };
