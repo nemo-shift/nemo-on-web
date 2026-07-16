@@ -77,6 +77,9 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const isAnimatingRef = useRef(false);
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const prevIsOpenRef = useRef(false);           // [V78] 실제 전환만 감지하는 가드
+  const pendingNavHrefRef = useRef<string | null>(null);  // [V78] 내비게이션 목적지 저장
+  const navFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null); // fallback 타이머
 
   // ─────────────────────────────────────────
   // 딤 처리 대상 수집 (경로별 분기)
@@ -193,6 +196,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
         onClose();
       },
     });
+    tlRef.current = tl; // [V78] 단일 소유권 — kill 로직이 제어 가능하도록
 
     const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     const layers = [mainPanelRef.current, layer2Ref.current, layer1Ref.current];
@@ -239,36 +243,29 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
       const tl = gsap.timeline({
         onComplete: () => {
-          // 텍스트 페이드아웃 완료 → ScrollTrigger 정리 + 스크롤 리셋 + 라우팅
-          ScrollTrigger.getAll().forEach(st => st.kill());
+          // [V78.4] 홈 이탈 시에만 ScrollTrigger 전역 kill (20000px+ pin-spacer 되감기 방지)
+          // 서브페이지 간 이동은 GlobalScrollTriggerCleanup이 전담
+          if (isHome) {
+            ScrollTrigger.getAll().forEach(st => st.kill());
+          }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const lenis = (window as any).lenis;
           if (lenis) lenis.scrollTo(0, { immediate: true });
           window.scrollTo(0, 0);
-          router.push(targetHref);
 
-          // pathname 변경 감지 → 레이어 걷어내기
+          // [V78.2] 폴링 대신 pendingNavHrefRef에 목적지 저장
+          // → useEffect([pathname])에서 도착을 감지하여 revealAndReset() 호출
+          pendingNavHrefRef.current = targetHref;
+
           // fallback: 최대 2.5초 대기 (느린 네트워크 대비)
-          const NAV_FALLBACK_MS = 2500;
-          let revealed = false;
-          const doReveal = () => {
-            if (revealed) return;
-            revealed = true;
-            revealAndReset();
-          };
-
-          const fallbackTimer = setTimeout(doReveal, NAV_FALLBACK_MS);
-          const checkPathname = setInterval(() => {
-            if (window.location.pathname === targetHref) {
-              clearInterval(checkPathname);
-              clearTimeout(fallbackTimer);
-              // 새 페이지 렌더 안정화를 위한 미세 지연
-              requestAnimationFrame(() => doReveal());
+          navFallbackRef.current = setTimeout(() => {
+            if (pendingNavHrefRef.current) {
+              pendingNavHrefRef.current = null;
+              revealAndReset();
             }
-          }, 50);
+          }, 2500);
 
-          // 안전장치: fallback 이후 interval 정리
-          setTimeout(() => clearInterval(checkPathname), NAV_FALLBACK_MS + 100);
+          router.push(targetHref);
         },
       });
       tlRef.current = tl;
@@ -286,7 +283,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     // ── 내비게이션 없는 경우: 기존 닫기 동작 (레이어 슬라이드아웃) ──
     if (scrollToTop) {
       // 같은 페이지 재클릭 — 슬라이드아웃 후 최상단 스크롤
-      const origReveal = revealAndReset;
       const tl = gsap.timeline({
         onComplete: () => {
           isAnimatingRef.current = false;
@@ -347,19 +343,41 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   }, [getDimTargets, onClose, revealAndReset, router]);
 
   // ─────────────────────────────────────────
-  // isOpen 변화 감지 → 열기 애니메이션
+  // [V78.1] isOpen "전환" 감지 — 콜백 정체성 변경으로 인한 재발사 방지
   // ─────────────────────────────────────────
   useEffect(() => {
-    if (isOpen) {
+    const prev = prevIsOpenRef.current;
+
+    if (isOpen && !prev) {
+      // false → true 전환: 열기
+      prevIsOpenRef.current = true;
       animateOpen();
-    } else {
-      // isOpen이 false로 변했는데 메뉴가 아직 열려있는 상태라면 닫기 애니메이션 실행
+    } else if (!isOpen && prev) {
+      // true → false 전환: 닫기
+      prevIsOpenRef.current = false;
       const isVisible = containerRef.current?.style.visibility === 'visible';
       if (isVisible) {
         animateClose();
       }
     }
+    // 콜백 정체성만 바뀐 경우 (전환 없음) → 아무것도 하지 않음
   }, [isOpen, animateOpen, animateClose]);
+
+  // ─────────────────────────────────────────
+  // [V78.2] pathname 변경 감지 → 내비게이션 도착 시 레이어 걷어내기
+  // ─────────────────────────────────────────
+  useEffect(() => {
+    if (!pendingNavHrefRef.current) return;
+    if (pathname === pendingNavHrefRef.current) {
+      // 도착 확인 — fallback 타이머 정리 + 레이어 슬라이드아웃
+      pendingNavHrefRef.current = null;
+      if (navFallbackRef.current) {
+        clearTimeout(navFallbackRef.current);
+        navFallbackRef.current = null;
+      }
+      revealAndReset();
+    }
+  }, [pathname, revealAndReset]);
 
   // ─────────────────────────────────────────
   // 접근성: Escape 닫기 + 포커스 트랩 + 포커스 저장/복원
