@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useHeroContext } from '@/context';
 import { COLORS } from '@/constants/colors';
 import { cn } from '@/lib/utils';
-import { markPushNav } from '@/lib/navigation';
+// [V78] markPushNav 제거 — popstate 기반 스크롤 복원으로 전환 (LenisScrollRestoration)
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DIAGNOSIS_SECTION_CONTENT } from '@/data/home/diagnosis';
@@ -40,8 +40,6 @@ export const CTASection = () => {
     // 재활성화 — 옵션은 GlobalInteractionStage 터치 모드와 동일하게
     ScrollTrigger.normalizeScroll({ allowNestedScroll: true, momentum: 0 });
     document.body.style.overflow = 'auto';
-    // [V72/V74] 명시적 이동 표시 — 진단 페이지가 최상단에서 시작하도록
-    markPushNav();
     router.push('/diagnosis');
   }, [router]);
 

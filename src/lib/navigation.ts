@@ -1,8 +1,8 @@
 /**
- * [V74.ScrollGuidance/STEP7] 명시적 페이지 이동 플래그 유틸리티.
- * SideMenu, CTASection 등 router.push를 직접 호출하는 모든 지점에서 공용으로 사용한다.
- * LenisScrollRestoration이 이 플래그를 감지해 이전 스크롤 위치 복원 대신 최상단 이동을 수행한다.
+ * [V78] markPushNav() 제거됨.
+ *
+ * 기존: PUSH_NAV sessionStorage 플래그로 "명시적 이동" 표시 → LenisScrollRestoration이 감지
+ * 변경: popstate 기반으로 전환 — "뒤로가기/앞으로가기일 때만 복원, 그 외 모든 이동은 top:0"
+ *
+ * 이 파일은 다른 곳에서 import 경로로 참조될 수 있으므로 삭제하지 않고 빈 모듈로 유지.
  */
-export function markPushNav(): void {
-  try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
-}

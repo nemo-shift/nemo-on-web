@@ -35,9 +35,7 @@ export default function Footer({ isHomeStage = false }: { isHomeStage?: boolean 
         window.scrollTo(0, 0);
       }
     } else {
-      // [Footer Fix] 다른 페이지에서 이동하는 경우, 저장된 스크롤 위치로
-      // 잘못 복원되지 않도록 명시적 이동 플래그를 남긴다.
-      try { sessionStorage.setItem('PUSH_NAV', '1'); } catch { /* ignore */ }
+      // [V78] markPushNav 제거 — popstate 기반 스크롤 복원으로 전환 (LenisScrollRestoration)
     }
   };
   // [V11.34] ResizeObserver에 200ms 디바운스를 적용하여 리사이즈 중 부하 임계점 제어

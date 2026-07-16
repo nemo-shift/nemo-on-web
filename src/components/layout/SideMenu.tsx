@@ -9,7 +9,7 @@ import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
-import { markPushNav } from '@/lib/navigation';
+// [V78] markPushNav 제거 — popstate 기반 스크롤 복원으로 전환 (LenisScrollRestoration)
 
 // ─────────────────────────────────────────────
 // 메뉴 항목 (기획서 기준 4개)
@@ -390,8 +390,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).lenis.start();
     }
-    // [V72/V74.STEP7] LenisScrollRestoration이 이 이동을 명시적 push로 인식해 top:0으로 처리하도록 플래그 심기
-    markPushNav();
     setTimeout(() => router.push(href), NAV_PUSH_DELAY);
   };
 
