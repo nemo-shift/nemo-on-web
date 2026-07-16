@@ -392,9 +392,11 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     }
     // [V78] 홈 pin-spacer의 높은 scrollY(20000px+)가 새 페이지에 잔류하면
     // AboutHero/OfferingsHero의 ScrollTrigger onLeave가 즉시 발동해 두 번째 섹션으로 점프.
-    // router.push 전에 즉시 영점 리셋하여 새 페이지가 항상 scrollY=0에서 시작하도록 보장.
-    window.scrollTo(0, 0);
-    setTimeout(() => router.push(href), NAV_PUSH_DELAY);
+    // setTimeout 안에서 실행해야 사이드바가 화면을 덮은 뒤 스크롤 리셋 → 시각적 점프 방지.
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      router.push(href);
+    }, NAV_PUSH_DELAY);
   };
 
   const handleHomeClick = () => {
