@@ -59,6 +59,7 @@ export default function LenisScrollRestoration(): null {
       // 뒤로가기/앞으로가기 → 저장된 위치 복원
       isPopStateRef.current = false;
 
+      // 홈('/')은 GSAP whole-pin 구조이므로 브라우저 scrollY 복원이 무의미 → 스킵
       if (pathname !== '/') {
         const storage = safeSessionStorage();
         const timer = setTimeout(() => {
@@ -84,7 +85,7 @@ export default function LenisScrollRestoration(): null {
       }
     } else {
       // popstate가 아닌 모든 이동 → top:0
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const lenis = (window as any).lenis;
         if (lenis) {
@@ -93,6 +94,8 @@ export default function LenisScrollRestoration(): null {
           window.scrollTo(0, 0);
         }
       }, RESTORE_TIMING.DIRECT);
+
+      return () => clearTimeout(timer);
     }
   }, [pathname]);
 
@@ -101,7 +104,7 @@ export default function LenisScrollRestoration(): null {
     const saveScrollPosition = (): void => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const scrollY = (window as any).lenis?.scroll ??
-        window.pageYOffset ??
+        window.scrollY ??
         document.documentElement.scrollTop ??
         0;
 

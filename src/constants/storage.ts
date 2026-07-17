@@ -3,8 +3,6 @@
  */
 
 export const STORAGE_KEYS = {
-  /** Lenis 네비게이션 타입 저장 키 (SessionStorage) */
-  NAV_TYPE: 'lenis-nav-type',
   /** 페이지별 스크롤 위치 저장 접두사 (SessionStorage) */
   SCROLL_PREFIX: 'scroll-',
   /** 브랜드 진단 섹션 복귀 시나리오 타겟 키 */
