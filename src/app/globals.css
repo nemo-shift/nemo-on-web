@@ -111,20 +111,6 @@ html.custom-cursor-active *::after {
   opacity: 0.4;
 }
 
-/* --- 애니메이션: 로고 도형 숨쉬기 (pulseAbt) --- */
-@keyframes pulseAbt {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.animate-pulse-abt {
-  animation: pulseAbt 2.5s ease-in-out infinite;
-}
-
-.animate-pulse-abt-delayed {
-  animation: pulseAbt 2.5s ease-in-out 0.5s infinite;
-}
-
 @layer utilities {
   /* --- 히어로 로고 무결성 수동 엔진 (V11 Dual-Axis: font-size 기반) --- */
   .nemo-logo-engine {
@@ -280,7 +266,8 @@ html.custom-cursor-active *::after {
 
 /* dvh와 svh는 같은 시기에 함께 지원되기 시작한 단위 — dvh 미지원 환경은 svh 미지원과 동일. */
 @supports not (height: 100dvh) {
-  .h-\[100dvh\] { height: 100vh !important; }
+  .h-\[100dvh\]     { height: 100vh !important; }
+  .min-h-\[100dvh\] { min-height: 100vh !important; }
 }
 
 /* [V67.ViewportFix] 푸터 하단 보정 패딩 — 모바일 브라우저 크롬 높이만큼 여유 확보

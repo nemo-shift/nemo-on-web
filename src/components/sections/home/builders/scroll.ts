@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { GlobalBuilderOptions } from '../types';
 import { BRAND_STORY_CONTENT } from '@/data/home/story';
-import { KAKAO_VIEWPORT_SAFETY_MARGIN } from '@/constants/interaction';
+// [Batch4] KAKAO_VIEWPORT_SAFETY_MARGIN 제거 — GlobalInteractionStage에서 직접 사용
 
 /**
  * 섹션 스크롤링 타임라인 빌더
@@ -40,7 +40,8 @@ export function buildSectionScrollTimeline(
   if (!document.documentElement.classList.contains('kakao-fixed-vh')) {
     // [V78.2] 100dvh → 100lvh: 컨트롤 바 접힘 시에도 항상 실제 화면보다 크거나 같은 고정값
     // dvh는 컨트롤 바 상태에 따라 축소되어 finalY와 비대칭 발생 → CTA/푸터 이슈의 원인
-    gsap.set('#home-stage', { minHeight: '100lvh' });
+    // [Batch4] CSS 'lvh' 문자열 대신 실측 stableLVH px 사용 (카카오/구형 WebView 안전)
+    gsap.set('#home-stage', { minHeight: options.stableLVH });
   }
   gsap.set(target, { position: 'absolute', top: 0, left: 0, width: '100vw' });
 
