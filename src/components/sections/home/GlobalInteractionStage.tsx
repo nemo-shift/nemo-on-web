@@ -153,25 +153,24 @@ export const GlobalInteractionStage = ({
   // iOS Safari 스크롤 차단:
   // - 오프모드(!isScrollable): touchmove preventDefault + lenis.stop()
   // - 온모드이지만 타임라인 미완료(isScrollable && !isTimelineReady): 동일하게 차단 유지
-  // - 온모드 + 타임라인 완료: 리스너 제거 + lenis.start()
+  // - 온모드 + 타임라인 완료(!shouldBlock): lenis.start() — effect 본문 else에서 즉시 호출
   // iOS Safari는 overflow:hidden을 무시하므로 touchmove preventDefault가 필수
+  // lenis.start()는 내부적으로 isStopped 가드가 있어 이미 실행 중이면 no-op으로 안전
   const shouldBlock = !isScrollable || (isScrollable && !isTimelineReady);
   useEffect(() => {
     if (!mounted) return;
     const preventTouchMove = (e: TouchEvent) => e.preventDefault();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lenis = (window as any).lenis;
     if (shouldBlock) {
       document.addEventListener('touchmove', preventTouchMove, { passive: false });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lenis = (window as any).lenis;
       if (lenis) lenis.stop();
+    } else {
+      // shouldBlock이 false가 된 렌더에서 즉시 실행 — 클로저 박제 문제 없음
+      if (lenis) lenis.start();
     }
     return () => {
       document.removeEventListener('touchmove', preventTouchMove);
-      if (!shouldBlock) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const lenis = (window as any).lenis;
-        if (lenis) lenis.start();
-      }
     };
   }, [mounted, shouldBlock]);
 

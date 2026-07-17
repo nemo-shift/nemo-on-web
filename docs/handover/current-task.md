@@ -3,34 +3,50 @@
 > **관련 문서**: [future-backlog-ideas.md](file:///d:/네모ON/네모ON Studio/네모ON/docs/handover/future-backlog-ideas.md) (미래 과제 및 보관소)
 
 
-## [최신] 🧹 2026-07-16: 카카오 인앱 뷰포트 버그 수정 (디버그 정리 후 머지 예정)
+## [최신] 🔄 2026-07-17: fix/kakao-vh-fix 브랜치 — 실기기 검증 대기 중
 
 ### 브랜치: `fix/kakao-vh-fix`
 
-**상세 기록**: `docs/troubleshooting/kakao-inapp-viewport-fix_2026-07.md`
+**트러블슈팅 문서**:
+- `docs/troubleshooting/kakao-inapp-viewport-fix_2026-07.md`
+- `docs/troubleshooting/ios-safari-offmode-scroll-fix_2026-07.md`
+- `docs/troubleshooting/sidemenu-navigation-fix_2026-07.md`
 
 ### 해결 완료 ✅
-- [x] CTA 진입 시 footer 조기 노출 → 해소
-- [x] 스크롤 끝에서 되감기 → 해소
-- [x] 실기기 `--kakao-stage-height: 714px` 확인
+- [x] **카카오 인앱 뷰포트 버그**: `--kakao-stage-height = stableVH + 120px` 통일, `finalY` 마진 차감 — 실기기 검증 완료
+- [x] **디버그 코드 정리**: `DebugConsole` 제거, `[KakaoDebug]` 로그 전체 제거
+- [x] **iOS Safari 오프모드 스크롤 차단**: touchmove preventDefault + lenis.stop() 3중 방어
+- [x] **SideMenu 내비게이션 잔상/재생 버그**:
+  - prevIsOpenRef 전환 가드 (animateOpen 재발사 방지)
+  - animateClose(targetHref) 통합 — 레이어 유지 후 pathname 도착 시 슬라이드아웃
+  - pendingNavHrefRef + useEffect([pathname]) 폴링 대체
+  - ScrollTrigger 전역 kill → 홈 이탈 시로 한정
+- [x] **홈→서브페이지 히어로 건너뜀**: popstate 기반 LenisScrollRestoration 전환
+- [x] **iOS Safari 온모드 히어로 스크롤 차단**: shouldBlock 조건 확장 (`isScrollable && !isTimelineReady` 포함)
+- [x] **일반 모바일 CTA/푸터 높이 비대칭**: `100dvh` → `100lvh` (home-stage, CTA, section-bridge, Hero)
 
-**방법**: `--kakao-stage-height = __kakaoStableVH + 120px` 단일 CSS 변수로 `#home-stage` + 전체화면 섹션(CTA, section-bridge, Hero) 통일. `<head>` 블로킹 스크립트에서 React 첫 렌더 전에 설정. GSAP `finalY`도 동일 마진 차감으로 스크롤 종착점 정렬.
+### 실기기 검증 항목 (머지 전)
+- [ ] (a) 홈→About/Offerings 사이드메뉴 이동 10회 — 메뉴 재생/잔상 없음, 항상 히어로부터 시작
+- [ ] (b) 서브페이지 간 이동 (About→Offerings 등) 정상
+- [ ] (c) iOS Safari: 오프→온 전환 후 히어로 터치 스크롤 차단 확인
+- [ ] (d) 일반 모바일 브라우저: CTA 진입 시 푸터 노출 없음, 푸터 스크롤 튕김 없음
+- [ ] (e) 같은 페이지 재클릭, Escape/딤 클릭 닫기, 뒤로가기 강제 닫힘 회귀 없음
+- [ ] (f) `fix/kakao-vh-fix` → `main` PR 생성 및 머지
 
-### 남은 정리 항목 (머지 전 필수)
-- [ ] `HomeStage.tsx`: `import DebugConsole` + `<DebugConsole />` 제거
-- [ ] `GlobalInteractionStage.tsx`: `[KakaoDebug]` console.log (5줄 + pin-spacer 로그) 제거
-- [ ] `scroll.ts`: `[KakaoDebug]` console.log 제거
-- [ ] `fix/kakao-vh-fix` → `main` PR 생성 및 머지
-
-### 수정된 파일
+### 주요 수정 파일
 | 파일 | 변경 내용 |
 |------|---------|
-| `src/app/layout.tsx` | `<head>` 블로킹 스크립트: `--kakao-stage-height = stableVH + 120` 추가 |
-| `src/app/globals.css` | `.kakao-fixed-vh #home-stage`, `.h-[100svh]`, `.min-h-[100svh]` → `--kakao-stage-height` 통일 |
+| `src/app/layout.tsx` | `<head>` 블로킹 스크립트: `--kakao-stage-height` 추가 |
+| `src/app/globals.css` | 카카오 오버라이드 선택자 `100svh` → `100lvh` 동기화 |
 | `src/constants/interaction.ts` | `KAKAO_VIEWPORT_SAFETY_MARGIN = 120` 추가 |
-| `src/components/sections/home/GlobalInteractionStage.tsx` | `finalY` 카카오 분기 (`-KAKAO_VIEWPORT_SAFETY_MARGIN`), KakaoDebug 로그 |
-| `src/components/sections/home/builders/scroll.ts` | CSS 변수 방식 전환, KakaoDebug 로그 |
-| `src/components/sections/home/HomeStage.tsx` | `<DebugConsole />` 마운트 (진단용, 완료 후 제거) |
+| `src/components/sections/home/GlobalInteractionStage.tsx` | finalY 분기, shouldBlock 조건 확장, KakaoDebug 제거 |
+| `src/components/sections/home/builders/scroll.ts` | `#home-stage` minHeight `100dvh` → `100lvh` |
+| `src/components/sections/home/HomeStage.tsx` | DebugConsole 제거, section-bridge `100svh` → `100lvh` |
+| `src/components/sections/home/hero/HeroSection.tsx` | `min-h-[100svh]` → `min-h-[100lvh]` |
+| `src/components/sections/home/cta/CTASection.tsx` | `h-[100svh]` → `h-[100lvh]` |
+| `src/components/layout/SideMenu.tsx` | prevIsOpenRef 가드, animateClose 통합, pathname 감지 |
+| `src/components/layout/LenisScrollRestoration.tsx` | popstate 기반 스크롤 복원 전환 |
+| `src/lib/navigation.ts` | markPushNav 제거 |
 
 ---
 

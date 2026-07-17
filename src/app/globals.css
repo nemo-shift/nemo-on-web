@@ -226,6 +226,7 @@ html.custom-cursor-active *::after {
   /* ── 베이스 클래스 (브레이크포인트 프리픽스 없는 bare 클래스) ── */
   /* height */
   .h-\[100svh\]      { height: 100vh !important; }
+  .h-\[100lvh\]      { height: 100vh !important; }
   .h-\[40svh\]       { height: 40vh !important; }
   .h-\[48svh\]       { height: 48vh !important; }
   .h-\[400svh\]      { height: 400vh !important; }
@@ -233,6 +234,7 @@ html.custom-cursor-active *::after {
   .h-\[1000svh\]     { height: 1000vh !important; }
   /* min-height */
   .min-h-\[100svh\]  { min-height: 100vh !important; }
+  .min-h-\[100lvh\]  { min-height: 100vh !important; }
   /* bottom */
   .bottom-\[14svh\]  { bottom: 14vh !important; }
   .bottom-\[40svh\]  { bottom: 40vh !important; }
