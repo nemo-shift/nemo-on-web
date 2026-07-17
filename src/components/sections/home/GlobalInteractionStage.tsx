@@ -312,7 +312,11 @@ export const GlobalInteractionStage = ({
       // [V66.Phase1] 폰트 로딩 대기 후 정밀 측정 실행
       const runMeasurementAndBuild = async () => {
         if (typeof document !== 'undefined' && (document as any).fonts) {
-          await (document as any).fonts.ready;
+          // [Batch5] fonts.ready가 멈추는 예외 환경 대비 1.5초 안전망
+          await Promise.race([
+            (document as any).fonts.ready,
+            new Promise(resolve => setTimeout(resolve, 1500)),
+          ]);
         }
 
         rafId.current = requestAnimationFrame(() => ctx.add(() => {

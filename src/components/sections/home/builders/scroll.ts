@@ -102,7 +102,12 @@ export function buildSectionScrollTimeline(
   
   // [V11.4] 4.5단계: 백스페이스 삭제 브릿지 연출
   // 스크롤에 따라 글자가 뒤에서부터 한 글자씩 지워지는 물리적 효과를 구현합니다.
-  const fullText = BRAND_STORY_CONTENT.find(p => p.id === 6)!.content;
+  const storyEntry = BRAND_STORY_CONTENT.find(p => p.id === 6);
+  if (!storyEntry) {
+    console.error('[scroll] BRAND_STORY_CONTENT id=6 missing — erase sequence skipped');
+    return;
+  }
+  const fullText = storyEntry.content;
   const eraseState = { length: fullText.length };
  
   // [Tuning] 커서 등장 후 충분히 머물렀다가 삭제가 시작되도록 지연 시간(Offset) 추가
