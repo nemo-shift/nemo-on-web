@@ -2,9 +2,11 @@
 // ⚠️ 이 컴포넌트는 루트 layout.tsx 자체가 크래시할 때 렌더된다.
 //    html/body 태그를 직접 포함해야 하며, Next.js 폰트/CSS 변수를 사용할 수 없다.
 //    외부 의존성(GSAP, Lenis, next/font 등) 임포트 절대 금지.
+//    @sentry/nextjs는 예외 — 에러 바운더리의 핵심 역할이므로 허용.
 'use client';
 
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -13,7 +15,7 @@ interface GlobalErrorProps {
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   useEffect(() => {
-    console.error('[Global Error Boundary]', error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (

@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import Link from 'next/link';
 
 interface ErrorProps {
@@ -12,8 +13,7 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // 에러 로깅 (추후 Sentry 등 연동 시 여기에 추가)
-    console.error('[Error Boundary]', error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (
