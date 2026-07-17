@@ -23,7 +23,7 @@ import GlobalScrollHint from './GlobalScrollHint';
 import ScrollOnboardingNudge from './ScrollOnboardingNudge';
 import { INTERACTION_REGISTRY } from './interaction-registry';
 import { buildHeroSwapSequence, buildForWhoTimeline, buildLogoTimeline, buildMessageTimeline, buildNemoTimeline, buildSectionScrollTimeline, buildWarmupTimeline, buildCoreFunnelTimeline, buildStoryTimeline, buildCTATimeline } from './builders';
-import { CORE_FUNNEL_TITLE, MESSAGE_COLORS } from '@/data/home/message';
+// [Batch2] CORE_FUNNEL_TITLE, MESSAGE_COLORS — interaction-registry/builders에서 직접 import하므로 여기선 미사용
 // [V69.LaunchReady] STEP 5 — InteractionDebugger dev 전용 dynamic import (프로덕션 번들 제외)
 import dynamic from 'next/dynamic';
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -99,8 +99,8 @@ export const GlobalInteractionStage = ({
   const rafId        = useRef<number | null>(null);
   const keywordsTrigger = useRef<ScrollTrigger | null>(null);
   
-  // [V66.Phase3.3] 실측 오프셋 관리를 위한 상태
-  const [offsets, setOffsets] = useState<Record<string, number>>({});
+  // [V66.Phase3.3] 실측 오프셋 관리 (렌더 불필요 → useRef)
+  const offsetsRef = useRef<Record<string, number>>({});
 
   // [V66.Phase1] 리사이즈 임계값 관리를 위한 상태
   const lastWidthRef = useRef<number>(0);
@@ -117,6 +117,8 @@ export const GlobalInteractionStage = ({
   const retryCountRef = useRef(0);
   // [V68.Fix1] 마지막 빌드 시 footerHeight 기록 — 60px 게이트용
   const lastBuiltFooterHeightRef = useRef(0);
+  // [Batch2] retry setTimeout 클린업용 ref
+  const retryTimerRef2 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -179,6 +181,9 @@ export const GlobalInteractionStage = ({
       retryCountRef.current = 0;
       setRevision(prev => prev + 1);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps — isScrollable 의도적 제외:
+  // 마운트 시점에 이미 ON 상태(복귀)인 경우 1회만 빌드 킥. isScrollable을 deps에 넣으면
+  // OFF→ON 전환마다 이중 빌드가 발생함.
   }, [mounted]);
 
   const currProgressRef = useRef<number>(0);
@@ -292,7 +297,7 @@ export const GlobalInteractionStage = ({
         // [V76] FallingKeywordsStage dynamic import 미완료 시 재시도
         if (!falling && retryCountRef.current < MAX_RETRY) {
           retryCountRef.current += 1;
-          setTimeout(() => setRevision(prev => prev + 1), 80);
+          retryTimerRef2.current = setTimeout(() => setRevision(prev => prev + 1), 80);
         }
         return;
       }
@@ -377,8 +382,8 @@ export const GlobalInteractionStage = ({
             return map;
           }, {} as Record<string, number>);
 
-          // 포커싱용 상태 업데이트
-          setOffsets(sectionOffsetsMap);
+          // 포커싱용 오프셋 캐시 업데이트
+          offsetsRef.current = sectionOffsetsMap;
 
           // [V66.Phase3] 푸터 안전 여백은 이제 Footer.tsx의 padding-bottom으로 대체되었습니다.
           // 엔진은 Footer의 늘어난 offsetHeight를 실시간으로 측정하여 자동으로 finalY에 반영합니다.
@@ -566,10 +571,14 @@ export const GlobalInteractionStage = ({
       setIsTimelineReady(false);
       if (process.env.NODE_ENV !== 'production') console.log('[Interaction/V33] Cleanup Context');
 
+      if (retryTimerRef2.current) {
+        clearTimeout(retryTimerRef2.current);
+        retryTimerRef2.current = null;
+      }
       if (rafId.current) cancelAnimationFrame(rafId.current);
-      if (layoutTimerRef.current) { 
-        clearTimeout(layoutTimerRef.current); 
-        layoutTimerRef.current = null; 
+      if (layoutTimerRef.current) {
+        clearTimeout(layoutTimerRef.current);
+        layoutTimerRef.current = null;
       }
 
       const wrapper = sectionsContentRef.current;
@@ -610,12 +619,12 @@ export const GlobalInteractionStage = ({
     };
   }, { dependencies: [revision, isScrollable, isOn, isMobileView, isTabletPortrait, isMobile, interactionMode], revertOnUpdate: true });
 
-  // [V66.Phase3.3] CTA 자동 포커스 이벤트 리스너 (최신 offsets 상태 반영)
+  // [V66.Phase3.3] CTA 자동 포커스 이벤트 리스너 (offsetsRef에서 최신값 직접 읽음)
   useEffect(() => {
     if (!mounted) return;
-    
+
     const handleCtaFocus = () => {
-      const ctaOffset = offsets['section-cta'];
+      const ctaOffset = offsetsRef.current['section-cta'];
       if (typeof ctaOffset === 'number' && ctaOffset > 0) {
         gsap.to(window, {
           scrollTo: ctaOffset,
@@ -628,7 +637,7 @@ export const GlobalInteractionStage = ({
 
     window.addEventListener('nemo:cta-focus', handleCtaFocus);
     return () => window.removeEventListener('nemo:cta-focus', handleCtaFocus);
-  }, [offsets, mounted]);
+  }, [mounted]);
 
   // [V68.Fix1] footerHeight 변화 게이트 — 60px 이상 차이 시에만 재빌드 트리거
   // useGSAP deps에서 footerHeight를 제거하고, 실제로 의미 있는 변화(레이아웃 영향 수준)만 반응.
@@ -640,16 +649,6 @@ export const GlobalInteractionStage = ({
       setRevision(prev => prev + 1);
     }
   }, [footerHeight]);
-
-  // [V11.11 Fix] 포탈 내 변수 소실을 차단하기 위해 데이터 시트에서 현재 환경의 색상을 직접 추출합니다.
-  const { STAGES, COLORS } = INTERACTION_REGISTRY.constants;
-  const { JOURNEY_MASTER_CONFIG } = INTERACTION_REGISTRY.data;
-  const heroCfg = JOURNEY_MASTER_CONFIG[STAGES.HERO];
-  
-  // [V11.Macro_Final] 초기화 Flicker 방어를 위한 Seed Value 계산
-  const seedEnv = (isOn && heroCfg.on?.env) ? heroCfg.on.env : heroCfg.env;
-  const initialBg = seedEnv.bg || '#f0ebe3';
-  const initialFg = seedEnv.fg || '#1a1a1a';
 
   return (
     <div 
@@ -810,8 +809,7 @@ export const GlobalInteractionStage = ({
             zIndex: 9000,
             opacity: isTimelineReady ? 0 : 1,
             transition: 'opacity 0.4s ease',
-            pointerEvents: 'none',
-            touchAction: isScrollable && isTimelineReady ? 'auto' : 'none',
+            pointerEvents: 'none', // touchAction 불필요: pointerEvents:'none'이 터치 이벤트도 차단
             backgroundColor: 'transparent',
           }}
         />,
