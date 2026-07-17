@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Home } from 'lucide-react';
-import { useDevice, useHeroContext } from '@/context';
 import { NAV_LINKS } from '@/data/nav';
 import { INTERACTION_Z_INDEX, MENU_WIDTH } from '@/constants/interaction';
 import { COLORS } from '@/constants/colors';
@@ -40,6 +39,12 @@ const TIMING = {
 };
 
 // ─────────────────────────────────────────────
+// Lenis 접근 유틸 — (window as any).lenis 캐스팅 반복 제거
+// ─────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getLenis = (): any => (typeof window !== 'undefined' ? (window as any).lenis : undefined);
+
+// ─────────────────────────────────────────────
 // Props
 // ─────────────────────────────────────────────
 interface SideMenuProps {
@@ -64,8 +69,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
   const pathname = usePathname();
   const isHome = pathname === '/';
 
-  // [v11.33 Refactoring] 기기 판별 조건(if) 제거에 따른 isMobileView 신호 완전 소멸
-  
   // ── Refs ──
   const containerRef = useRef<HTMLDivElement>(null);
   const layer1Ref = useRef<HTMLDivElement>(null);
@@ -155,7 +158,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       );
     });
 
-    // 4) 메뉴 텍스트 + 홈 버튼 Stagger 등장
+    // 5) 메뉴 텍스트 + 홈 버튼 Stagger 등장
     const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     tl.fromTo(items,
       { y: 40, opacity: 0 },
@@ -169,34 +172,41 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       '-=0.15',
     );
 
-    // 7) Lenis 스크롤 정지 (overflow: hidden 추가하지 않음)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof window !== 'undefined' && (window as any).lenis) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).lenis.stop();
-    }
+    // 6) Lenis 스크롤 정지 (overflow: hidden 추가하지 않음)
+    getLenis()?.stop();
   }, [getDimTargets]);
 
   // ─────────────────────────────────────────
   // 닫기 애니메이션
   // ─────────────────────────────────────────
   // [V78] 레이어 슬라이드아웃 — 내비게이션 완료 후 또는 단순 닫기 시 호출
-  const revealAndReset = useCallback(() => {
+  // resetScroll: true → 같은 페이지 재클릭 시 슬라이드아웃 후 최상단 스크롤
+  const revealAndReset = useCallback((resetScroll?: boolean) => {
+    // 이중 호출 방어: 이전 타임라인이 살아있으면 먼저 kill
+    tlRef.current?.kill();
+
     const tl = gsap.timeline({
       onComplete: () => {
         isAnimatingRef.current = false;
         gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none' });
 
-        // Lenis 스크롤 복원
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const lenis = (window as any).lenis;
+        const lenis = getLenis();
         if (lenis) lenis.start();
 
         ScrollTrigger.refresh();
         onClose();
+
+        // [V74.ScrollGuidance/STEP8] 같은 페이지 재클릭: 최상단 즉시 점프
+        if (resetScroll) {
+          if (lenis) {
+            lenis.scrollTo(0, { immediate: true });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+          }
+        }
       },
     });
-    tlRef.current = tl; // [V78] 단일 소유권 — kill 로직이 제어 가능하도록
+    tlRef.current = tl;
 
     const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
     const layers = [mainPanelRef.current, layer2Ref.current, layer1Ref.current];
@@ -239,7 +249,6 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
 
     // ── 내비게이션이 있는 경우: 레이어를 덮은 채 유지 ──
     if (targetHref) {
-      // 메뉴 텍스트만 페이드아웃 (레이어는 그대로)
       const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
       const tl = gsap.timeline({
         onComplete: () => {
@@ -248,12 +257,11 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
           if (isHome) {
             ScrollTrigger.getAll().forEach(st => st.kill());
           }
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const lenis = (window as any).lenis;
+          const lenis = getLenis();
           if (lenis) lenis.scrollTo(0, { immediate: true });
           window.scrollTo(0, 0);
 
-          // [V78.2] 폴링 대신 pendingNavHrefRef에 목적지 저장
+          // [V78.2] pendingNavHrefRef에 목적지 저장
           // → useEffect([pathname])에서 도착을 감지하여 revealAndReset() 호출
           pendingNavHrefRef.current = targetHref;
 
@@ -280,67 +288,11 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       return;
     }
 
-    // ── 내비게이션 없는 경우: 기존 닫기 동작 (레이어 슬라이드아웃) ──
-    if (scrollToTop) {
-      // 같은 페이지 재클릭 — 슬라이드아웃 후 최상단 스크롤
-      const tl = gsap.timeline({
-        onComplete: () => {
-          isAnimatingRef.current = false;
-          gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none' });
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const lenis = (window as any).lenis;
-          if (lenis) lenis.start();
-          ScrollTrigger.refresh();
-          onClose();
-
-          // [V74.ScrollGuidance/STEP8] 서브페이지는 GSAP 핀과 무관하므로 즉시 점프
-          if (lenis) {
-            lenis.scrollTo(0, { immediate: true });
-          } else {
-            window.scrollTo({ top: 0, behavior: 'auto' });
-          }
-        },
-      });
-      tlRef.current = tl;
-
-      const items = [homeButtonRef.current, ...menuItemsRef.current].filter(Boolean);
-      const layers = [mainPanelRef.current, layer2Ref.current, layer1Ref.current];
-
-      tl.to(layers, {
-        xPercent: 100,
-        duration: TIMING.CLOSE_DURATION,
-        ease: 'power3.inOut',
-      }, 0);
-
-      tl.to(items, {
-        y: -20,
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.in',
-      }, 0);
-
-      const dimTargets = getDimTargets();
-      tl.to(dimRef.current, {
-        opacity: 0,
-        duration: TIMING.DIM_DURATION,
-        ease: 'power2.in',
-      }, '-=0.3');
-
-      if (dimTargets.length > 0) {
-        tl.to(dimTargets, {
-          opacity: 1,
-          duration: TIMING.DIM_DURATION,
-          ease: 'power2.out',
-        }, '-=0.3');
-      }
-
-      return;
-    }
-
-    // 단순 닫기 (Escape, 딤 클릭 등)
-    revealAndReset();
-  }, [getDimTargets, onClose, revealAndReset, router]);
+    // ── 내비게이션 없는 경우 ──
+    // scrollToTop: 같은 페이지 재클릭 → 슬라이드아웃 + 최상단 스크롤
+    // 그 외: 단순 닫기 (Escape, 딤 클릭 등)
+    revealAndReset(scrollToTop);
+  }, [getDimTargets, isHome, onClose, revealAndReset, router]);
 
   // ─────────────────────────────────────────
   // [V78.1] isOpen "전환" 감지 — 콜백 정체성 변경으로 인한 재발사 방지
@@ -466,11 +418,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
       }
 
       // Lenis 원복
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof window !== 'undefined' && (window as any).lenis) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).lenis.start();
-      }
+      getLenis()?.start();
 
       onClose();
     };
@@ -487,6 +435,16 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps): React.Reac
     MENU_ITEMS.forEach(({ href }) => router.prefetch(href));
     router.prefetch('/');
   }, [isOpen, router]);
+
+  // ─────────────────────────────────────────
+  // 언마운트 시 잔존 타이머/타임라인 정리
+  // ─────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (navFallbackRef.current) clearTimeout(navFallbackRef.current);
+      tlRef.current?.kill();
+    };
+  }, []);
 
   // ─────────────────────────────────────────
   // 메뉴 항목 클릭 핸들러
