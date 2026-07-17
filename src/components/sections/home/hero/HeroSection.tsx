@@ -186,7 +186,7 @@ export default function HeroSection({
 
   return (
     <div 
-      className="relative flex flex-col w-full min-h-[100svh] overflow-hidden transition-colors duration-1000"
+      className="relative flex flex-col w-full min-h-[100lvh] overflow-hidden transition-colors duration-1000"
       style={cssVars}
     >
       

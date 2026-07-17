@@ -152,11 +152,14 @@ export const GlobalInteractionStage = ({
 
   // iOS Safari 스크롤 차단:
   // - 오프모드(!isScrollable): touchmove preventDefault + lenis.stop()
-  // - 온모드: touchmove 리스너 제거 + lenis.start()
+  // - 온모드이지만 타임라인 미완료(isScrollable && !isTimelineReady): 동일하게 차단 유지
+  // - 온모드 + 타임라인 완료: 리스너 제거 + lenis.start()
+  // iOS Safari는 overflow:hidden을 무시하므로 touchmove preventDefault가 필수
+  const shouldBlock = !isScrollable || (isScrollable && !isTimelineReady);
   useEffect(() => {
     if (!mounted) return;
     const preventTouchMove = (e: TouchEvent) => e.preventDefault();
-    if (!isScrollable) {
+    if (shouldBlock) {
       document.addEventListener('touchmove', preventTouchMove, { passive: false });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lenis = (window as any).lenis;
@@ -164,13 +167,13 @@ export const GlobalInteractionStage = ({
     }
     return () => {
       document.removeEventListener('touchmove', preventTouchMove);
-      if (isScrollable) {
+      if (!shouldBlock) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const lenis = (window as any).lenis;
         if (lenis) lenis.start();
       }
     };
-  }, [mounted, isScrollable]);
+  }, [mounted, shouldBlock]);
 
   useEffect(() => {
     if (mounted && isScrollable && !masterTl.current) {

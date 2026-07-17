@@ -308,7 +308,7 @@ html.custom-cursor-active *::after {
   /* [KakaoFix] 전체 화면 섹션 공용 높이 변수.
      <head> 스크립트가 stableVH + 120(KAKAO_VIEWPORT_SAFETY_MARGIN)으로 설정.
      스크립트 미실행 시 CSS fallback 사용.
-     이 변수를 바꾸면 #home-stage / h-[100svh] / min-h-[100svh] 전부 자동 반영. */
+     이 변수를 바꾸면 #home-stage / h-[100lvh] / min-h-[100lvh] 전부 자동 반영. */
   --kakao-stage-height: calc(var(--kakao-vh-unit) * 100 + 120px);
 }
 
@@ -322,12 +322,13 @@ html.custom-cursor-active *::after {
 .kakao-fixed-vh .h-\[1000svh\]    { height: calc(var(--unit-svh) * 1000); }
 .kakao-fixed-vh .h-\[800svh\]     { height: calc(var(--unit-svh) * 800); }
 .kakao-fixed-vh .h-\[400svh\]     { height: calc(var(--unit-svh) * 400); }
-/* h-[100svh]: 전체 화면 섹션(CTA, section-bridge) — #home-stage window와 동일 크기로 맞춤 */
-.kakao-fixed-vh .h-\[100svh\]     { height: var(--kakao-stage-height); }
+/* h-[100lvh]: 전체 화면 섹션(CTA, section-bridge) — #home-stage window와 동일 크기로 맞춤 */
+/* [V78.2] 100svh → 100lvh로 변경됨에 따라 선택자 동기화 */
+.kakao-fixed-vh .h-\[100lvh\]     { height: var(--kakao-stage-height); }
 .kakao-fixed-vh .h-\[40svh\]      { height: calc(var(--unit-svh) * 40); }
 .kakao-fixed-vh .h-\[48svh\]      { height: calc(var(--unit-svh) * 48); }
-/* min-h-[100svh]: Hero 섹션 — 동일 변수 참조 */
-.kakao-fixed-vh .min-h-\[100svh\] { min-height: var(--kakao-stage-height); }
+/* min-h-[100lvh]: Hero 섹션 — 동일 변수 참조 */
+.kakao-fixed-vh .min-h-\[100lvh\] { min-height: var(--kakao-stage-height); }
 /* 포지셔닝 */
 .kakao-fixed-vh .bottom-\[40svh\] { bottom: calc(var(--unit-svh) * 40); }
 .kakao-fixed-vh .bottom-\[14svh\] { bottom: calc(var(--unit-svh) * 14); }
