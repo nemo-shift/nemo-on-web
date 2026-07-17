@@ -31,12 +31,22 @@ const HeroSloganOn: React.FC<HeroSloganOnProps> = ({
   const segments = sentence.split(',').map(s => s.trim());
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // [Batch6] 히어로 구간 이탈 시 인터벌 정지, 복귀 시 재개
+  const [isActive, setIsActive] = useState(true);
+
   useEffect(() => {
+    const handler = (e: Event) => setIsActive((e as CustomEvent).detail);
+    window.addEventListener('nemo:hero-active', handler);
+    return () => window.removeEventListener('nemo:hero-active', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!isActive) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % segments.length);
     }, (animationDuration + pauseBetweenAnimations) * 1000);
     return () => clearInterval(interval);
-  }, [animationDuration, pauseBetweenAnimations, segments.length]);
+  }, [isActive, animationDuration, pauseBetweenAnimations, segments.length]);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const focusBoxRef = React.useRef<HTMLDivElement>(null);

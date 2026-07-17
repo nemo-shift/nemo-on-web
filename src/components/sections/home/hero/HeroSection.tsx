@@ -190,9 +190,12 @@ export default function HeroSection({
       style={cssVars}
     >
       
-      {/* [의도적 이중 렌더링] wipeOverlay가 body에 full-screen으로 올라와 layout.tsx의 Header를 덮기 때문에,
-          동일 포탈 안에 Header를 함께 배치하여 오버레이 위에서 Header가 계속 보이도록 유지함.
-          제거 시 OFF→ON 와이프 전환 중 Header가 오버레이에 가려짐. */}
+      {/* [의도적 이중 렌더링 — 절대 제거 금지]
+          이 포탈의 <Header />는 layout.tsx의 <Header />와 중복이 아닙니다.
+          OFF→ON 와이프 전환 시 wipeOverlay가 fixed + Z_SYSTEM_WIPE로 전체 화면을 덮어
+          layout.tsx 쪽 Header가 가려지므로, 동일 포탈 안에 Header를 함께 배치하여
+          오버레이 위에서 Header가 계속 보이도록 유지하는 구조입니다.
+          제거 시 토글 전환 중 Header가 사라지는 시각적 결함 발생. */}
       {mounted && typeof document !== 'undefined' && createPortal(
         <>
           {wipeOverlay}

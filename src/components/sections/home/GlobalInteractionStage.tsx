@@ -98,7 +98,9 @@ export const GlobalInteractionStage = ({
   const masterTl     = useRef<gsap.core.Timeline | null>(null);
   const rafId        = useRef<number | null>(null);
   const keywordsTrigger = useRef<ScrollTrigger | null>(null);
-  
+  // [Batch6] 히어로 슬로건 인터벌 게이트: 히어로 구간 이탈/진입 시 이벤트 발행
+  const heroActiveRef = useRef(true);
+
   // [V66.Phase3.3] 실측 오프셋 관리 (렌더 불필요 → useRef)
   const offsetsRef = useRef<Record<string, number>>({});
 
@@ -423,6 +425,13 @@ export const GlobalInteractionStage = ({
 
               const startRange = L[STAGES.START_TO_PAIN] / totalWeight;
               const endRange   = L[STAGES.TO_FOOTER] / totalWeight;
+
+              // [Batch6] 히어로 구간 경계 교차 시 슬로건 인터벌 게이트 이벤트 발행
+              const isHeroNow = currentProgress < startRange;
+              if (isHeroNow !== heroActiveRef.current) {
+                heroActiveRef.current = isHeroNow;
+                window.dispatchEvent(new CustomEvent('nemo:hero-active', { detail: isHeroNow }));
+              }
 
               if ((currentProgress >= startRange && currentProgress <= endRange) || isRestoringRef.current) {
                 syncNemoCoordinates(nemoHandle.current?.nemoEl || null, stableVH);
